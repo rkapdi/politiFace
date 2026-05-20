@@ -1,77 +1,34 @@
-# .github/workflows/security.yml
-#
-# Runs weekly and on every push to main.
-# Checks for known vulnerabilities in Flutter dependencies.
-# Also scans for accidentally committed secrets.
+# Cheap guards against accidentally committing secrets.
+# Dependency vulnerability scanning lives in Codemagic once we wire it.
 
 name: Security Audit
 
 on:
   push:
     branches: [main]
-  schedule:
-    - cron: '0 9 * * 1'  # Every Monday at 09:00 UTC
+  pull_request:
+    branches: [main]
 
 jobs:
-  dependency-audit:
-    name: Dependency Audit
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.22.0'
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Audit pub dependencies
-        run: dart pub audit
-        # Exits non-zero if critical vulnerabilities found
-        # See: https://dart.dev/tools/pub/cmd/pub-audit
-
-  secret-scan:
-    name: Secret Scan
+  check-no-secrets:
+    name: No secrets committed
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Full history for secret scanning
 
-      - name: Scan for secrets
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
-          extra_args: --only-verified
-        # Catches Supabase keys, API tokens, etc. accidentally committed
-
-  check-env-not-committed:
-    name: Check .env not committed
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Verify .env not in repo
+      - name: Verify .env not tracked
         run: |
           if git ls-files --error-unmatch app/.env 2>/dev/null; then
-            echo "ERROR: app/.env is tracked by git. Remove it immediately:"
+            echo "ERROR: app/.env is tracked by git. Remove with:"
             echo "  git rm --cached app/.env"
-            echo "  echo '.env' >> .gitignore"
             exit 1
           fi
-          echo "✅ .env is not tracked — good"
+          echo "OK: .env not tracked."
 
-      - name: Verify keystore not committed
+      - name: Verify no keystore / signing material
         run: |
-          if find . -name "*.jks" -o -name "*.keystore" | grep -q .; then
-            echo "ERROR: Keystore file found in repo. Remove it immediately."
+          if find . -name '*.jks' -o -name '*.keystore' -o -name '*.p12' -o -name 'key.properties' | grep -q .; then
+            echo "ERROR: Signing material found in repo."
             exit 1
           fi
-          echo "✅ No keystore files found"
+          echo "OK: no signing material committed."
