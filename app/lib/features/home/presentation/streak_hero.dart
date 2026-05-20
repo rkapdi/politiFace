@@ -48,8 +48,14 @@ class StreakHero extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     TweenAnimationBuilder<double>(
+                      // begin = end so re-mounting the home screen (e.g. after
+                      // navigating to /session and back) doesn't replay the
+                      // 0 → N count-up — that read as "I just earned XP".
+                      // Genuine value changes still animate because
+                      // TweenAnimationBuilder tweens from current → new end.
                       tween: Tween<double>(
-                          begin: 0, end: profile.streakDays.toDouble()),
+                          begin: profile.streakDays.toDouble(),
+                          end: profile.streakDays.toDouble()),
                       duration: const Duration(milliseconds: 800),
                       curve: Curves.easeOutCubic,
                       builder: (context, v, _) {
@@ -164,7 +170,10 @@ class _Pill extends StatelessWidget {
                   ),
                 ),
                 TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: value.toDouble()),
+                  // See StreakHero — begin = end avoids replaying the 0 → N
+                  // count-up on every home re-mount, which read as XP gained.
+                  tween: Tween<double>(
+                      begin: value.toDouble(), end: value.toDouble()),
                   duration: const Duration(milliseconds: 800),
                   curve: Curves.easeOutCubic,
                   builder: (context, v, _) => Text(

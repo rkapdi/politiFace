@@ -15,6 +15,7 @@ import '../data/memory_service.dart';
 ///  - Each dot wears a thin retrievability arc — full circle = 100% recall
 ///    probability; sliver = about to be forgotten
 ///  - Tier rings labeled ★1..★5 for orientation
+///  - Long-press an orb to freeze the field and inspect that card
 class MemoryField extends StatefulWidget {
   const MemoryField({super.key, required this.orbits});
   final List<OrbitalCard> orbits;
@@ -23,11 +24,41 @@ class MemoryField extends StatefulWidget {
   State<MemoryField> createState() => _MemoryFieldState();
 }
 
+const _tierColors = <Color>[
+  Color(0xFFE57373), // ★1 red
+  Color(0xFFFFB74D), // ★2 orange
+  Color(0xFF64B5F6), // ★3 blue
+  Color(0xFF81C784), // ★4 green
+  Color(0xFFFFD54F), // ★5 gold
+];
+
+double _stabilityRadiusFactor(double s) {
+  final clamped = s.clamp(0.5, 365.0);
+  final log = math.log(clamped + 1) / math.log(366);
+  return 0.18 + log * 0.74;
+}
+
+double _orbRetrievability(OrbitalCard o, int nowSeconds) {
+  if (o.lastReviewedAtUnix == 0) return 1.0;
+  final elapsedDays = (nowSeconds - o.lastReviewedAtUnix) / 86400.0;
+  final s = math.max(0.1, o.stability);
+  return 1.0 / (1.0 + elapsedDays / (9.0 * s));
+}
+
+class _OrbHit {
+  const _OrbHit(this.card, this.pos);
+  final OrbitalCard card;
+  final Offset pos;
+}
+
 class _MemoryFieldState extends State<MemoryField>
     with TickerProviderStateMixin {
   late final AnimationController _rotation;
   late final AnimationController _breath;
   late final AnimationController _sweep;
+
+  OrbitalCard? _selected;
+  Offset? _selectedPos;
 
   @override
   void initState() {
@@ -54,25 +85,310 @@ class _MemoryFieldState extends State<MemoryField>
     super.dispose();
   }
 
+  _OrbHit? _hitTest(Offset tap, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = math.min(size.width, size.height) / 2;
+    final orbitAngle = _rotation.value * 2 * math.pi;
+    OrbitalCard? best;
+    Offset? bestPos;
+    double bestDist = 32; // generous touch tolerance for moving orbs
+    for (final o in widget.orbits) {
+      final hash = o.id.hashCode;
+      final baseAngle = (hash % 360) * math.pi / 180;
+      final worldAngle = baseAngle + orbitAngle;
+      final r = _stabilityRadiusFactor(o.stability) * radius;
+      final pos = Offset(
+        center.dx + math.cos(worldAngle) * r,
+        center.dy + math.sin(worldAngle) * r,
+      );
+      final dist = (pos - tap).distance;
+      if (dist < bestDist) {
+        bestDist = dist;
+        best = o;
+        bestPos = pos;
+      }
+    }
+    if (best == null || bestPos == null) return null;
+    return _OrbHit(best, bestPos);
+  }
+
+  void _handleLongPress(LongPressStartDetails details, Size size) {
+    final hit = _hitTest(details.localPosition, size);
+    if (hit == null) return;
+    setState(() {
+      _selected = hit.card;
+      _selectedPos = hit.pos;
+    });
+    _rotation.stop(canceled: false);
+    _breath.stop(canceled: false);
+    _sweep.stop(canceled: false);
+  }
+
+  void _dismiss() {
+    if (_selected == null) return;
+    setState(() {
+      _selected = null;
+      _selectedPos = null;
+    });
+    _rotation.repeat();
+    _breath.repeat();
+    _sweep.repeat();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AspectRatio(
       aspectRatio: 1.0,
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_rotation, _breath, _sweep]),
-        builder: (context, _) => CustomPaint(
-          painter: _MemoryFieldPainter(
-            orbits: widget.orbits,
-            rotation: _rotation.value,
-            breath: _breath.value,
-            sweep: _sweep.value,
-            brightness: theme.brightness,
-            primary: theme.colorScheme.primary,
-            outlineVariant: theme.colorScheme.outlineVariant,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final size = constraints.biggest;
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: AnimatedBuilder(
+                  animation: Listenable.merge([_rotation, _breath, _sweep]),
+                  builder: (context, _) => CustomPaint(
+                    painter: _MemoryFieldPainter(
+                      orbits: widget.orbits,
+                      rotation: _rotation.value,
+                      breath: _breath.value,
+                      sweep: _sweep.value,
+                      brightness: theme.brightness,
+                      primary: theme.colorScheme.primary,
+                      outlineVariant: theme.colorScheme.outlineVariant,
+                      selectedId: _selected?.id,
+                    ),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onLongPressStart: (d) => _handleLongPress(d, size),
+                  onTap: _selected != null ? _dismiss : null,
+                ),
+              ),
+              if (_selected != null && _selectedPos != null)
+                _OrbPopover(
+                  card: _selected!,
+                  orbPos: _selectedPos!,
+                  fieldSize: size,
+                  onDismiss: _dismiss,
+                ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class _OrbPopover extends StatelessWidget {
+  const _OrbPopover({
+    required this.card,
+    required this.orbPos,
+    required this.fieldSize,
+    required this.onDismiss,
+  });
+
+  final OrbitalCard card;
+  final Offset orbPos;
+  final Size fieldSize;
+  final VoidCallback onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    const popoverWidth = 224.0;
+    const popoverHeight = 116.0;
+    const margin = 8.0;
+    const orbGap = 14.0;
+
+    final preferredAbove = orbPos.dy - popoverHeight - orbGap;
+    final useAbove = preferredAbove >= margin;
+    final y = useAbove
+        ? preferredAbove
+        : math.min(orbPos.dy + orbGap, fieldSize.height - popoverHeight - margin);
+    final x = (orbPos.dx - popoverWidth / 2)
+        .clamp(margin, fieldSize.width - popoverWidth - margin)
+        .toDouble();
+
+    final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final retrievability = _orbRetrievability(card, nowSeconds);
+    final elapsedDays = card.lastReviewedAtUnix == 0
+        ? 0.0
+        : (nowSeconds - card.lastReviewedAtUnix) / 86400.0;
+    final tierColor = _tierColors[(card.level - 1).clamp(0, 4)];
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Positioned(
+      left: x,
+      top: y,
+      width: popoverWidth,
+      height: popoverHeight,
+      child: IgnorePointer(
+        // Tapping the popover should dismiss too — pass taps through to the
+        // gesture detector below. Long-press elsewhere still re-targets.
+        ignoring: true,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.85, end: 1.0),
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutBack,
+          builder: (context, scale, child) => Transform.scale(
+            scale: scale,
+            alignment:
+                useAbove ? Alignment.bottomCenter : Alignment.topCenter,
+            child: Opacity(opacity: math.min(1.0, scale), child: child),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1E2330).withOpacity(0.96)
+                    : Colors.white.withOpacity(0.98),
+                borderRadius: BorderRadius.circular(12),
+                border:
+                    Border.all(color: tierColor.withOpacity(0.55), width: 1),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(isDark ? 0.5 : 0.18),
+                    blurRadius: 18,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: tierColor.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          '★${card.level}',
+                          style: TextStyle(
+                            color: tierColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 11,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          card.politicianName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    card.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.65),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _StatChip(
+                          label: 'Recall',
+                          value: '${(retrievability * 100).round()}%',
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: _StatChip(
+                          label: 'Stability',
+                          value: _formatDays(card.stability),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: _StatChip(
+                          label: 'Seen',
+                          value: _formatElapsed(
+                              elapsedDays, card.lastReviewedAtUnix),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  String _formatDays(double d) {
+    if (d < 1) {
+      final hours = (d * 24).round();
+      return '${hours}h';
+    }
+    if (d < 10) return '${d.toStringAsFixed(1)}d';
+    return '${d.round()}d';
+  }
+
+  String _formatElapsed(double d, int lastReviewedAt) {
+    if (lastReviewedAt == 0) return 'just now';
+    if (d < 1 / 24) return 'just now';
+    if (d < 1) return '${(d * 24).round()}h ago';
+    if (d < 10) return '${d.toStringAsFixed(1)}d ago';
+    return '${d.round()}d ago';
+  }
+}
+
+class _StatChip extends StatelessWidget {
+  const _StatChip({required this.label, required this.value});
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label.toUpperCase(),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurface.withOpacity(0.55),
+            letterSpacing: 0.6,
+            fontSize: 9,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 1),
+        Text(
+          value,
+          style: theme.textTheme.labelLarge?.copyWith(
+            fontFeatures: const [ui.FontFeature.tabularFigures()],
+            fontWeight: FontWeight.w700,
+            fontSize: 13,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -86,6 +402,7 @@ class _MemoryFieldPainter extends CustomPainter {
     required this.brightness,
     required this.primary,
     required this.outlineVariant,
+    required this.selectedId,
   }) : nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
   final List<OrbitalCard> orbits;
@@ -95,31 +412,8 @@ class _MemoryFieldPainter extends CustomPainter {
   final Brightness brightness;
   final Color primary;
   final Color outlineVariant;
+  final String? selectedId;
   final int nowSeconds;
-
-  static const _tierColors = <Color>[
-    Color(0xFFE57373), // ★1 red
-    Color(0xFFFFB74D), // ★2 orange
-    Color(0xFF64B5F6), // ★3 blue
-    Color(0xFF81C784), // ★4 green
-    Color(0xFFFFD54F), // ★5 gold
-  ];
-
-  /// Map FSRS stability to an orbital radius factor in [0, 1] (logarithmic so
-  /// cards spread out across all tiers).
-  double _stabilityRadius(double s) {
-    final clamped = s.clamp(0.5, 365.0);
-    final log = math.log(clamped + 1) / math.log(366);
-    return 0.18 + log * 0.74;
-  }
-
-  double _retrievability(OrbitalCard o) {
-    if (o.lastReviewedAtUnix == 0) return 1.0;
-    final elapsedDays =
-        (nowSeconds - o.lastReviewedAtUnix) / 86400.0;
-    final s = math.max(0.1, o.stability);
-    return 1.0 / (1.0 + elapsedDays / (9.0 * s));
-  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -142,7 +436,7 @@ class _MemoryFieldPainter extends CustomPainter {
       final hash = o.id.hashCode;
       final baseAngle = (hash % 360) * math.pi / 180;
       final worldAngle = baseAngle + orbitAngle;
-      final r = _stabilityRadius(o.stability) * radius;
+      final r = _stabilityRadiusFactor(o.stability) * radius;
       final pos = Offset(
         center.dx + math.cos(worldAngle) * r,
         center.dy + math.sin(worldAngle) * r,
@@ -159,10 +453,12 @@ class _MemoryFieldPainter extends CustomPainter {
       const sweepWidth = math.pi / 4; // 45° trail
       final sweepBoost =
           delta < sweepWidth ? (1.0 - delta / sweepWidth) : 0.0;
+      final selected = o.id == selectedId;
 
       final color = _tierColors[(o.level - 1).clamp(0, 4)];
-      _drawOrb(canvas, pos, color, pulse, o.stability, sweepBoost);
-      _drawRetrievabilityArc(canvas, pos, color, _retrievability(o), pulse, o.stability);
+      _drawOrb(canvas, pos, color, pulse, o.stability, sweepBoost, selected);
+      _drawRetrievabilityArc(
+          canvas, pos, color, _orbRetrievability(o, nowSeconds), pulse, o.stability);
     }
   }
 
@@ -176,7 +472,7 @@ class _MemoryFieldPainter extends CustomPainter {
       ..color = ringColor;
 
     for (var tier = 1; tier <= 5; tier++) {
-      final r = _stabilityRadius(_stabilityForTierStart(tier)) * radius;
+      final r = _stabilityRadiusFactor(_stabilityForTierStart(tier)) * radius;
       canvas.drawCircle(center, r, ringPaint);
       // Label at ~4 o'clock so it stays out of the sweep starting position.
       final labelAngle = 1.05; // ~60° below horizontal
@@ -295,9 +591,30 @@ class _MemoryFieldPainter extends CustomPainter {
     double pulse,
     double stability,
     double sweepBoost,
+    bool selected,
   ) {
     final base = 4.0 + math.log(stability.clamp(0.5, 365)) * 0.6;
     final r = base * pulse;
+
+    // Selection halo — soft outer glow + crisp white ring so the picked orb
+    // is unmistakable while the field is frozen.
+    if (selected) {
+      canvas.drawCircle(
+        pos,
+        r * 5.5,
+        Paint()
+          ..color = color.withOpacity(0.40)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
+      );
+      canvas.drawCircle(
+        pos,
+        r + 6,
+        Paint()
+          ..color = Colors.white.withOpacity(0.85)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.4,
+      );
+    }
 
     // Sweep boost makes glow grow and dot intensify briefly.
     final glowR = r * (3.2 + sweepBoost * 1.8);
@@ -379,5 +696,6 @@ class _MemoryFieldPainter extends CustomPainter {
       old.breath != breath ||
       old.sweep != sweep ||
       old.orbits != orbits ||
-      old.brightness != brightness;
+      old.brightness != brightness ||
+      old.selectedId != selectedId;
 }

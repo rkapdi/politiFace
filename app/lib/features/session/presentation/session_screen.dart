@@ -137,7 +137,11 @@ class _CardViewState extends ConsumerState<_CardView> {
                 },
                 behavior: HitTestBehavior.opaque,
                 child: Center(
+                  // Key by card id so the TweenAnimationBuilder inside resets
+                  // when the card changes — otherwise it animates back from
+                  // 1.0 → 0.0 and briefly flashes the next card's answer.
                   child: _FlipCard(
+                    key: ValueKey(card.cardId),
                     revealed: revealed,
                     front: _Question(card: card),
                     back: _Answer(card: card),
@@ -238,6 +242,7 @@ class _CardViewState extends ConsumerState<_CardView> {
 /// TweenAnimationBuilder so we don't need an AnimationController.
 class _FlipCard extends StatelessWidget {
   const _FlipCard({
+    super.key,
     required this.revealed,
     required this.front,
     required this.back,
