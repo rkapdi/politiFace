@@ -107,6 +107,7 @@ class _DuolingoPath extends StatelessWidget {
                 isActive: section.nodes[i].id == activeNodeId,
                 isFirstInSection: i == 0,
                 isLastInSection: i == section.nodes.length - 1,
+                mastery: data.masteryFor(section.nodes[i].id),
               ),
             const SizedBox(height: 8),
           ],
@@ -182,6 +183,7 @@ class _PathNode extends StatelessWidget {
     required this.isActive,
     required this.isFirstInSection,
     required this.isLastInSection,
+    required this.mastery,
   });
 
   final GovNode node;
@@ -192,6 +194,7 @@ class _PathNode extends StatelessWidget {
   final bool isActive;
   final bool isFirstInSection;
   final bool isLastInSection;
+  final NodeMastery? mastery;
 
   static const _circleSize = 92.0;
   static const _horizOffset = 40.0;
@@ -393,6 +396,12 @@ class _PathNode extends StatelessWidget {
                           ),
                         ),
                       ),
+                    if (isUnlocked &&
+                        mastery != null &&
+                        mastery!.hasContent) ...[
+                      const SizedBox(height: 6),
+                      _MasteryPill(mastery: mastery!),
+                    ],
                   ],
                 ),
               ),
@@ -400,6 +409,51 @@ class _PathNode extends StatelessWidget {
             if (isLastInSection) const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Small badge under each unlocked node showing "N/M mastered" — visible
+/// progress signal directly on the map without opening the node detail.
+class _MasteryPill extends StatelessWidget {
+  const _MasteryPill({required this.mastery});
+  final NodeMastery mastery;
+
+  static const _gold = Color(0xFFFFC107);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isFull = mastery.isFullyMastered;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: isFull
+            ? _gold.withOpacity(0.18)
+            : theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+        border: isFull
+            ? Border.all(color: _gold.withOpacity(0.6))
+            : null,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.star_rounded,
+            size: 14,
+            color: isFull ? _gold : theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${mastery.masteredCount}/${mastery.totalCards}',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: isFull ? _gold : theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }

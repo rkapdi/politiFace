@@ -8,9 +8,11 @@ import 'package:go_router/go_router.dart';
 import '../../../app/providers.dart';
 import '../../profile/data/profile_service.dart';
 import '../../shared/widgets/card_avatar.dart';
+import '../../shared/widgets/mastery_stars.dart';
 import '../../shared/widgets/state_views.dart';
 import '../application/session_controller.dart';
 import '../domain/fsrs_algorithm.dart';
+import '../domain/mastery.dart';
 import '../domain/session_queue.dart';
 import 'floating_xp.dart';
 
@@ -309,6 +311,10 @@ class _Answer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final level = masteryLevelFromStability(
+      isNewCard: card.phase == CardPhase.newCard,
+      stability: card.stability,
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -336,6 +342,8 @@ class _Answer extends StatelessWidget {
             ),
           ),
         ],
+        const SizedBox(height: 20),
+        MasteryStars(level: level, size: 22, showLabel: true),
       ],
     );
   }

@@ -35,6 +35,11 @@ class ShellScaffold extends StatelessWidget {
             selectedIcon: Icon(Icons.account_balance),
             label: 'Learn',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.insights_outlined),
+            selectedIcon: Icon(Icons.insights),
+            label: 'Memory',
+          ),
         ],
       ),
     );

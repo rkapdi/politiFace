@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import '../features/government/presentation/gov_map_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/memory/presentation/memory_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/session/presentation/session_screen.dart';
 import '../features/session/presentation/summary_screen.dart';
@@ -30,6 +31,14 @@ GoRouter buildRouter({String initialLocation = '/'}) {
               GoRoute(
                 path: '/map',
                 builder: (context, state) => const GovMapScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/memory',
+                builder: (context, state) => const MemoryScreen(),
               ),
             ],
           ),
