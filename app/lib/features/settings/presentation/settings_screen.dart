@@ -19,7 +19,18 @@ final settingsServiceProvider = Provider<SettingsService>((ref) {
 });
 
 final remindersEnabledProvider = FutureProvider<bool>((ref) async {
-  return ref.watch(settingsServiceProvider).remindersEnabled();
+  final settings = ref.watch(settingsServiceProvider);
+  final stored = await settings.remindersEnabled();
+  if (!stored) return false;
+  // Toggle says on, but the user may have revoked notifications in iOS
+  // Settings → Notifications since. Sync the truth so the UI never lies.
+  final authorized = await NotificationService.instance.isAuthorized();
+  if (!authorized) {
+    await settings.setRemindersEnabled(false);
+    await NotificationService.instance.cancel();
+    return false;
+  }
+  return true;
 });
 
 final analyticsEnabledProvider = FutureProvider<bool>((ref) async {

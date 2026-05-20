@@ -31,8 +31,18 @@ Future<void> _bootstrap() async {
   await YamlSeedService(db).ensureSeeded();
   await GovernmentSeedService(db).ensureSeeded();
   await NotificationService.instance.init();
+  // Sync the daily-reminder toggle with the OS authorization state. If the
+  // user revoked notifications in iOS Settings since last launch, flip our
+  // toggle off so the UI doesn't lie. If still authorized and the toggle is
+  // on, re-arm the schedule (it would otherwise be lost on reinstall).
   if ((await db.metaDao.get('settings.daily_reminder')) == '1') {
-    await NotificationService.instance.scheduleDailyReminder();
+    final stillAuthorized = await NotificationService.instance.isAuthorized();
+    if (stillAuthorized) {
+      await NotificationService.instance.scheduleDailyReminder();
+    } else {
+      await db.metaDao.set('settings.daily_reminder', '0');
+      await NotificationService.instance.cancel();
+    }
   }
   final onboardingDone = (await db.metaDao.get('onboarding_v1_done')) == '1';
   runApp(

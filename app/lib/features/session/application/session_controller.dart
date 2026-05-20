@@ -58,6 +58,10 @@ class SessionState {
 }
 
 class SessionController extends AsyncNotifier<SessionState> {
+  /// Prevents the same grade tap from being processed twice if the user
+  /// double-taps before recordReview() resolves.
+  bool _gradeInFlight = false;
+
   @override
   Future<SessionState> build() async {
     final repo = ref.read(cardReviewRepositoryProvider);
@@ -142,17 +146,20 @@ class SessionController extends AsyncNotifier<SessionState> {
   }
 
   Future<void> handleGrade(FSRSGrade grade) async {
+    if (_gradeInFlight) return; // ignore concurrent taps
     final current = state.value;
     if (current == null) return;
     final card = current.currentCard;
     if (card == null) return;
 
+    _gradeInFlight = true;
     try {
       await ref.read(cardReviewRepositoryProvider).recordReview(
             cardId: card.cardId,
             grade: grade,
           );
     } catch (e, st) {
+      _gradeInFlight = false;
       state = AsyncError(e, st);
       return;
     }
@@ -200,6 +207,8 @@ class SessionController extends AsyncNotifier<SessionState> {
         } catch (_) {}
       }
     }
+
+    _gradeInFlight = false;
   }
 
   Future<void> _persistOrClear(SessionState s) async {

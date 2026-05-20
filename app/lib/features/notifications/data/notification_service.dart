@@ -41,6 +41,18 @@ class NotificationService {
     return granted ?? false;
   }
 
+  /// Returns the OS's current notification authorization state without
+  /// prompting the user. Used to detect when the user revoked notifications
+  /// in iOS Settings → Notifications after we'd asked for them.
+  Future<bool> isAuthorized() async {
+    await init();
+    final opts = await _plugin
+        .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>()
+        ?.checkPermissions();
+    return opts?.isEnabled ?? false;
+  }
+
   Future<void> scheduleDailyReminder() async {
     await init();
     await _plugin.zonedSchedule(
