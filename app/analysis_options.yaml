@@ -22,7 +22,7 @@ analyzer:
 linter:
   rules:
     # ── Error prevention ──────────────────────────────────────────────────────
-    - avoid_returning_null_for_future
+    # avoid_returning_null_for_future — removed in Dart 3.3
     - avoid_slow_async_io
     - cancel_subscriptions
     - close_sinks
@@ -33,7 +33,7 @@ linter:
     - unnecessary_statements
 
     # ── Performance ───────────────────────────────────────────────────────────
-    - avoid_function_closures_in_foreach
+    # avoid_function_closures_in_foreach — not a recognized rule
     - prefer_for_elements_to_map_fromIterable
     - avoid_unnecessary_containers
     - sized_box_for_whitespace
@@ -54,7 +54,7 @@ linter:
     - avoid_setters_without_getters
     - avoid_shadowing_type_parameters
     - avoid_type_to_string
-    - avoid_unnecessary_null_assertions
+    # avoid_unnecessary_null_assertions — not a recognized rule
     - avoid_void_async
     - camel_case_extensions
     - camel_case_types

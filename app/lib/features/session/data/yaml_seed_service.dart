@@ -51,7 +51,7 @@ class YamlSeedService {
     return jsonDecode(json) as Map<String, dynamic>;
   }
 
-  Future<void> _seedDeck(Map yaml, {required bool firstRun}) async {
+  Future<void> _seedDeck(Map<dynamic, dynamic> yaml, {required bool firstRun}) async {
     final meta = yaml['meta'] as Map?;
     if (meta == null) return;
     final deckExternalId = meta['external_id'] as String? ?? meta['id'] as String?;

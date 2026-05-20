@@ -53,8 +53,6 @@ class SessionQueue {
   static const _recentWindowMinutes = 10;
   static const _newCardEvery = 4; // interleave new card every N cards
 
-  int _cardsSinceLastNew = 0;
-
   /// O(n log n) — called once per session build
   void buildSession({
     required List<SessionCard> dueCards,
@@ -63,7 +61,6 @@ class SessionQueue {
   }) {
     _heap.clear();
     _recentlyShown.clear();
-    _cardsSinceLastNew = 0;
 
     // Due reviews: priority = stability. Lower stability (more at risk of
     // forgetting) is shown first. We add `_duePriorityOffset` so that even a
@@ -141,7 +138,6 @@ class SessionQueue {
       }
 
       _recentlyShown[candidate.cardId] = DateTime.now();
-      _cardsSinceLastNew++;
       return candidate;
     }
     return null;

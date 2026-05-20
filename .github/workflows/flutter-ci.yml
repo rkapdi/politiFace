@@ -53,9 +53,16 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
-        # No --fatal-infos: the 200+ style infos are noise; we fail only on
-        # actual errors and warnings.
-        run: flutter analyze
+        # flutter analyze exits non-zero on infos by default. We want to fail
+        # only on real issues (errors + warnings), since the info-level lints
+        # are style preferences. Inspect the output and gate on severity.
+        run: |
+          flutter analyze 2>&1 | tee /tmp/analyze.txt
+          if grep -qE "^\s+(warning|error) •" /tmp/analyze.txt; then
+            echo "::error::flutter analyze found warnings or errors"
+            exit 1
+          fi
+          echo "OK — no warnings or errors (infos are advisory)."
 
       - name: Run tests
         run: flutter test --reporter expanded
