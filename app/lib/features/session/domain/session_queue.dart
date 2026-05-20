@@ -163,4 +163,9 @@ class SessionQueue {
 
   bool get isEmpty => _heap.isEmpty;
   int get remaining => _heap.length;
+
+  /// Returns every card currently in the queue, in the order the queue would
+  /// pop them. Used by [PendingSessionStore] to snapshot the remaining work
+  /// for resume-after-crash.
+  List<SessionCard> snapshot() => _heap.toList();
 }

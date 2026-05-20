@@ -6,6 +6,7 @@ import '../features/daily_challenge/data/daily_challenge_service.dart';
 import '../features/government/data/node_unlock_service.dart';
 import '../features/profile/data/profile_service.dart';
 import '../features/session/data/card_review_repository.dart';
+import '../features/session/data/pending_session_store.dart';
 import '../features/session/domain/fsrs_algorithm.dart';
 import 'router.dart';
 
@@ -44,6 +45,10 @@ final nodeUnlockServiceProvider = Provider<NodeUnlockService>((ref) {
 
 final dailyChallengeServiceProvider = Provider<DailyChallengeService>((ref) {
   return DailyChallengeService(ref.watch(databaseProvider));
+});
+
+final pendingSessionStoreProvider = Provider<PendingSessionStore>((ref) {
+  return PendingSessionStore(ref.watch(databaseProvider));
 });
 
 /// When non-null, SessionController loads the daily challenge cards for this

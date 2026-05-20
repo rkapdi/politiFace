@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../data/pending_session_store.dart';
 import '../domain/fsrs_algorithm.dart';
 import '../domain/session_queue.dart';
 
@@ -13,6 +14,7 @@ class SessionState {
     required this.correct,
     required this.again,
     required this.isComplete,
+    required this.deckId,
     required this.dailyChallengeDate,
     required this.gradeHistory,
   });
@@ -24,7 +26,8 @@ class SessionState {
   final int correct;
   final int again;
   final bool isComplete;
-  final String? dailyChallengeDate; // non-null = daily challenge run
+  final String? deckId;             // null = global / FSRS-driven
+  final String? dailyChallengeDate; // null = not a daily challenge
   final List<int> gradeHistory;     // FSRSGrade.value sequence
 
   double get accuracy =>
@@ -47,6 +50,7 @@ class SessionState {
       correct: correct ?? this.correct,
       again: again ?? this.again,
       isComplete: isComplete ?? this.isComplete,
+      deckId: deckId,
       dailyChallengeDate: dailyChallengeDate,
       gradeHistory: gradeHistory ?? this.gradeHistory,
     );
@@ -57,8 +61,23 @@ class SessionController extends AsyncNotifier<SessionState> {
   @override
   Future<SessionState> build() async {
     final repo = ref.read(cardReviewRepositoryProvider);
+    final pendingStore = ref.read(pendingSessionStoreProvider);
     final deckId = ref.watch(activeSessionDeckIdProvider);
     final challengeDate = ref.watch(activeDailyChallengeDateProvider);
+
+    // Try to restore an in-progress session if one exists and matches the
+    // current navigation context. Mismatched pending snapshots get cleared
+    // so we never silently launch a different session than the user asked for.
+    final pending = await pendingStore.load();
+    if (pending != null) {
+      final matches = pending.deckId == deckId &&
+          pending.dailyChallengeDate == challengeDate;
+      if (matches && pending.pendingCardIds.isNotEmpty) {
+        return _restore(pending);
+      } else if (!matches) {
+        await pendingStore.clear();
+      }
+    }
 
     List<String>? cardIds;
     if (challengeDate != null) {
@@ -88,8 +107,37 @@ class SessionController extends AsyncNotifier<SessionState> {
       correct: 0,
       again: 0,
       isComplete: first == null,
+      deckId: deckId,
       dailyChallengeDate: challengeDate,
       gradeHistory: const [],
+    );
+  }
+
+  /// Rebuild the session from a persisted snapshot. Cards are reloaded from
+  /// the DB so we pick up any photo/title updates that landed since.
+  Future<SessionState> _restore(PendingSessionSnapshot pending) async {
+    final cardIds = pending.pendingCardIds;
+    final candidates = await ref
+        .read(cardReviewRepositoryProvider)
+        .loadSessionCandidates(cardIds: cardIds);
+    final queue = SessionQueue()
+      ..buildSession(
+        dueCards: candidates.due,
+        newCards: candidates.fresh,
+        targetSize: cardIds.length + 1,
+      );
+    final first = queue.next();
+    return SessionState(
+      queue: queue,
+      currentCard: first,
+      totalPlanned: pending.totalPlanned,
+      completed: pending.completed,
+      correct: pending.correct,
+      again: pending.again,
+      isComplete: first == null,
+      deckId: pending.deckId,
+      dailyChallengeDate: pending.dailyChallengeDate,
+      gradeHistory: pending.gradeHistory,
     );
   }
 
@@ -121,7 +169,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     final next = current.queue.next();
     final isAgain = grade == FSRSGrade.again;
     final updatedHistory = [...current.gradeHistory, grade.value];
-    state = AsyncData(current.copyWith(
+    final newState = current.copyWith(
       currentCard: next,
       clearCurrentCard: next == null,
       completed: current.completed + 1,
@@ -129,11 +177,16 @@ class SessionController extends AsyncNotifier<SessionState> {
       again: isAgain ? current.again + 1 : current.again,
       isComplete: next == null,
       gradeHistory: updatedHistory,
-    ));
+    );
+    state = AsyncData(newState);
+
+    // Persist for resume-after-crash. Best-effort — failures don't block UI.
+    try {
+      await _persistOrClear(newState);
+    } catch (_) {}
 
     if (next == null) {
       // Session done — recompute node unlocks + persist challenge result.
-      // Errors here shouldn't block reaching the summary.
       try {
         await ref.read(nodeUnlockServiceProvider).recalculate();
       } catch (_) {}
@@ -149,7 +202,34 @@ class SessionController extends AsyncNotifier<SessionState> {
     }
   }
 
-  void reset() => ref.invalidateSelf();
+  Future<void> _persistOrClear(SessionState s) async {
+    final store = ref.read(pendingSessionStoreProvider);
+    if (s.isComplete || s.currentCard == null) {
+      await store.clear();
+      return;
+    }
+    final pending = <String>[
+      s.currentCard!.cardId,
+      ...s.queue.snapshot().map((c) => c.cardId),
+    ];
+    await store.save(PendingSessionSnapshot(
+      deckId: s.deckId,
+      dailyChallengeDate: s.dailyChallengeDate,
+      pendingCardIds: pending,
+      completed: s.completed,
+      correct: s.correct,
+      again: s.again,
+      totalPlanned: s.totalPlanned,
+      gradeHistory: s.gradeHistory,
+      savedAtUnix: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    ));
+  }
+
+  void reset() {
+    // Discard any persisted snapshot so the next session starts fresh.
+    ref.read(pendingSessionStoreProvider).clear();
+    ref.invalidateSelf();
+  }
 }
 
 final sessionControllerProvider =
