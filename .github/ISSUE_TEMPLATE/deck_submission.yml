@@ -1,0 +1,89 @@
+name: Submit a Country Deck
+description: Submit politicians for a country (no programming required)
+title: "[Deck]: Add {Country Name}"
+labels: ["content", "new-country"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template to propose a new country deck or additions to an existing one.
+        You don't need to write any code. A maintainer will help you format the YAML
+        if needed.
+
+  - type: input
+    id: country
+    attributes:
+      label: Country
+      placeholder: "United Kingdom"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: government-type
+    attributes:
+      label: Government system type
+      options:
+        - Presidential republic (like US, Brazil)
+        - Parliamentary monarchy (like UK, Canada, Japan)
+        - Parliamentary republic (like Germany, India)
+        - Semi-presidential (like France)
+        - One-party state (like China)
+        - Theocratic (like Iran, Afghanistan)
+        - Federal monarchy (like UAE)
+        - Other (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: your-credentials
+    attributes:
+      label: Your background
+      description: |
+        Tell us why you're qualified to contribute this country's content.
+        (e.g., IR student specializing in this region, native citizen, MUN delegate for this country)
+    validations:
+      required: true
+
+  - type: textarea
+    id: institutions
+    attributes:
+      label: Key institutions
+      description: |
+        List the main government institutions (nodes) for this country.
+        Example: President, Senate, House, Supreme Court
+    validations:
+      required: true
+
+  - type: textarea
+    id: politicians
+    attributes:
+      label: Key politicians to card
+      description: |
+        List the politicians you want to include. Format each as:
+        Name | Title | Party | Official source URL
+      placeholder: |
+        Keir Starmer | Prime Minister | Labour | https://www.gov.uk/government/people/keir-starmer
+        Rishi Sunak | Leader of the Opposition | Conservative | https://www.parliament.uk/...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: neutrality
+    attributes:
+      label: Neutrality confirmation
+      options:
+        - label: I have included politicians from across the political spectrum, not just one party
+          required: true
+        - label: All card content is sourced from official government or party websites
+          required: true
+        - label: I have not included controversy or scandal information
+          required: true
+        - label: Description lengths are consistent across parties
+          required: true
+
+  - type: input
+    id: reviewer
+    attributes:
+      label: Suggested reviewer
+      description: Do you know someone from this country who could verify the content?
+      placeholder: "@github-username or email"

@@ -1,0 +1,82 @@
+# Deck: The US Executive Branch — The Presidency
+#
+# Schema (V1):
+# ---
+# meta:
+#   id: <unique-deck-id>           # e.g. us-executive-presidency
+#   external_id: <slug>             # stable id used by sync engine later
+#   name: <display name>
+#   node_id: <gov-node-id>          # which gov node this deck belongs to
+#   tier_order: <int>               # 1 = recognition, 2 = understanding, 3 = mastery
+#
+# cards:
+#   - id: <unique-card-id>          # e.g. us-exec-president
+#     name: <politician full name>
+#     title: <official title>
+#     party: <party affiliation, optional>
+#     jurisdiction: <jurisdiction, optional>   # default "US Federal"
+#     photo_url: <https url>
+#     source: <official source url>
+#     last_verified: <YYYY-MM-DD>             # for editorial audits
+#     one_liner: <single-line description>    # shows on the answer face
+#
+# To add a new deck: drop another .yaml file in this directory and bump the
+# seed version flag in YamlSeedService.
+
+meta:
+  id: us-executive-presidency
+  external_id: us-executive-presidency
+  name: "The Presidency"
+  node_id: us-node-president
+  tier_order: 1
+
+cards:
+  - id: us-exec-president
+    name: "Donald Trump"
+    title: "President of the United States"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-president/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-19"
+    one_liner: "47th President of the United States."
+
+  - id: us-exec-vice-president
+    name: "JD Vance"
+    title: "Vice President of the United States"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-vp/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-19"
+    one_liner: "50th Vice President; former US Senator from Ohio."
+
+  - id: us-exec-sec-state
+    name: "Marco Rubio"
+    title: "Secretary of State"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-state/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-19"
+    one_liner: "Leads US foreign policy and the State Department."
+
+  - id: us-exec-sec-defense
+    name: "Pete Hegseth"
+    title: "Secretary of Defense"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-defense/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-19"
+    one_liner: "Heads the Department of Defense and the US military."
+
+  - id: us-exec-attorney-general
+    name: "Pam Bondi"
+    title: "Attorney General"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-ag/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-19"
+    one_liner: "Heads the Department of Justice; chief federal law officer."

@@ -1,0 +1,101 @@
+# ── Flutter / Dart ────────────────────────────────────────────────────────────
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+*.g.dart          # Drift + Riverpod generated — regenerate with build_runner
+pubspec.lock      # Commit this for apps (reproducible builds), exclude for packages
+
+# ── Environment / Secrets ─────────────────────────────────────────────────────
+.env              # NEVER commit — contains Supabase keys
+*.env.local
+*.env.production
+*.env.staging
+
+# ── iOS ───────────────────────────────────────────────────────────────────────
+app/ios/.symlinks/
+app/ios/Flutter/Flutter.framework
+app/ios/Flutter/Flutter.podspec
+app/ios/Flutter/Generated.xcconfig
+app/ios/Flutter/app.flx
+app/ios/Flutter/app.zip
+app/ios/Flutter/flutter_assets/
+app/ios/Flutter/flutter_export_environment.sh
+app/ios/ServiceDefinitions.json
+app/ios/Runner/GeneratedPluginRegistrant.*
+app/ios/Pods/
+app/ios/Runner.xcworkspace/
+*.xcworkspace/xcuserdata/
+
+# Firebase (never commit — download from Firebase Console)
+app/ios/Runner/GoogleService-Info.plist
+
+# ── Android ───────────────────────────────────────────────────────────────────
+app/android/.gradle/
+app/android/captures/
+app/android/gradlew
+app/android/gradlew.bat
+app/android/local.properties
+app/android/**/GeneratedPluginRegistrant.java
+app/android/key.properties      # keystore signing config — NEVER commit
+app/android/app/google-services.json  # Firebase — never commit
+
+# Keystore files — NEVER commit
+*.jks
+*.keystore
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+app/macos/Flutter/GeneratedPluginRegistrant.swift
+app/macos/Flutter/ephemeral/
+
+# ── Web ───────────────────────────────────────────────────────────────────────
+app/web/
+
+# ── Supabase ──────────────────────────────────────────────────────────────────
+supabase/.branches/
+supabase/.temp/
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+venv/
+.venv/
+*.egg-info/
+dist/
+*.pyc
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+*.iml
+.vscode/settings.json    # personal settings — don't commit
+.vscode/launch.json      # personal launch configs
+# Keep .vscode/extensions.json (recommended extensions — useful to share)
+
+# ── Testing / Coverage ────────────────────────────────────────────────────────
+coverage/
+*.lcov
+
+# ── Codemagic ─────────────────────────────────────────────────────────────────
+# Codemagic uses its own environment — no local artifacts to ignore
+# but exclude any downloaded certs/profiles from local dev
+*.p12
+*.mobileprovision
+*.cer
+
+# ── Misc ──────────────────────────────────────────────────────────────────────
+*.log
+*.tmp
+*.swp

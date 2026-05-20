@@ -1,0 +1,351 @@
+# content/governments/us/government.yaml
+#
+# United States Federal Government
+# Government graph definition: nodes and edges.
+# This file defines the MAP — the people go in deck YAML files.
+#
+# Map coordinates: normalized 0.0-1.0 (x=0 is left, y=0 is top)
+# Validated by: scripts/validate_government.py on every PR
+
+meta:
+  id: us-government
+  country: US
+  formal_name: "Federal Government of the United States"
+  system_type: presidential
+  map_building_name: "Washington, DC"
+  map_building_icon: "us_capitol"
+  map_accent_color: "#1a3a5c"
+  constitution_year: 1789
+  notes: >
+    A presidential republic with three co-equal branches and a system
+    of checks and balances. The President is both head of state and
+    head of government, directly elected and independent of the legislature.
+    The separation of powers between the executive, legislative, and judicial
+    branches is constitutionally mandated and operationally enforced.
+    Congress is bicameral: the Senate gives equal representation to states,
+    the House gives proportional representation by population.
+
+nodes:
+  # ── EXECUTIVE BRANCH ──────────────────────────────────────────────────────
+  - id: us-node-president
+    name: "The Presidency"
+    short_name: "President"
+    description: >
+      Head of state and head of government. Directly elected every four years.
+      Commander-in-chief of the armed forces. Signs or vetoes legislation.
+      Appoints Cabinet, Supreme Court justices, and federal judges (subject
+      to Senate confirmation). Can serve a maximum of two terms.
+    node_type: executive
+    is_head_of_state: true
+    is_head_of_govt: true
+    is_elected: true
+    tier_order: 1
+    unlock_requires: []
+    map:
+      x: 0.50
+      y: 0.18
+      width: 0.22
+      height: 0.11
+      shape: rectangle
+      color: "#8B0000"
+      icon: "white_house"
+      label_position: top
+
+  - id: us-node-cabinet
+    name: "The Cabinet"
+    short_name: "Cabinet"
+    description: >
+      15 department secretaries who advise the President and lead major
+      federal agencies. Appointed by the President, confirmed by the Senate.
+      The line of succession to the Presidency runs through the Cabinet in
+      a specific statutory order.
+    node_type: executive
+    is_elected: false
+    tier_order: 2
+    unlock_requires:
+      - us-node-president
+    map:
+      x: 0.50
+      y: 0.34
+      width: 0.20
+      height: 0.10
+      shape: rectangle
+      color: "#A0001E"
+      icon: "cabinet_room"
+      label_position: right
+
+  - id: us-node-exec-office
+    name: "Executive Office of the President"
+    short_name: "EOP"
+    description: >
+      The collection of agencies that directly support the President:
+      Chief of Staff, National Security Advisor, Press Secretary,
+      Office of Management and Budget, US Trade Representative.
+    node_type: executive
+    is_elected: false
+    tier_order: 3
+    unlock_requires:
+      - us-node-president
+    map:
+      x: 0.75
+      y: 0.26
+      width: 0.18
+      height: 0.09
+      shape: rectangle
+      color: "#B22222"
+      icon: "west_wing"
+      label_position: right
+
+  # ── LEGISLATIVE BRANCH ──────────────────────────────────────────────────────
+  - id: us-node-congress
+    name: "Congress"
+    short_name: "Congress"
+    description: >
+      The bicameral federal legislature consisting of the Senate and the
+      House of Representatives. Article I of the Constitution grants Congress
+      all federal legislative powers. Both chambers must pass identical
+      legislation for it to go to the President.
+    node_type: legislature
+    is_elected: true
+    tier_order: 2
+    unlock_requires:
+      - us-node-president
+    map:
+      x: 0.25
+      y: 0.34
+      width: 0.20
+      height: 0.10
+      shape: rectangle
+      color: "#002868"
+      icon: "capitol_dome"
+      label_position: left
+
+  - id: us-node-senate
+    name: "The Senate"
+    short_name: "Senate"
+    description: >
+      100 senators — two per state regardless of population. Six-year terms,
+      staggered so one-third face election every two years. Senate-specific
+      powers include: confirming Presidential appointments, ratifying treaties
+      (two-thirds majority), and serving as the jury in impeachment trials.
+      The Vice President is the Senate's president and breaks tie votes.
+    node_type: legislature
+    is_elected: true
+    tier_order: 3
+    unlock_requires:
+      - us-node-congress
+    map:
+      x: 0.15
+      y: 0.52
+      width: 0.20
+      height: 0.10
+      shape: rectangle
+      color: "#002868"
+      icon: "senate_chamber"
+      label_position: bottom
+
+  - id: us-node-house
+    name: "House of Representatives"
+    short_name: "House"
+    description: >
+      435 representatives apportioned by state population. Two-year terms —
+      the entire House faces election every two years. House-specific powers:
+      originating all revenue bills, initiating impeachment, and electing the
+      President if no candidate wins an Electoral College majority.
+      The Speaker of the House is second in the Presidential line of succession.
+    node_type: legislature
+    is_elected: true
+    tier_order: 3
+    unlock_requires:
+      - us-node-congress
+    map:
+      x: 0.35
+      y: 0.52
+      width: 0.20
+      height: 0.10
+      shape: rectangle
+      color: "#002868"
+      icon: "house_chamber"
+      label_position: bottom
+
+  - id: us-node-how-laws-are-made
+    name: "How Laws Are Made"
+    short_name: "Legislation"
+    description: >
+      The process a bill follows from introduction to becoming law.
+      Introduction → Committee → Floor debate → Other chamber → Conference
+      committee → Presidential signature or veto → Veto override vote (if needed).
+    node_type: legislature
+    is_elected: false
+    tier_order: 4
+    unlock_requires:
+      - us-node-senate
+      - us-node-house
+    map:
+      x: 0.25
+      y: 0.67
+      width: 0.20
+      height: 0.09
+      shape: rectangle
+      color: "#003580"
+      icon: "legislation"
+      label_position: bottom
+
+  # ── JUDICIAL BRANCH ─────────────────────────────────────────────────────────
+  - id: us-node-scotus
+    name: "Supreme Court of the United States"
+    short_name: "SCOTUS"
+    description: >
+      The highest federal court and final interpreter of the Constitution.
+      Nine justices appointed for life by the President and confirmed by the
+      Senate. The Court's power of judicial review — ruling laws or executive
+      actions unconstitutional — was established by Marbury v. Madison (1803)
+      and is not explicitly in the Constitution.
+    node_type: judicial
+    is_elected: false
+    tier_order: 4
+    unlock_requires:
+      - us-node-senate
+    map:
+      x: 0.75
+      y: 0.55
+      width: 0.20
+      height: 0.10
+      shape: rectangle
+      color: "#3d3d3d"
+      icon: "supreme_court"
+      label_position: bottom
+
+  # ── PARTY AND OPPOSITION (unlocks after legislative branch) ─────────────────
+  - id: us-node-parties
+    name: "Party Leadership and Opposition"
+    short_name: "Parties"
+    description: >
+      Notable political figures outside the current government: former
+      Presidents, party chairs, leading opposition figures, and significant
+      candidates. Party structures are distinct from but deeply intertwined
+      with government structures.
+    node_type: political-party
+    is_elected: false
+    tier_order: 6
+    unlock_requires:
+      - us-node-senate
+      - us-node-house
+    map:
+      x: 0.12
+      y: 0.80
+      width: 0.20
+      height: 0.09
+      shape: rectangle
+      color: "#5a5a8a"
+      icon: "party_symbol"
+      label_position: bottom
+
+edges:
+  # President → Cabinet: appoints (confirmed by Senate)
+  - from: us-node-president
+    to: us-node-cabinet
+    type: appoints
+    description: "President appoints all Cabinet secretaries, subject to Senate confirmation"
+    map: { style: solid, color: "#8B0000", arrow: to, visible: true }
+
+  # President → EOP: commands
+  - from: us-node-president
+    to: us-node-exec-office
+    type: commands
+    description: "EOP directly supports and answers to the President"
+    map: { style: solid, color: "#8B0000", arrow: to, visible: true }
+
+  # President → SCOTUS: nominates
+  - from: us-node-president
+    to: us-node-scotus
+    type: nominates
+    description: "President nominates Supreme Court justices"
+    map: { style: solid, color: "#8B0000", arrow: to, visible: true }
+
+  # Senate → SCOTUS: confirms
+  - from: us-node-senate
+    to: us-node-scotus
+    type: confirms
+    description: "Senate confirms (or rejects) Supreme Court nominations by majority vote"
+    map: { style: dashed, color: "#002868", arrow: to, visible: true }
+
+  # Senate → Cabinet: confirms
+  - from: us-node-senate
+    to: us-node-cabinet
+    type: confirms
+    description: "Senate confirms Cabinet appointments"
+    map: { style: dashed, color: "#002868", arrow: to, visible: false }
+
+  # SCOTUS → President: checks
+  - from: us-node-scotus
+    to: us-node-president
+    type: checks
+    description: "Can rule executive actions unconstitutional"
+    map: { style: dotted, color: "#4a4a4a", arrow: to, visible: true }
+
+  # SCOTUS → Congress: checks
+  - from: us-node-scotus
+    to: us-node-congress
+    type: checks
+    description: "Can strike down legislation as unconstitutional (judicial review)"
+    map: { style: dotted, color: "#4a4a4a", arrow: to, visible: true }
+
+  # Congress → President: checks
+  - from: us-node-congress
+    to: us-node-president
+    type: checks
+    description: "Can override Presidential veto with 2/3 majority; can impeach"
+    map: { style: dotted, color: "#002868", arrow: to, visible: true }
+
+  # Congress internal: Senate + House are parts of Congress
+  - from: us-node-senate
+    to: us-node-congress
+    type: is-part-of
+    map: { visible: false }
+
+  - from: us-node-house
+    to: us-node-congress
+    type: is-part-of
+    map: { visible: false }
+
+concepts:
+  us-node-president:
+    - title: "The 25th Amendment"
+      body: >
+        Ratified in 1967, the 25th Amendment establishes the line of Presidential
+        succession and procedures for Presidential disability. If the President
+        is unable to perform their duties, power passes to the Vice President.
+        The President can also voluntarily transfer power temporarily.
+      sort_order: 1
+
+    - title: "Presidential Powers"
+      body: >
+        The President's formal powers include: commanding the military,
+        vetoing legislation (Congress can override with 2/3 vote), issuing
+        executive orders, granting pardons for federal crimes, nominating
+        federal judges and Cabinet members, and conducting foreign policy.
+        The President cannot declare war (that power belongs to Congress)
+        but has historically committed forces without formal declarations.
+      sort_order: 2
+
+  us-node-senate:
+    - title: "Why Two Senators Per State?"
+      body: >
+        The Connecticut Compromise of 1787 resolved a fundamental disagreement
+        between large and small states. Large states wanted representation
+        proportional to population (favoring them). Small states wanted equal
+        representation (protecting them). The solution: the House uses
+        proportional representation; the Senate gives every state two votes
+        regardless of size. Wyoming (576,000 people) has the same Senate power
+        as California (39 million).
+      sort_order: 1
+
+    - title: "The Filibuster"
+      body: >
+        In the Senate, any senator can delay or block a vote by speaking
+        indefinitely — the filibuster. To end a filibuster, 60 senators must
+        vote for cloture. This gives the minority party significant blocking
+        power. Budget legislation uses reconciliation, which cannot be
+        filibustered and passes with a simple majority.
+      sort_order: 2
