@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../features/endless/presentation/endless_screen.dart';
 import '../features/government/presentation/gov_map_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/home/presentation/home_screen.dart';
@@ -65,6 +66,10 @@ GoRouter buildRouter({String initialLocation = '/'}) {
       GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: '/endless',
+        builder: (context, state) => const EndlessScreen(),
       ),
     ],
   );

@@ -1,6 +1,26 @@
 import '../../../core/database/drift/app_database.dart';
 import '../../session/domain/mastery.dart';
 
+class OrbitalCard {
+  const OrbitalCard({
+    required this.id,
+    required this.politicianName,
+    required this.title,
+    required this.stability,
+    required this.difficulty,
+    required this.lastReviewedAtUnix,
+    required this.level,
+  });
+
+  final String id;
+  final String politicianName;
+  final String title;
+  final double stability;
+  final double difficulty;
+  final int lastReviewedAtUnix;
+  final int level; // 1..5
+}
+
 class MemoryStats {
   const MemoryStats({
     required this.totalReviewed,
@@ -8,6 +28,7 @@ class MemoryStats {
     required this.avgStabilityDays,
     required this.tierDistribution,
     required this.topCards,
+    required this.orbits,
   });
 
   /// Cards with reviewCount >= 1 (excluding still-new cards).
@@ -25,6 +46,10 @@ class MemoryStats {
 
   /// Cards sorted by stability descending, top N.
   final List<TopCardEntry> topCards;
+
+  /// Every reviewed card with enough state to plot it in the Memory Field
+  /// orbital visualization and compute its live retrievability.
+  final List<OrbitalCard> orbits;
 }
 
 class TopCardEntry {
@@ -46,6 +71,43 @@ class TopCardEntry {
 class MemoryService {
   MemoryService(this._db);
   final AppDatabase _db;
+
+  /// Cards a few reviews away from ★5 mastery — the strongest "almost there"
+  /// motivators for the home screen.
+  Future<List<TopCardEntry>> approachingMastery({int limit = 3}) async {
+    final allStates = await _db.select(_db.cardMemoryStates).get();
+    final candidates = allStates
+        .where((s) => !s.isNew)
+        .where((s) {
+          final lvl = masteryLevelFromStability(
+            isNewCard: false,
+            stability: s.stability,
+          );
+          // Strong but not yet mastered: tiers 3 and 4. (Skip ★1-2 — too far
+          // from the milestone to feel motivating.)
+          return lvl == 3 || lvl == 4;
+        })
+        .toList()
+      ..sort((a, b) => b.stability.compareTo(a.stability));
+    final slice = candidates.take(limit).toList();
+    final cardIds = slice.map((s) => s.cardId).toList();
+    final cards = await _db.cardsDao.cardsByIds(cardIds);
+    final byId = {for (final c in cards) c.id: c};
+    return [
+      for (final s in slice)
+        if (byId[s.cardId] != null)
+          TopCardEntry(
+            politicianName: byId[s.cardId]!.politicianName,
+            title: byId[s.cardId]!.title,
+            photoUrl: byId[s.cardId]!.photoUrl,
+            stability: s.stability,
+            level: masteryLevelFromStability(
+              isNewCard: false,
+              stability: s.stability,
+            ),
+          ),
+    ];
+  }
 
   Future<MemoryStats> load({int topN = 8}) async {
     // Pull every memory state, filter to reviewed cards.
@@ -89,12 +151,36 @@ class MemoryService {
       ));
     }
 
+    // Orbital entries — needs card metadata for every reviewed card, not just
+    // top N. One extra cardsByIds call covers the rest.
+    final allReviewedIds = reviewed.map((s) => s.cardId).toList();
+    final allCards = await _db.cardsDao.cardsByIds(allReviewedIds);
+    final allById = {for (final c in allCards) c.id: c};
+    final orbits = <OrbitalCard>[];
+    for (final s in reviewed) {
+      final c = allById[s.cardId];
+      if (c == null) continue;
+      orbits.add(OrbitalCard(
+        id: s.cardId,
+        politicianName: c.politicianName,
+        title: c.title,
+        stability: s.stability,
+        difficulty: s.difficulty,
+        lastReviewedAtUnix: s.lastReviewedAt,
+        level: masteryLevelFromStability(
+          isNewCard: false,
+          stability: s.stability,
+        ),
+      ));
+    }
+
     return MemoryStats(
       totalReviewed: reviewed.length,
       masteredCount: mastered,
       avgStabilityDays: avg,
       tierDistribution: tierCounts,
       topCards: topCards,
+      orbits: orbits,
     );
   }
 }

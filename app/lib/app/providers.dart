@@ -76,3 +76,9 @@ final activeSessionDeckIdProvider = StateProvider<String?>((ref) => null);
 /// Whether the current card's answer is revealed. Resets to false when
 /// SessionController advances to the next card.
 final cardRevealedProvider = StateProvider<bool>((ref) => false);
+
+/// Which Learn-tab visualization is active. `path` = Duolingo progression
+/// view; `system` = eagle-eye graph showing relationships between nodes.
+enum GovMapViewMode { path, system }
+final govMapViewModeProvider =
+    StateProvider<GovMapViewMode>((ref) => GovMapViewMode.path);

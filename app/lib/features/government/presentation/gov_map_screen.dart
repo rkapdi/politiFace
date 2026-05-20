@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../shared/widgets/state_views.dart';
 import '../application/gov_map_data.dart';
+import 'system_view.dart';
 
 class GovMapScreen extends ConsumerWidget {
   const GovMapScreen({super.key});
@@ -14,18 +16,47 @@ class GovMapScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(govMapDataProvider);
+    final mode = ref.watch(govMapViewModeProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('US Government'),
-      ),
-      body: async.when(
-        loading: () => const AppLoadingView(label: 'Loading map…'),
-        error: (e, _) => AppErrorView(
-          title: 'Failed to load map',
-          message: '$e',
-          onRetry: () => ref.invalidate(govMapDataProvider),
-        ),
-        data: (data) => _DuolingoPath(data: data),
+      appBar: AppBar(title: const Text('US Government')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: SegmentedButton<GovMapViewMode>(
+              segments: const [
+                ButtonSegment(
+                  value: GovMapViewMode.path,
+                  label: Text('Path'),
+                  icon: Icon(Icons.timeline),
+                ),
+                ButtonSegment(
+                  value: GovMapViewMode.system,
+                  label: Text('System'),
+                  icon: Icon(Icons.hub_outlined),
+                ),
+              ],
+              selected: {mode},
+              onSelectionChanged: (s) {
+                HapticFeedback.selectionClick();
+                ref.read(govMapViewModeProvider.notifier).state = s.first;
+              },
+            ),
+          ),
+          Expanded(
+            child: async.when(
+              loading: () => const AppLoadingView(label: 'Loading map…'),
+              error: (e, _) => AppErrorView(
+                title: 'Failed to load map',
+                message: '$e',
+                onRetry: () => ref.invalidate(govMapDataProvider),
+              ),
+              data: (data) => mode == GovMapViewMode.path
+                  ? _DuolingoPath(data: data)
+                  : SystemView(data: data),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -88,9 +119,11 @@ class _DuolingoPath extends StatelessWidget {
     final activeNodeId = _findActiveNode(sections);
 
     return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      itemCount: sections.length,
+      padding: const EdgeInsets.fromLTRB(0, 8, 0, 120),
+      // +1 for the trailing "more coming soon" footer.
+      itemCount: sections.length + 1,
       itemBuilder: (ctx, sectionIdx) {
+        if (sectionIdx == sections.length) return const _ComingSoonFooter();
         final section = sections[sectionIdx];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,6 +196,74 @@ class _SectionHeader extends StatelessWidget {
               letterSpacing: 1.2,
               fontWeight: FontWeight.w700,
               color: theme.colorScheme.onSurface,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ComingSoonFooter extends StatelessWidget {
+  const _ComingSoonFooter();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
+      child: Column(
+        children: [
+          // Long fading vertical line that visually says "the path continues"
+          Container(
+            width: 2,
+            height: 36,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  theme.colorScheme.outlineVariant,
+                  theme.colorScheme.outlineVariant.withOpacity(0.0),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainer,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: theme.colorScheme.outlineVariant.withOpacity(0.6),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.flag_outlined,
+                  size: 28,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'More coming soon',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Cabinet members, Senate & House leadership, '
+                  'SCOTUS justices, party figures — and more countries.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
           ),
         ],
