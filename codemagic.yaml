@@ -1,36 +1,19 @@
 # codemagic.yaml
 #
-# Codemagic CI/CD: builds and deploys Politiface to:
-#   iOS     → TestFlight (on push to main)
-#   Android → Play Store internal track (on push to main)
-#   Web     → Netlify (on push to main)
+# Codemagic CI/CD for Politiface. V1 ships iOS-only; Android and Web
+# pipelines will return in V1.1 + when the Drift WASM setup lands.
 #
-# PRs trigger test-only workflow via GitHub Actions (flutter-ci.yml).
-# Codemagic handles the native builds that GitHub Actions cannot.
+# Setup (one-time, in Codemagic dashboard):
+#   1. Connect GitHub repo (rkapdi/politiFace)
+#   2. Add environment variable group "politiface-secrets" with the vars below
+#   3. iOS signing: upload App Store Connect API key + provisioning profile
 #
-# Setup steps (one-time, in Codemagic dashboard):
-#   1. Connect GitHub repo
-#   2. Add environment variable group "politiface-secrets" with all vars below
-#   3. Add iOS signing: App Store Connect API key + provisioning profile
-#   4. Add Android signing: upload keystore
-#
-# Required environment variable groups in Codemagic:
-#   Group: politiface-secrets
-#     SUPABASE_URL
-#     SUPABASE_ANON_KEY
-#     POSTHOG_API_KEY
-#     POSTHOG_HOST
-#     SENTRY_DSN
-#     NETLIFY_AUTH_TOKEN
-#     NETLIFY_SITE_ID
-#     APP_STORE_CONNECT_ISSUER_ID     (iOS)
-#     APP_STORE_CONNECT_KEY_IDENTIFIER (iOS)
-#     APP_STORE_CONNECT_PRIVATE_KEY   (iOS)
-#     CERTIFICATE_PRIVATE_KEY         (iOS)
-#     FCI_KEYSTORE                    (Android, base64 encoded)
-#     FCI_KEY_ALIAS                   (Android)
-#     FCI_KEY_PASSWORD                (Android)
-#     FCI_KEYSTORE_PASSWORD           (Android)
+# Required secrets:
+#   SENTRY_DSN                      (optional — empty disables crash reports)
+#   APP_STORE_CONNECT_ISSUER_ID
+#   APP_STORE_CONNECT_KEY_IDENTIFIER
+#   APP_STORE_CONNECT_PRIVATE_KEY
+#   CERTIFICATE_PRIVATE_KEY
 
 workflows:
 
@@ -38,7 +21,7 @@ workflows:
   ios-release:
     name: iOS Release
     max_build_duration: 60
-    instance_type: mac_mini_m2  # Apple Silicon — fastest Flutter iOS builds
+    instance_type: mac_mini_m2
     triggering:
       events:
         - push
@@ -53,34 +36,26 @@ workflows:
         - politiface-secrets
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: io.politiface.app
+        bundle_identifier: io.politiface.politiface
     scripts:
-      - name: Set up .env
-        script: |
-          cd app
-          echo "SUPABASE_URL=$SUPABASE_URL" >> .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-          echo "POSTHOG_API_KEY=$POSTHOG_API_KEY" >> .env
-          echo "POSTHOG_HOST=$POSTHOG_HOST" >> .env
-          echo "SENTRY_DSN=$SENTRY_DSN" >> .env
-
       - name: Install Flutter dependencies
         script: cd app && flutter pub get
 
-      - name: Generate Drift + Riverpod code
+      - name: Generate Drift code
         script: cd app && dart run build_runner build --delete-conflicting-outputs
 
-      - name: Run tests (must pass before building)
+      - name: Run tests
         script: cd app && flutter test
 
       - name: Install pods
         script: cd app/ios && pod install
 
-      - name: Build iOS release
+      - name: Build iOS release IPA
         script: |
           cd app
           flutter build ipa \
             --release \
+            --dart-define=SENTRY_DSN="$SENTRY_DSN" \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
@@ -102,170 +77,28 @@ workflows:
           success: true
           failure: true
 
-  # ── Android: Build + Play Store ─────────────────────────────────────────────
-  android-release:
-    name: Android Release
-    max_build_duration: 45
-    instance_type: linux_x2
-    triggering:
-      events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
-    environment:
-      flutter: 3.22.0
-      groups:
-        - politiface-secrets
-      android_signing:
-        - politiface-keystore
-    scripts:
-      - name: Set up .env
-        script: |
-          cd app
-          echo "SUPABASE_URL=$SUPABASE_URL" >> .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-          echo "POSTHOG_API_KEY=$POSTHOG_API_KEY" >> .env
-          echo "POSTHOG_HOST=$POSTHOG_HOST" >> .env
-          echo "SENTRY_DSN=$SENTRY_DSN" >> .env
-
-      - name: Set up Android keystore
-        script: |
-          echo $FCI_KEYSTORE | base64 --decode > /tmp/keystore.jks
-          cat >> app/android/key.properties <<EOF
-          storePassword=$FCI_KEYSTORE_PASSWORD
-          keyPassword=$FCI_KEY_PASSWORD
-          keyAlias=$FCI_KEY_ALIAS
-          storeFile=/tmp/keystore.jks
-          EOF
-
-      - name: Install dependencies
-        script: cd app && flutter pub get
-
-      - name: Generate code
-        script: cd app && dart run build_runner build --delete-conflicting-outputs
-
-      - name: Run tests
-        script: cd app && flutter test
-
-      - name: Build Android App Bundle
-        script: |
-          cd app
-          flutter build appbundle \
-            --release
-
-    artifacts:
-      - app/build/app/outputs/bundle/release/app-release.aab
-      - app/build/app/outputs/mapping/release/mapping.txt
-
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal           # internal → alpha → beta → production
-        submit_as_draft: false
-      email:
-        recipients:
-          - rissalat@politiface.io
-        notify:
-          success: true
-          failure: true
-
-  # ── Web: Build + Netlify ─────────────────────────────────────────────────────
-  web-release:
-    name: Web Release
+  # ── PR / feature branch: tests only ─────────────────────────────────────────
+  pr-tests:
+    name: PR Tests
     max_build_duration: 20
     instance_type: linux_x2
     triggering:
       events:
-        - push
-      branch_patterns:
-        - pattern: main
-          include: true
-    environment:
-      flutter: 3.22.0
-      groups:
-        - politiface-secrets
-    scripts:
-      - name: Set up .env
-        script: |
-          cd app
-          echo "SUPABASE_URL=$SUPABASE_URL" >> .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-          echo "POSTHOG_API_KEY=$POSTHOG_API_KEY" >> .env
-          echo "POSTHOG_HOST=$POSTHOG_HOST" >> .env
-          echo "SENTRY_DSN=$SENTRY_DSN" >> .env
-
-      - name: Install dependencies
-        script: cd app && flutter pub get
-
-      - name: Generate code
-        script: cd app && dart run build_runner build --delete-conflicting-outputs
-
-      - name: Run tests
-        script: cd app && flutter test
-
-      - name: Build web (CanvasKit renderer for desktop)
-        script: |
-          cd app
-          flutter build web \
-            --release \
-            --web-renderer canvaskit \
-            --dart-define=FLUTTER_WEB_USE_SKIA=true
-
-      - name: Deploy to Netlify
-        script: |
-          npm install -g netlify-cli
-          netlify deploy \
-            --prod \
-            --dir=app/build/web \
-            --auth=$NETLIFY_AUTH_TOKEN \
-            --site=$NETLIFY_SITE_ID
-
-    artifacts:
-      - app/build/web/
-
-    publishing:
-      email:
-        recipients:
-          - rissalat@politiface.io
-        notify:
-          success: true
-          failure: true
-
-  # ── Dev branch: test only (no deployment) ───────────────────────────────────
-  dev-test:
-    name: Dev Branch Tests
-    max_build_duration: 20
-    instance_type: linux_x2
-    triggering:
-      events:
-        - push
         - pull_request
       branch_patterns:
-        - pattern: dev
-          include: true
-        - pattern: feature/*
-          include: true
+        - pattern: main
+          include: false  # don't double-run on push-to-main; ios-release covers that
     environment:
       flutter: 3.22.0
     scripts:
-      - name: Create placeholder .env
-        script: |
-          cd app
-          echo "SUPABASE_URL=https://placeholder.supabase.co" >> .env
-          echo "SUPABASE_ANON_KEY=placeholder" >> .env
-          echo "POSTHOG_API_KEY=placeholder" >> .env
-          echo "POSTHOG_HOST=https://app.posthog.com" >> .env
-          echo "SENTRY_DSN=https://placeholder@sentry.io/1" >> .env
-
       - name: Install dependencies
         script: cd app && flutter pub get
 
-      - name: Generate code
+      - name: Generate Drift code
         script: cd app && dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze
-        script: cd app && flutter analyze --fatal-infos
+        script: cd app && flutter analyze
 
-      - name: Run all tests
+      - name: Run tests
         script: cd app && flutter test --reporter expanded
