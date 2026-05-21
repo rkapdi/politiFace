@@ -18,6 +18,7 @@ class PendingSessionSnapshot {
     required this.again,
     required this.totalPlanned,
     required this.gradeHistory,
+    required this.reviewedCardIds,
     required this.savedAtUnix,
   });
 
@@ -29,6 +30,7 @@ class PendingSessionSnapshot {
   final int again;
   final int totalPlanned;
   final List<int> gradeHistory;     // FSRSGrade.value sequence
+  final List<String> reviewedCardIds; // cards already graded, in order
   final int savedAtUnix;            // when this snapshot was written
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +42,7 @@ class PendingSessionSnapshot {
         'again': again,
         'totalPlanned': totalPlanned,
         'gradeHistory': gradeHistory,
+        'reviewedCardIds': reviewedCardIds,
         'savedAtUnix': savedAtUnix,
       };
 
@@ -56,6 +59,10 @@ class PendingSessionSnapshot {
         totalPlanned: j['totalPlanned'] as int,
         gradeHistory:
             (j['gradeHistory'] as List).map((e) => e as int).toList(),
+        // Older snapshots (pre-fly-to) don't have this field — treat as empty.
+        reviewedCardIds: ((j['reviewedCardIds'] as List?) ?? const [])
+            .map((e) => e as String)
+            .toList(),
         savedAtUnix: j['savedAtUnix'] as int,
       );
     } catch (_) {

@@ -501,7 +501,7 @@ class _PathNode extends StatelessWidget {
                         mastery != null &&
                         mastery!.hasContent) ...[
                       const SizedBox(height: 6),
-                      _MasteryPill(mastery: mastery!),
+                      _MasteryPill(mastery: mastery!, accent: accent),
                     ],
                   ],
                 ),
@@ -515,11 +515,14 @@ class _PathNode extends StatelessWidget {
   }
 }
 
-/// Small badge under each unlocked node showing "N/M mastered" — visible
-/// progress signal directly on the map without opening the node detail.
+/// Small badge under each unlocked node showing "N/M mastered" with a
+/// gradient progress bar behind the text. The count ticks on ★5 milestones;
+/// the bar fills smoothly with every grade so the user gets immediate
+/// "I'm progressing" feedback even before any card hits full mastery.
 class _MasteryPill extends StatelessWidget {
-  const _MasteryPill({required this.mastery});
+  const _MasteryPill({required this.mastery, required this.accent});
   final NodeMastery mastery;
+  final Color accent;
 
   static const _gold = Color(0xFFFFC107);
 
@@ -527,35 +530,61 @@ class _MasteryPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isFull = mastery.isFullyMastered;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: isFull
-            ? _gold.withOpacity(0.18)
-            : theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        border: isFull
-            ? Border.all(color: _gold.withOpacity(0.6))
-            : null,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.star_rounded,
-            size: 14,
-            color: isFull ? _gold : theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(width: 4),
-          Text(
-            '${mastery.masteredCount}/${mastery.totalCards}',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: isFull ? _gold : theme.colorScheme.onSurface,
-              fontWeight: FontWeight.w700,
+    final fraction = mastery.masteryFraction;
+
+    return TweenAnimationBuilder<double>(
+      // begin == end so the bar doesn't replay 0 → N on every map re-render;
+      // when fraction genuinely changes, TweenAnimationBuilder still animates
+      // from the prior value to the new end.
+      tween: Tween<double>(begin: fraction, end: fraction),
+      duration: const Duration(milliseconds: 600),
+      curve: Curves.easeOutCubic,
+      builder: (context, animated, _) {
+        final stop = animated.clamp(0.0, 1.0);
+        // Use the node's own accent color (e.g. President's red) so the fill
+        // visibly belongs to that node. The earlier theme-primary fill at low
+        // opacity disappeared into the dark surface and read as "no progress."
+        final fillColor = isFull ? _gold : accent;
+        final trackColor = theme.colorScheme.surfaceContainerHighest;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            // Hard-stop gradient = a fill bar behind the text. Two colors,
+            // both doubled so the transition is crisp (no soft blend in the
+            // middle).
+            gradient: LinearGradient(
+              colors: [
+                fillColor.withOpacity(isFull ? 0.45 : 0.65),
+                fillColor.withOpacity(isFull ? 0.45 : 0.65),
+                trackColor,
+                trackColor,
+              ],
+              stops: [0.0, stop, stop, 1.0],
             ),
+            borderRadius: BorderRadius.circular(12),
+            border:
+                isFull ? Border.all(color: _gold.withOpacity(0.6)) : null,
           ),
-        ],
-      ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.star_rounded,
+                size: 14,
+                color: isFull ? _gold : theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${mastery.masteredCount}/${mastery.totalCards}',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: isFull ? _gold : theme.colorScheme.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

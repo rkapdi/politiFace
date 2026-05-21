@@ -8,6 +8,7 @@ class NodeMastery {
   const NodeMastery({
     required this.totalCards,
     required this.masteredCount,
+    required this.masteryPoints,
   });
 
   /// Number of distinct cards across all decks attached to the node.
@@ -16,9 +17,25 @@ class NodeMastery {
   /// Cards whose FSRS stability puts them at mastery level 5.
   final int masteredCount;
 
+  /// Sum of per-card progress contributions, each in [0, 1]. Continuous —
+  /// every stability change moves it, not just the integer-tier crossings.
+  /// See [_perCardMastery] for the curve.
+  final double masteryPoints;
+
   bool get hasContent => totalCards > 0;
   bool get isFullyMastered => totalCards > 0 && masteredCount == totalCards;
+
+  /// 0..1. The "soft" progress signal — moves on every grade, unlike
+  /// [masteredCount] which only ticks when a card crosses the ★5 threshold.
+  double get masteryFraction {
+    if (totalCards == 0) return 0.0;
+    return (masteryPoints / totalCards).clamp(0.0, 1.0);
+  }
 }
+
+// Per-card mastery curve lives in mastery.dart so the in-card stars and the
+// node bar are guaranteed to agree on what counts as progress. See
+// cardMasteryFraction.
 
 class GovMapData {
   const GovMapData({
@@ -53,24 +70,60 @@ Future<Map<String, NodeMastery>> _loadMastery(
     if (decks.isEmpty) continue;
     var total = 0;
     var mastered = 0;
+    var masteryPoints = 0.0;
     for (final deck in decks) {
       final cards = await db.cardsDao.cardsByDeckId(deck.id);
       for (final card in cards) {
         total++;
         final state = await db.reviewsDao.stateFor(card.id);
-        if (state == null || state.isNew) continue;
-        final level = masteryLevelFromStability(
-          isNewCard: false,
-          stability: state.stability,
+        final isNew = state == null || state.isNew;
+        final stability = state?.stability ?? 0.0;
+        final reviewCount = state?.reviewCount ?? 0;
+        masteryPoints += cardMasteryFraction(
+          isNewCard: isNew,
+          stability: stability,
+          reviewCount: reviewCount,
         );
-        if (level == 5) mastered++;
+        // Keep the binary ★5 milestone count for the "N/M" overlay — the
+        // bar handles continuous feedback, this still marks the achievement.
+        if (!isNew) {
+          final tier = masteryLevelFromStability(
+            isNewCard: false,
+            stability: stability,
+          );
+          if (tier == 5) mastered++;
+        }
       }
     }
     if (total > 0) {
-      result[node.id] = NodeMastery(totalCards: total, masteredCount: mastered);
+      result[node.id] = NodeMastery(
+        totalCards: total,
+        masteredCount: mastered,
+        masteryPoints: masteryPoints,
+      );
     }
   }
   return result;
+}
+
+/// Resolve a list of card ids to the set of gov-node ids those cards belong
+/// to (via deck membership). Cards whose deck has no nodeId are silently
+/// skipped — they're real cards but don't show on the map.
+Future<Set<String>> nodeIdsForCardIds(
+  AppDatabase db,
+  List<String> cardIds,
+) async {
+  if (cardIds.isEmpty) return const {};
+  final cards = await db.cardsDao.cardsByIds(cardIds);
+  if (cards.isEmpty) return const {};
+  final deckIds = cards.map((c) => c.deckId).toSet().toList();
+  final decks = await (db.select(db.localDecks)
+        ..where((d) => d.id.isIn(deckIds)))
+      .get();
+  return decks
+      .map((d) => d.nodeId)
+      .whereType<String>()
+      .toSet();
 }
 
 final govMapDataProvider = FutureProvider<GovMapData>((ref) async {

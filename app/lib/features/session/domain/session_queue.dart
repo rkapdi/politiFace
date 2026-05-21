@@ -25,6 +25,7 @@ class SessionCard implements Comparable<SessionCard> {
   final String? oneLiner;
   final CardPhase phase;
   final double stability;    // FSRS S — lower = more at risk
+  final int reviewCount;     // FSRS review count for this card
   final double priority;     // heap key
 
   const SessionCard({
@@ -37,6 +38,7 @@ class SessionCard implements Comparable<SessionCard> {
     this.oneLiner,
     required this.phase,
     required this.stability,
+    this.reviewCount = 0,
     required this.priority,
   });
 
@@ -76,6 +78,7 @@ class SessionQueue {
         oneLiner: card.oneLiner,
         phase: CardPhase.dueReview,
         stability: card.stability,
+        reviewCount: card.reviewCount,
         priority: card.stability,
       ));
     }
@@ -97,6 +100,7 @@ class SessionQueue {
         oneLiner: card.oneLiner,
         phase: CardPhase.newCard,
         stability: 0.0,
+        reviewCount: card.reviewCount,
         priority: _newCardPriorityOffset + (i / selectedNew.length),
       ));
     }
@@ -131,6 +135,7 @@ class SessionQueue {
           oneLiner: candidate.oneLiner,
           phase: candidate.phase,
           stability: candidate.stability,
+          reviewCount: candidate.reviewCount,
           priority: candidate.priority + 100.0,
         ));
         requeues++;
@@ -156,6 +161,7 @@ class SessionQueue {
       oneLiner: card.oneLiner,
       phase: card.phase,
       stability: card.stability,
+      reviewCount: card.reviewCount,
       // Re-insert after all current cards but before very-end cards
       priority: 50.0 + (_heap.length * 0.01),
     ));

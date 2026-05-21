@@ -106,7 +106,12 @@ class FSRS {
     required DateTime lastReviewedAt,
   }) {
     final now = DateTime.now();
-    final elapsedDays = now.difference(lastReviewedAt).inDays.toDouble();
+    // Use fractional days, not the whole-day integer .inDays gives back.
+    // .inDays of "23h59m" is 0 — which makes (1 - r) collapse to 0 in
+    // _stabilityAfterRecall and pins same-day repeat reviews to their
+    // initial stability forever. Microsecond math fixes that.
+    final elapsedDays = now.difference(lastReviewedAt).inMicroseconds /
+        Duration.microsecondsPerDay;
     final currentR = _forgettingCurve(elapsedDays, current.stability);
 
     // Clamp difficulty before using it in stability calculations: stability

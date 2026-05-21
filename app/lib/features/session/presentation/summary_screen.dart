@@ -10,6 +10,7 @@ import '../../../app/providers.dart';
 import '../../government/application/gov_map_data.dart';
 import '../../government/application/node_detail_data.dart';
 import '../application/session_controller.dart';
+import 'session_map_summary.dart';
 
 class SummaryScreen extends ConsumerStatefulWidget {
   const SummaryScreen({super.key});
@@ -25,8 +26,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
   void initState() {
     super.initState();
     _confetti = ConfettiController(duration: const Duration(seconds: 2));
+    // Delay play() so the map fly-to widget has time to lay out — otherwise
+    // the confetti emits before the screen is settled and particles
+    // sometimes hang at the top instead of raining down.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _confetti.play();
+      Future.delayed(const Duration(milliseconds: 250), () {
+        if (mounted) _confetti.play();
+      });
     });
   }
 
@@ -48,6 +54,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     final again = state?.again ?? 0;
     final accuracyPct = completed == 0 ? 0 : ((correct / completed) * 100).round();
     final isPerfect = completed > 0 && again == 0;
+    final reviewedCardIds = state?.reviewedCardIds ?? const <String>[];
 
     return Scaffold(
       appBar: AppBar(
@@ -65,41 +72,35 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Icon(
-                          Icons.emoji_events_outlined,
-                          size: 96,
-                          color: theme.colorScheme.primary,
-                        ).animate().scale(
-                              begin: const Offset(0.3, 0.3),
-                              end: const Offset(1.0, 1.0),
-                              duration: 480.ms,
-                              curve: Curves.elasticOut,
+                        SessionMapSummary(reviewedCardIds: reviewedCardIds)
+                            .animate()
+                            .fade(duration: 380.ms)
+                            .slideY(
+                              begin: 0.04,
+                              end: 0,
+                              duration: 420.ms,
+                              curve: Curves.easeOutCubic,
                             ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 20),
                         Text(
                           isPerfect ? 'Flawless!' : 'Nice work',
-                          style: theme.textTheme.headlineMedium,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
                           textAlign: TextAlign.center,
-                        ).animate().fade(duration: 380.ms, delay: 200.ms),
-                        const SizedBox(height: 24),
-                        Center(
-                          child: _AccuracyRing(percent: accuracyPct.toDouble())
-                              .animate()
-                              .fade(duration: 380.ms, delay: 320.ms)
-                              .scale(
-                                begin: const Offset(0.8, 0.8),
-                                end: const Offset(1.0, 1.0),
-                                delay: 320.ms,
-                                duration: 480.ms,
-                                curve: Curves.easeOutBack,
-                              ),
-                        ),
-                        const SizedBox(height: 24),
+                        ).animate().fade(duration: 380.ms, delay: 1400.ms),
+                        const SizedBox(height: 16),
                         Card(
                           child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Column(
                               children: [
+                                Center(
+                                  child: _AccuracyRing(
+                                    percent: accuracyPct.toDouble(),
+                                  ),
+                                ),
+                                const SizedBox(height: 20),
                                 _Row(
                                     label: 'Cards reviewed',
                                     value: '$completed'),
@@ -123,11 +124,11 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                           ),
                         )
                             .animate()
-                            .fade(duration: 380.ms, delay: 440.ms)
+                            .fade(duration: 380.ms, delay: 1500.ms)
                             .slideY(
-                              begin: 0.1,
+                              begin: 0.06,
                               end: 0,
-                              delay: 440.ms,
+                              delay: 1500.ms,
                               duration: 380.ms,
                               curve: Curves.easeOutCubic,
                             ),
@@ -161,24 +162,31 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
               ],
             ),
           ),
-          // Confetti rains down from the top center.
-          Align(
-            alignment: Alignment.topCenter,
-            child: ConfettiWidget(
-              confettiController: _confetti,
-              blastDirection: math.pi / 2, // down
-              maxBlastForce: 18,
-              minBlastForce: 6,
-              emissionFrequency: 0.04,
-              numberOfParticles: isPerfect ? 30 : 15,
-              gravity: 0.25,
-              colors: const [
-                Color(0xFFC0392B),
-                Color(0xFF1A3A5C),
-                Color(0xFFF1C40F),
-                Color(0xFF27AE60),
-                Color(0xFFE67E22),
-              ],
+          // Confetti rains down from the top center. Positioned (not Align)
+          // so it has explicit bounds and isn't sized by its child's natural
+          // size — keeps particles from being clipped to the emitter point.
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confetti,
+                blastDirection: math.pi / 2, // down
+                maxBlastForce: 18,
+                minBlastForce: 6,
+                emissionFrequency: 0.04,
+                numberOfParticles: isPerfect ? 30 : 15,
+                gravity: 0.25,
+                colors: const [
+                  Color(0xFFC0392B),
+                  Color(0xFF1A3A5C),
+                  Color(0xFFF1C40F),
+                  Color(0xFF27AE60),
+                  Color(0xFFE67E22),
+                ],
+              ),
             ),
           ),
         ],

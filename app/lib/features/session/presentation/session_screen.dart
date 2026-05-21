@@ -316,9 +316,12 @@ class _Answer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final level = masteryLevelFromStability(
+    // Continuous fill — moves on any review, not just bucket-tier crossings.
+    // Stays in sync with the node bar's curve.
+    final fill = cardStarFill(
       isNewCard: card.phase == CardPhase.newCard,
       stability: card.stability,
+      reviewCount: card.reviewCount,
     );
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -348,7 +351,7 @@ class _Answer extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 20),
-        MasteryStars(level: level, size: 22, showLabel: true),
+        MasteryStars(fillFraction: fill, size: 22, showLabel: true),
       ],
     );
   }

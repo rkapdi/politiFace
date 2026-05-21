@@ -17,6 +17,7 @@ class SessionState {
     required this.deckId,
     required this.dailyChallengeDate,
     required this.gradeHistory,
+    required this.reviewedCardIds,
   });
 
   final SessionQueue queue;
@@ -29,6 +30,7 @@ class SessionState {
   final String? deckId;             // null = global / FSRS-driven
   final String? dailyChallengeDate; // null = not a daily challenge
   final List<int> gradeHistory;     // FSRSGrade.value sequence
+  final List<String> reviewedCardIds; // every card graded this session, in order
 
   double get accuracy =>
       completed == 0 ? 0.0 : correct / completed;
@@ -41,6 +43,7 @@ class SessionState {
     int? again,
     bool? isComplete,
     List<int>? gradeHistory,
+    List<String>? reviewedCardIds,
   }) {
     return SessionState(
       queue: queue,
@@ -53,6 +56,7 @@ class SessionState {
       deckId: deckId,
       dailyChallengeDate: dailyChallengeDate,
       gradeHistory: gradeHistory ?? this.gradeHistory,
+      reviewedCardIds: reviewedCardIds ?? this.reviewedCardIds,
     );
   }
 }
@@ -114,6 +118,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       deckId: deckId,
       dailyChallengeDate: challengeDate,
       gradeHistory: const [],
+      reviewedCardIds: const [],
     );
   }
 
@@ -142,6 +147,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       deckId: pending.deckId,
       dailyChallengeDate: pending.dailyChallengeDate,
       gradeHistory: pending.gradeHistory,
+      reviewedCardIds: pending.reviewedCardIds,
     );
   }
 
@@ -176,6 +182,7 @@ class SessionController extends AsyncNotifier<SessionState> {
     final next = current.queue.next();
     final isAgain = grade == FSRSGrade.again;
     final updatedHistory = [...current.gradeHistory, grade.value];
+    final updatedReviewedIds = [...current.reviewedCardIds, card.cardId];
     final newState = current.copyWith(
       currentCard: next,
       clearCurrentCard: next == null,
@@ -184,6 +191,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       again: isAgain ? current.again + 1 : current.again,
       isComplete: next == null,
       gradeHistory: updatedHistory,
+      reviewedCardIds: updatedReviewedIds,
     );
     state = AsyncData(newState);
 
@@ -230,6 +238,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       again: s.again,
       totalPlanned: s.totalPlanned,
       gradeHistory: s.gradeHistory,
+      reviewedCardIds: s.reviewedCardIds,
       savedAtUnix: DateTime.now().millisecondsSinceEpoch ~/ 1000,
     ));
   }

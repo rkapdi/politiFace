@@ -49,6 +49,7 @@ SessionCard sessionCardFromRows({
     oneLiner: card.oneLiner,
     phase: phase,
     stability: stability,
+    reviewCount: state?.reviewCount ?? 0,
     priority: phase == CardPhase.dueReview ? stability : 1.0,
   );
 }
