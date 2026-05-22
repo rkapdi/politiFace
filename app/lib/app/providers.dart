@@ -77,8 +77,6 @@ final activeSessionDeckIdProvider = StateProvider<String?>((ref) => null);
 /// SessionController advances to the next card.
 final cardRevealedProvider = StateProvider<bool>((ref) => false);
 
-/// Which Learn-tab visualization is active. `path` = Duolingo progression
-/// view; `system` = eagle-eye graph showing relationships between nodes.
-enum GovMapViewMode { path, system }
-final govMapViewModeProvider =
-    StateProvider<GovMapViewMode>((ref) => GovMapViewMode.path);
+// The Learn tab now renders a single OSINT-style progression tree
+// (OrgChartMap). The previous Path / System toggle and its provider have
+// been retired.
