@@ -11,15 +11,16 @@ import 'tier_mastery.dart';
 /// a row in PL/pgSQL tomorrow.
 class ProgressionStateMachine {
   const ProgressionStateMachine({
-    this.minDemonstratedAttempts = 3,
+    this.minDemonstratedAttempts = 2,
     this.minLastGrade = 2, // FSRSGrade.good == 2
     this.minRetrievability = 0.80,
   });
 
   /// Minimum number of grade attempts (real FSRS reviews + practice taps)
-  /// required for a single card to count toward tier mastery. Three is
-  /// "you've had to recall this from memory three separate times" — the
-  /// queue interleaves so each attempt is a real retrieval, not an echo.
+  /// required for a single card to count toward tier mastery. Two means
+  /// "you've recalled this in one real session, then again in a same-day
+  /// practice pass" — enough to demonstrate retention without making the
+  /// unlock impossible in a single sitting.
   final int minDemonstratedAttempts;
 
   /// Minimum last-grade value to count a card. Default 2 = Good. A card

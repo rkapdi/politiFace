@@ -65,8 +65,8 @@ void main() {
     });
 
     test('insufficient attempts blocks the gate', () {
-      // 1 review + 1 practice = 2 attempts, below default min of 3
-      final c = _eval(reviewCount: 1, practiceCountSinceReview: 1);
+      // 1 review + 0 practice = 1 attempt, below default min of 2
+      final c = _eval(reviewCount: 1, practiceCountSinceReview: 0);
       expect(sm.isTierMastered(cards: [c], nowUnix: _now), isFalse);
     });
 

@@ -327,6 +327,55 @@ If the widget's lifetime is unstable — keyed lists, conditional rendering, ful
 
 ---
 
+### Thread 11 — The Dark Souls of civics
+
+1/ Spent today ripping out Politiface's Learn tab and replacing it with a top-down progression tree. Khan Academy mastery gating + Duolingo path + OSINT-Framework horizontal layout, all converging on one canvas.
+
+The hard part wasn't the rendering. It was figuring out what "mastered" should mean.
+
+2/ The science-honest answer: a card is mastered when FSRS stability climbs past ~30 days. That takes weeks of spaced reviews. *Impossible in a single session.*
+
+The game-honest answer: mastered = "I tapped the cards enough times to feel like I earned the next node." That's reachable in 3 minutes but doesn't mean you actually remember anything.
+
+Both wrong.
+
+3/ The right answer is a third thing — *demonstrated recall*. A node's tier is mastered when every card in it has:
+  - been recalled correctly at least 3 separate times this session
+  - last grade ≥ Good
+  - current FSRS retrievability ≥ 0.80
+
+The queue interleaves so each retrieval is a real "did you remember this without seeing it 5 seconds ago" attempt, not a button-mash.
+
+4/ This is Dark Souls. The challenge is *real* (you can't speedrun by tapping Good — you have to actually remember). The reward is *earned* (3 successful spaced retrievals is honest signal). The progression is *visible* (you always see "you need 1 more good answer on Pam Bondi to unlock Cabinet").
+
+Difficulty that feels fair never loses players.
+
+5/ Side problem: same-day repeat grading was poisoning FSRS state. Stability would grow on rapid re-grades it shouldn't grow on — making future scheduling wrong.
+
+Fix: split the grade router. Same single button on screen, two paths underneath:
+
+```dart
+if (grade == Again || cardIsActuallyDue):
+  → real FSRS update
+else:
+  → practice mode (counter ticks, FSRS frozen)
+```
+
+Anki, Duolingo, Wanikani all have this split. Apparently it's just A Thing You Have To Do for any SRS that also doubles as a game.
+
+6/ Visual is OSINT Framework — root anchored left, branches fanning rightward, locked subtrees collapsed so the canvas stays readable. Pinch-zoom, pan, tap a node → bottom sheet with tier-grouped decks.
+
+Single canvas. No Path/System toggle. The structure of the US government laid out as a constellation that lights up branch by branch as you master it.
+
+7/ Pulled it off in 3 phases over a weekend:
+  Phase 0: schema migration, practice-mode router, pure-Dart state machine + 25 unit tests. Pure plumbing. App looked identical when it shipped.
+  Phase 1: the OSINT renderer. Tidy-tree layout, marker widgets, curved bezier connectors over a starfield.
+  Phase 2: tap-to-tier-sheet, post-session unlock detection, branch-color halo flash on newly-available children.
+  
+Each phase = one commit, all pushable independently. Boring engineering plus a structural payoff.
+
+---
+
 ## B) Long-form posts
 
 ### Drafted — "How I Made Forgetting Visible"

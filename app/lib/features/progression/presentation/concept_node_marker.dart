@@ -75,17 +75,40 @@ class ConceptNodeMarker extends StatelessWidget {
 
     final text = ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 160),
-      child: Text(
-        label,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-        textAlign: labelOnLeft ? TextAlign.right : TextAlign.left,
-        style: theme.textTheme.bodyMedium?.copyWith(
-          color: textColor,
-          fontWeight: state == NodeState.mastered
-              ? FontWeight.w800
-              : FontWeight.w600,
-        ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment:
+            labelOnLeft ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: labelOnLeft ? TextAlign.right : TextAlign.left,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: textColor,
+              fontWeight: state == NodeState.mastered
+                  ? FontWeight.w800
+                  : FontWeight.w600,
+            ),
+          ),
+          // Tier pips — three small dots showing per-tier mastery state.
+          // Hidden on synthetic / locked nodes (nothing to convey) and on
+          // nodes with no authored tiers.
+          if (state != NodeState.locked &&
+              tiers.any((t) => !t.isEmpty)) ...[
+            const SizedBox(height: 3),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final t in tiers) ...[
+                  _TierPip(tier: t, branchColor: branchColor, isDark: isDark),
+                  const SizedBox(width: 3),
+                ],
+              ],
+            ),
+          ],
+        ],
       ),
     );
 
@@ -270,5 +293,86 @@ class _MarkerPainter extends CustomPainter {
       old.unlockFlashT != unlockFlashT ||
       old.branchColor != branchColor ||
       old.tiers != tiers ||
+      old.isDark != isDark;
+}
+
+/// One of the three tier dots below the marker label. Empty when the tier
+/// has no content; partially filled by progressFraction; fully filled when
+/// the tier has cleared the demonstrated-recall gate.
+class _TierPip extends StatelessWidget {
+  const _TierPip({
+    required this.tier,
+    required this.branchColor,
+    required this.isDark,
+  });
+
+  final TierMasteryStatus tier;
+  final Color branchColor;
+  final bool isDark;
+
+  @override
+  Widget build(BuildContext context) {
+    const size = 6.0;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _PipPainter(
+          branchColor: branchColor,
+          fillFraction: tier.isEmpty ? 0 : tier.progressFraction.clamp(0.0, 1.0),
+          isMastered: tier.isMastered,
+          isDark: isDark,
+        ),
+      ),
+    );
+  }
+}
+
+class _PipPainter extends CustomPainter {
+  _PipPainter({
+    required this.branchColor,
+    required this.fillFraction,
+    required this.isMastered,
+    required this.isDark,
+  });
+
+  final Color branchColor;
+  final double fillFraction;
+  final bool isMastered;
+  final bool isDark;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.shortestSide / 2;
+    final outline = (isDark ? Colors.white : Colors.black).withOpacity(0.22);
+    canvas.drawCircle(
+      center,
+      radius,
+      Paint()
+        ..color = outline
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.8,
+    );
+    if (isMastered) {
+      canvas.drawCircle(center, radius, Paint()..color = branchColor);
+      return;
+    }
+    if (fillFraction > 0) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius - 0.3),
+        -math.pi / 2,
+        2 * math.pi * fillFraction,
+        true,
+        Paint()..color = branchColor.withOpacity(0.85),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _PipPainter old) =>
+      old.fillFraction != fillFraction ||
+      old.isMastered != isMastered ||
+      old.branchColor != branchColor ||
       old.isDark != isDark;
 }

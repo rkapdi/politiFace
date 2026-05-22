@@ -30,7 +30,11 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
     with TickerProviderStateMixin {
   late final AnimationController _pulse;
   late final AnimationController _unlockFlash;
+  late final AnimationController _camera;
+  late final TransformationController _transform;
   Set<String> _flashingNodeIds = const <String>{};
+  Matrix4? _pendingTargetTransform;
+  Matrix4? _cameraStart;
 
   @override
   void initState() {
@@ -46,13 +50,89 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     );
+    // Drives camera pan + zoom to bring the freshly-unlocked frontier into
+    // view. Short, easing curve handled at use site.
+    _camera = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..addListener(_onCameraTick);
+    _transform = TransformationController();
   }
 
   @override
   void dispose() {
     _pulse.dispose();
     _unlockFlash.dispose();
+    _camera
+      ..removeListener(_onCameraTick)
+      ..dispose();
+    _transform.dispose();
     super.dispose();
+  }
+
+  void _onCameraTick() {
+    final start = _cameraStart;
+    final target = _pendingTargetTransform;
+    if (start == null || target == null) return;
+    final t = Curves.easeInOutCubic.transform(_camera.value);
+    _transform.value = _lerpMatrix(start, target, t);
+  }
+
+  /// Tween a 4x4 transform component-wise. Cheap and good enough for the
+  /// translate+scale matrices the InteractiveViewer uses — the rotational
+  /// terms stay zero throughout, so naive lerp doesn't produce nonsense.
+  Matrix4 _lerpMatrix(Matrix4 a, Matrix4 b, double t) {
+    final out = Matrix4.zero();
+    for (var i = 0; i < 16; i++) {
+      out.storage[i] = a.storage[i] + (b.storage[i] - a.storage[i]) * t;
+    }
+    return out;
+  }
+
+  /// Compute a Matrix4 that centers [scenePoint] in a viewport of size
+  /// [viewport], at scale [scale]. The InteractiveViewer applies
+  /// scene→screen as `screen = scale*scene + translate`, so we pick
+  /// `translate = viewport.center - scale*scenePoint`.
+  Matrix4 _focusOn(
+    Offset scenePoint,
+    Size viewport,
+    double scale,
+  ) {
+    final tx = viewport.width / 2 - scenePoint.dx * scale;
+    final ty = viewport.height / 2 - scenePoint.dy * scale;
+    return Matrix4.identity()
+      ..translate(tx, ty)
+      ..scale(scale);
+  }
+
+  /// Centroid of [points], or null if empty.
+  Offset? _centroidOf(Iterable<Offset> points) {
+    var sumX = 0.0;
+    var sumY = 0.0;
+    var n = 0;
+    for (final p in points) {
+      sumX += p.dx;
+      sumY += p.dy;
+      n++;
+    }
+    if (n == 0) return null;
+    return Offset(sumX / n, sumY / n);
+  }
+
+  /// Kick off the camera animation to bring [scenePoint] to the center of
+  /// the viewport at a comfortable zoom level. Called from the post-build
+  /// path after we've detected fresh unlocks.
+  void _animateCameraTo(Offset scenePoint, Size viewport) {
+    final start = _transform.value.clone();
+    const targetScale = 1.0;
+    final target = _focusOn(scenePoint, viewport, targetScale);
+    setState(() {
+      _cameraStart = start;
+      _pendingTargetTransform = target;
+    });
+    _camera
+      ..reset()
+      ..forward();
   }
 
   /// Compare the freshly loaded snapshot against what we last knew. If any
@@ -95,12 +175,41 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
       ),
       data: (model) {
         _detectUnlocks(model);
-        return _MapCanvas(
-          model: model,
-          pulse: _pulse,
-          unlockFlash: _unlockFlash,
-          flashingNodeIds: _flashingNodeIds,
-          onNodeTap: widget.onNodeTap,
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final viewport = constraints.biggest;
+            // Schedule the camera pan AFTER this frame settles so the
+            // InteractiveViewer is laid out (and our transform target maps
+            // to actual screen coords). Only fires when we have flashing
+            // nodes to focus on.
+            if (_flashingNodeIds.isNotEmpty &&
+                _camera.status == AnimationStatus.dismissed) {
+              final positions = _flashingNodeIds
+                  .map((id) => model.layout.positions[id])
+                  .whereType<Offset>()
+                  // Same padding offset _MapCanvas uses when placing markers.
+                  .map((p) => Offset(
+                        p.dx + _MapCanvas._padding + _MapCanvas._markerSize / 2,
+                        p.dy + _MapCanvas._padding,
+                      ))
+                  .toList();
+              final centroid = _centroidOf(positions);
+              if (centroid != null) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (!mounted) return;
+                  _animateCameraTo(centroid, viewport);
+                });
+              }
+            }
+            return _MapCanvas(
+              model: model,
+              pulse: _pulse,
+              unlockFlash: _unlockFlash,
+              flashingNodeIds: _flashingNodeIds,
+              transformationController: _transform,
+              onNodeTap: widget.onNodeTap,
+            );
+          },
         );
       },
     );
@@ -113,6 +222,7 @@ class _MapCanvas extends StatelessWidget {
     required this.pulse,
     required this.unlockFlash,
     required this.flashingNodeIds,
+    required this.transformationController,
     this.onNodeTap,
   });
 
@@ -120,10 +230,56 @@ class _MapCanvas extends StatelessWidget {
   final Animation<double> pulse;
   final Animation<double> unlockFlash;
   final Set<String> flashingNodeIds;
+  final TransformationController transformationController;
   final void Function(String nodeId)? onNodeTap;
 
   static const double _markerSize = 18;
   static const double _padding = 80;
+
+  /// Tap handler that branches by node state — locked nodes get a snackbar
+  /// + heavy haptic + a prerequisite hint, unlocked nodes hand off to the
+  /// host screen's tap callback (which opens the tier sheet).
+  void _handleNodeTap(
+    BuildContext context,
+    ProgressionMapModel model,
+    ProgressionMapNode node,
+    NodeState state,
+  ) {
+    if (state == NodeState.locked) {
+      HapticFeedback.heavyImpact();
+      final prereqLabel = _firstLockedPrereqLabel(model, node);
+      final hint = prereqLabel == null
+          ? 'Master earlier nodes to unlock this.'
+          : 'Master $prereqLabel to unlock ${node.label}.';
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(hint),
+          duration: const Duration(seconds: 2),
+        ));
+      return;
+    }
+    onNodeTap?.call(node.id);
+  }
+
+  /// Look up the label of the first not-yet-mastered prerequisite for
+  /// [node] — used to build the "Master X to unlock Y" snackbar.
+  String? _firstLockedPrereqLabel(
+    ProgressionMapModel model,
+    ProgressionMapNode node,
+  ) {
+    final parentId = node.parentId;
+    if (parentId == null) return null;
+    final parent = model.nodes[parentId];
+    if (parent == null) return null;
+    // Synthetic branch groupings (Legislative / Executive / Judicial) aren't
+    // real gates — walk up one more step.
+    if (parent.isSynthetic) {
+      final grand = parent.parentId == null ? null : model.nodes[parent.parentId!];
+      return grand?.isSynthetic == false ? grand!.label : null;
+    }
+    return parent.label;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,7 +315,9 @@ class _MapCanvas extends StatelessWidget {
             size: _markerSize,
             pulseT: pulse.value,
             unlockFlashT: isFlashing ? (1.0 - unlockFlash.value) : 0.0,
-            onTap: node.isSynthetic ? null : () => onNodeTap?.call(node.id),
+            onTap: node.isSynthetic
+                ? null
+                : () => _handleNodeTap(context, model, node, state),
           ),
         ),
       ));
@@ -170,6 +328,7 @@ class _MapCanvas extends StatelessWidget {
       minScale: 0.4,
       maxScale: 2.5,
       boundaryMargin: const EdgeInsets.all(400),
+      transformationController: transformationController,
       child: SizedBox(
         width: canvasSize.width,
         height: canvasSize.height,

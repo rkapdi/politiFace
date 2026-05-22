@@ -26,7 +26,9 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
     with TickerProviderStateMixin {
   late final AnimationController _zoom;
   late final AnimationController _pulse;
+  late final AnimationController _trail;
   late final Animation<double> _zoomCurve;
+  late final Animation<double> _trailCurve;
   Future<_SessionMapData>? _dataFuture;
 
   @override
@@ -41,6 +43,22 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
       vsync: this,
       duration: const Duration(milliseconds: 1600),
     )..repeat(reverse: true);
+    // The fiery spark trail that flows from each affected node to its
+    // downstream children. Fires once after the zoom settles so the user's
+    // eye lands first, then watches the energy flow outward. Slow enough
+    // that the eye can actually track it — sub-second is too fast.
+    _trail = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2400),
+    );
+    _trailCurve = CurvedAnimation(parent: _trail, curve: Curves.easeInOutCubic);
+    _zoom.addStatusListener((s) {
+      if (s == AnimationStatus.completed && mounted) {
+        Future.delayed(const Duration(milliseconds: 120), () {
+          if (mounted) _trail.forward();
+        });
+      }
+    });
     _dataFuture = _loadData();
   }
 
@@ -48,11 +66,22 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
     final db = ref.read(databaseProvider);
     final map = await ref.read(govMapDataProvider.future);
     final affected = await nodeIdsForCardIds(db, widget.reviewedCardIds);
+    // Every node whose unlock_requires lists one of the affected nodes —
+    // these are the "next step" targets the trail flows toward.
+    final downstream = <String, Set<String>>{}; // affectedId → child ids
+    for (final n in map.nodes) {
+      final reqs = _parseRequires(n.unlockRequires);
+      for (final r in reqs) {
+        if (!affected.contains(r)) continue;
+        downstream.putIfAbsent(r, () => <String>{}).add(n.id);
+      }
+    }
     return _SessionMapData(
       nodes: map.nodes,
       edges: map.edges,
       mastery: map.masteryByNodeId,
       affectedNodeIds: affected,
+      downstreamByParent: downstream,
     );
   }
 
@@ -70,6 +99,7 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
   void dispose() {
     _zoom.dispose();
     _pulse.dispose();
+    _trail.dispose();
     super.dispose();
   }
 
@@ -103,6 +133,7 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
           data: data,
           zoom: _zoomCurve,
           pulse: _pulse,
+          trail: _trailCurve,
         );
       },
     );
@@ -114,11 +145,13 @@ class _MapCard extends StatelessWidget {
     required this.data,
     required this.zoom,
     required this.pulse,
+    required this.trail,
   });
 
   final _SessionMapData data;
   final Animation<double> zoom;
   final Animation<double> pulse;
+  final Animation<double> trail;
 
   @override
   Widget build(BuildContext context) {
@@ -142,12 +175,13 @@ class _MapCard extends StatelessWidget {
             children: [
               Positioned.fill(
                 child: AnimatedBuilder(
-                  animation: Listenable.merge([zoom, pulse]),
+                  animation: Listenable.merge([zoom, pulse, trail]),
                   builder: (context, _) => CustomPaint(
                     painter: _SessionMapPainter(
                       data: data,
                       zoom: zoom.value,
                       pulse: pulse.value,
+                      trail: trail.value,
                       isDark: isDark,
                     ),
                   ),
@@ -251,12 +285,29 @@ class _SessionMapData {
     required this.edges,
     required this.mastery,
     required this.affectedNodeIds,
+    required this.downstreamByParent,
   });
 
   final List<GovNode> nodes;
   final List<GovEdge> edges;
   final Map<String, NodeMastery> mastery;
   final Set<String> affectedNodeIds;
+
+  /// affectedNodeId → set of child node ids that list it in their
+  /// unlock_requires. The spark trail flows from each affected node to each
+  /// of its children.
+  final Map<String, Set<String>> downstreamByParent;
+}
+
+List<String> _parseRequires(String raw) {
+  final s = raw.trim();
+  if (s.isEmpty || s == '[]') return const [];
+  final inner = s.substring(1, s.length - 1);
+  return inner
+      .split(',')
+      .map((p) => p.trim().replaceAll('"', ''))
+      .where((p) => p.isNotEmpty)
+      .toList();
 }
 
 class _SessionMapPainter extends CustomPainter {
@@ -264,12 +315,14 @@ class _SessionMapPainter extends CustomPainter {
     required this.data,
     required this.zoom,
     required this.pulse,
+    required this.trail,
     required this.isDark,
   });
 
   final _SessionMapData data;
   final double zoom;  // eased 0..1
   final double pulse; // 0..1, reverses
+  final double trail; // eased 0..1, one-shot — drives the spark position
   final bool isDark;
 
   /// Normalized-space viewport (in mapX/mapY coords) we're currently
@@ -378,6 +431,138 @@ class _SessionMapPainter extends CustomPainter {
         if (m == null) continue;
         _drawMasteryChip(canvas, rects[n.id]!, m, chipFade, size);
       }
+    }
+
+    // Spark trails — fly from each affected node along its edges to every
+    // downstream child. This is the "energy flowing to the next unlock"
+    // beat that lands after the zoom settles.
+    if (trail > 0) {
+      _drawSparkTrails(canvas, rects);
+    }
+  }
+
+  void _drawSparkTrails(Canvas canvas, Map<String, Rect> rects) {
+    data.downstreamByParent.forEach((parentId, children) {
+      final parentRect = rects[parentId];
+      if (parentRect == null) return;
+      final parentNode =
+          data.nodes.firstWhere((n) => n.id == parentId, orElse: () => data.nodes.first);
+      final color = _parseHex(parentNode.mapColor) ?? const Color(0xFFFFA500);
+      for (final childId in children) {
+        final childRect = rects[childId];
+        if (childRect == null) continue;
+        _drawSparkAlong(
+          canvas,
+          parentRect.center,
+          childRect.center,
+          color,
+        );
+      }
+    });
+  }
+
+  void _drawSparkAlong(
+    Canvas canvas,
+    Offset from,
+    Offset to,
+    Color color,
+  ) {
+    final t = trail.clamp(0.0, 1.0);
+    final lit = Offset.lerp(from, to, t)!;
+
+    // 1. Ignited edge segment — thick, branch-color, with a soft glow that
+    // makes the line look like a fuse burning toward the next node.
+    canvas.drawLine(
+      from,
+      lit,
+      Paint()
+        ..color = color.withOpacity(0.85)
+        ..strokeWidth = 3.5
+        ..strokeCap = StrokeCap.round,
+    );
+    canvas.drawLine(
+      from,
+      lit,
+      Paint()
+        ..color = color.withOpacity(0.45)
+        ..strokeWidth = 8.0
+        ..strokeCap = StrokeCap.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5),
+    );
+
+    // 2. Comet tail — fading dots behind the leading orb. More dots, tighter
+    // spacing, brighter colors, larger sizes so the trail actually reads as
+    // a streaking comet rather than a single dot.
+    for (var i = 1; i <= 10; i++) {
+      final dotT = (t - i * 0.025).clamp(0.0, 1.0);
+      if (dotT <= 0) continue;
+      final pos = Offset.lerp(from, to, dotT)!;
+      final fade = 1.0 - (i / 10);
+      // Outer soft halo dot.
+      canvas.drawCircle(
+        pos,
+        5.0 * fade + 1.5,
+        Paint()
+          ..color = color.withOpacity(0.35 * fade)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+      );
+      // Inner bright dot.
+      canvas.drawCircle(
+        pos,
+        2.5 * fade + 0.5,
+        Paint()..color = color.withOpacity(0.85 * fade),
+      );
+    }
+
+    // 3. Leading orb — fireball. Outer blur burst, mid halo, branch-color
+    // core, hot white center.
+    canvas.drawCircle(
+      lit,
+      28,
+      Paint()
+        ..color = color.withOpacity(0.25)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
+    );
+    canvas.drawCircle(
+      lit,
+      16,
+      Paint()
+        ..color = color.withOpacity(0.70)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+    );
+    canvas.drawCircle(lit, 8, Paint()..color = color);
+    canvas.drawCircle(
+      lit,
+      3.5,
+      Paint()..color = Colors.white,
+    );
+
+    // 4. Arrival burst — fires when the orb reaches the child node. Bigger,
+    // brighter, longer-lived than the in-flight orb so the eye locks onto
+    // the destination.
+    if (t > 0.80) {
+      final burstT = ((t - 0.80) / 0.20).clamp(0.0, 1.0);
+      final ease = Curves.easeOutCubic.transform(burstT);
+      canvas.drawCircle(
+        to,
+        12 + ease * 40,
+        Paint()
+          ..color = color.withOpacity(0.65 * (1 - ease))
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 14),
+      );
+      canvas.drawCircle(
+        to,
+        6 + ease * 18,
+        Paint()
+          ..color = Colors.white.withOpacity(0.90 * (1 - ease))
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.4,
+      );
+      canvas.drawCircle(
+        to,
+        4 + ease * 6,
+        Paint()..color = color.withOpacity(0.85 * (1 - ease * 0.6)),
+      );
     }
   }
 
@@ -528,6 +713,7 @@ class _SessionMapPainter extends CustomPainter {
   bool shouldRepaint(covariant _SessionMapPainter old) =>
       old.zoom != zoom ||
       old.pulse != pulse ||
+      old.trail != trail ||
       old.data != data ||
       old.isDark != isDark;
 }
