@@ -17,6 +17,7 @@ MemoryState memoryStateFromRow(CardMemoryState row) {
 CardMemoryStatesCompanion memoryStateToCompanion({
   required String cardId,
   required FSRSResult result,
+  required FSRSGrade grade,
   required DateTime now,
 }) {
   return CardMemoryStatesCompanion(
@@ -30,6 +31,10 @@ CardMemoryStatesCompanion memoryStateToCompanion({
     lapses: Value(result.nextState.lapses),
     reviewCount: Value(result.nextState.reviewCount),
     isNew: const Value(false),
+    // Real FSRS review fired — reset the practice counter and record the
+    // grade so the unlock gate's "last grade" predicate is fresh.
+    practiceCountSinceReview: const Value(0),
+    lastGrade: Value(grade.value),
   );
 }
 
@@ -49,7 +54,11 @@ SessionCard sessionCardFromRows({
     oneLiner: card.oneLiner,
     phase: phase,
     stability: stability,
-    reviewCount: state?.reviewCount ?? 0,
+    // Effort signal for the mastery bar is FSRS reviews plus practice taps.
+    // Same total taps regardless of which mode handled them — the bar moves
+    // on every grade — but FSRS state only updates when meaningful.
+    reviewCount:
+        (state?.reviewCount ?? 0) + (state?.practiceCountSinceReview ?? 0),
     priority: phase == CardPhase.dueReview ? stability : 1.0,
   );
 }

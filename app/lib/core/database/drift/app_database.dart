@@ -105,6 +105,9 @@ class LocalCards extends Table {
 // FSRS only needs current state to compute next review.
 class CardMemoryStates extends Table {
   TextColumn get cardId          => text()();           // PRIMARY KEY
+  // userId is 'local-user' for the no-account MVP. When Supabase auth ships,
+  // backfill with auth.uid() and the rest of the schema is unchanged.
+  TextColumn get userId          => text().withDefault(const Constant('local-user'))();
   RealColumn get difficulty      => real().withDefault(const Constant(5.0))();   // FSRS D: 1-10
   RealColumn get stability       => real().withDefault(const Constant(1.0))();   // FSRS S: days to 90% retention
   RealColumn get retrievability  => real().withDefault(const Constant(1.0))();   // FSRS R: current recall probability
@@ -114,6 +117,14 @@ class CardMemoryStates extends Table {
   IntColumn  get lapses          => integer().withDefault(const Constant(0))();
   IntColumn  get reviewCount     => integer().withDefault(const Constant(0))();
   BoolColumn get isNew           => boolean().withDefault(const Constant(true))();
+  // Practice-mode counter: increments on every same-day re-grade that doesn't
+  // touch FSRS state (see CardReviewRepository.recordGrade). Resets to 0 when
+  // a real FSRS review fires. Drives the demonstrated-recall unlock gate.
+  IntColumn  get practiceCountSinceReview =>
+      integer().withDefault(const Constant(0))();
+  // Last grade observed (0..3), set on EVERY grade including practice mode.
+  // Used by the unlock gate (must be >= Good to count toward tier mastery).
+  IntColumn  get lastGrade       => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {cardId};
@@ -122,6 +133,7 @@ class CardMemoryStates extends Table {
 // ── Review log (append-only — not queried during sessions) ───────────────────
 class ReviewLogs extends Table {
   IntColumn  get id             => integer().autoIncrement()();
+  TextColumn get userId         => text().withDefault(const Constant('local-user'))();
   TextColumn get cardId         => text()();
   IntColumn  get reviewedAt     => integer()();   // Unix timestamp
   IntColumn  get grade          => integer()();   // 0=again, 1=hard, 2=good, 3=easy
@@ -136,6 +148,7 @@ class ReviewLogs extends Table {
 @DataClassName('UserNodeProgressEntry')
 class UserNodeProgress extends Table {
   TextColumn get nodeId       => text()();
+  TextColumn get userId       => text().withDefault(const Constant('local-user'))();
   TextColumn get governmentId => text()();
   TextColumn get status       => text().withDefault(const Constant('locked'))();
   IntColumn  get unlockedAt   => integer().nullable()();
@@ -158,8 +171,9 @@ class DailyChallengeCaches extends Table {
 
 // ── Sync metadata ─────────────────────────────────────────────────────────────
 class SyncMeta extends Table {
-  TextColumn get key   => text()();
-  TextColumn get value => text()();
+  TextColumn get key    => text()();
+  TextColumn get userId => text().withDefault(const Constant('local-user'))();
+  TextColumn get value  => text()();
 
   @override
   Set<Column> get primaryKey => {key};
@@ -194,7 +208,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -203,6 +217,19 @@ class AppDatabase extends _$AppDatabase {
       // Add migration steps here as schemaVersion increases.
       // Never drop tables. Use ALTER TABLE ADD COLUMN for additions.
       // Test every migration against a populated DB before shipping.
+      if (from < 2) {
+        // v1 → v2: add userId everywhere (future Supabase swap = one
+        // find/replace), plus the practice-mode counter and lastGrade
+        // columns on CardMemoryStates for the demonstrated-recall unlock
+        // gate. All additive ALTER TABLEs — no data loss.
+        await m.addColumn(cardMemoryStates, cardMemoryStates.userId);
+        await m.addColumn(
+            cardMemoryStates, cardMemoryStates.practiceCountSinceReview);
+        await m.addColumn(cardMemoryStates, cardMemoryStates.lastGrade);
+        await m.addColumn(reviewLogs, reviewLogs.userId);
+        await m.addColumn(userNodeProgress, userNodeProgress.userId);
+        await m.addColumn(syncMeta, syncMeta.userId);
+      }
     },
   );
 

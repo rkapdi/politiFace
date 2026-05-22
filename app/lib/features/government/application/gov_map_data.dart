@@ -78,11 +78,15 @@ Future<Map<String, NodeMastery>> _loadMastery(
         final state = await db.reviewsDao.stateFor(card.id);
         final isNew = state == null || state.isNew;
         final stability = state?.stability ?? 0.0;
-        final reviewCount = state?.reviewCount ?? 0;
+        // Bar's effort signal is real FSRS reviews + same-day practice taps.
+        // Same total taps regardless of which path handled them, so the bar
+        // moves on every grade even when FSRS state is frozen.
+        final effortTaps = (state?.reviewCount ?? 0) +
+            (state?.practiceCountSinceReview ?? 0);
         masteryPoints += cardMasteryFraction(
           isNewCard: isNew,
           stability: stability,
-          reviewCount: reviewCount,
+          reviewCount: effortTaps,
         );
         // Keep the binary ★5 milestone count for the "N/M" overlay — the
         // bar handles continuous feedback, this still marks the achievement.

@@ -2841,6 +2841,13 @@ class $CardMemoryStatesTable extends CardMemoryStates
   late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
       'card_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
   static const VerificationMeta _difficultyMeta =
       const VerificationMeta('difficulty');
   @override
@@ -2913,9 +2920,26 @@ class $CardMemoryStatesTable extends CardMemoryStates
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'),
       defaultValue: const Constant(true));
+  static const VerificationMeta _practiceCountSinceReviewMeta =
+      const VerificationMeta('practiceCountSinceReview');
+  @override
+  late final GeneratedColumn<int> practiceCountSinceReview =
+      GeneratedColumn<int>('practice_count_since_review', aliasedName, false,
+          type: DriftSqlType.int,
+          requiredDuringInsert: false,
+          defaultValue: const Constant(0));
+  static const VerificationMeta _lastGradeMeta =
+      const VerificationMeta('lastGrade');
+  @override
+  late final GeneratedColumn<int> lastGrade = GeneratedColumn<int>(
+      'last_grade', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
   @override
   List<GeneratedColumn> get $columns => [
         cardId,
+        userId,
         difficulty,
         stability,
         retrievability,
@@ -2924,7 +2948,9 @@ class $CardMemoryStatesTable extends CardMemoryStates
         intervalDays,
         lapses,
         reviewCount,
-        isNew
+        isNew,
+        practiceCountSinceReview,
+        lastGrade
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2941,6 +2967,10 @@ class $CardMemoryStatesTable extends CardMemoryStates
           cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
     } else if (isInserting) {
       context.missing(_cardIdMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     }
     if (data.containsKey('difficulty')) {
       context.handle(
@@ -2990,6 +3020,17 @@ class $CardMemoryStatesTable extends CardMemoryStates
       context.handle(
           _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
+    if (data.containsKey('practice_count_since_review')) {
+      context.handle(
+          _practiceCountSinceReviewMeta,
+          practiceCountSinceReview.isAcceptableOrUnknown(
+              data['practice_count_since_review']!,
+              _practiceCountSinceReviewMeta));
+    }
+    if (data.containsKey('last_grade')) {
+      context.handle(_lastGradeMeta,
+          lastGrade.isAcceptableOrUnknown(data['last_grade']!, _lastGradeMeta));
+    }
     return context;
   }
 
@@ -3001,6 +3042,8 @@ class $CardMemoryStatesTable extends CardMemoryStates
     return CardMemoryState(
       cardId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}card_id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       difficulty: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}difficulty'])!,
       stability: attachedDatabase.typeMapping
@@ -3019,6 +3062,11 @@ class $CardMemoryStatesTable extends CardMemoryStates
           .read(DriftSqlType.int, data['${effectivePrefix}review_count'])!,
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      practiceCountSinceReview: attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}practice_count_since_review'])!,
+      lastGrade: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}last_grade'])!,
     );
   }
 
@@ -3030,6 +3078,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
 
 class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
   final String cardId;
+  final String userId;
   final double difficulty;
   final double stability;
   final double retrievability;
@@ -3039,8 +3088,11 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
   final int lapses;
   final int reviewCount;
   final bool isNew;
+  final int practiceCountSinceReview;
+  final int lastGrade;
   const CardMemoryState(
       {required this.cardId,
+      required this.userId,
       required this.difficulty,
       required this.stability,
       required this.retrievability,
@@ -3049,11 +3101,14 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
       required this.intervalDays,
       required this.lapses,
       required this.reviewCount,
-      required this.isNew});
+      required this.isNew,
+      required this.practiceCountSinceReview,
+      required this.lastGrade});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['card_id'] = Variable<String>(cardId);
+    map['user_id'] = Variable<String>(userId);
     map['difficulty'] = Variable<double>(difficulty);
     map['stability'] = Variable<double>(stability);
     map['retrievability'] = Variable<double>(retrievability);
@@ -3063,12 +3118,16 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
     map['lapses'] = Variable<int>(lapses);
     map['review_count'] = Variable<int>(reviewCount);
     map['is_new'] = Variable<bool>(isNew);
+    map['practice_count_since_review'] =
+        Variable<int>(practiceCountSinceReview);
+    map['last_grade'] = Variable<int>(lastGrade);
     return map;
   }
 
   CardMemoryStatesCompanion toCompanion(bool nullToAbsent) {
     return CardMemoryStatesCompanion(
       cardId: Value(cardId),
+      userId: Value(userId),
       difficulty: Value(difficulty),
       stability: Value(stability),
       retrievability: Value(retrievability),
@@ -3078,6 +3137,8 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
       lapses: Value(lapses),
       reviewCount: Value(reviewCount),
       isNew: Value(isNew),
+      practiceCountSinceReview: Value(practiceCountSinceReview),
+      lastGrade: Value(lastGrade),
     );
   }
 
@@ -3086,6 +3147,7 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return CardMemoryState(
       cardId: serializer.fromJson<String>(json['cardId']),
+      userId: serializer.fromJson<String>(json['userId']),
       difficulty: serializer.fromJson<double>(json['difficulty']),
       stability: serializer.fromJson<double>(json['stability']),
       retrievability: serializer.fromJson<double>(json['retrievability']),
@@ -3095,6 +3157,9 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
       lapses: serializer.fromJson<int>(json['lapses']),
       reviewCount: serializer.fromJson<int>(json['reviewCount']),
       isNew: serializer.fromJson<bool>(json['isNew']),
+      practiceCountSinceReview:
+          serializer.fromJson<int>(json['practiceCountSinceReview']),
+      lastGrade: serializer.fromJson<int>(json['lastGrade']),
     );
   }
   @override
@@ -3102,6 +3167,7 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'cardId': serializer.toJson<String>(cardId),
+      'userId': serializer.toJson<String>(userId),
       'difficulty': serializer.toJson<double>(difficulty),
       'stability': serializer.toJson<double>(stability),
       'retrievability': serializer.toJson<double>(retrievability),
@@ -3111,11 +3177,15 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
       'lapses': serializer.toJson<int>(lapses),
       'reviewCount': serializer.toJson<int>(reviewCount),
       'isNew': serializer.toJson<bool>(isNew),
+      'practiceCountSinceReview':
+          serializer.toJson<int>(practiceCountSinceReview),
+      'lastGrade': serializer.toJson<int>(lastGrade),
     };
   }
 
   CardMemoryState copyWith(
           {String? cardId,
+          String? userId,
           double? difficulty,
           double? stability,
           double? retrievability,
@@ -3124,9 +3194,12 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
           int? intervalDays,
           int? lapses,
           int? reviewCount,
-          bool? isNew}) =>
+          bool? isNew,
+          int? practiceCountSinceReview,
+          int? lastGrade}) =>
       CardMemoryState(
         cardId: cardId ?? this.cardId,
+        userId: userId ?? this.userId,
         difficulty: difficulty ?? this.difficulty,
         stability: stability ?? this.stability,
         retrievability: retrievability ?? this.retrievability,
@@ -3136,10 +3209,14 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
         lapses: lapses ?? this.lapses,
         reviewCount: reviewCount ?? this.reviewCount,
         isNew: isNew ?? this.isNew,
+        practiceCountSinceReview:
+            practiceCountSinceReview ?? this.practiceCountSinceReview,
+        lastGrade: lastGrade ?? this.lastGrade,
       );
   CardMemoryState copyWithCompanion(CardMemoryStatesCompanion data) {
     return CardMemoryState(
       cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       difficulty:
           data.difficulty.present ? data.difficulty.value : this.difficulty,
       stability: data.stability.present ? data.stability.value : this.stability,
@@ -3159,6 +3236,10 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
       reviewCount:
           data.reviewCount.present ? data.reviewCount.value : this.reviewCount,
       isNew: data.isNew.present ? data.isNew.value : this.isNew,
+      practiceCountSinceReview: data.practiceCountSinceReview.present
+          ? data.practiceCountSinceReview.value
+          : this.practiceCountSinceReview,
+      lastGrade: data.lastGrade.present ? data.lastGrade.value : this.lastGrade,
     );
   }
 
@@ -3166,6 +3247,7 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
   String toString() {
     return (StringBuffer('CardMemoryState(')
           ..write('cardId: $cardId, ')
+          ..write('userId: $userId, ')
           ..write('difficulty: $difficulty, ')
           ..write('stability: $stability, ')
           ..write('retrievability: $retrievability, ')
@@ -3174,19 +3256,34 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
           ..write('intervalDays: $intervalDays, ')
           ..write('lapses: $lapses, ')
           ..write('reviewCount: $reviewCount, ')
-          ..write('isNew: $isNew')
+          ..write('isNew: $isNew, ')
+          ..write('practiceCountSinceReview: $practiceCountSinceReview, ')
+          ..write('lastGrade: $lastGrade')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(cardId, difficulty, stability, retrievability,
-      lastReviewedAt, nextReviewAt, intervalDays, lapses, reviewCount, isNew);
+  int get hashCode => Object.hash(
+      cardId,
+      userId,
+      difficulty,
+      stability,
+      retrievability,
+      lastReviewedAt,
+      nextReviewAt,
+      intervalDays,
+      lapses,
+      reviewCount,
+      isNew,
+      practiceCountSinceReview,
+      lastGrade);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is CardMemoryState &&
           other.cardId == this.cardId &&
+          other.userId == this.userId &&
           other.difficulty == this.difficulty &&
           other.stability == this.stability &&
           other.retrievability == this.retrievability &&
@@ -3195,11 +3292,14 @@ class CardMemoryState extends DataClass implements Insertable<CardMemoryState> {
           other.intervalDays == this.intervalDays &&
           other.lapses == this.lapses &&
           other.reviewCount == this.reviewCount &&
-          other.isNew == this.isNew);
+          other.isNew == this.isNew &&
+          other.practiceCountSinceReview == this.practiceCountSinceReview &&
+          other.lastGrade == this.lastGrade);
 }
 
 class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
   final Value<String> cardId;
+  final Value<String> userId;
   final Value<double> difficulty;
   final Value<double> stability;
   final Value<double> retrievability;
@@ -3209,9 +3309,12 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
   final Value<int> lapses;
   final Value<int> reviewCount;
   final Value<bool> isNew;
+  final Value<int> practiceCountSinceReview;
+  final Value<int> lastGrade;
   final Value<int> rowid;
   const CardMemoryStatesCompanion({
     this.cardId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.difficulty = const Value.absent(),
     this.stability = const Value.absent(),
     this.retrievability = const Value.absent(),
@@ -3221,10 +3324,13 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
     this.lapses = const Value.absent(),
     this.reviewCount = const Value.absent(),
     this.isNew = const Value.absent(),
+    this.practiceCountSinceReview = const Value.absent(),
+    this.lastGrade = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   CardMemoryStatesCompanion.insert({
     required String cardId,
+    this.userId = const Value.absent(),
     this.difficulty = const Value.absent(),
     this.stability = const Value.absent(),
     this.retrievability = const Value.absent(),
@@ -3234,10 +3340,13 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
     this.lapses = const Value.absent(),
     this.reviewCount = const Value.absent(),
     this.isNew = const Value.absent(),
+    this.practiceCountSinceReview = const Value.absent(),
+    this.lastGrade = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : cardId = Value(cardId);
   static Insertable<CardMemoryState> custom({
     Expression<String>? cardId,
+    Expression<String>? userId,
     Expression<double>? difficulty,
     Expression<double>? stability,
     Expression<double>? retrievability,
@@ -3247,10 +3356,13 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
     Expression<int>? lapses,
     Expression<int>? reviewCount,
     Expression<bool>? isNew,
+    Expression<int>? practiceCountSinceReview,
+    Expression<int>? lastGrade,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (cardId != null) 'card_id': cardId,
+      if (userId != null) 'user_id': userId,
       if (difficulty != null) 'difficulty': difficulty,
       if (stability != null) 'stability': stability,
       if (retrievability != null) 'retrievability': retrievability,
@@ -3260,12 +3372,16 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
       if (lapses != null) 'lapses': lapses,
       if (reviewCount != null) 'review_count': reviewCount,
       if (isNew != null) 'is_new': isNew,
+      if (practiceCountSinceReview != null)
+        'practice_count_since_review': practiceCountSinceReview,
+      if (lastGrade != null) 'last_grade': lastGrade,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   CardMemoryStatesCompanion copyWith(
       {Value<String>? cardId,
+      Value<String>? userId,
       Value<double>? difficulty,
       Value<double>? stability,
       Value<double>? retrievability,
@@ -3275,9 +3391,12 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
       Value<int>? lapses,
       Value<int>? reviewCount,
       Value<bool>? isNew,
+      Value<int>? practiceCountSinceReview,
+      Value<int>? lastGrade,
       Value<int>? rowid}) {
     return CardMemoryStatesCompanion(
       cardId: cardId ?? this.cardId,
+      userId: userId ?? this.userId,
       difficulty: difficulty ?? this.difficulty,
       stability: stability ?? this.stability,
       retrievability: retrievability ?? this.retrievability,
@@ -3287,6 +3406,9 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
       lapses: lapses ?? this.lapses,
       reviewCount: reviewCount ?? this.reviewCount,
       isNew: isNew ?? this.isNew,
+      practiceCountSinceReview:
+          practiceCountSinceReview ?? this.practiceCountSinceReview,
+      lastGrade: lastGrade ?? this.lastGrade,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3296,6 +3418,9 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
     final map = <String, Expression>{};
     if (cardId.present) {
       map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (difficulty.present) {
       map['difficulty'] = Variable<double>(difficulty.value);
@@ -3324,6 +3449,13 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
     if (isNew.present) {
       map['is_new'] = Variable<bool>(isNew.value);
     }
+    if (practiceCountSinceReview.present) {
+      map['practice_count_since_review'] =
+          Variable<int>(practiceCountSinceReview.value);
+    }
+    if (lastGrade.present) {
+      map['last_grade'] = Variable<int>(lastGrade.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3334,6 +3466,7 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
   String toString() {
     return (StringBuffer('CardMemoryStatesCompanion(')
           ..write('cardId: $cardId, ')
+          ..write('userId: $userId, ')
           ..write('difficulty: $difficulty, ')
           ..write('stability: $stability, ')
           ..write('retrievability: $retrievability, ')
@@ -3343,6 +3476,8 @@ class CardMemoryStatesCompanion extends UpdateCompanion<CardMemoryState> {
           ..write('lapses: $lapses, ')
           ..write('reviewCount: $reviewCount, ')
           ..write('isNew: $isNew, ')
+          ..write('practiceCountSinceReview: $practiceCountSinceReview, ')
+          ..write('lastGrade: $lastGrade, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3364,6 +3499,13 @@ class $ReviewLogsTable extends ReviewLogs
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
   static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
   @override
   late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
@@ -3416,6 +3558,7 @@ class $ReviewLogsTable extends ReviewLogs
   @override
   List<GeneratedColumn> get $columns => [
         id,
+        userId,
         cardId,
         reviewedAt,
         grade,
@@ -3437,6 +3580,10 @@ class $ReviewLogsTable extends ReviewLogs
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     }
     if (data.containsKey('card_id')) {
       context.handle(_cardIdMeta,
@@ -3503,6 +3650,8 @@ class $ReviewLogsTable extends ReviewLogs
     return ReviewLog(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       cardId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}card_id'])!,
       reviewedAt: attachedDatabase.typeMapping
@@ -3530,6 +3679,7 @@ class $ReviewLogsTable extends ReviewLogs
 
 class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   final int id;
+  final String userId;
   final String cardId;
   final int reviewedAt;
   final int grade;
@@ -3540,6 +3690,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   final bool synced;
   const ReviewLog(
       {required this.id,
+      required this.userId,
       required this.cardId,
       required this.reviewedAt,
       required this.grade,
@@ -3552,6 +3703,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
+    map['user_id'] = Variable<String>(userId);
     map['card_id'] = Variable<String>(cardId);
     map['reviewed_at'] = Variable<int>(reviewedAt);
     map['grade'] = Variable<int>(grade);
@@ -3566,6 +3718,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   ReviewLogsCompanion toCompanion(bool nullToAbsent) {
     return ReviewLogsCompanion(
       id: Value(id),
+      userId: Value(userId),
       cardId: Value(cardId),
       reviewedAt: Value(reviewedAt),
       grade: Value(grade),
@@ -3582,6 +3735,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ReviewLog(
       id: serializer.fromJson<int>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
       cardId: serializer.fromJson<String>(json['cardId']),
       reviewedAt: serializer.fromJson<int>(json['reviewedAt']),
       grade: serializer.fromJson<int>(json['grade']),
@@ -3597,6 +3751,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
+      'userId': serializer.toJson<String>(userId),
       'cardId': serializer.toJson<String>(cardId),
       'reviewedAt': serializer.toJson<int>(reviewedAt),
       'grade': serializer.toJson<int>(grade),
@@ -3610,6 +3765,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
 
   ReviewLog copyWith(
           {int? id,
+          String? userId,
           String? cardId,
           int? reviewedAt,
           int? grade,
@@ -3620,6 +3776,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
           bool? synced}) =>
       ReviewLog(
         id: id ?? this.id,
+        userId: userId ?? this.userId,
         cardId: cardId ?? this.cardId,
         reviewedAt: reviewedAt ?? this.reviewedAt,
         grade: grade ?? this.grade,
@@ -3632,6 +3789,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   ReviewLog copyWithCompanion(ReviewLogsCompanion data) {
     return ReviewLog(
       id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
       cardId: data.cardId.present ? data.cardId.value : this.cardId,
       reviewedAt:
           data.reviewedAt.present ? data.reviewedAt.value : this.reviewedAt,
@@ -3653,6 +3811,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   String toString() {
     return (StringBuffer('ReviewLog(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('cardId: $cardId, ')
           ..write('reviewedAt: $reviewedAt, ')
           ..write('grade: $grade, ')
@@ -3666,13 +3825,14 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
   }
 
   @override
-  int get hashCode => Object.hash(id, cardId, reviewedAt, grade, stability,
-      difficulty, retrievability, intervalDays, synced);
+  int get hashCode => Object.hash(id, userId, cardId, reviewedAt, grade,
+      stability, difficulty, retrievability, intervalDays, synced);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ReviewLog &&
           other.id == this.id &&
+          other.userId == this.userId &&
           other.cardId == this.cardId &&
           other.reviewedAt == this.reviewedAt &&
           other.grade == this.grade &&
@@ -3685,6 +3845,7 @@ class ReviewLog extends DataClass implements Insertable<ReviewLog> {
 
 class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
   final Value<int> id;
+  final Value<String> userId;
   final Value<String> cardId;
   final Value<int> reviewedAt;
   final Value<int> grade;
@@ -3695,6 +3856,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
   final Value<bool> synced;
   const ReviewLogsCompanion({
     this.id = const Value.absent(),
+    this.userId = const Value.absent(),
     this.cardId = const Value.absent(),
     this.reviewedAt = const Value.absent(),
     this.grade = const Value.absent(),
@@ -3706,6 +3868,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
   });
   ReviewLogsCompanion.insert({
     this.id = const Value.absent(),
+    this.userId = const Value.absent(),
     required String cardId,
     required int reviewedAt,
     required int grade,
@@ -3723,6 +3886,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
         intervalDays = Value(intervalDays);
   static Insertable<ReviewLog> custom({
     Expression<int>? id,
+    Expression<String>? userId,
     Expression<String>? cardId,
     Expression<int>? reviewedAt,
     Expression<int>? grade,
@@ -3734,6 +3898,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
       if (cardId != null) 'card_id': cardId,
       if (reviewedAt != null) 'reviewed_at': reviewedAt,
       if (grade != null) 'grade': grade,
@@ -3747,6 +3912,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
 
   ReviewLogsCompanion copyWith(
       {Value<int>? id,
+      Value<String>? userId,
       Value<String>? cardId,
       Value<int>? reviewedAt,
       Value<int>? grade,
@@ -3757,6 +3923,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
       Value<bool>? synced}) {
     return ReviewLogsCompanion(
       id: id ?? this.id,
+      userId: userId ?? this.userId,
       cardId: cardId ?? this.cardId,
       reviewedAt: reviewedAt ?? this.reviewedAt,
       grade: grade ?? this.grade,
@@ -3773,6 +3940,9 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (cardId.present) {
       map['card_id'] = Variable<String>(cardId.value);
@@ -3805,6 +3975,7 @@ class ReviewLogsCompanion extends UpdateCompanion<ReviewLog> {
   String toString() {
     return (StringBuffer('ReviewLogsCompanion(')
           ..write('id: $id, ')
+          ..write('userId: $userId, ')
           ..write('cardId: $cardId, ')
           ..write('reviewedAt: $reviewedAt, ')
           ..write('grade: $grade, ')
@@ -3829,6 +4000,13 @@ class $UserNodeProgressTable extends UserNodeProgress
   late final GeneratedColumn<String> nodeId = GeneratedColumn<String>(
       'node_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
   static const VerificationMeta _governmentIdMeta =
       const VerificationMeta('governmentId');
   @override
@@ -3856,7 +4034,7 @@ class $UserNodeProgressTable extends UserNodeProgress
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [nodeId, governmentId, status, unlockedAt, completedAt];
+      [nodeId, userId, governmentId, status, unlockedAt, completedAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -3873,6 +4051,10 @@ class $UserNodeProgressTable extends UserNodeProgress
           nodeId.isAcceptableOrUnknown(data['node_id']!, _nodeIdMeta));
     } else if (isInserting) {
       context.missing(_nodeIdMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     }
     if (data.containsKey('government_id')) {
       context.handle(
@@ -3909,6 +4091,8 @@ class $UserNodeProgressTable extends UserNodeProgress
     return UserNodeProgressEntry(
       nodeId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}node_id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       governmentId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}government_id'])!,
       status: attachedDatabase.typeMapping
@@ -3929,12 +4113,14 @@ class $UserNodeProgressTable extends UserNodeProgress
 class UserNodeProgressEntry extends DataClass
     implements Insertable<UserNodeProgressEntry> {
   final String nodeId;
+  final String userId;
   final String governmentId;
   final String status;
   final int? unlockedAt;
   final int? completedAt;
   const UserNodeProgressEntry(
       {required this.nodeId,
+      required this.userId,
       required this.governmentId,
       required this.status,
       this.unlockedAt,
@@ -3943,6 +4129,7 @@ class UserNodeProgressEntry extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['node_id'] = Variable<String>(nodeId);
+    map['user_id'] = Variable<String>(userId);
     map['government_id'] = Variable<String>(governmentId);
     map['status'] = Variable<String>(status);
     if (!nullToAbsent || unlockedAt != null) {
@@ -3957,6 +4144,7 @@ class UserNodeProgressEntry extends DataClass
   UserNodeProgressCompanion toCompanion(bool nullToAbsent) {
     return UserNodeProgressCompanion(
       nodeId: Value(nodeId),
+      userId: Value(userId),
       governmentId: Value(governmentId),
       status: Value(status),
       unlockedAt: unlockedAt == null && nullToAbsent
@@ -3973,6 +4161,7 @@ class UserNodeProgressEntry extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return UserNodeProgressEntry(
       nodeId: serializer.fromJson<String>(json['nodeId']),
+      userId: serializer.fromJson<String>(json['userId']),
       governmentId: serializer.fromJson<String>(json['governmentId']),
       status: serializer.fromJson<String>(json['status']),
       unlockedAt: serializer.fromJson<int?>(json['unlockedAt']),
@@ -3984,6 +4173,7 @@ class UserNodeProgressEntry extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'nodeId': serializer.toJson<String>(nodeId),
+      'userId': serializer.toJson<String>(userId),
       'governmentId': serializer.toJson<String>(governmentId),
       'status': serializer.toJson<String>(status),
       'unlockedAt': serializer.toJson<int?>(unlockedAt),
@@ -3993,12 +4183,14 @@ class UserNodeProgressEntry extends DataClass
 
   UserNodeProgressEntry copyWith(
           {String? nodeId,
+          String? userId,
           String? governmentId,
           String? status,
           Value<int?> unlockedAt = const Value.absent(),
           Value<int?> completedAt = const Value.absent()}) =>
       UserNodeProgressEntry(
         nodeId: nodeId ?? this.nodeId,
+        userId: userId ?? this.userId,
         governmentId: governmentId ?? this.governmentId,
         status: status ?? this.status,
         unlockedAt: unlockedAt.present ? unlockedAt.value : this.unlockedAt,
@@ -4007,6 +4199,7 @@ class UserNodeProgressEntry extends DataClass
   UserNodeProgressEntry copyWithCompanion(UserNodeProgressCompanion data) {
     return UserNodeProgressEntry(
       nodeId: data.nodeId.present ? data.nodeId.value : this.nodeId,
+      userId: data.userId.present ? data.userId.value : this.userId,
       governmentId: data.governmentId.present
           ? data.governmentId.value
           : this.governmentId,
@@ -4022,6 +4215,7 @@ class UserNodeProgressEntry extends DataClass
   String toString() {
     return (StringBuffer('UserNodeProgressEntry(')
           ..write('nodeId: $nodeId, ')
+          ..write('userId: $userId, ')
           ..write('governmentId: $governmentId, ')
           ..write('status: $status, ')
           ..write('unlockedAt: $unlockedAt, ')
@@ -4031,13 +4225,14 @@ class UserNodeProgressEntry extends DataClass
   }
 
   @override
-  int get hashCode =>
-      Object.hash(nodeId, governmentId, status, unlockedAt, completedAt);
+  int get hashCode => Object.hash(
+      nodeId, userId, governmentId, status, unlockedAt, completedAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is UserNodeProgressEntry &&
           other.nodeId == this.nodeId &&
+          other.userId == this.userId &&
           other.governmentId == this.governmentId &&
           other.status == this.status &&
           other.unlockedAt == this.unlockedAt &&
@@ -4046,6 +4241,7 @@ class UserNodeProgressEntry extends DataClass
 
 class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
   final Value<String> nodeId;
+  final Value<String> userId;
   final Value<String> governmentId;
   final Value<String> status;
   final Value<int?> unlockedAt;
@@ -4053,6 +4249,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
   final Value<int> rowid;
   const UserNodeProgressCompanion({
     this.nodeId = const Value.absent(),
+    this.userId = const Value.absent(),
     this.governmentId = const Value.absent(),
     this.status = const Value.absent(),
     this.unlockedAt = const Value.absent(),
@@ -4061,6 +4258,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
   });
   UserNodeProgressCompanion.insert({
     required String nodeId,
+    this.userId = const Value.absent(),
     required String governmentId,
     this.status = const Value.absent(),
     this.unlockedAt = const Value.absent(),
@@ -4070,6 +4268,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
         governmentId = Value(governmentId);
   static Insertable<UserNodeProgressEntry> custom({
     Expression<String>? nodeId,
+    Expression<String>? userId,
     Expression<String>? governmentId,
     Expression<String>? status,
     Expression<int>? unlockedAt,
@@ -4078,6 +4277,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
   }) {
     return RawValuesInsertable({
       if (nodeId != null) 'node_id': nodeId,
+      if (userId != null) 'user_id': userId,
       if (governmentId != null) 'government_id': governmentId,
       if (status != null) 'status': status,
       if (unlockedAt != null) 'unlocked_at': unlockedAt,
@@ -4088,6 +4288,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
 
   UserNodeProgressCompanion copyWith(
       {Value<String>? nodeId,
+      Value<String>? userId,
       Value<String>? governmentId,
       Value<String>? status,
       Value<int?>? unlockedAt,
@@ -4095,6 +4296,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
       Value<int>? rowid}) {
     return UserNodeProgressCompanion(
       nodeId: nodeId ?? this.nodeId,
+      userId: userId ?? this.userId,
       governmentId: governmentId ?? this.governmentId,
       status: status ?? this.status,
       unlockedAt: unlockedAt ?? this.unlockedAt,
@@ -4108,6 +4310,9 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
     final map = <String, Expression>{};
     if (nodeId.present) {
       map['node_id'] = Variable<String>(nodeId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (governmentId.present) {
       map['government_id'] = Variable<String>(governmentId.value);
@@ -4131,6 +4336,7 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
   String toString() {
     return (StringBuffer('UserNodeProgressCompanion(')
           ..write('nodeId: $nodeId, ')
+          ..write('userId: $userId, ')
           ..write('governmentId: $governmentId, ')
           ..write('status: $status, ')
           ..write('unlockedAt: $unlockedAt, ')
@@ -4440,13 +4646,20 @@ class $SyncMetaTable extends SyncMeta
   late final GeneratedColumn<String> key = GeneratedColumn<String>(
       'key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
   static const VerificationMeta _valueMeta = const VerificationMeta('value');
   @override
   late final GeneratedColumn<String> value = GeneratedColumn<String>(
       'value', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [key, value];
+  List<GeneratedColumn> get $columns => [key, userId, value];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4462,6 +4675,10 @@ class $SyncMetaTable extends SyncMeta
           _keyMeta, key.isAcceptableOrUnknown(data['key']!, _keyMeta));
     } else if (isInserting) {
       context.missing(_keyMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
     }
     if (data.containsKey('value')) {
       context.handle(
@@ -4480,6 +4697,8 @@ class $SyncMetaTable extends SyncMeta
     return SyncMetaData(
       key: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}key'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
       value: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}value'])!,
     );
@@ -4493,12 +4712,15 @@ class $SyncMetaTable extends SyncMeta
 
 class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
   final String key;
+  final String userId;
   final String value;
-  const SyncMetaData({required this.key, required this.value});
+  const SyncMetaData(
+      {required this.key, required this.userId, required this.value});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['key'] = Variable<String>(key);
+    map['user_id'] = Variable<String>(userId);
     map['value'] = Variable<String>(value);
     return map;
   }
@@ -4506,6 +4728,7 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
   SyncMetaCompanion toCompanion(bool nullToAbsent) {
     return SyncMetaCompanion(
       key: Value(key),
+      userId: Value(userId),
       value: Value(value),
     );
   }
@@ -4515,6 +4738,7 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SyncMetaData(
       key: serializer.fromJson<String>(json['key']),
+      userId: serializer.fromJson<String>(json['userId']),
       value: serializer.fromJson<String>(json['value']),
     );
   }
@@ -4523,17 +4747,21 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'key': serializer.toJson<String>(key),
+      'userId': serializer.toJson<String>(userId),
       'value': serializer.toJson<String>(value),
     };
   }
 
-  SyncMetaData copyWith({String? key, String? value}) => SyncMetaData(
+  SyncMetaData copyWith({String? key, String? userId, String? value}) =>
+      SyncMetaData(
         key: key ?? this.key,
+        userId: userId ?? this.userId,
         value: value ?? this.value,
       );
   SyncMetaData copyWithCompanion(SyncMetaCompanion data) {
     return SyncMetaData(
       key: data.key.present ? data.key.value : this.key,
+      userId: data.userId.present ? data.userId.value : this.userId,
       value: data.value.present ? data.value.value : this.value,
     );
   }
@@ -4542,52 +4770,63 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
   String toString() {
     return (StringBuffer('SyncMetaData(')
           ..write('key: $key, ')
+          ..write('userId: $userId, ')
           ..write('value: $value')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(key, value);
+  int get hashCode => Object.hash(key, userId, value);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SyncMetaData &&
           other.key == this.key &&
+          other.userId == this.userId &&
           other.value == this.value);
 }
 
 class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
   final Value<String> key;
+  final Value<String> userId;
   final Value<String> value;
   final Value<int> rowid;
   const SyncMetaCompanion({
     this.key = const Value.absent(),
+    this.userId = const Value.absent(),
     this.value = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SyncMetaCompanion.insert({
     required String key,
+    this.userId = const Value.absent(),
     required String value,
     this.rowid = const Value.absent(),
   })  : key = Value(key),
         value = Value(value);
   static Insertable<SyncMetaData> custom({
     Expression<String>? key,
+    Expression<String>? userId,
     Expression<String>? value,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (key != null) 'key': key,
+      if (userId != null) 'user_id': userId,
       if (value != null) 'value': value,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   SyncMetaCompanion copyWith(
-      {Value<String>? key, Value<String>? value, Value<int>? rowid}) {
+      {Value<String>? key,
+      Value<String>? userId,
+      Value<String>? value,
+      Value<int>? rowid}) {
     return SyncMetaCompanion(
       key: key ?? this.key,
+      userId: userId ?? this.userId,
       value: value ?? this.value,
       rowid: rowid ?? this.rowid,
     );
@@ -4598,6 +4837,9 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
     final map = <String, Expression>{};
     if (key.present) {
       map['key'] = Variable<String>(key.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (value.present) {
       map['value'] = Variable<String>(value.value);
@@ -4612,6 +4854,7 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
   String toString() {
     return (StringBuffer('SyncMetaCompanion(')
           ..write('key: $key, ')
+          ..write('userId: $userId, ')
           ..write('value: $value, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5906,6 +6149,7 @@ typedef $$LocalCardsTableProcessedTableManager = ProcessedTableManager<
 typedef $$CardMemoryStatesTableCreateCompanionBuilder
     = CardMemoryStatesCompanion Function({
   required String cardId,
+  Value<String> userId,
   Value<double> difficulty,
   Value<double> stability,
   Value<double> retrievability,
@@ -5915,11 +6159,14 @@ typedef $$CardMemoryStatesTableCreateCompanionBuilder
   Value<int> lapses,
   Value<int> reviewCount,
   Value<bool> isNew,
+  Value<int> practiceCountSinceReview,
+  Value<int> lastGrade,
   Value<int> rowid,
 });
 typedef $$CardMemoryStatesTableUpdateCompanionBuilder
     = CardMemoryStatesCompanion Function({
   Value<String> cardId,
+  Value<String> userId,
   Value<double> difficulty,
   Value<double> stability,
   Value<double> retrievability,
@@ -5929,6 +6176,8 @@ typedef $$CardMemoryStatesTableUpdateCompanionBuilder
   Value<int> lapses,
   Value<int> reviewCount,
   Value<bool> isNew,
+  Value<int> practiceCountSinceReview,
+  Value<int> lastGrade,
   Value<int> rowid,
 });
 
@@ -5943,6 +6192,9 @@ class $$CardMemoryStatesTableFilterComposer
   });
   ColumnFilters<String> get cardId => $composableBuilder(
       column: $table.cardId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get difficulty => $composableBuilder(
       column: $table.difficulty, builder: (column) => ColumnFilters(column));
@@ -5972,6 +6224,13 @@ class $$CardMemoryStatesTableFilterComposer
 
   ColumnFilters<bool> get isNew => $composableBuilder(
       column: $table.isNew, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get practiceCountSinceReview => $composableBuilder(
+      column: $table.practiceCountSinceReview,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get lastGrade => $composableBuilder(
+      column: $table.lastGrade, builder: (column) => ColumnFilters(column));
 }
 
 class $$CardMemoryStatesTableOrderingComposer
@@ -5985,6 +6244,9 @@ class $$CardMemoryStatesTableOrderingComposer
   });
   ColumnOrderings<String> get cardId => $composableBuilder(
       column: $table.cardId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get difficulty => $composableBuilder(
       column: $table.difficulty, builder: (column) => ColumnOrderings(column));
@@ -6016,6 +6278,13 @@ class $$CardMemoryStatesTableOrderingComposer
 
   ColumnOrderings<bool> get isNew => $composableBuilder(
       column: $table.isNew, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get practiceCountSinceReview => $composableBuilder(
+      column: $table.practiceCountSinceReview,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get lastGrade => $composableBuilder(
+      column: $table.lastGrade, builder: (column) => ColumnOrderings(column));
 }
 
 class $$CardMemoryStatesTableAnnotationComposer
@@ -6029,6 +6298,9 @@ class $$CardMemoryStatesTableAnnotationComposer
   });
   GeneratedColumn<String> get cardId =>
       $composableBuilder(column: $table.cardId, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<double> get difficulty => $composableBuilder(
       column: $table.difficulty, builder: (column) => column);
@@ -6056,6 +6328,12 @@ class $$CardMemoryStatesTableAnnotationComposer
 
   GeneratedColumn<bool> get isNew =>
       $composableBuilder(column: $table.isNew, builder: (column) => column);
+
+  GeneratedColumn<int> get practiceCountSinceReview => $composableBuilder(
+      column: $table.practiceCountSinceReview, builder: (column) => column);
+
+  GeneratedColumn<int> get lastGrade =>
+      $composableBuilder(column: $table.lastGrade, builder: (column) => column);
 }
 
 class $$CardMemoryStatesTableTableManager extends RootTableManager<
@@ -6086,6 +6364,7 @@ class $$CardMemoryStatesTableTableManager extends RootTableManager<
               $$CardMemoryStatesTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> cardId = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             Value<double> difficulty = const Value.absent(),
             Value<double> stability = const Value.absent(),
             Value<double> retrievability = const Value.absent(),
@@ -6095,10 +6374,13 @@ class $$CardMemoryStatesTableTableManager extends RootTableManager<
             Value<int> lapses = const Value.absent(),
             Value<int> reviewCount = const Value.absent(),
             Value<bool> isNew = const Value.absent(),
+            Value<int> practiceCountSinceReview = const Value.absent(),
+            Value<int> lastGrade = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CardMemoryStatesCompanion(
             cardId: cardId,
+            userId: userId,
             difficulty: difficulty,
             stability: stability,
             retrievability: retrievability,
@@ -6108,10 +6390,13 @@ class $$CardMemoryStatesTableTableManager extends RootTableManager<
             lapses: lapses,
             reviewCount: reviewCount,
             isNew: isNew,
+            practiceCountSinceReview: practiceCountSinceReview,
+            lastGrade: lastGrade,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String cardId,
+            Value<String> userId = const Value.absent(),
             Value<double> difficulty = const Value.absent(),
             Value<double> stability = const Value.absent(),
             Value<double> retrievability = const Value.absent(),
@@ -6121,10 +6406,13 @@ class $$CardMemoryStatesTableTableManager extends RootTableManager<
             Value<int> lapses = const Value.absent(),
             Value<int> reviewCount = const Value.absent(),
             Value<bool> isNew = const Value.absent(),
+            Value<int> practiceCountSinceReview = const Value.absent(),
+            Value<int> lastGrade = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               CardMemoryStatesCompanion.insert(
             cardId: cardId,
+            userId: userId,
             difficulty: difficulty,
             stability: stability,
             retrievability: retrievability,
@@ -6134,6 +6422,8 @@ class $$CardMemoryStatesTableTableManager extends RootTableManager<
             lapses: lapses,
             reviewCount: reviewCount,
             isNew: isNew,
+            practiceCountSinceReview: practiceCountSinceReview,
+            lastGrade: lastGrade,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -6160,6 +6450,7 @@ typedef $$CardMemoryStatesTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function()>;
 typedef $$ReviewLogsTableCreateCompanionBuilder = ReviewLogsCompanion Function({
   Value<int> id,
+  Value<String> userId,
   required String cardId,
   required int reviewedAt,
   required int grade,
@@ -6171,6 +6462,7 @@ typedef $$ReviewLogsTableCreateCompanionBuilder = ReviewLogsCompanion Function({
 });
 typedef $$ReviewLogsTableUpdateCompanionBuilder = ReviewLogsCompanion Function({
   Value<int> id,
+  Value<String> userId,
   Value<String> cardId,
   Value<int> reviewedAt,
   Value<int> grade,
@@ -6192,6 +6484,9 @@ class $$ReviewLogsTableFilterComposer
   });
   ColumnFilters<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get cardId => $composableBuilder(
       column: $table.cardId, builder: (column) => ColumnFilters(column));
@@ -6231,6 +6526,9 @@ class $$ReviewLogsTableOrderingComposer
   ColumnOrderings<int> get id => $composableBuilder(
       column: $table.id, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get cardId => $composableBuilder(
       column: $table.cardId, builder: (column) => ColumnOrderings(column));
 
@@ -6269,6 +6567,9 @@ class $$ReviewLogsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get cardId =>
       $composableBuilder(column: $table.cardId, builder: (column) => column);
@@ -6319,6 +6620,7 @@ class $$ReviewLogsTableTableManager extends RootTableManager<
               $$ReviewLogsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             Value<String> cardId = const Value.absent(),
             Value<int> reviewedAt = const Value.absent(),
             Value<int> grade = const Value.absent(),
@@ -6330,6 +6632,7 @@ class $$ReviewLogsTableTableManager extends RootTableManager<
           }) =>
               ReviewLogsCompanion(
             id: id,
+            userId: userId,
             cardId: cardId,
             reviewedAt: reviewedAt,
             grade: grade,
@@ -6341,6 +6644,7 @@ class $$ReviewLogsTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             required String cardId,
             required int reviewedAt,
             required int grade,
@@ -6352,6 +6656,7 @@ class $$ReviewLogsTableTableManager extends RootTableManager<
           }) =>
               ReviewLogsCompanion.insert(
             id: id,
+            userId: userId,
             cardId: cardId,
             reviewedAt: reviewedAt,
             grade: grade,
@@ -6383,6 +6688,7 @@ typedef $$ReviewLogsTableProcessedTableManager = ProcessedTableManager<
 typedef $$UserNodeProgressTableCreateCompanionBuilder
     = UserNodeProgressCompanion Function({
   required String nodeId,
+  Value<String> userId,
   required String governmentId,
   Value<String> status,
   Value<int?> unlockedAt,
@@ -6392,6 +6698,7 @@ typedef $$UserNodeProgressTableCreateCompanionBuilder
 typedef $$UserNodeProgressTableUpdateCompanionBuilder
     = UserNodeProgressCompanion Function({
   Value<String> nodeId,
+  Value<String> userId,
   Value<String> governmentId,
   Value<String> status,
   Value<int?> unlockedAt,
@@ -6410,6 +6717,9 @@ class $$UserNodeProgressTableFilterComposer
   });
   ColumnFilters<String> get nodeId => $composableBuilder(
       column: $table.nodeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get governmentId => $composableBuilder(
       column: $table.governmentId, builder: (column) => ColumnFilters(column));
@@ -6436,6 +6746,9 @@ class $$UserNodeProgressTableOrderingComposer
   ColumnOrderings<String> get nodeId => $composableBuilder(
       column: $table.nodeId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get governmentId => $composableBuilder(
       column: $table.governmentId,
       builder: (column) => ColumnOrderings(column));
@@ -6461,6 +6774,9 @@ class $$UserNodeProgressTableAnnotationComposer
   });
   GeneratedColumn<String> get nodeId =>
       $composableBuilder(column: $table.nodeId, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get governmentId => $composableBuilder(
       column: $table.governmentId, builder: (column) => column);
@@ -6504,6 +6820,7 @@ class $$UserNodeProgressTableTableManager extends RootTableManager<
               $$UserNodeProgressTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> nodeId = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             Value<String> governmentId = const Value.absent(),
             Value<String> status = const Value.absent(),
             Value<int?> unlockedAt = const Value.absent(),
@@ -6512,6 +6829,7 @@ class $$UserNodeProgressTableTableManager extends RootTableManager<
           }) =>
               UserNodeProgressCompanion(
             nodeId: nodeId,
+            userId: userId,
             governmentId: governmentId,
             status: status,
             unlockedAt: unlockedAt,
@@ -6520,6 +6838,7 @@ class $$UserNodeProgressTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String nodeId,
+            Value<String> userId = const Value.absent(),
             required String governmentId,
             Value<String> status = const Value.absent(),
             Value<int?> unlockedAt = const Value.absent(),
@@ -6528,6 +6847,7 @@ class $$UserNodeProgressTableTableManager extends RootTableManager<
           }) =>
               UserNodeProgressCompanion.insert(
             nodeId: nodeId,
+            userId: userId,
             governmentId: governmentId,
             status: status,
             unlockedAt: unlockedAt,
@@ -6725,11 +7045,13 @@ typedef $$DailyChallengeCachesTableProcessedTableManager
         PrefetchHooks Function()>;
 typedef $$SyncMetaTableCreateCompanionBuilder = SyncMetaCompanion Function({
   required String key,
+  Value<String> userId,
   required String value,
   Value<int> rowid,
 });
 typedef $$SyncMetaTableUpdateCompanionBuilder = SyncMetaCompanion Function({
   Value<String> key,
+  Value<String> userId,
   Value<String> value,
   Value<int> rowid,
 });
@@ -6745,6 +7067,9 @@ class $$SyncMetaTableFilterComposer
   });
   ColumnFilters<String> get key => $composableBuilder(
       column: $table.key, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get value => $composableBuilder(
       column: $table.value, builder: (column) => ColumnFilters(column));
@@ -6762,6 +7087,9 @@ class $$SyncMetaTableOrderingComposer
   ColumnOrderings<String> get key => $composableBuilder(
       column: $table.key, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get value => $composableBuilder(
       column: $table.value, builder: (column) => ColumnOrderings(column));
 }
@@ -6777,6 +7105,9 @@ class $$SyncMetaTableAnnotationComposer
   });
   GeneratedColumn<String> get key =>
       $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get value =>
       $composableBuilder(column: $table.value, builder: (column) => column);
@@ -6806,21 +7137,25 @@ class $$SyncMetaTableTableManager extends RootTableManager<
               $$SyncMetaTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> key = const Value.absent(),
+            Value<String> userId = const Value.absent(),
             Value<String> value = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               SyncMetaCompanion(
             key: key,
+            userId: userId,
             value: value,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String key,
+            Value<String> userId = const Value.absent(),
             required String value,
             Value<int> rowid = const Value.absent(),
           }) =>
               SyncMetaCompanion.insert(
             key: key,
+            userId: userId,
             value: value,
             rowid: rowid,
           ),

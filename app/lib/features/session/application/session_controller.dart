@@ -160,7 +160,10 @@ class SessionController extends AsyncNotifier<SessionState> {
 
     _gradeInFlight = true;
     try {
-      await ref.read(cardReviewRepositoryProvider).recordReview(
+      // recordGrade routes to either a real FSRS update or practice mode
+      // based on whether the card is actually due — keeps the science layer
+      // clean across same-day grinding while game state still ticks.
+      await ref.read(cardReviewRepositoryProvider).recordGrade(
             cardId: card.cardId,
             grade: grade,
           );

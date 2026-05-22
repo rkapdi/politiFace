@@ -1,3 +1,5 @@
+import 'package:drift/drift.dart' show Value;
+
 import '../../../core/database/drift/app_database.dart';
 import '../../profile/data/profile_service.dart';
 import '../domain/fsrs_algorithm.dart';
@@ -10,6 +12,16 @@ class SessionCandidates {
   final List<SessionCard> fresh;
 }
 
+/// Whether a grade tap was treated as a real FSRS-updating review or a
+/// practice-mode re-grind that left the science layer untouched.
+enum GradeMode { review, practice }
+
+class GradeOutcome {
+  const GradeOutcome({required this.state, required this.mode});
+  final MemoryState state;
+  final GradeMode mode;
+}
+
 class CardReviewRepository {
   CardReviewRepository(this._db, this._fsrs, this._profile);
 
@@ -17,6 +29,46 @@ class CardReviewRepository {
   final FSRS _fsrs;
   final ProfileService _profile;
 
+  /// Route a user grade to either the real-FSRS path or the practice path.
+  ///
+  /// We push to FSRS when the signal is meaningful:
+  ///   - the card is brand new (no row yet, or isNew)
+  ///   - the grade is `again` (forgetting is real signal regardless of timing)
+  ///   - the card is past its scheduled `nextReviewAt` (real spaced retrieval)
+  ///
+  /// Otherwise it's a same-day re-grind — game state (practice count, last
+  /// grade, profile XP) updates, but stability / difficulty / nextReviewAt
+  /// stay untouched so we never inflate the science with un-spaced repeats.
+  Future<GradeOutcome> recordGrade({
+    required String cardId,
+    required FSRSGrade grade,
+    DateTime? now,
+  }) async {
+    final reviewAt = now ?? DateTime.now();
+    final row = await _db.reviewsDao.stateFor(cardId);
+    final isMeaningful = row == null ||
+        row.isNew ||
+        grade == FSRSGrade.again ||
+        reviewAt.millisecondsSinceEpoch ~/ 1000 >= row.nextReviewAt;
+    if (isMeaningful) {
+      final state = await recordReview(
+        cardId: cardId,
+        grade: grade,
+        now: reviewAt,
+      );
+      return GradeOutcome(state: state, mode: GradeMode.review);
+    }
+    final state = await recordPractice(
+      cardId: cardId,
+      grade: grade,
+      now: reviewAt,
+    );
+    return GradeOutcome(state: state, mode: GradeMode.practice);
+  }
+
+  /// Full FSRS update — stability, difficulty, schedule. The hot path for
+  /// brand-new cards, scheduled-due cards, and explicit forgettings (Again).
+  /// Resets practiceCountSinceReview as a side effect.
   Future<MemoryState> recordReview({
     required String cardId,
     required FSRSGrade grade,
@@ -44,6 +96,7 @@ class CardReviewRepository {
       await _db.reviewsDao.upsertState(memoryStateToCompanion(
         cardId: cardId,
         result: result,
+        grade: grade,
         now: reviewAt,
       ));
 
@@ -65,6 +118,30 @@ class CardReviewRepository {
     await _profile.recordReview(grade: grade, now: reviewAt);
 
     return memoryState;
+  }
+
+  /// Practice mode: bump practice counter, update lastGrade, award XP.
+  /// FSRS state (stability, difficulty, nextReviewAt) stays frozen — we're
+  /// not lying to the algorithm about a spaced recall we didn't actually
+  /// have to do.
+  Future<MemoryState> recordPractice({
+    required String cardId,
+    required FSRSGrade grade,
+    DateTime? now,
+  }) async {
+    final reviewAt = now ?? DateTime.now();
+    final row = await _db.reviewsDao.stateFor(cardId);
+    if (row == null) {
+      // Defensive: should be unreachable (router pushes new cards to FSRS).
+      return recordReview(cardId: cardId, grade: grade, now: reviewAt);
+    }
+    await _db.reviewsDao.upsertState(CardMemoryStatesCompanion(
+      cardId: Value(cardId),
+      practiceCountSinceReview: Value(row.practiceCountSinceReview + 1),
+      lastGrade: Value(grade.value),
+    ));
+    await _profile.recordReview(grade: grade, now: reviewAt);
+    return memoryStateFromRow(row);
   }
 
   Future<SessionCandidates> loadSessionCandidates({
