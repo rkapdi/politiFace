@@ -24,6 +24,7 @@ class ConceptNodeMarker extends StatelessWidget {
     this.size = 18,
     this.onTap,
     this.pulseT = 0.0,
+    this.unlockFlashT = 0.0,
   });
 
   final String label;
@@ -43,6 +44,12 @@ class ConceptNodeMarker extends StatelessWidget {
   /// 0..1 phase for the "available" pulse animation. Caller drives this.
   final double pulseT;
 
+  /// 0..1 reveal — 0 = no flash, 1 = peak. The map sets this on nodes that
+  /// just unlocked and runs it down to 0 with a curve. Paints a transient
+  /// halo overlay no matter what the state is, so the user can SEE the
+  /// thing they earned.
+  final double unlockFlashT;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -60,6 +67,7 @@ class ConceptNodeMarker extends StatelessWidget {
           state: state,
           tiers: tiers,
           pulseT: pulseT,
+          unlockFlashT: unlockFlashT,
           isDark: isDark,
         ),
       ),
@@ -108,6 +116,7 @@ class _MarkerPainter extends CustomPainter {
     required this.state,
     required this.tiers,
     required this.pulseT,
+    required this.unlockFlashT,
     required this.isDark,
   });
 
@@ -115,6 +124,7 @@ class _MarkerPainter extends CustomPainter {
   final NodeState state;
   final List<TierMasteryStatus> tiers;
   final double pulseT;
+  final double unlockFlashT;
   final bool isDark;
 
   @override
@@ -131,6 +141,27 @@ class _MarkerPainter extends CustomPainter {
         _drawProgress(canvas, center, radius);
       case NodeState.mastered:
         _drawMastered(canvas, center, radius);
+    }
+
+    // Transient unlock flash — branch-color halo that grows from the marker
+    // and fades out. Drawn last so it sits on top of the base state paint.
+    if (unlockFlashT > 0) {
+      final t = unlockFlashT.clamp(0.0, 1.0);
+      canvas.drawCircle(
+        center,
+        radius + 4 + t * 18,
+        Paint()
+          ..color = branchColor.withOpacity(0.55 * t)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+      );
+      canvas.drawCircle(
+        center,
+        radius + 1 + t * 6,
+        Paint()
+          ..color = Colors.white.withOpacity(0.7 * t)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6,
+      );
     }
   }
 
@@ -236,6 +267,7 @@ class _MarkerPainter extends CustomPainter {
   bool shouldRepaint(covariant _MarkerPainter old) =>
       old.state != state ||
       old.pulseT != pulseT ||
+      old.unlockFlashT != unlockFlashT ||
       old.branchColor != branchColor ||
       old.tiers != tiers ||
       old.isDark != isDark;

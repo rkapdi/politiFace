@@ -27,8 +27,10 @@ class OrgChartMap extends ConsumerStatefulWidget {
 }
 
 class _OrgChartMapState extends ConsumerState<OrgChartMap>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _pulse;
+  late final AnimationController _unlockFlash;
+  Set<String> _flashingNodeIds = const <String>{};
 
   @override
   void initState() {
@@ -38,12 +40,47 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
       vsync: this,
       duration: const Duration(seconds: 2),
     )..repeat();
+    // One-shot fade for the newly-unlocked flash. Reverses from 1 → 0 so
+    // we use it as a decaying intensity multiplier in the marker painter.
+    _unlockFlash = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
   }
 
   @override
   void dispose() {
     _pulse.dispose();
+    _unlockFlash.dispose();
     super.dispose();
+  }
+
+  /// Compare the freshly loaded snapshot against what we last knew. If any
+  /// node flipped locked → not-locked since then, fire the flash on it.
+  void _detectUnlocks(ProgressionMapModel model) {
+    final currentStates = <String, NodeState>{
+      for (final entry in model.snapshot.nodeStates.entries)
+        entry.key: entry.value,
+    };
+    final prev = ref.read(lastKnownNodeStatesProvider);
+    // Always update the stored "previous" set so the next render compares
+    // against this one.
+    Future.microtask(() {
+      if (!mounted) return;
+      ref.read(lastKnownNodeStatesProvider.notifier).state = currentStates;
+    });
+    if (prev == null) return; // cold launch — no animation
+    final unlocked = <String>{};
+    currentStates.forEach((id, state) {
+      final wasLocked = (prev[id] ?? NodeState.locked) == NodeState.locked;
+      final nowUnlocked = state != NodeState.locked;
+      if (wasLocked && nowUnlocked) unlocked.add(id);
+    });
+    if (unlocked.isEmpty) return;
+    _flashingNodeIds = unlocked;
+    _unlockFlash
+      ..reset()
+      ..forward();
   }
 
   @override
@@ -56,11 +93,16 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
         message: '$e',
         onRetry: () => ref.invalidate(progressionMapDataProvider),
       ),
-      data: (model) => _MapCanvas(
-        model: model,
-        pulse: _pulse,
-        onNodeTap: widget.onNodeTap,
-      ),
+      data: (model) {
+        _detectUnlocks(model);
+        return _MapCanvas(
+          model: model,
+          pulse: _pulse,
+          unlockFlash: _unlockFlash,
+          flashingNodeIds: _flashingNodeIds,
+          onNodeTap: widget.onNodeTap,
+        );
+      },
     );
   }
 }
@@ -69,11 +111,15 @@ class _MapCanvas extends StatelessWidget {
   const _MapCanvas({
     required this.model,
     required this.pulse,
+    required this.unlockFlash,
+    required this.flashingNodeIds,
     this.onNodeTap,
   });
 
   final ProgressionMapModel model;
   final Animation<double> pulse;
+  final Animation<double> unlockFlash;
+  final Set<String> flashingNodeIds;
   final void Function(String nodeId)? onNodeTap;
 
   static const double _markerSize = 18;
@@ -99,11 +145,12 @@ class _MapCanvas extends StatelessWidget {
           ? const <TierMasteryStatus>[]
           : model.snapshot.tiersFor(node.id);
       // Marker centered vertically on the row, label flowing right.
+      final isFlashing = flashingNodeIds.contains(node.id);
       positionedNodes.add(Positioned(
         left: pos.dx + _padding,
         top: pos.dy + _padding - _markerSize / 2,
         child: AnimatedBuilder(
-          animation: pulse,
+          animation: Listenable.merge([pulse, unlockFlash]),
           builder: (context, _) => ConceptNodeMarker(
             label: node.label,
             branchColor: node.branchColor,
@@ -111,6 +158,7 @@ class _MapCanvas extends StatelessWidget {
             tiers: tiers,
             size: _markerSize,
             pulseT: pulse.value,
+            unlockFlashT: isFlashing ? (1.0 - unlockFlash.value) : 0.0,
             onTap: node.isSynthetic ? null : () => onNodeTap?.call(node.id),
           ),
         ),

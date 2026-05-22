@@ -251,6 +251,13 @@ TidyTreeNode _buildTreeForLayout(
   return build(all[kRootId]!);
 }
 
+/// Tracks the snapshot of node states from the previous map render.
+/// Survives navigation (lives at the ProviderScope level) so that when the
+/// user returns to the Learn tab after a session, the map can diff against
+/// what it last knew and highlight newly-unlocked nodes. Null on cold start.
+final lastKnownNodeStatesProvider =
+    StateProvider<Map<String, NodeState>?>((_) => null);
+
 /// Riverpod source of truth for the org-chart map. Refetches whenever
 /// sessionTickProvider fires (which the session controller bumps on every
 /// grade, so the map mastery state stays live).

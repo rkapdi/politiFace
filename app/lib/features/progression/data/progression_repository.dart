@@ -23,19 +23,22 @@ class MapProgressionSnapshot {
       tiersByNode[nodeId] ?? const [];
 }
 
-/// Result of a `recordGrade` call, mirroring the shape a future Supabase
-/// RPC would return — so the UI can react to "one tap caused these nodes
-/// to flip from locked → available" without re-reading the entire map.
-class ProgressionMutationResult {
-  const ProgressionMutationResult({
-    required this.nodeId,
-    required this.newNodeState,
+/// Diff between two map snapshots — what changed since the last time we
+/// looked. The map widget computes this client-side (cheap) by holding the
+/// previous snapshot's "locked" set across navigation; a future Supabase
+/// RPC could return the same shape from a server-side diff if we want to
+/// avoid the double-snapshot cost.
+class SessionUnlockDelta {
+  const SessionUnlockDelta({
     required this.newlyUnlockedNodeIds,
+    required this.newlyMasteredNodeIds,
   });
 
-  final String nodeId;
-  final NodeState newNodeState;
   final List<String> newlyUnlockedNodeIds;
+  final List<String> newlyMasteredNodeIds;
+
+  bool get isEmpty =>
+      newlyUnlockedNodeIds.isEmpty && newlyMasteredNodeIds.isEmpty;
 }
 
 /// Wraps the Drift tables with method signatures that match the future
@@ -128,41 +131,28 @@ class ProgressionRepository {
     );
   }
 
-  /// Recompute states after a grade and return the delta — which node was
-  /// affected, its new state, and any children that flipped to available.
-  /// Equivalent future Supabase shape:
-  ///   POST /rpc/record_grade { cardId, grade } → ProgressionMutationResult
-  Future<ProgressionMutationResult?> recomputeAfterGrade({
-    required String cardId,
+  /// Diff a fresh snapshot against a previously-captured set of node states.
+  /// Returns which nodes flipped locked→unlocked and which flipped to
+  /// mastered. The map widget owns the "previous" set and passes it in.
+  Future<SessionUnlockDelta> diffAgainst({
+    required Map<String, NodeState> beforeStates,
     DateTime? now,
   }) async {
-    final card = await _db.cardsDao.cardById(cardId);
-    if (card == null) return null;
-    final deck = await (_db.select(_db.localDecks)
-          ..where((d) => d.id.equals(card.deckId)))
-        .getSingleOrNull();
-    final nodeId = deck?.nodeId;
-    if (nodeId == null) return null;
-
-    final beforeSnap = await loadMapSnapshot(now: now);
-    final beforeStates = Map<String, NodeState>.from(beforeSnap.nodeStates);
-
-    final afterSnap = await loadMapSnapshot(now: now);
-    final afterState =
-        afterSnap.stateFor(nodeId);
-
+    final snap = await loadMapSnapshot(now: now);
     final newlyUnlocked = <String>[];
-    afterSnap.nodeStates.forEach((id, state) {
+    final newlyMastered = <String>[];
+    snap.nodeStates.forEach((id, state) {
       final prev = beforeStates[id] ?? NodeState.locked;
       if (prev == NodeState.locked && state != NodeState.locked) {
         newlyUnlocked.add(id);
       }
+      if (prev != NodeState.mastered && state == NodeState.mastered) {
+        newlyMastered.add(id);
+      }
     });
-
-    return ProgressionMutationResult(
-      nodeId: nodeId,
-      newNodeState: afterState,
+    return SessionUnlockDelta(
       newlyUnlockedNodeIds: newlyUnlocked,
+      newlyMasteredNodeIds: newlyMastered,
     );
   }
 
