@@ -1,0 +1,63 @@
+# Deck: The Senate — Whips, President Pro Tempore, key committee chairs
+#
+# SCAFFOLDED CONTENT — Senate-specific roles below the top leadership
+# (Majority/Minority Leaders live in the Congress deck one level up).
+# 119th Congress, sworn in Jan 2025. Verify before launch.
+
+meta:
+  id: us-legislative-senate
+  external_id: us-legislative-senate
+  name: "Senate Leadership"
+  node_id: us-node-senate
+  tier_order: 1
+
+cards:
+  - id: us-senate-pres-pro-tem
+    name: "Chuck Grassley"
+    title: "President Pro Tempore of the Senate"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-pro-tem/400"
+    source: "https://www.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Presides over the Senate in the VP's absence; 3rd in succession."
+
+  - id: us-senate-majority-whip
+    name: "John Barrasso"
+    title: "Senate Majority Whip"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-sen-maj-whip/400"
+    source: "https://www.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Counts votes and rallies majority senators on key bills."
+
+  - id: us-senate-minority-whip
+    name: "Dick Durbin"
+    title: "Senate Minority Whip"
+    party: "Democratic"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-sen-min-whip/400"
+    source: "https://www.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Manages whip operations for Senate Democrats."
+
+  - id: us-senate-foreign-relations
+    name: "Jim Risch"
+    title: "Senate Foreign Relations Committee Chair"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-foreign-rel/400"
+    source: "https://www.foreign.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Oversees treaties, ambassadors, and US foreign policy in the Senate."
+
+  - id: us-senate-appropriations
+    name: "Susan Collins"
+    title: "Senate Appropriations Committee Chair"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-sen-approps/400"
+    source: "https://www.appropriations.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Controls discretionary federal spending bills in the Senate."

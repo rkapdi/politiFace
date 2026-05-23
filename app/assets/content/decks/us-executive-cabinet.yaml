@@ -1,0 +1,139 @@
+# Deck: The US Executive Branch — The Cabinet
+#
+# SCAFFOLDED CONTENT — names reflect Trump 2nd-term Cabinet (sworn in Jan
+# 2025). Verify before launch; politically-appointed positions can change.
+# Photo URLs are Picsum placeholders — replace with real CDN-hosted
+# portraits before App Store submission. Sources point to whitehouse.gov
+# administration page (stable URL).
+#
+# Excludes the three Cabinet secretaries that already live in the
+# "us-executive-presidency" deck (State, Defense, Attorney General) so
+# users don't see the same card in two decks.
+
+meta:
+  id: us-executive-cabinet
+  external_id: us-executive-cabinet
+  name: "The Cabinet"
+  node_id: us-node-cabinet
+  tier_order: 1
+
+cards:
+  - id: us-cabinet-treasury
+    name: "Scott Bessent"
+    title: "Secretary of the Treasury"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-treasury/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Leads the Treasury Department; manages federal finances and currency."
+
+  - id: us-cabinet-interior
+    name: "Doug Burgum"
+    title: "Secretary of the Interior"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-interior/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Manages federal lands, national parks, and natural resources."
+
+  - id: us-cabinet-agriculture
+    name: "Brooke Rollins"
+    title: "Secretary of Agriculture"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-agriculture/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Oversees farming policy, food safety, and rural development."
+
+  - id: us-cabinet-commerce
+    name: "Howard Lutnick"
+    title: "Secretary of Commerce"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-commerce/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Promotes economic growth, trade, and the Census."
+
+  - id: us-cabinet-labor
+    name: "Lori Chavez-DeRemer"
+    title: "Secretary of Labor"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-labor/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Administers labor laws, workplace safety, and wage standards."
+
+  - id: us-cabinet-hhs
+    name: "Robert F. Kennedy Jr."
+    title: "Secretary of Health and Human Services"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-hhs/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Leads federal health policy, Medicare/Medicaid, FDA, CDC, NIH."
+
+  - id: us-cabinet-hud
+    name: "Scott Turner"
+    title: "Secretary of Housing and Urban Development"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-hud/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Oversees federal housing programs and urban development."
+
+  - id: us-cabinet-transportation
+    name: "Sean Duffy"
+    title: "Secretary of Transportation"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-transportation/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Regulates highways, aviation, rail, and federal transit."
+
+  - id: us-cabinet-energy
+    name: "Chris Wright"
+    title: "Secretary of Energy"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-energy/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Manages national energy policy and the nuclear weapons stockpile."
+
+  - id: us-cabinet-education
+    name: "Linda McMahon"
+    title: "Secretary of Education"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-education/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Leads federal education policy and student aid programs."
+
+  - id: us-cabinet-va
+    name: "Doug Collins"
+    title: "Secretary of Veterans Affairs"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-va/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Runs veteran healthcare, benefits, and the National Cemetery system."
+
+  - id: us-cabinet-dhs
+    name: "Kristi Noem"
+    title: "Secretary of Homeland Security"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-dhs/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Oversees border security, immigration enforcement, FEMA, and TSA."

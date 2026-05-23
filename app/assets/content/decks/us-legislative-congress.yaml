@@ -1,0 +1,64 @@
+# Deck: Congress — Cross-chamber leadership
+#
+# SCAFFOLDED CONTENT — covers the top elected leaders across both chambers
+# (Speaker, Majority/Minority leaders). Senate/House-specific whips and
+# committee chairs live in their own decks one level deeper.
+# Reflects the 119th Congress (sworn in Jan 2025). Verify before launch.
+
+meta:
+  id: us-legislative-congress
+  external_id: us-legislative-congress
+  name: "Congressional Leadership"
+  node_id: us-node-congress
+  tier_order: 1
+
+cards:
+  - id: us-congress-speaker
+    name: "Mike Johnson"
+    title: "Speaker of the House"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-speaker/400"
+    source: "https://www.speaker.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Presides over the House; 2nd in line of presidential succession."
+
+  - id: us-congress-senate-majority-leader
+    name: "John Thune"
+    title: "Senate Majority Leader"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-sen-maj/400"
+    source: "https://www.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Sets the Senate's agenda; the majority party's chief floor strategist."
+
+  - id: us-congress-senate-minority-leader
+    name: "Chuck Schumer"
+    title: "Senate Minority Leader"
+    party: "Democratic"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-sen-min/400"
+    source: "https://www.senate.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Leads the opposition in the Senate; negotiates on behalf of the minority."
+
+  - id: us-congress-house-majority-leader
+    name: "Steve Scalise"
+    title: "House Majority Leader"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-house-maj/400"
+    source: "https://www.majorityleader.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Manages the floor schedule for the majority in the House."
+
+  - id: us-congress-house-minority-leader
+    name: "Hakeem Jeffries"
+    title: "House Minority Leader"
+    party: "Democratic"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-house-min/400"
+    source: "https://www.democraticleader.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Leads House Democrats; the party's top House messenger."

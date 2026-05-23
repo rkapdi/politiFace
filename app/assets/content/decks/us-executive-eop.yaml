@@ -1,0 +1,63 @@
+# Deck: The US Executive Branch — Executive Office of the President
+#
+# SCAFFOLDED CONTENT — the EOP staff turn over frequently (these are
+# not Senate-confirmed, so the President can replace them at will).
+# Verify before launch. Photos are Picsum placeholders.
+
+meta:
+  id: us-executive-eop
+  external_id: us-executive-eop
+  name: "Executive Office of the President"
+  node_id: us-node-exec-office
+  tier_order: 1
+
+cards:
+  - id: us-eop-chief-of-staff
+    name: "Susie Wiles"
+    title: "White House Chief of Staff"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-cos/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "President's top aide; runs the West Wing and gates access to the Oval."
+
+  - id: us-eop-nsa
+    name: "Mike Waltz"
+    title: "National Security Advisor"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-nsa/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Coordinates foreign-policy + intelligence advice for the President."
+
+  - id: us-eop-press-secretary
+    name: "Karoline Leavitt"
+    title: "White House Press Secretary"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-press/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Briefs the press corps and serves as the administration's public voice."
+
+  - id: us-eop-omb
+    name: "Russell Vought"
+    title: "Director of the Office of Management and Budget"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-omb/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Drafts the federal budget and oversees executive agency spending."
+
+  - id: us-eop-ustr
+    name: "Jamieson Greer"
+    title: "United States Trade Representative"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-ustr/400"
+    source: "https://www.whitehouse.gov/administration/"
+    last_verified: "2026-05-22"
+    one_liner: "Negotiates US trade agreements and tariff policy with foreign powers."

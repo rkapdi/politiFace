@@ -1,0 +1,63 @@
+# Deck: The House of Representatives — Whips and key committee chairs
+#
+# SCAFFOLDED CONTENT — House-specific roles below the top leadership
+# (Speaker and Majority/Minority Leaders live in the Congress deck one
+# level up). 119th Congress, sworn in Jan 2025. Verify before launch.
+
+meta:
+  id: us-legislative-house
+  external_id: us-legislative-house
+  name: "House Leadership"
+  node_id: us-node-house
+  tier_order: 1
+
+cards:
+  - id: us-house-majority-whip
+    name: "Tom Emmer"
+    title: "House Majority Whip"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-house-maj-whip/400"
+    source: "https://www.majoritywhip.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Counts votes and disciplines the majority caucus in the House."
+
+  - id: us-house-minority-whip
+    name: "Katherine Clark"
+    title: "House Minority Whip"
+    party: "Democratic"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-house-min-whip/400"
+    source: "https://www.democraticwhip.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Counts votes for House Democrats; #2 in House minority leadership."
+
+  - id: us-house-ways-and-means
+    name: "Jason Smith"
+    title: "House Ways and Means Committee Chair"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-ways-means/400"
+    source: "https://waysandmeans.house.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Originates federal tax and revenue legislation."
+
+  - id: us-house-judiciary
+    name: "Jim Jordan"
+    title: "House Judiciary Committee Chair"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-house-jud/400"
+    source: "https://judiciary.house.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Oversees federal courts, impeachment, and constitutional law in the House."
+
+  - id: us-house-rules
+    name: "Virginia Foxx"
+    title: "House Rules Committee Chair"
+    party: "Republican"
+    jurisdiction: "US Federal"
+    photo_url: "https://picsum.photos/seed/politiface-rules/400"
+    source: "https://rules.house.gov/"
+    last_verified: "2026-05-22"
+    one_liner: "Decides which bills reach the House floor and under what rules."
