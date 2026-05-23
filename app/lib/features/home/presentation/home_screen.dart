@@ -48,10 +48,91 @@ class HomeScreen extends ConsumerWidget {
                       ),
               ),
               const SizedBox(height: 24),
+              _TriviaTile(),
+              const SizedBox(height: 12),
               _EndlessTile(),
               const SizedBox(height: 24),
               const NextUpSection(),
               const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TriviaTile extends StatelessWidget {
+  const _TriviaTile();
+
+  static const _bg1 = Color(0xFFB02A37); // crimson
+  static const _bg2 = Color(0xFFE05366); // bright pink-red — meant to pop
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          context.go('/trivia');
+        },
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [_bg1, _bg2],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: _bg2.withOpacity(0.35),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const Text('💩', style: TextStyle(fontSize: 36)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "TODAY'S TRIVIA",
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: Colors.white70,
+                        letterSpacing: 1.4,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    const Text(
+                      "Are you a Civic Bullshitter?",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 21,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    Text(
+                      "10 questions. Bet your confidence. Get an archetype.",
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.88),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right,
+                  color: Colors.white.withOpacity(0.9)),
             ],
           ),
         ),

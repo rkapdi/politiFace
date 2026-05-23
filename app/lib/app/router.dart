@@ -9,6 +9,8 @@ import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/session/presentation/session_screen.dart';
 import '../features/session/presentation/summary_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
+import '../features/trivia/presentation/trivia_result_screen.dart';
+import '../features/trivia/presentation/trivia_screen.dart';
 import 'shell_scaffold.dart';
 
 GoRouter buildRouter({String initialLocation = '/'}) {
@@ -70,6 +72,14 @@ GoRouter buildRouter({String initialLocation = '/'}) {
       GoRoute(
         path: '/endless',
         builder: (context, state) => const EndlessScreen(),
+      ),
+      GoRoute(
+        path: '/trivia',
+        builder: (context, state) => const TriviaScreen(),
+      ),
+      GoRoute(
+        path: '/trivia/result',
+        builder: (context, state) => const TriviaResultScreen(),
       ),
     ],
   );
