@@ -216,7 +216,7 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
   }
 }
 
-class _MapCanvas extends StatelessWidget {
+class _MapCanvas extends ConsumerWidget {
   const _MapCanvas({
     required this.model,
     required this.pulse,
@@ -236,15 +236,41 @@ class _MapCanvas extends StatelessWidget {
   static const double _markerSize = 18;
   static const double _padding = 80;
 
-  /// Tap handler that branches by node state — locked nodes get a snackbar
-  /// + heavy haptic + a prerequisite hint, unlocked nodes hand off to the
-  /// host screen's tap callback (which opens the tier sheet).
+  void _toggleCollapse(WidgetRef ref, String nodeId) {
+    final current = ref.read(collapsedNodeIdsProvider);
+    final next = {...current};
+    if (next.contains(nodeId)) {
+      next.remove(nodeId);
+    } else {
+      next.add(nodeId);
+    }
+    HapticFeedback.selectionClick();
+    ref.read(collapsedNodeIdsProvider.notifier).state = next;
+  }
+
+  /// Tap behavior, in priority order:
+  ///   1. Synthetic branch groupings → toggle expand/collapse (they have
+  ///      no sheet to open).
+  ///   2. Real node with children → toggle expand/collapse. To play the
+  ///      node itself, long-press for the sheet.
+  ///   3. Real leaf node, locked → snackbar pointing at the prereq.
+  ///   4. Real leaf node, unlocked → open the tier sheet.
   void _handleNodeTap(
     BuildContext context,
+    WidgetRef ref,
     ProgressionMapModel model,
     ProgressionMapNode node,
     NodeState state,
+    bool hasChildren,
   ) {
+    if (node.isSynthetic) {
+      if (hasChildren) _toggleCollapse(ref, node.id);
+      return;
+    }
+    if (hasChildren) {
+      _toggleCollapse(ref, node.id);
+      return;
+    }
     if (state == NodeState.locked) {
       HapticFeedback.heavyImpact();
       final prereqLabel = _firstLockedPrereqLabel(model, node);
@@ -259,6 +285,34 @@ class _MapCanvas extends StatelessWidget {
         ));
       return;
     }
+    onNodeTap?.call(node.id);
+  }
+
+  /// Long-press → open the sheet, regardless of whether the node has
+  /// children. Lets the user play a parent node like President without
+  /// first having to drill into a leaf.
+  void _handleNodeLongPress(
+    BuildContext context,
+    ProgressionMapModel model,
+    ProgressionMapNode node,
+    NodeState state,
+  ) {
+    if (node.isSynthetic) return;
+    if (state == NodeState.locked) {
+      HapticFeedback.heavyImpact();
+      final prereqLabel = _firstLockedPrereqLabel(model, node);
+      final hint = prereqLabel == null
+          ? 'Master earlier nodes to unlock this.'
+          : 'Master $prereqLabel to unlock ${node.label}.';
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(
+          content: Text(hint),
+          duration: const Duration(seconds: 2),
+        ));
+      return;
+    }
+    HapticFeedback.mediumImpact();
     onNodeTap?.call(node.id);
   }
 
@@ -282,13 +336,21 @@ class _MapCanvas extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final collapsedIds = ref.watch(collapsedNodeIdsProvider);
     final canvasSize = Size(
       model.layout.size.width + _padding * 2,
       model.layout.size.height + _padding * 2,
     );
+
+    // Precompute "does this node have any children at all?" so the tap
+    // handler can route to expand/collapse vs sheet without rescanning.
+    final hasChildren = <String, bool>{};
+    for (final n in model.nodes.values) {
+      if (n.parentId != null) hasChildren[n.parentId!] = true;
+    }
 
     final positionedNodes = <Widget>[];
     for (final node in model.visibleNodes) {
@@ -300,6 +362,8 @@ class _MapCanvas extends StatelessWidget {
       final tiers = node.isSynthetic
           ? const <TierMasteryStatus>[]
           : model.snapshot.tiersFor(node.id);
+      final nodeHasChildren = hasChildren[node.id] ?? false;
+      final isCollapsed = collapsedIds.contains(node.id);
       // Marker centered vertically on the row, label flowing right.
       final isFlashing = flashingNodeIds.contains(node.id);
       positionedNodes.add(Positioned(
@@ -315,9 +379,19 @@ class _MapCanvas extends StatelessWidget {
             size: _markerSize,
             pulseT: pulse.value,
             unlockFlashT: isFlashing ? (1.0 - unlockFlash.value) : 0.0,
-            onTap: node.isSynthetic
+            hasChildren: nodeHasChildren,
+            isCollapsed: isCollapsed,
+            onTap: () => _handleNodeTap(
+              context,
+              ref,
+              model,
+              node,
+              state,
+              nodeHasChildren,
+            ),
+            onLongPress: node.isSynthetic
                 ? null
-                : () => _handleNodeTap(context, model, node, state),
+                : () => _handleNodeLongPress(context, model, node, state),
           ),
         ),
       ));

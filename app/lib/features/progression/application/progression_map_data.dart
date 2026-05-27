@@ -33,14 +33,12 @@ class ProgressionMapModel {
   final LayoutResult layout;
   final MapProgressionSnapshot snapshot;
 
+  /// Every node that has a layout position — the actual filter that drives
+  /// rendering. With manual expand/collapse, locked nodes stay visible (just
+  /// styled as locked); the layout's collapse-aware filter is what hides
+  /// children of a collapsed parent.
   Iterable<ProgressionMapNode> get visibleNodes =>
-      nodes.values.where((n) {
-        final state = snapshot.stateFor(n.id);
-        // Real nodes hide when locked. Synthetic nodes always render so the
-        // user sees the gov structure even before they've unlocked deep into
-        // a branch.
-        return n.isSynthetic || state != NodeState.locked;
-      });
+      nodes.values.where((n) => layout.positions.containsKey(n.id));
 }
 
 /// One node in the rendered tree. Wraps the real [GovNode] when present,
@@ -127,7 +125,7 @@ ProgressionMapNode _syntheticBranchNode(String id) {
     case kOtherBranchId:
       return ProgressionMapNode(
         id: id,
-        label: 'Other',
+        label: 'State and Local Governments',
         parentId: kRootId,
         branchColor: branchColorFor('political-party'),
         isSynthetic: true,
@@ -137,21 +135,15 @@ ProgressionMapNode _syntheticBranchNode(String id) {
   }
 }
 
-/// Parse the first id out of a JSON-encoded array literal, or null if empty.
-String? _firstRequire(String raw) {
-  final s = raw.trim();
-  if (s.isEmpty || s == '[]') return null;
-  final inner = s.substring(1, s.length - 1);
-  for (final part in inner.split(',')) {
-    final cleaned = part.trim().replaceAll('"', '');
-    if (cleaned.isNotEmpty) return cleaned;
-  }
-  return null;
-}
-
-/// Walks [govNodes] and produces the rendered tree. Each real node hangs
-/// under its first unlockRequires parent, or — when it has none — under
-/// the synthetic branch grouping that matches its nodeType.
+/// Walks [govNodes] and produces the rendered tree.
+///
+/// Tree parentage and unlock gating are deliberately separate concepts:
+///   * Unlock gating uses unlock_requires (state machine, lives in Phase 0)
+///   * Tree parentage uses the nodeType-based branch grouping — and only
+///     prefers a node from unlock_requires when that node shares the same
+///     branch. Otherwise we'd cascade everything under President (since
+///     Congress, SCOTUS, etc. all list President as a prereq) and the
+///     Legislative / Judicial / State+Local branches would look empty.
 Map<String, ProgressionMapNode> _buildNodeMap(List<GovNode> govNodes) {
   final result = <String, ProgressionMapNode>{};
 
@@ -173,9 +165,22 @@ Map<String, ProgressionMapNode> _buildNodeMap(List<GovNode> govNodes) {
     result[id] = _syntheticBranchNode(id);
   }
 
+  final byId = {for (final n in govNodes) n.id: n};
+
   for (final node in govNodes) {
-    final firstReq = _firstRequire(node.unlockRequires);
-    final parentId = firstReq ?? _branchIdFor(node.nodeType);
+    final reqs = _parseRequires(node.unlockRequires);
+    // Walk unlock_requires in order, pick the first prerequisite that
+    // belongs to the SAME branch (same nodeType). That keeps Senate under
+    // Congress, SCOTUS under the Judicial branch root, etc. — without
+    // dragging cross-branch deps (President → Congress) into the topology.
+    String parentId = _branchIdFor(node.nodeType);
+    for (final reqId in reqs) {
+      final reqNode = byId[reqId];
+      if (reqNode != null && reqNode.nodeType == node.nodeType) {
+        parentId = reqNode.id;
+        break;
+      }
+    }
     result[node.id] = ProgressionMapNode(
       id: node.id,
       label: (node.shortName?.isNotEmpty ?? false) ? node.shortName! : node.name,
@@ -189,11 +194,23 @@ Map<String, ProgressionMapNode> _buildNodeMap(List<GovNode> govNodes) {
   return result;
 }
 
-/// Compose a [TidyTreeNode] graph from the rendered node map. Hides any
-/// subtree under a locked node so the layout doesn't reserve space for it.
+List<String> _parseRequires(String raw) {
+  final s = raw.trim();
+  if (s.isEmpty || s == '[]') return const [];
+  final inner = s.substring(1, s.length - 1);
+  return inner
+      .split(',')
+      .map((p) => p.trim().replaceAll('"', ''))
+      .where((p) => p.isNotEmpty)
+      .toList();
+}
+
+/// Compose a [TidyTreeNode] graph from the rendered node map. Locked
+/// children stay visible (rendered as dashed grey by the marker); only
+/// nodes whose ancestor is in [collapsedIds] get pruned from the layout.
 TidyTreeNode _buildTreeForLayout(
   Map<String, ProgressionMapNode> all,
-  MapProgressionSnapshot snapshot,
+  Set<String> collapsedIds,
 ) {
   final byParent = <String?, List<ProgressionMapNode>>{};
   for (final n in all.values) {
@@ -235,14 +252,11 @@ TidyTreeNode _buildTreeForLayout(
 
   TidyTreeNode build(ProgressionMapNode n) {
     final node = TidyTreeNode(id: n.id, parentId: n.parentId);
+    // When this node is collapsed, its subtree drops out of the layout
+    // entirely — children don't get assigned positions and won't render.
+    if (collapsedIds.contains(n.id)) return node;
     final children = byParent[n.id] ?? const <ProgressionMapNode>[];
     for (final child in children) {
-      // Real nodes hide when locked; the layout pass should skip them
-      // entirely so siblings stack tightly. Synthetic branches always show.
-      if (!child.isSynthetic &&
-          snapshot.stateFor(child.id) == NodeState.locked) {
-        continue;
-      }
       node.children.add(build(child));
     }
     return node;
@@ -258,12 +272,18 @@ TidyTreeNode _buildTreeForLayout(
 final lastKnownNodeStatesProvider =
     StateProvider<Map<String, NodeState>?>((_) => null);
 
+/// Which node ids the user has manually collapsed in the map. Persists
+/// across navigation so re-entering the Learn tab remembers your view.
+final collapsedNodeIdsProvider =
+    StateProvider<Set<String>>((_) => const <String>{});
+
 /// Riverpod source of truth for the org-chart map. Refetches whenever
-/// sessionTickProvider fires (which the session controller bumps on every
-/// grade, so the map mastery state stays live).
+/// sessionTickProvider fires (the session controller bumps it on every
+/// grade) or when the user toggles a node's expand/collapse state.
 final progressionMapDataProvider =
     FutureProvider<ProgressionMapModel>((ref) async {
   ref.watch(sessionTickProvider);
+  final collapsedIds = ref.watch(collapsedNodeIdsProvider);
 
   final db = ref.watch(databaseProvider);
   final repo = ProgressionRepository(db);
@@ -271,7 +291,7 @@ final progressionMapDataProvider =
 
   final govNodes = await db.governmentDao.nodes();
   final nodes = _buildNodeMap(govNodes);
-  final layoutTree = _buildTreeForLayout(nodes, snapshot);
+  final layoutTree = _buildTreeForLayout(nodes, collapsedIds);
   final layoutResult = TidyTreeLayout.layout(layoutTree);
 
   return ProgressionMapModel(
