@@ -54,17 +54,29 @@ class CardAvatar extends StatelessWidget {
 
     if (!hasPhoto) return fallback();
 
+    final url = photoUrl!;
+    // Detect bundled-asset paths (start with "assets/") and render via
+    // Image.asset — synchronous, no network. HTTP(S) URLs go through
+    // CachedNetworkImage as before.
+    final isAssetPath = url.startsWith('assets/');
+
     return ClipOval(
       child: SizedBox(
         width: size,
         height: size,
-        child: CachedNetworkImage(
-          imageUrl: photoUrl!,
-          fit: BoxFit.cover,
-          placeholder: (ctx, url) => _lqipOrInitials(theme),
-          errorWidget: (ctx, url, err) => fallback(),
-          fadeInDuration: const Duration(milliseconds: 220),
-        ),
+        child: isAssetPath
+            ? Image.asset(
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, err, st) => fallback(),
+              )
+            : CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (ctx, url) => _lqipOrInitials(theme),
+                errorWidget: (ctx, url, err) => fallback(),
+                fadeInDuration: const Duration(milliseconds: 220),
+              ),
       ),
     );
   }

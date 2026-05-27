@@ -21,7 +21,11 @@ class YamlSeedService {
   final AppDatabase _db;
   final AssetBundle _bundle;
 
-  static const _flagKey = 'yaml_seed_v1_done';
+  // Bumped from v1 → v2 to force existing installs to re-upsert cards on
+  // next launch — picks up the new bundled portrait asset paths that
+  // replaced the Picsum placeholders. Card memory state is preserved by
+  // _seedDeck (only freshly-seen cards initialize a row).
+  static const _flagKey = 'yaml_seed_v2_done';
   static const _deckPrefix = 'assets/content/decks/';
 
   Future<void> ensureSeeded() async {
