@@ -13,6 +13,7 @@ import '../daos/decks_dao.dart';
 import '../daos/government_dao.dart';
 import '../daos/progress_dao.dart';
 import '../daos/meta_dao.dart';
+import '../daos/chapter_progress_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -179,6 +180,25 @@ class SyncMeta extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+// ── Chapter progress (player's position in a season) ─────────────────────────
+// One row per (user, season, chapter). Chapters the user hasn't reached yet
+// have no row — absent = locked. The "current" chapter is the one with a
+// startedAt set AND no completedAt yet (max one per season).
+@DataClassName('ChapterProgressEntry')
+class ChapterProgress extends Table {
+  TextColumn get userId           => text().withDefault(const Constant('local-user'))();
+  TextColumn get seasonId         => text()();
+  TextColumn get chapterId        => text()();
+  IntColumn  get dayInChapter     => integer().withDefault(const Constant(1))();
+  IntColumn  get roundsCompleted  => integer().withDefault(const Constant(0))();
+  IntColumn  get startedAt        => integer()();              // Unix timestamp
+  IntColumn  get completedAt      => integer().nullable()();   // Unix timestamp, null = in progress
+  IntColumn  get updatedAt        => integer()();
+
+  @override
+  Set<Column> get primaryKey => {userId, seasonId, chapterId};
+}
+
 // ── Database class ────────────────────────────────────────────────────────────
 @DriftDatabase(
   tables: [
@@ -191,6 +211,7 @@ class SyncMeta extends Table {
     UserNodeProgress,
     DailyChallengeCaches,
     SyncMeta,
+    ChapterProgress,
   ],
   daos: [
     CardsDao,
@@ -199,6 +220,7 @@ class SyncMeta extends Table {
     GovernmentDao,
     ProgressDao,
     MetaDao,
+    ChapterProgressDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -208,7 +230,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -229,6 +251,12 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(reviewLogs, reviewLogs.userId);
         await m.addColumn(userNodeProgress, userNodeProgress.userId);
         await m.addColumn(syncMeta, syncMeta.userId);
+      }
+      if (from < 3) {
+        // v2 → v3: add ChapterProgress for the chapter-aware daily round.
+        // Brand-new table; no data backfill needed (existing users will
+        // get a Chapter 1 entry created on first call to currentProgress).
+        await m.createTable(chapterProgress);
       }
     },
   );

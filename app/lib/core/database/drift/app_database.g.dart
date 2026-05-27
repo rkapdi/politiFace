@@ -4862,6 +4862,447 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
   }
 }
 
+class $ChapterProgressTable extends ChapterProgress
+    with TableInfo<$ChapterProgressTable, ChapterProgressEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChapterProgressTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
+  static const VerificationMeta _seasonIdMeta =
+      const VerificationMeta('seasonId');
+  @override
+  late final GeneratedColumn<String> seasonId = GeneratedColumn<String>(
+      'season_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chapterIdMeta =
+      const VerificationMeta('chapterId');
+  @override
+  late final GeneratedColumn<String> chapterId = GeneratedColumn<String>(
+      'chapter_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dayInChapterMeta =
+      const VerificationMeta('dayInChapter');
+  @override
+  late final GeneratedColumn<int> dayInChapter = GeneratedColumn<int>(
+      'day_in_chapter', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _roundsCompletedMeta =
+      const VerificationMeta('roundsCompleted');
+  @override
+  late final GeneratedColumn<int> roundsCompleted = GeneratedColumn<int>(
+      'rounds_completed', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<int> completedAt = GeneratedColumn<int>(
+      'completed_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        userId,
+        seasonId,
+        chapterId,
+        dayInChapter,
+        roundsCompleted,
+        startedAt,
+        completedAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chapter_progress';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ChapterProgressEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('season_id')) {
+      context.handle(_seasonIdMeta,
+          seasonId.isAcceptableOrUnknown(data['season_id']!, _seasonIdMeta));
+    } else if (isInserting) {
+      context.missing(_seasonIdMeta);
+    }
+    if (data.containsKey('chapter_id')) {
+      context.handle(_chapterIdMeta,
+          chapterId.isAcceptableOrUnknown(data['chapter_id']!, _chapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_chapterIdMeta);
+    }
+    if (data.containsKey('day_in_chapter')) {
+      context.handle(
+          _dayInChapterMeta,
+          dayInChapter.isAcceptableOrUnknown(
+              data['day_in_chapter']!, _dayInChapterMeta));
+    }
+    if (data.containsKey('rounds_completed')) {
+      context.handle(
+          _roundsCompletedMeta,
+          roundsCompleted.isAcceptableOrUnknown(
+              data['rounds_completed']!, _roundsCompletedMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, seasonId, chapterId};
+  @override
+  ChapterProgressEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChapterProgressEntry(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      seasonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}season_id'])!,
+      chapterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapter_id'])!,
+      dayInChapter: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}day_in_chapter'])!,
+      roundsCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rounds_completed'])!,
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}started_at'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}completed_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $ChapterProgressTable createAlias(String alias) {
+    return $ChapterProgressTable(attachedDatabase, alias);
+  }
+}
+
+class ChapterProgressEntry extends DataClass
+    implements Insertable<ChapterProgressEntry> {
+  final String userId;
+  final String seasonId;
+  final String chapterId;
+  final int dayInChapter;
+  final int roundsCompleted;
+  final int startedAt;
+  final int? completedAt;
+  final int updatedAt;
+  const ChapterProgressEntry(
+      {required this.userId,
+      required this.seasonId,
+      required this.chapterId,
+      required this.dayInChapter,
+      required this.roundsCompleted,
+      required this.startedAt,
+      this.completedAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['season_id'] = Variable<String>(seasonId);
+    map['chapter_id'] = Variable<String>(chapterId);
+    map['day_in_chapter'] = Variable<int>(dayInChapter);
+    map['rounds_completed'] = Variable<int>(roundsCompleted);
+    map['started_at'] = Variable<int>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<int>(completedAt);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  ChapterProgressCompanion toCompanion(bool nullToAbsent) {
+    return ChapterProgressCompanion(
+      userId: Value(userId),
+      seasonId: Value(seasonId),
+      chapterId: Value(chapterId),
+      dayInChapter: Value(dayInChapter),
+      roundsCompleted: Value(roundsCompleted),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ChapterProgressEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChapterProgressEntry(
+      userId: serializer.fromJson<String>(json['userId']),
+      seasonId: serializer.fromJson<String>(json['seasonId']),
+      chapterId: serializer.fromJson<String>(json['chapterId']),
+      dayInChapter: serializer.fromJson<int>(json['dayInChapter']),
+      roundsCompleted: serializer.fromJson<int>(json['roundsCompleted']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      completedAt: serializer.fromJson<int?>(json['completedAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'seasonId': serializer.toJson<String>(seasonId),
+      'chapterId': serializer.toJson<String>(chapterId),
+      'dayInChapter': serializer.toJson<int>(dayInChapter),
+      'roundsCompleted': serializer.toJson<int>(roundsCompleted),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'completedAt': serializer.toJson<int?>(completedAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  ChapterProgressEntry copyWith(
+          {String? userId,
+          String? seasonId,
+          String? chapterId,
+          int? dayInChapter,
+          int? roundsCompleted,
+          int? startedAt,
+          Value<int?> completedAt = const Value.absent(),
+          int? updatedAt}) =>
+      ChapterProgressEntry(
+        userId: userId ?? this.userId,
+        seasonId: seasonId ?? this.seasonId,
+        chapterId: chapterId ?? this.chapterId,
+        dayInChapter: dayInChapter ?? this.dayInChapter,
+        roundsCompleted: roundsCompleted ?? this.roundsCompleted,
+        startedAt: startedAt ?? this.startedAt,
+        completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  ChapterProgressEntry copyWithCompanion(ChapterProgressCompanion data) {
+    return ChapterProgressEntry(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      seasonId: data.seasonId.present ? data.seasonId.value : this.seasonId,
+      chapterId: data.chapterId.present ? data.chapterId.value : this.chapterId,
+      dayInChapter: data.dayInChapter.present
+          ? data.dayInChapter.value
+          : this.dayInChapter,
+      roundsCompleted: data.roundsCompleted.present
+          ? data.roundsCompleted.value
+          : this.roundsCompleted,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterProgressEntry(')
+          ..write('userId: $userId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('roundsCompleted: $roundsCompleted, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, seasonId, chapterId, dayInChapter,
+      roundsCompleted, startedAt, completedAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChapterProgressEntry &&
+          other.userId == this.userId &&
+          other.seasonId == this.seasonId &&
+          other.chapterId == this.chapterId &&
+          other.dayInChapter == this.dayInChapter &&
+          other.roundsCompleted == this.roundsCompleted &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ChapterProgressCompanion extends UpdateCompanion<ChapterProgressEntry> {
+  final Value<String> userId;
+  final Value<String> seasonId;
+  final Value<String> chapterId;
+  final Value<int> dayInChapter;
+  final Value<int> roundsCompleted;
+  final Value<int> startedAt;
+  final Value<int?> completedAt;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const ChapterProgressCompanion({
+    this.userId = const Value.absent(),
+    this.seasonId = const Value.absent(),
+    this.chapterId = const Value.absent(),
+    this.dayInChapter = const Value.absent(),
+    this.roundsCompleted = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChapterProgressCompanion.insert({
+    this.userId = const Value.absent(),
+    required String seasonId,
+    required String chapterId,
+    this.dayInChapter = const Value.absent(),
+    this.roundsCompleted = const Value.absent(),
+    required int startedAt,
+    this.completedAt = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  })  : seasonId = Value(seasonId),
+        chapterId = Value(chapterId),
+        startedAt = Value(startedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<ChapterProgressEntry> custom({
+    Expression<String>? userId,
+    Expression<String>? seasonId,
+    Expression<String>? chapterId,
+    Expression<int>? dayInChapter,
+    Expression<int>? roundsCompleted,
+    Expression<int>? startedAt,
+    Expression<int>? completedAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (seasonId != null) 'season_id': seasonId,
+      if (chapterId != null) 'chapter_id': chapterId,
+      if (dayInChapter != null) 'day_in_chapter': dayInChapter,
+      if (roundsCompleted != null) 'rounds_completed': roundsCompleted,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChapterProgressCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? seasonId,
+      Value<String>? chapterId,
+      Value<int>? dayInChapter,
+      Value<int>? roundsCompleted,
+      Value<int>? startedAt,
+      Value<int?>? completedAt,
+      Value<int>? updatedAt,
+      Value<int>? rowid}) {
+    return ChapterProgressCompanion(
+      userId: userId ?? this.userId,
+      seasonId: seasonId ?? this.seasonId,
+      chapterId: chapterId ?? this.chapterId,
+      dayInChapter: dayInChapter ?? this.dayInChapter,
+      roundsCompleted: roundsCompleted ?? this.roundsCompleted,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (seasonId.present) {
+      map['season_id'] = Variable<String>(seasonId.value);
+    }
+    if (chapterId.present) {
+      map['chapter_id'] = Variable<String>(chapterId.value);
+    }
+    if (dayInChapter.present) {
+      map['day_in_chapter'] = Variable<int>(dayInChapter.value);
+    }
+    if (roundsCompleted.present) {
+      map['rounds_completed'] = Variable<int>(roundsCompleted.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<int>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterProgressCompanion(')
+          ..write('userId: $userId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('roundsCompleted: $roundsCompleted, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4877,12 +5318,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DailyChallengeCachesTable dailyChallengeCaches =
       $DailyChallengeCachesTable(this);
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
+  late final $ChapterProgressTable chapterProgress =
+      $ChapterProgressTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
   late final GovernmentDao governmentDao = GovernmentDao(this as AppDatabase);
   late final ProgressDao progressDao = ProgressDao(this as AppDatabase);
   late final MetaDao metaDao = MetaDao(this as AppDatabase);
+  late final ChapterProgressDao chapterProgressDao =
+      ChapterProgressDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4896,7 +5341,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         reviewLogs,
         userNodeProgress,
         dailyChallengeCaches,
-        syncMeta
+        syncMeta,
+        chapterProgress
       ];
 }
 
@@ -7178,6 +7624,228 @@ typedef $$SyncMetaTableProcessedTableManager = ProcessedTableManager<
     (SyncMetaData, BaseReferences<_$AppDatabase, $SyncMetaTable, SyncMetaData>),
     SyncMetaData,
     PrefetchHooks Function()>;
+typedef $$ChapterProgressTableCreateCompanionBuilder = ChapterProgressCompanion
+    Function({
+  Value<String> userId,
+  required String seasonId,
+  required String chapterId,
+  Value<int> dayInChapter,
+  Value<int> roundsCompleted,
+  required int startedAt,
+  Value<int?> completedAt,
+  required int updatedAt,
+  Value<int> rowid,
+});
+typedef $$ChapterProgressTableUpdateCompanionBuilder = ChapterProgressCompanion
+    Function({
+  Value<String> userId,
+  Value<String> seasonId,
+  Value<String> chapterId,
+  Value<int> dayInChapter,
+  Value<int> roundsCompleted,
+  Value<int> startedAt,
+  Value<int?> completedAt,
+  Value<int> updatedAt,
+  Value<int> rowid,
+});
+
+class $$ChapterProgressTableFilterComposer
+    extends Composer<_$AppDatabase, $ChapterProgressTable> {
+  $$ChapterProgressTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get roundsCompleted => $composableBuilder(
+      column: $table.roundsCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ChapterProgressTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChapterProgressTable> {
+  $$ChapterProgressTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get roundsCompleted => $composableBuilder(
+      column: $table.roundsCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ChapterProgressTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChapterProgressTable> {
+  $$ChapterProgressTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get seasonId =>
+      $composableBuilder(column: $table.seasonId, builder: (column) => column);
+
+  GeneratedColumn<String> get chapterId =>
+      $composableBuilder(column: $table.chapterId, builder: (column) => column);
+
+  GeneratedColumn<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => column);
+
+  GeneratedColumn<int> get roundsCompleted => $composableBuilder(
+      column: $table.roundsCompleted, builder: (column) => column);
+
+  GeneratedColumn<int> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ChapterProgressTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChapterProgressTable,
+    ChapterProgressEntry,
+    $$ChapterProgressTableFilterComposer,
+    $$ChapterProgressTableOrderingComposer,
+    $$ChapterProgressTableAnnotationComposer,
+    $$ChapterProgressTableCreateCompanionBuilder,
+    $$ChapterProgressTableUpdateCompanionBuilder,
+    (
+      ChapterProgressEntry,
+      BaseReferences<_$AppDatabase, $ChapterProgressTable, ChapterProgressEntry>
+    ),
+    ChapterProgressEntry,
+    PrefetchHooks Function()> {
+  $$ChapterProgressTableTableManager(
+      _$AppDatabase db, $ChapterProgressTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChapterProgressTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChapterProgressTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChapterProgressTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> seasonId = const Value.absent(),
+            Value<String> chapterId = const Value.absent(),
+            Value<int> dayInChapter = const Value.absent(),
+            Value<int> roundsCompleted = const Value.absent(),
+            Value<int> startedAt = const Value.absent(),
+            Value<int?> completedAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChapterProgressCompanion(
+            userId: userId,
+            seasonId: seasonId,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            roundsCompleted: roundsCompleted,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            required String seasonId,
+            required String chapterId,
+            Value<int> dayInChapter = const Value.absent(),
+            Value<int> roundsCompleted = const Value.absent(),
+            required int startedAt,
+            Value<int?> completedAt = const Value.absent(),
+            required int updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChapterProgressCompanion.insert(
+            userId: userId,
+            seasonId: seasonId,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            roundsCompleted: roundsCompleted,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ChapterProgressTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChapterProgressTable,
+    ChapterProgressEntry,
+    $$ChapterProgressTableFilterComposer,
+    $$ChapterProgressTableOrderingComposer,
+    $$ChapterProgressTableAnnotationComposer,
+    $$ChapterProgressTableCreateCompanionBuilder,
+    $$ChapterProgressTableUpdateCompanionBuilder,
+    (
+      ChapterProgressEntry,
+      BaseReferences<_$AppDatabase, $ChapterProgressTable, ChapterProgressEntry>
+    ),
+    ChapterProgressEntry,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7200,4 +7868,6 @@ class $AppDatabaseManager {
       $$DailyChallengeCachesTableTableManager(_db, _db.dailyChallengeCaches);
   $$SyncMetaTableTableManager get syncMeta =>
       $$SyncMetaTableTableManager(_db, _db.syncMeta);
+  $$ChapterProgressTableTableManager get chapterProgress =>
+      $$ChapterProgressTableTableManager(_db, _db.chapterProgress);
 }

@@ -2,6 +2,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/database/drift/app_database.dart';
+import '../features/curriculum/data/chapter_progress_service.dart';
+import '../features/curriculum/data/content_linker.dart';
+import '../features/curriculum/data/curriculum_loader.dart';
+import '../features/curriculum/domain/curriculum.dart';
 import '../features/daily_challenge/data/daily_challenge_service.dart';
 import '../features/government/data/node_unlock_service.dart';
 import '../features/profile/data/profile_service.dart';
@@ -80,3 +84,37 @@ final cardRevealedProvider = StateProvider<bool>((ref) => false);
 // The Learn tab now renders a single OSINT-style progression tree
 // (OrgChartMap). The previous Path / System toggle and its provider have
 // been retired.
+
+// ── Curriculum (chapter-aware daily round) ──────────────────────────────────
+
+final curriculumLoaderProvider = Provider<CurriculumLoader>((_) {
+  return CurriculumLoader();
+});
+
+/// Parsed `us_civics.yaml`. Loaded once per app launch; cached for the
+/// lifetime of the Riverpod scope.
+final curriculumProvider = FutureProvider<Curriculum>((ref) async {
+  return ref.watch(curriculumLoaderProvider).load();
+});
+
+final chapterProgressServiceProvider =
+    Provider<ChapterProgressService>((ref) {
+  return ChapterProgressService(ref.watch(databaseProvider));
+});
+
+final contentLinkerProvider = Provider<ContentLinker>((ref) {
+  return ContentLinker(ref.watch(databaseProvider));
+});
+
+/// The user's current in-progress chapter entry, or null when the season is
+/// done. Returns null while [curriculumProvider] is still loading.
+///
+/// Drives the home-screen "Today's Round: Chapter X · Day Y of Z" CTA.
+/// Refetches when [sessionTickProvider] bumps (so completing a round
+/// immediately reflects in the UI).
+final currentChapterProgressProvider =
+    FutureProvider<ChapterProgressEntry?>((ref) async {
+  ref.watch(sessionTickProvider);
+  final curriculum = await ref.watch(curriculumProvider.future);
+  return ref.watch(chapterProgressServiceProvider).currentProgress(curriculum);
+});

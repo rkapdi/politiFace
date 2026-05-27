@@ -1,0 +1,744 @@
+# Politiface — US Civics Curriculum (v1)
+#
+# Single source of truth for the civics-literacy curriculum that powers
+# BOTH the learn-tab map (via `concept_nodes`) and the trivia question
+# picker (via `curriculum_items`, sampled for coverage-over-time guarantees).
+#
+# Built by consolidating five canonical sources:
+#   U = USCIS 2008 Naturalization Test (100 questions)
+#   F = Florida Civic Literacy Exam (FCLE)
+#   A = AP US Government and Politics (College Board CED)
+#   N = NAEP Civics Framework (Nation's Report Card)
+#   I = iCivics / representative 8th-grade state standards
+#
+# Tiers:
+#   core      — appears in 3+ sources; non-negotiable for v1
+#   standard  — appears in 2 sources; v1 if room, v1.1 otherwise
+#   (nice-to-have items deferred — re-introduce when we expand to specialized
+#    audiences like AP students or FCLE-specific Florida cohort)
+#
+# Coverage tag:
+#   face_card     — already taught by an existing face-card deck (avoid duplicate authorship)
+#   concept       — needs a concept-flashcard set (NEW work)
+#   mixed         — partial face-card coverage + needs supplementary concept content
+#
+# IDs use kebab-case prefixed with branch slug + topic slug.
+
+version: 1
+locale: en-US
+
+# ── Chapters (player-facing curated path) ──────────────────────────────────
+# Players experience the curriculum as a linear "season" of 6 chapters.
+# Each chapter pulls items from MULTIPLE branches — chapters narrate a
+# story, branches organize content. The home screen shows one chapter at
+# a time ("Today's Round: Chapter 2 · The Architecture · Day 4 of 7").
+#
+# Pacing: chapter_days = ceil(unique_items / ~5 introduced per day). A
+# season (all 6 chapters) takes ~18 days of daily play to walk through
+# once. FSRS reinforcement of past chapters layers in automatically, so
+# the daily round mixes ~70% current-chapter items + ~30% spaced review.
+
+season:
+  id: us-civics-season-1
+  title: "Season One: Civic Foundations"
+  subtitle: "From the Declaration to your ballot."
+  total_chapters: 6
+  estimated_days: 18
+
+chapters:
+
+  - id: ch1.first-principles
+    order: 1
+    title: First Principles
+    subtitle: Why this country exists.
+    days: 2
+    item_ids:
+      - decl.purpose
+      - decl.unalienable-rights
+      - founders.washington
+      - founders.jefferson-madison-franklin-hamilton
+      - const.we-the-people
+      - const.convention-1787
+      - const.articles-of-confederation
+
+  - id: ch2.the-architecture
+    order: 2
+    title: The Architecture
+    subtitle: How the system is built.
+    days: 3
+    item_ids:
+      - const.supreme-law
+      - const.amendment-process
+      - prin.separation-of-powers
+      - prin.checks-and-balances
+      - prin.federalism
+      - prin.enumerated-reserved-concurrent
+      - prin.limited-government
+      - prin.rule-of-law
+      - bor.what-and-why
+      - bor.first-amendment
+      - bor.second-amendment
+      - fed.papers-overview
+      - fed.10-factions
+      - fed.51-separation
+
+  - id: ch3.three-branches
+    order: 3
+    title: The Three Branches
+    subtitle: Who does what.
+    days: 3
+    item_ids:
+      - leg.bicameral
+      - leg.senate-basics
+      - leg.house-basics
+      - leg.speaker
+      - exec.president-basics
+      - exec.vp-succession
+      - exec.cabinet
+      - exec.eop
+      - jud.scotus-basics
+      - jud.court-hierarchy
+      - jud.lifetime-tenure
+      - fed.70-executive
+      - fed.78-judiciary
+
+  - id: ch4.machine-in-motion
+    order: 4
+    title: The Machine in Motion
+    subtitle: How law and power actually move.
+    days: 3
+    item_ids:
+      - leg.enumerated-powers
+      - leg.elastic-clause
+      - leg.commerce-clause
+      - leg.power-of-purse
+      - leg.oversight
+      - leg.bill-to-law
+      - leg.committees
+      - leg.impeachment
+      - exec.commander-in-chief
+      - exec.veto
+      - exec.executive-orders
+      - exec.treaty-power
+      - exec.appointments
+      - exec.bureaucracy-basics
+      - jud.judicial-review
+
+  - id: ch5.rights-and-the-court
+    order: 5
+    title: Rights & The Court
+    subtitle: Where the system meets the person.
+    days: 3
+    item_ids:
+      - case.marbury
+      - case.mcculloch
+      - case.brown
+      - case.plessy
+      - case.gideon
+      - case.engel
+      - case.tinker
+      - case.schenck
+      - case.nyt-us
+      - case.yoder
+      - case.roe-dobbs
+      - case.citizens-united
+      - doc.incorporation
+      - cr.movement
+
+  - id: ch6.we-the-people
+    order: 6
+    title: We the People
+    subtitle: Your turn.
+    days: 4
+    item_ids:
+      - sl.governor
+      - sl.state-powers
+      - sl.federalism-practice
+      - sl.local-structures
+      - part.two-parties
+      - part.third-parties
+      - part.ideology
+      - vote.eligibility
+      - vote.registration-turnout
+      - vote.presidential-cycle
+      - camp.interest-groups
+      - camp.finance
+      - media.role
+      - civ.duties
+      - civ.citizen-rights
+      - cr.landmark-legislation
+      - sym.flag
+      - sym.anthem
+      - geo.essentials
+      - leg.gerrymandering
+
+# ── Map structure ──────────────────────────────────────────────────────────
+# Top-level branches mirror the existing learn-tab map. `Foundations` is
+# new. Each branch lists concept_nodes that will render in the map ALONGSIDE
+# existing face-card nodes (which live in /app/assets/content/decks/).
+
+branches:
+
+  # ── FOUNDATIONS (new top-level branch) ─────────────────────────────────
+  - id: foundations
+    title: Foundations
+    color: ochre
+    description: >
+      The founding documents, principles, and architecture of American
+      democracy. Where the system gets its legitimacy and shape.
+    concept_nodes:
+
+      - id: foundations.constitution
+        title: The Constitution
+        items:
+          - id: const.supreme-law
+            prompt: The Constitution is the supreme law of the land
+            tier: core
+            sources: [U, F, A, N, I]
+            coverage: concept
+          - id: const.we-the-people
+            prompt: "'We the People' — popular sovereignty and self-government"
+            tier: core
+            sources: [U, F, N, I]
+            coverage: concept
+          - id: const.convention-1787
+            prompt: Constitutional Convention (1787) — Philadelphia, replaced the Articles
+            tier: core
+            sources: [U, F, A]
+            coverage: concept
+          - id: const.articles-of-confederation
+            prompt: Articles of Confederation — first US government and why it failed
+            tier: core
+            sources: [F, A, I]
+            coverage: concept
+          - id: const.amendment-process
+            prompt: How the Constitution is amended (Article V)
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+
+      - id: foundations.declaration
+        title: Declaration of Independence
+        items:
+          - id: decl.purpose
+            prompt: Declaration of Independence — purpose, author (Jefferson), date (July 4, 1776)
+            tier: core
+            sources: [U, F, A, I]
+            coverage: concept
+          - id: decl.unalienable-rights
+            prompt: Unalienable rights — life, liberty, pursuit of happiness
+            tier: core
+            sources: [U, F, A]
+            coverage: concept
+
+      - id: foundations.bill-of-rights
+        title: Bill of Rights
+        items:
+          - id: bor.what-and-why
+            prompt: The Bill of Rights — first 10 amendments and why they were added
+            tier: core
+            sources: [U, F, A, N, I]
+            coverage: concept
+          - id: bor.first-amendment
+            prompt: First Amendment — speech, religion, press, assembly, petition
+            tier: core
+            sources: [U, F, A, I]
+            coverage: concept
+          - id: bor.second-amendment
+            prompt: Second Amendment — right to bear arms (DC v. Heller, McDonald v. Chicago)
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+      - id: foundations.federalist-papers
+        title: Federalist Papers
+        items:
+          - id: fed.papers-overview
+            prompt: Federalist Papers — purpose (ratify the Constitution); Hamilton, Madison, Jay
+            tier: core
+            sources: [F, A, I]
+            coverage: concept
+          - id: fed.10-factions
+            prompt: Federalist 10 — Madison on factions and the large republic remedy
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: fed.51-separation
+            prompt: Federalist 51 — "ambition counteracting ambition" / separation of powers
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: fed.70-executive
+            prompt: Federalist 70 — Hamilton on the energetic single executive
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: fed.78-judiciary
+            prompt: Federalist 78 — Hamilton on judicial review and the "least dangerous branch"
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+      - id: foundations.principles
+        title: Foundational Principles
+        items:
+          - id: prin.rule-of-law
+            prompt: Rule of law — no one is above the law
+            tier: core
+            sources: [U, F, N]
+            coverage: concept
+          - id: prin.separation-of-powers
+            prompt: Separation of powers — the three branches divide authority
+            tier: core
+            sources: [U, F, A, N, I]
+            coverage: concept
+          - id: prin.checks-and-balances
+            prompt: Checks and balances — each branch limits the others
+            tier: core
+            sources: [U, F, A, N, I]
+            coverage: concept
+          - id: prin.federalism
+            prompt: Federalism — division of power between national and state governments
+            tier: core
+            sources: [U, F, A, N, I]
+            coverage: concept
+            cross_links: [state-local.federalism-practice]
+          - id: prin.enumerated-reserved-concurrent
+            prompt: Enumerated, reserved, and concurrent powers
+            tier: core
+            sources: [U, F, A]
+            coverage: concept
+          - id: prin.limited-government
+            prompt: Limited government — constitutional constraints on state power
+            tier: core
+            sources: [F, A, N]
+            coverage: concept
+
+      - id: foundations.founders
+        title: The Founders
+        items:
+          - id: founders.washington
+            prompt: George Washington — first president, Constitutional Convention president
+            tier: core
+            sources: [U, F, A, I]
+            coverage: concept
+          - id: founders.jefferson-madison-franklin-hamilton
+            prompt: Jefferson, Madison, Franklin, Hamilton — roles in founding
+            tier: core
+            sources: [U, F, A, I]
+            coverage: concept
+
+  # ── LEGISLATIVE ──────────────────────────────────────────────────────────
+  - id: legislative
+    title: Legislative
+    color: civicNavy
+    concept_nodes:
+
+      - id: legislative.congress-structure
+        title: Congress — Structure
+        items:
+          - id: leg.bicameral
+            prompt: Congress has two chambers — Senate and House of Representatives
+            tier: core
+            sources: [U, F, A, N, I]
+            coverage: face_card  # us-legislative-congress.yaml
+          - id: leg.senate-basics
+            prompt: 100 Senators (2 per state), 6-year terms
+            tier: core
+            sources: [U, I]
+            coverage: face_card  # us-legislative-senate.yaml
+          - id: leg.house-basics
+            prompt: 435 House members, 2-year terms, apportioned by state population
+            tier: core
+            sources: [U, F, I]
+            coverage: face_card  # us-legislative-house.yaml
+          - id: leg.speaker
+            prompt: Speaker of the House — role and current officeholder
+            tier: core
+            sources: [U, I]
+            coverage: face_card
+
+      - id: legislative.powers
+        title: Powers of Congress
+        items:
+          - id: leg.enumerated-powers
+            prompt: Enumerated powers (Article I §8) — tax, spend, declare war, regulate commerce, coin money
+            tier: core
+            sources: [U, F, A]
+            coverage: concept
+          - id: leg.elastic-clause
+            prompt: Necessary and Proper (Elastic) Clause — implied powers
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: leg.commerce-clause
+            prompt: Commerce Clause — federal regulation of interstate commerce (McCulloch v. Maryland)
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: leg.power-of-purse
+            prompt: Power of the purse — Congress controls federal spending
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: leg.oversight
+            prompt: Congressional oversight — investigations, hearings, subpoenas
+            tier: standard
+            sources: [A, N]
+            coverage: concept
+
+      - id: legislative.process
+        title: Lawmaking Process
+        items:
+          - id: leg.bill-to-law
+            prompt: How a bill becomes a law — introduction → committee → floor → conference → president
+            tier: core
+            sources: [F, A, I]
+            coverage: concept
+          - id: leg.committees
+            prompt: Committee system — markup, reporting, jurisdiction
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: leg.impeachment
+            prompt: Impeachment — House charges, Senate tries, Chief Justice presides for President
+            tier: core
+            sources: [F, A, I]
+            coverage: concept
+            cross_links: [judicial.scotus-role]
+          - id: leg.gerrymandering
+            prompt: Gerrymandering and redistricting (Baker v. Carr, Shaw v. Reno)
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+  # ── EXECUTIVE ────────────────────────────────────────────────────────────
+  - id: executive
+    title: Executive
+    color: actionRed
+    concept_nodes:
+
+      - id: executive.president-office
+        title: The Presidency
+        items:
+          - id: exec.president-basics
+            prompt: President — 4-year term, 22nd Amendment 2-term limit, current officeholder
+            tier: core
+            sources: [U, F, I]
+            coverage: face_card
+          - id: exec.vp-succession
+            prompt: Vice President and presidential succession (Speaker, President pro tempore, etc.)
+            tier: core
+            sources: [U, I]
+            coverage: face_card
+          - id: exec.cabinet
+            prompt: Cabinet — purpose, 15 executive departments
+            tier: core
+            sources: [U, F, I]
+            coverage: face_card  # us-executive-cabinet.yaml
+          - id: exec.eop
+            prompt: Executive Office of the President — White House staff, OMB, NSC
+            tier: standard
+            sources: [A, I]
+            coverage: face_card  # us-executive-eop.yaml
+
+      - id: executive.powers
+        title: Executive Powers
+        items:
+          - id: exec.commander-in-chief
+            prompt: Commander-in-Chief — power over the military
+            tier: core
+            sources: [U, F, A]
+            coverage: concept
+          - id: exec.veto
+            prompt: Veto and pocket veto; Congress can override with 2/3 vote
+            tier: core
+            sources: [U, F, A]
+            coverage: concept
+          - id: exec.executive-orders
+            prompt: Executive orders — direct executive-branch action without Congress
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: exec.treaty-power
+            prompt: Treaty-making — President negotiates, Senate ratifies (2/3 vote)
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: exec.appointments
+            prompt: Appointment power — judges, ambassadors, agency heads (Senate confirms)
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+
+      - id: executive.bureaucracy
+        title: Federal Bureaucracy
+        items:
+          - id: exec.bureaucracy-basics
+            prompt: Federal bureaucracy — agencies, rule-making, discretionary authority
+            tier: standard
+            sources: [A, N]
+            coverage: concept
+
+  # ── JUDICIAL ─────────────────────────────────────────────────────────────
+  - id: judicial
+    title: Judicial
+    color: civicGreen
+    concept_nodes:
+
+      - id: judicial.scotus-role
+        title: Supreme Court
+        items:
+          - id: jud.scotus-basics
+            prompt: Supreme Court — highest court, 9 justices, current Chief Justice
+            tier: core
+            sources: [U, F, I]
+            coverage: face_card  # us-judicial-scotus.yaml
+          - id: jud.court-hierarchy
+            prompt: Federal court hierarchy — District Courts → Circuit Courts of Appeals → Supreme Court
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: jud.lifetime-tenure
+            prompt: Federal judges have lifetime tenure; nominated by President, confirmed by Senate
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: jud.judicial-review
+            prompt: Judicial review — courts can strike down unconstitutional laws (Marbury v. Madison, 1803)
+            tier: core
+            sources: [F, A, I, N]
+            coverage: concept
+
+      - id: judicial.landmark-cases-structural
+        title: Landmark Cases — Power & Structure
+        items:
+          - id: case.marbury
+            prompt: Marbury v. Madison (1803) — established judicial review
+            tier: core
+            sources: [F, A, I, N]
+            coverage: concept
+          - id: case.mcculloch
+            prompt: McCulloch v. Maryland (1819) — implied powers, federal supremacy
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+      - id: judicial.landmark-cases-rights
+        title: Landmark Cases — Rights & Liberties
+        items:
+          - id: case.brown
+            prompt: Brown v. Board of Education (1954) — ended school segregation
+            tier: core
+            sources: [F, A, I]
+            coverage: concept
+          - id: case.plessy
+            prompt: Plessy v. Ferguson (1896) — "separate but equal" (overturned by Brown)
+            tier: standard
+            sources: [F, I]
+            coverage: concept
+          - id: case.gideon
+            prompt: Gideon v. Wainwright (1963) — right to counsel in criminal cases
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.engel
+            prompt: Engel v. Vitale (1962) — no government-led prayer in public schools
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.tinker
+            prompt: Tinker v. Des Moines (1969) — student free-speech rights
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.schenck
+            prompt: Schenck v. US (1919) — "clear and present danger" limit on speech
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.nyt-us
+            prompt: NYT v. US (1971) — prior restraint and the Pentagon Papers
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.yoder
+            prompt: Wisconsin v. Yoder (1972) — free exercise of religion
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.roe-dobbs
+            prompt: Roe v. Wade (1973) — privacy/abortion right; overturned by Dobbs (2022)
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+          - id: case.citizens-united
+            prompt: Citizens United v. FEC (2010) — corporate political speech / campaign finance
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+      - id: judicial.incorporation
+        title: Doctrines
+        items:
+          - id: doc.incorporation
+            prompt: Incorporation doctrine — 14th Amendment applies Bill of Rights to states
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+  # ── STATE AND LOCAL / PARTICIPATION ─────────────────────────────────────
+  - id: state-local
+    title: State and Local Governments
+    color: civicLight
+    concept_nodes:
+
+      - id: state-local.state-government
+        title: State Government
+        items:
+          - id: sl.governor
+            prompt: State governor — current officeholder for the user's state; state capital
+            tier: core
+            sources: [U, I]
+            coverage: concept
+          - id: sl.state-powers
+            prompt: State powers — police power, education, elections administration
+            tier: core
+            sources: [U, F, I]
+            coverage: concept
+          - id: sl.federalism-practice
+            prompt: Federalism in practice — concurrent powers, supremacy, when states and feds disagree
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+            cross_links: [foundations.principles]
+
+      - id: state-local.local-government
+        title: Local Government
+        items:
+          - id: sl.local-structures
+            prompt: Local government structures — mayor-council, council-manager, county, school board
+            tier: standard
+            sources: [N, I]
+            coverage: concept
+
+      - id: state-local.parties
+        title: Political Parties
+        items:
+          - id: part.two-parties
+            prompt: Two major parties — Democratic, Republican; party of current president
+            tier: core
+            sources: [U, A, I]
+            coverage: face_card  # existing us-node-parties
+          - id: part.third-parties
+            prompt: Third parties — roles (issue-raising) and structural barriers
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: part.ideology
+            prompt: Political ideology — liberal, conservative, libertarian, populist
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+
+      - id: state-local.voting-elections
+        title: Voting & Elections
+        items:
+          - id: vote.eligibility
+            prompt: Voter eligibility — 18+ citizen; 15th / 19th / 24th / 26th Amendments
+            tier: core
+            sources: [U, F, A, I]
+            coverage: concept
+          - id: vote.registration-turnout
+            prompt: Voter registration; turnout patterns by age, income, education
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: vote.presidential-cycle
+            prompt: Presidential elections — primaries, conventions, general, Electoral College
+            tier: core
+            sources: [U, A, I]
+            coverage: concept
+
+      - id: state-local.campaigns-money
+        title: Campaigns & Money
+        items:
+          - id: camp.interest-groups
+            prompt: Interest groups, PACs, Super PACs, and lobbying
+            tier: standard
+            sources: [A, I]
+            coverage: concept
+          - id: camp.finance
+            prompt: Campaign finance — FEC, BCRA, post-Citizens United landscape
+            tier: standard
+            sources: [F, A]
+            coverage: concept
+
+      - id: state-local.media
+        title: Media & Public Opinion
+        items:
+          - id: media.role
+            prompt: Mass media — agenda setting, partisan media, social media's role in politics
+            tier: standard
+            sources: [A, I, N]
+            coverage: concept
+
+      - id: state-local.civic-participation
+        title: Civic Participation
+        items:
+          - id: civ.duties
+            prompt: Civic duties — jury duty, taxes (April 15), Selective Service, voting
+            tier: core
+            sources: [U, I, N]
+            coverage: concept
+          - id: civ.citizen-rights
+            prompt: Citizen vs. resident rights — voting, running for federal office
+            tier: standard
+            sources: [U, I]
+            coverage: concept
+
+      - id: state-local.civil-rights-history
+        title: Civil Rights Era
+        items:
+          - id: cr.movement
+            prompt: Civil Rights Movement — MLK, Civil Rights Act 1964, Voting Rights Act 1965
+            tier: core
+            sources: [U, F, I]
+            coverage: concept
+            cross_links: [judicial.landmark-cases-rights]
+          - id: cr.landmark-legislation
+            prompt: Landmark legislation — New Deal, Great Society, ACA, Patriot Act
+            tier: standard
+            sources: [F, I]
+            coverage: concept
+
+      - id: state-local.symbols-geography
+        title: Symbols & Geography
+        items:
+          - id: sym.flag
+            prompt: Flag — 50 stars (states), 13 stripes (original colonies)
+            tier: core
+            sources: [U, I]
+            coverage: concept
+          - id: sym.anthem
+            prompt: National anthem — "The Star-Spangled Banner"
+            tier: core
+            sources: [U, I]
+            coverage: concept
+          - id: geo.essentials
+            prompt: Capital (Washington DC); major rivers (Mississippi, Missouri); territories (PR, USVI, Guam, AS, NMI)
+            tier: standard
+            sources: [U, I]
+            coverage: concept
+
+# ── Coverage summary ───────────────────────────────────────────────────────
+# Concept nodes:      18  (5 Foundations, 3 Legislative, 3 Executive,
+#                          4 Judicial, 3 State-Local rolled up as branches)
+# Curriculum items:   71  (30 core + 41 standard)
+# Already face-card:  10  (existing decks cover these; no new authoring needed)
+# Needs concept-deck: 61  (the actual content-authoring backlog for v1)
+#
+# The trivia question picker samples from `curriculum_items` with
+# coverage-over-time bias: prefer items the user has touched least, weighted
+# by tier (core 3x, standard 1x). This guarantees that a daily player has
+# seen every CORE item within ~30 days and every STANDARD item within ~90.
