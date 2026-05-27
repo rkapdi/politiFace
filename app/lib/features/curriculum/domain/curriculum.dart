@@ -25,6 +25,7 @@ class Curriculum {
     required this.chapters,
     required this.branches,
   })  : _itemsById = _indexItems(branches),
+        _branchByItem = _indexBranchByItem(branches),
         _chapterByItem = _indexChapterByItem(chapters);
 
   final int version;
@@ -35,6 +36,11 @@ class Curriculum {
 
   /// Flat lookup: curriculum item id → [CurriculumItem]. O(1).
   final Map<String, CurriculumItem> _itemsById;
+
+  /// Reverse index: curriculum item id → owning [Branch]. O(1).
+  /// Lets us answer "which branches does this chapter touch?" by walking
+  /// the chapter's `itemIds` — drives the Atlas chapter spotlight.
+  final Map<String, Branch> _branchByItem;
 
   /// Reverse index: curriculum item id → owning [Chapter]. O(1).
   /// Used by the question picker to figure out which chapter an item belongs
@@ -58,6 +64,24 @@ class Curriculum {
   }
 
   Chapter? chapterForItem(String itemId) => _chapterByItem[itemId];
+
+  Branch? branchForItem(String itemId) => _branchByItem[itemId];
+
+  /// Set of branch ids the [chapter] touches. Used by the Atlas spotlight
+  /// to highlight which branches are relevant to the current chapter.
+  /// Returns ids in branch-declaration order so callers can render them
+  /// consistently.
+  List<String> branchIdsForChapter(Chapter chapter) {
+    final touched = <String>{};
+    for (final id in chapter.itemIds) {
+      final branch = _branchByItem[id];
+      if (branch != null) touched.add(branch.id);
+    }
+    return [
+      for (final b in branches)
+        if (touched.contains(b.id)) b.id,
+    ];
+  }
 
   Branch? branchById(String id) {
     for (final b in branches) {
@@ -90,6 +114,18 @@ class Curriculum {
     for (final chapter in chapters) {
       for (final id in chapter.itemIds) {
         map[id] = chapter;
+      }
+    }
+    return map;
+  }
+
+  static Map<String, Branch> _indexBranchByItem(List<Branch> branches) {
+    final map = <String, Branch>{};
+    for (final branch in branches) {
+      for (final node in branch.conceptNodes) {
+        for (final item in node.items) {
+          map[item.id] = branch;
+        }
       }
     }
     return map;

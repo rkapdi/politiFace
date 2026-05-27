@@ -1,7 +1,7 @@
 import 'package:go_router/go_router.dart';
 
+import '../features/atlas/presentation/atlas_screen.dart';
 import '../features/endless/presentation/endless_screen.dart';
-import '../features/government/presentation/gov_map_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
@@ -34,7 +34,7 @@ GoRouter buildRouter({String initialLocation = '/'}) {
             routes: [
               GoRoute(
                 path: '/map',
-                builder: (context, state) => const GovMapScreen(),
+                builder: (context, state) => const AtlasScreen(),
               ),
             ],
           ),
