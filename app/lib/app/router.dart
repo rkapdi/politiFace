@@ -6,6 +6,7 @@ import '../features/government/presentation/node_detail_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
+import '../features/round/presentation/daily_round_screen.dart';
 import '../features/session/presentation/session_screen.dart';
 import '../features/session/presentation/summary_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
@@ -60,6 +61,10 @@ GoRouter buildRouter({String initialLocation = '/'}) {
       GoRoute(
         path: '/session',
         builder: (context, state) => const SessionScreen(),
+      ),
+      GoRoute(
+        path: '/round',
+        builder: (context, state) => const DailyRoundScreen(),
       ),
       GoRoute(
         path: '/summary',

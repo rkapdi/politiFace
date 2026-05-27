@@ -49,6 +49,11 @@ class HomeScreen extends ConsumerWidget {
                       ),
               ),
               const SizedBox(height: 24),
+              // TEMP — phase 3 entry point to /round so we can validate
+              // end-to-end before the Phase 4 home redesign. Replaces
+              // both Daily Challenge + Trivia in the final layout.
+              _RoundTile(),
+              const SizedBox(height: 12),
               _TriviaTile(),
               const SizedBox(height: 12),
               _EndlessTile(),
@@ -167,6 +172,27 @@ class _ActionTile extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// TEMP — Phase 3 launch tile. Phase 4 promotes this concept into the
+/// primary `ChapterRoundCard` and demotes Trivia + Endless to secondary.
+class _RoundTile extends StatelessWidget {
+  const _RoundTile();
+
+  @override
+  Widget build(BuildContext context) {
+    return _ActionTile(
+      section: "TODAY'S ROUND · DAILY",
+      headline: 'Walk the chapter.',
+      body: '5 cards + 10 trivia. Themed by today\'s chapter.',
+      accent: EditorialPalette.ochre,
+      mark: '★',
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.go('/round');
+      },
     );
   }
 }

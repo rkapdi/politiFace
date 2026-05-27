@@ -1,0 +1,276 @@
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../app/editorial_theme.dart';
+import '../../../app/providers.dart';
+import '../domain/round_state.dart';
+
+/// Cards phase of the daily round. Renders the current ungraded card with
+/// a flip-to-answer interaction, then grade buttons. Advances via
+/// [DailyRoundController.gradeCard].
+///
+/// Visually mirrors the existing free-explore SessionScreen card view so
+/// the gesture vocabulary (tap to reveal, grade button row) is consistent
+/// across the two flows. Phase 3 keeps things text-only for the chapter
+/// round; photo rendering comes back when the curriculum content layer
+/// catches up.
+class RoundCardsPhase extends ConsumerStatefulWidget {
+  const RoundCardsPhase({super.key, required this.state});
+  final DailyRoundState state;
+
+  @override
+  ConsumerState<RoundCardsPhase> createState() => _RoundCardsPhaseState();
+}
+
+class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
+  /// Which card the user has tapped to reveal. Stored by cardId (not a
+  /// bool) so that when the parent rebuilds with the next card the
+  /// computed `_revealed` flips back to false automatically — no manual
+  /// reset, no race with the controller's setState.
+  String? _revealedCardId;
+
+  int get _index =>
+      widget.state.nextUngradedCard ?? widget.state.cards.length - 1;
+  RoundCard get _card => widget.state.cards[_index];
+  bool get _revealed => _revealedCardId == _card.cardId;
+
+  void _reveal() {
+    if (_revealed) return;
+    HapticFeedback.lightImpact();
+    setState(() => _revealedCardId = _card.cardId);
+  }
+
+  Future<void> _grade(int grade) async {
+    HapticFeedback.lightImpact();
+    final idx = _index;
+    await ref
+        .read(dailyRoundControllerProvider.notifier)
+        .gradeCard(idx, grade);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final total = widget.state.cards.length;
+    final completed =
+        widget.state.cards.where((c) => c.grade != null).length;
+    final progress = total == 0 ? 0.0 : completed / total;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Progress strip — magazine-style hairline.
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              minHeight: 4,
+              backgroundColor: theme.colorScheme.surfaceContainerHigh,
+              valueColor: AlwaysStoppedAnimation(EditorialPalette.ochre),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'CARD ${completed + 1} OF $total',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              letterSpacing: 1.6,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 28),
+          Expanded(
+            child: GestureDetector(
+              onTap: _reveal,
+              behavior: HitTestBehavior.opaque,
+              child: Center(
+                child: _FlipCard(
+                  key: ValueKey(_card.cardId),
+                  revealed: _revealed,
+                  front: _CardFront(card: _card),
+                  back: _CardBack(card: _card),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 56,
+            child: _revealed
+                ? Row(
+                    children: [
+                      Expanded(child: _gradeBtn('AGAIN', 0, EditorialPalette.actionRed)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _gradeBtn('HARD', 1, EditorialPalette.ochre)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _gradeBtn('GOOD', 2, EditorialPalette.civicGreen)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _gradeBtn('EASY', 3, EditorialPalette.civicNavy)),
+                    ],
+                  )
+                : SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: _reveal,
+                      child: const Text('REVEAL'),
+                    ),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _gradeBtn(String label, int grade, Color color) {
+    return FilledButton(
+      onPressed: () => _grade(grade),
+      style: FilledButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.0,
+          fontSize: 12,
+        ),
+      ),
+      child: Text(label),
+    );
+  }
+}
+
+class _CardFront extends StatelessWidget {
+  const _CardFront({required this.card});
+  final RoundCard card;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(
+            color: EditorialPalette.ochre,
+            borderRadius: BorderRadius.circular(2),
+          ),
+          child: Text(
+            'KNOW THIS?',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: EditorialPalette.ink,
+              letterSpacing: 1.8,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        const SizedBox(height: 28),
+        Text(
+          card.prompt,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            height: 1.2,
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          'Tap to reveal',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CardBack extends StatelessWidget {
+  const _CardBack({required this.card});
+  final RoundCard card;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            card.prompt,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 1.5,
+            width: 40,
+            color: EditorialPalette.rule,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            card.answer,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w800,
+              height: 1.25,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 3D Y-axis flip between [front] and [back]. Same shape as the existing
+/// session screen's flip card — copied (not extracted) for now so we
+/// don't have to widen the session module's public API for one consumer.
+class _FlipCard extends StatelessWidget {
+  const _FlipCard({
+    super.key,
+    required this.revealed,
+    required this.front,
+    required this.back,
+  });
+
+  final bool revealed;
+  final Widget front;
+  final Widget back;
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      // begin = end on remount — prevents the flash-of-back-side bug the
+      // session screen also fixed by keying the flip card.
+      tween: Tween<double>(begin: revealed ? 1.0 : 0.0, end: revealed ? 1.0 : 0.0),
+      duration: const Duration(milliseconds: 480),
+      curve: Curves.easeInOutCubic,
+      builder: (context, value, _) {
+        final showingFront = value < 0.5;
+        final angle = value * math.pi;
+        return Transform(
+          alignment: Alignment.center,
+          transform: Matrix4.identity()
+            ..setEntry(3, 2, 0.0015)
+            ..rotateY(angle),
+          child: showingFront
+              ? front
+              : Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()..rotateY(math.pi),
+                  child: back,
+                ),
+        );
+      },
+    );
+  }
+}
