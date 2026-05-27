@@ -6,8 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../profile/data/profile_service.dart';
-import 'daily_challenge_card.dart';
+import 'chapter_round_card.dart';
 import 'next_up_section.dart';
+import 'season_spine.dart';
 import 'streak_hero.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -17,7 +18,6 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileProvider);
     final profile = profileAsync.valueOrNull ?? UserProfile.empty;
-    final challengeAsync = ref.watch(dailyChallengeTodayProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -38,25 +38,19 @@ class HomeScreen extends ConsumerWidget {
             children: [
               StreakHero(profile: profile),
               const SizedBox(height: 24),
-              challengeAsync.when(
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-                data: (challenge) => challenge == null
-                    ? const SizedBox.shrink()
-                    : DailyChallengeCard(
-                        challenge: challenge,
-                        profile: profile,
-                      ),
-              ),
+              // Primary CTA — chapter-aware daily round. Replaces the old
+              // Daily Challenge + Trivia tiles as the single ritual.
+              const ChapterRoundCard(),
               const SizedBox(height: 24),
-              // TEMP — phase 3 entry point to /round so we can validate
-              // end-to-end before the Phase 4 home redesign. Replaces
-              // both Daily Challenge + Trivia in the final layout.
-              _RoundTile(),
+              _SectionDivider(label: 'SECONDARY'),
               const SizedBox(height: 12),
               _TriviaTile(),
               const SizedBox(height: 12),
               _EndlessTile(),
+              const SizedBox(height: 24),
+              _SectionDivider(label: 'THE SEASON'),
+              const SizedBox(height: 12),
+              const SeasonSpine(),
               const SizedBox(height: 24),
               const NextUpSection(),
               const SizedBox(height: 16),
@@ -64,6 +58,37 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Magazine-style section divider — hairline with a centered label chip.
+class _SectionDivider extends StatelessWidget {
+  const _SectionDivider({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Expanded(
+          child: Container(height: 1, color: theme.colorScheme.outlineVariant),
+        ),
+        const SizedBox(width: 10),
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            letterSpacing: 2.0,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(height: 1, color: theme.colorScheme.outlineVariant),
+        ),
+      ],
     );
   }
 }
@@ -172,27 +197,6 @@ class _ActionTile extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// TEMP — Phase 3 launch tile. Phase 4 promotes this concept into the
-/// primary `ChapterRoundCard` and demotes Trivia + Endless to secondary.
-class _RoundTile extends StatelessWidget {
-  const _RoundTile();
-
-  @override
-  Widget build(BuildContext context) {
-    return _ActionTile(
-      section: "TODAY'S ROUND · DAILY",
-      headline: 'Walk the chapter.',
-      body: '5 cards + 10 trivia. Themed by today\'s chapter.',
-      accent: EditorialPalette.ochre,
-      mark: '★',
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.go('/round');
-      },
     );
   }
 }

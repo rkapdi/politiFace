@@ -122,6 +122,17 @@ final currentChapterProgressProvider =
   return ref.watch(chapterProgressServiceProvider).currentProgress(curriculum);
 });
 
+/// All chapter entries for the active season (in-progress + completed),
+/// ordered by start time. Drives the Season Spine widget on home.
+final seasonProgressProvider =
+    FutureProvider<List<ChapterProgressEntry>>((ref) async {
+  ref.watch(sessionTickProvider);
+  final curriculum = await ref.watch(curriculumProvider.future);
+  return ref
+      .watch(chapterProgressServiceProvider)
+      .seasonProgress(curriculum.season.id);
+});
+
 // ── Daily Round (chapter-aware ritual) ──────────────────────────────────────
 
 final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) {
@@ -136,4 +147,21 @@ final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) {
 final dailyRoundControllerProvider =
     AsyncNotifierProvider<DailyRoundController, DailyRoundState>(() {
   return DailyRoundController();
+});
+
+/// Lightweight check: has today's round been completed yet? Reads the
+/// `daily_rounds` DAO directly so home can render a "Played" badge
+/// without triggering the heavier round-controller build (which would
+/// sample + persist a fresh round just from visiting home).
+final todayRoundPlayedProvider = FutureProvider<bool>((ref) async {
+  ref.watch(sessionTickProvider);
+  final db = ref.watch(databaseProvider);
+  final now = DateTime.now();
+  String two(int n) => n.toString().padLeft(2, '0');
+  final today = '${now.year}-${two(now.month)}-${two(now.day)}';
+  final row = await db.dailyRoundsDao.get(
+    userId: ChapterProgressService.defaultUserId,
+    dateIso: today,
+  );
+  return row?.completedAt != null;
 });
