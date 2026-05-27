@@ -14,6 +14,7 @@ import '../daos/government_dao.dart';
 import '../daos/progress_dao.dart';
 import '../daos/meta_dao.dart';
 import '../daos/chapter_progress_dao.dart';
+import '../daos/daily_rounds_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -180,6 +181,30 @@ class SyncMeta extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+// ── Daily rounds (chapter-aware play history) ────────────────────────────────
+// One row per (user, date). Stores everything needed to resume a round
+// mid-flight (after backgrounding the app) or read back today's recap.
+// JSON columns keep the schema flexible — round content shape will evolve
+// across phases without further migrations.
+@DataClassName('DailyRoundEntry')
+class DailyRounds extends Table {
+  TextColumn get userId          => text().withDefault(const Constant('local-user'))();
+  TextColumn get dateIso         => text()();                  // YYYY-MM-DD
+  TextColumn get chapterId       => text()();
+  IntColumn  get dayInChapter    => integer()();
+  TextColumn get cardIdsJson     => text().withDefault(const Constant('[]'))();
+  TextColumn get triviaJson      => text().withDefault(const Constant('[]'))();
+  TextColumn get gradesJson      => text().withDefault(const Constant('[]'))();
+  TextColumn get answersJson     => text().withDefault(const Constant('[]'))();
+  TextColumn get phase           => text().withDefault(const Constant('cards'))();
+  IntColumn  get startedAt       => integer()();               // Unix timestamp
+  IntColumn  get completedAt     => integer().nullable()();
+  IntColumn  get updatedAt       => integer()();
+
+  @override
+  Set<Column> get primaryKey => {userId, dateIso};
+}
+
 // ── Chapter progress (player's position in a season) ─────────────────────────
 // One row per (user, season, chapter). Chapters the user hasn't reached yet
 // have no row — absent = locked. The "current" chapter is the one with a
@@ -212,6 +237,7 @@ class ChapterProgress extends Table {
     DailyChallengeCaches,
     SyncMeta,
     ChapterProgress,
+    DailyRounds,
   ],
   daos: [
     CardsDao,
@@ -221,6 +247,7 @@ class ChapterProgress extends Table {
     ProgressDao,
     MetaDao,
     ChapterProgressDao,
+    DailyRoundsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -230,7 +257,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -257,6 +284,12 @@ class AppDatabase extends _$AppDatabase {
         // Brand-new table; no data backfill needed (existing users will
         // get a Chapter 1 entry created on first call to currentProgress).
         await m.createTable(chapterProgress);
+      }
+      if (from < 4) {
+        // v3 → v4: add DailyRounds — the chapter-aware round history.
+        // Replaces the role of DailyChallengeCaches once Phase 5 cutover
+        // lands; for now both tables coexist.
+        await m.createTable(dailyRounds);
       }
     },
   );

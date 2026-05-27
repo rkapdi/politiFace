@@ -22,13 +22,18 @@ class ContentLinker {
 
   /// Returns the card backing this curriculum item, or null if not yet
   /// authored / wired up.
-  Future<LocalCard?> cardFor(CurriculumItem item) async {
+  Future<LocalCard?> cardFor(CurriculumItem item) => cardForId(item.id);
+
+  /// String-id variant. Useful for samplers that already have raw item
+  /// ids and don't want to round-trip through [Curriculum.itemById].
+  /// Same resolution rules as [cardFor].
+  Future<LocalCard?> cardForId(String itemId) async {
     // First pass: exact match on LocalCards.externalId. Currently no
     // existing card uses curriculum_item_id as its external id; this is
     // here so that future concept decks can adopt the convention and
     // light up automatically when they ship.
     final byExternalId = await (_db.select(_db.localCards)
-          ..where((c) => c.externalId.equals(item.id)))
+          ..where((c) => c.externalId.equals(itemId)))
         .getSingleOrNull();
     if (byExternalId != null) return byExternalId;
 

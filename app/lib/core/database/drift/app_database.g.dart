@@ -5303,6 +5303,612 @@ class ChapterProgressCompanion extends UpdateCompanion<ChapterProgressEntry> {
   }
 }
 
+class $DailyRoundsTable extends DailyRounds
+    with TableInfo<$DailyRoundsTable, DailyRoundEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyRoundsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
+  static const VerificationMeta _dateIsoMeta =
+      const VerificationMeta('dateIso');
+  @override
+  late final GeneratedColumn<String> dateIso = GeneratedColumn<String>(
+      'date_iso', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chapterIdMeta =
+      const VerificationMeta('chapterId');
+  @override
+  late final GeneratedColumn<String> chapterId = GeneratedColumn<String>(
+      'chapter_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dayInChapterMeta =
+      const VerificationMeta('dayInChapter');
+  @override
+  late final GeneratedColumn<int> dayInChapter = GeneratedColumn<int>(
+      'day_in_chapter', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _cardIdsJsonMeta =
+      const VerificationMeta('cardIdsJson');
+  @override
+  late final GeneratedColumn<String> cardIdsJson = GeneratedColumn<String>(
+      'card_ids_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _triviaJsonMeta =
+      const VerificationMeta('triviaJson');
+  @override
+  late final GeneratedColumn<String> triviaJson = GeneratedColumn<String>(
+      'trivia_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _gradesJsonMeta =
+      const VerificationMeta('gradesJson');
+  @override
+  late final GeneratedColumn<String> gradesJson = GeneratedColumn<String>(
+      'grades_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _answersJsonMeta =
+      const VerificationMeta('answersJson');
+  @override
+  late final GeneratedColumn<String> answersJson = GeneratedColumn<String>(
+      'answers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
+  @override
+  late final GeneratedColumn<String> phase = GeneratedColumn<String>(
+      'phase', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('cards'));
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<int> completedAt = GeneratedColumn<int>(
+      'completed_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        userId,
+        dateIso,
+        chapterId,
+        dayInChapter,
+        cardIdsJson,
+        triviaJson,
+        gradesJson,
+        answersJson,
+        phase,
+        startedAt,
+        completedAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_rounds';
+  @override
+  VerificationContext validateIntegrity(Insertable<DailyRoundEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('date_iso')) {
+      context.handle(_dateIsoMeta,
+          dateIso.isAcceptableOrUnknown(data['date_iso']!, _dateIsoMeta));
+    } else if (isInserting) {
+      context.missing(_dateIsoMeta);
+    }
+    if (data.containsKey('chapter_id')) {
+      context.handle(_chapterIdMeta,
+          chapterId.isAcceptableOrUnknown(data['chapter_id']!, _chapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_chapterIdMeta);
+    }
+    if (data.containsKey('day_in_chapter')) {
+      context.handle(
+          _dayInChapterMeta,
+          dayInChapter.isAcceptableOrUnknown(
+              data['day_in_chapter']!, _dayInChapterMeta));
+    } else if (isInserting) {
+      context.missing(_dayInChapterMeta);
+    }
+    if (data.containsKey('card_ids_json')) {
+      context.handle(
+          _cardIdsJsonMeta,
+          cardIdsJson.isAcceptableOrUnknown(
+              data['card_ids_json']!, _cardIdsJsonMeta));
+    }
+    if (data.containsKey('trivia_json')) {
+      context.handle(
+          _triviaJsonMeta,
+          triviaJson.isAcceptableOrUnknown(
+              data['trivia_json']!, _triviaJsonMeta));
+    }
+    if (data.containsKey('grades_json')) {
+      context.handle(
+          _gradesJsonMeta,
+          gradesJson.isAcceptableOrUnknown(
+              data['grades_json']!, _gradesJsonMeta));
+    }
+    if (data.containsKey('answers_json')) {
+      context.handle(
+          _answersJsonMeta,
+          answersJson.isAcceptableOrUnknown(
+              data['answers_json']!, _answersJsonMeta));
+    }
+    if (data.containsKey('phase')) {
+      context.handle(
+          _phaseMeta, phase.isAcceptableOrUnknown(data['phase']!, _phaseMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, dateIso};
+  @override
+  DailyRoundEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyRoundEntry(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      dateIso: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}date_iso'])!,
+      chapterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapter_id'])!,
+      dayInChapter: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}day_in_chapter'])!,
+      cardIdsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_ids_json'])!,
+      triviaJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}trivia_json'])!,
+      gradesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grades_json'])!,
+      answersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}answers_json'])!,
+      phase: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}phase'])!,
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}started_at'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}completed_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $DailyRoundsTable createAlias(String alias) {
+    return $DailyRoundsTable(attachedDatabase, alias);
+  }
+}
+
+class DailyRoundEntry extends DataClass implements Insertable<DailyRoundEntry> {
+  final String userId;
+  final String dateIso;
+  final String chapterId;
+  final int dayInChapter;
+  final String cardIdsJson;
+  final String triviaJson;
+  final String gradesJson;
+  final String answersJson;
+  final String phase;
+  final int startedAt;
+  final int? completedAt;
+  final int updatedAt;
+  const DailyRoundEntry(
+      {required this.userId,
+      required this.dateIso,
+      required this.chapterId,
+      required this.dayInChapter,
+      required this.cardIdsJson,
+      required this.triviaJson,
+      required this.gradesJson,
+      required this.answersJson,
+      required this.phase,
+      required this.startedAt,
+      this.completedAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['date_iso'] = Variable<String>(dateIso);
+    map['chapter_id'] = Variable<String>(chapterId);
+    map['day_in_chapter'] = Variable<int>(dayInChapter);
+    map['card_ids_json'] = Variable<String>(cardIdsJson);
+    map['trivia_json'] = Variable<String>(triviaJson);
+    map['grades_json'] = Variable<String>(gradesJson);
+    map['answers_json'] = Variable<String>(answersJson);
+    map['phase'] = Variable<String>(phase);
+    map['started_at'] = Variable<int>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<int>(completedAt);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  DailyRoundsCompanion toCompanion(bool nullToAbsent) {
+    return DailyRoundsCompanion(
+      userId: Value(userId),
+      dateIso: Value(dateIso),
+      chapterId: Value(chapterId),
+      dayInChapter: Value(dayInChapter),
+      cardIdsJson: Value(cardIdsJson),
+      triviaJson: Value(triviaJson),
+      gradesJson: Value(gradesJson),
+      answersJson: Value(answersJson),
+      phase: Value(phase),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory DailyRoundEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyRoundEntry(
+      userId: serializer.fromJson<String>(json['userId']),
+      dateIso: serializer.fromJson<String>(json['dateIso']),
+      chapterId: serializer.fromJson<String>(json['chapterId']),
+      dayInChapter: serializer.fromJson<int>(json['dayInChapter']),
+      cardIdsJson: serializer.fromJson<String>(json['cardIdsJson']),
+      triviaJson: serializer.fromJson<String>(json['triviaJson']),
+      gradesJson: serializer.fromJson<String>(json['gradesJson']),
+      answersJson: serializer.fromJson<String>(json['answersJson']),
+      phase: serializer.fromJson<String>(json['phase']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      completedAt: serializer.fromJson<int?>(json['completedAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'dateIso': serializer.toJson<String>(dateIso),
+      'chapterId': serializer.toJson<String>(chapterId),
+      'dayInChapter': serializer.toJson<int>(dayInChapter),
+      'cardIdsJson': serializer.toJson<String>(cardIdsJson),
+      'triviaJson': serializer.toJson<String>(triviaJson),
+      'gradesJson': serializer.toJson<String>(gradesJson),
+      'answersJson': serializer.toJson<String>(answersJson),
+      'phase': serializer.toJson<String>(phase),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'completedAt': serializer.toJson<int?>(completedAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  DailyRoundEntry copyWith(
+          {String? userId,
+          String? dateIso,
+          String? chapterId,
+          int? dayInChapter,
+          String? cardIdsJson,
+          String? triviaJson,
+          String? gradesJson,
+          String? answersJson,
+          String? phase,
+          int? startedAt,
+          Value<int?> completedAt = const Value.absent(),
+          int? updatedAt}) =>
+      DailyRoundEntry(
+        userId: userId ?? this.userId,
+        dateIso: dateIso ?? this.dateIso,
+        chapterId: chapterId ?? this.chapterId,
+        dayInChapter: dayInChapter ?? this.dayInChapter,
+        cardIdsJson: cardIdsJson ?? this.cardIdsJson,
+        triviaJson: triviaJson ?? this.triviaJson,
+        gradesJson: gradesJson ?? this.gradesJson,
+        answersJson: answersJson ?? this.answersJson,
+        phase: phase ?? this.phase,
+        startedAt: startedAt ?? this.startedAt,
+        completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  DailyRoundEntry copyWithCompanion(DailyRoundsCompanion data) {
+    return DailyRoundEntry(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      dateIso: data.dateIso.present ? data.dateIso.value : this.dateIso,
+      chapterId: data.chapterId.present ? data.chapterId.value : this.chapterId,
+      dayInChapter: data.dayInChapter.present
+          ? data.dayInChapter.value
+          : this.dayInChapter,
+      cardIdsJson:
+          data.cardIdsJson.present ? data.cardIdsJson.value : this.cardIdsJson,
+      triviaJson:
+          data.triviaJson.present ? data.triviaJson.value : this.triviaJson,
+      gradesJson:
+          data.gradesJson.present ? data.gradesJson.value : this.gradesJson,
+      answersJson:
+          data.answersJson.present ? data.answersJson.value : this.answersJson,
+      phase: data.phase.present ? data.phase.value : this.phase,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyRoundEntry(')
+          ..write('userId: $userId, ')
+          ..write('dateIso: $dateIso, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('cardIdsJson: $cardIdsJson, ')
+          ..write('triviaJson: $triviaJson, ')
+          ..write('gradesJson: $gradesJson, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('phase: $phase, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      userId,
+      dateIso,
+      chapterId,
+      dayInChapter,
+      cardIdsJson,
+      triviaJson,
+      gradesJson,
+      answersJson,
+      phase,
+      startedAt,
+      completedAt,
+      updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyRoundEntry &&
+          other.userId == this.userId &&
+          other.dateIso == this.dateIso &&
+          other.chapterId == this.chapterId &&
+          other.dayInChapter == this.dayInChapter &&
+          other.cardIdsJson == this.cardIdsJson &&
+          other.triviaJson == this.triviaJson &&
+          other.gradesJson == this.gradesJson &&
+          other.answersJson == this.answersJson &&
+          other.phase == this.phase &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class DailyRoundsCompanion extends UpdateCompanion<DailyRoundEntry> {
+  final Value<String> userId;
+  final Value<String> dateIso;
+  final Value<String> chapterId;
+  final Value<int> dayInChapter;
+  final Value<String> cardIdsJson;
+  final Value<String> triviaJson;
+  final Value<String> gradesJson;
+  final Value<String> answersJson;
+  final Value<String> phase;
+  final Value<int> startedAt;
+  final Value<int?> completedAt;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const DailyRoundsCompanion({
+    this.userId = const Value.absent(),
+    this.dateIso = const Value.absent(),
+    this.chapterId = const Value.absent(),
+    this.dayInChapter = const Value.absent(),
+    this.cardIdsJson = const Value.absent(),
+    this.triviaJson = const Value.absent(),
+    this.gradesJson = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.phase = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyRoundsCompanion.insert({
+    this.userId = const Value.absent(),
+    required String dateIso,
+    required String chapterId,
+    required int dayInChapter,
+    this.cardIdsJson = const Value.absent(),
+    this.triviaJson = const Value.absent(),
+    this.gradesJson = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.phase = const Value.absent(),
+    required int startedAt,
+    this.completedAt = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  })  : dateIso = Value(dateIso),
+        chapterId = Value(chapterId),
+        dayInChapter = Value(dayInChapter),
+        startedAt = Value(startedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<DailyRoundEntry> custom({
+    Expression<String>? userId,
+    Expression<String>? dateIso,
+    Expression<String>? chapterId,
+    Expression<int>? dayInChapter,
+    Expression<String>? cardIdsJson,
+    Expression<String>? triviaJson,
+    Expression<String>? gradesJson,
+    Expression<String>? answersJson,
+    Expression<String>? phase,
+    Expression<int>? startedAt,
+    Expression<int>? completedAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (dateIso != null) 'date_iso': dateIso,
+      if (chapterId != null) 'chapter_id': chapterId,
+      if (dayInChapter != null) 'day_in_chapter': dayInChapter,
+      if (cardIdsJson != null) 'card_ids_json': cardIdsJson,
+      if (triviaJson != null) 'trivia_json': triviaJson,
+      if (gradesJson != null) 'grades_json': gradesJson,
+      if (answersJson != null) 'answers_json': answersJson,
+      if (phase != null) 'phase': phase,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyRoundsCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? dateIso,
+      Value<String>? chapterId,
+      Value<int>? dayInChapter,
+      Value<String>? cardIdsJson,
+      Value<String>? triviaJson,
+      Value<String>? gradesJson,
+      Value<String>? answersJson,
+      Value<String>? phase,
+      Value<int>? startedAt,
+      Value<int?>? completedAt,
+      Value<int>? updatedAt,
+      Value<int>? rowid}) {
+    return DailyRoundsCompanion(
+      userId: userId ?? this.userId,
+      dateIso: dateIso ?? this.dateIso,
+      chapterId: chapterId ?? this.chapterId,
+      dayInChapter: dayInChapter ?? this.dayInChapter,
+      cardIdsJson: cardIdsJson ?? this.cardIdsJson,
+      triviaJson: triviaJson ?? this.triviaJson,
+      gradesJson: gradesJson ?? this.gradesJson,
+      answersJson: answersJson ?? this.answersJson,
+      phase: phase ?? this.phase,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (dateIso.present) {
+      map['date_iso'] = Variable<String>(dateIso.value);
+    }
+    if (chapterId.present) {
+      map['chapter_id'] = Variable<String>(chapterId.value);
+    }
+    if (dayInChapter.present) {
+      map['day_in_chapter'] = Variable<int>(dayInChapter.value);
+    }
+    if (cardIdsJson.present) {
+      map['card_ids_json'] = Variable<String>(cardIdsJson.value);
+    }
+    if (triviaJson.present) {
+      map['trivia_json'] = Variable<String>(triviaJson.value);
+    }
+    if (gradesJson.present) {
+      map['grades_json'] = Variable<String>(gradesJson.value);
+    }
+    if (answersJson.present) {
+      map['answers_json'] = Variable<String>(answersJson.value);
+    }
+    if (phase.present) {
+      map['phase'] = Variable<String>(phase.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<int>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyRoundsCompanion(')
+          ..write('userId: $userId, ')
+          ..write('dateIso: $dateIso, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('cardIdsJson: $cardIdsJson, ')
+          ..write('triviaJson: $triviaJson, ')
+          ..write('gradesJson: $gradesJson, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('phase: $phase, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5320,6 +5926,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
   late final $ChapterProgressTable chapterProgress =
       $ChapterProgressTable(this);
+  late final $DailyRoundsTable dailyRounds = $DailyRoundsTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
@@ -5328,6 +5935,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final MetaDao metaDao = MetaDao(this as AppDatabase);
   late final ChapterProgressDao chapterProgressDao =
       ChapterProgressDao(this as AppDatabase);
+  late final DailyRoundsDao dailyRoundsDao =
+      DailyRoundsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5342,7 +5951,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         userNodeProgress,
         dailyChallengeCaches,
         syncMeta,
-        chapterProgress
+        chapterProgress,
+        dailyRounds
       ];
 }
 
@@ -7846,6 +8456,285 @@ typedef $$ChapterProgressTableProcessedTableManager = ProcessedTableManager<
     ),
     ChapterProgressEntry,
     PrefetchHooks Function()>;
+typedef $$DailyRoundsTableCreateCompanionBuilder = DailyRoundsCompanion
+    Function({
+  Value<String> userId,
+  required String dateIso,
+  required String chapterId,
+  required int dayInChapter,
+  Value<String> cardIdsJson,
+  Value<String> triviaJson,
+  Value<String> gradesJson,
+  Value<String> answersJson,
+  Value<String> phase,
+  required int startedAt,
+  Value<int?> completedAt,
+  required int updatedAt,
+  Value<int> rowid,
+});
+typedef $$DailyRoundsTableUpdateCompanionBuilder = DailyRoundsCompanion
+    Function({
+  Value<String> userId,
+  Value<String> dateIso,
+  Value<String> chapterId,
+  Value<int> dayInChapter,
+  Value<String> cardIdsJson,
+  Value<String> triviaJson,
+  Value<String> gradesJson,
+  Value<String> answersJson,
+  Value<String> phase,
+  Value<int> startedAt,
+  Value<int?> completedAt,
+  Value<int> updatedAt,
+  Value<int> rowid,
+});
+
+class $$DailyRoundsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyRoundsTable> {
+  $$DailyRoundsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dateIso => $composableBuilder(
+      column: $table.dateIso, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cardIdsJson => $composableBuilder(
+      column: $table.cardIdsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get triviaJson => $composableBuilder(
+      column: $table.triviaJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gradesJson => $composableBuilder(
+      column: $table.gradesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get phase => $composableBuilder(
+      column: $table.phase, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$DailyRoundsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyRoundsTable> {
+  $$DailyRoundsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dateIso => $composableBuilder(
+      column: $table.dateIso, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cardIdsJson => $composableBuilder(
+      column: $table.cardIdsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get triviaJson => $composableBuilder(
+      column: $table.triviaJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gradesJson => $composableBuilder(
+      column: $table.gradesJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get phase => $composableBuilder(
+      column: $table.phase, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DailyRoundsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyRoundsTable> {
+  $$DailyRoundsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get dateIso =>
+      $composableBuilder(column: $table.dateIso, builder: (column) => column);
+
+  GeneratedColumn<String> get chapterId =>
+      $composableBuilder(column: $table.chapterId, builder: (column) => column);
+
+  GeneratedColumn<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => column);
+
+  GeneratedColumn<String> get cardIdsJson => $composableBuilder(
+      column: $table.cardIdsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get triviaJson => $composableBuilder(
+      column: $table.triviaJson, builder: (column) => column);
+
+  GeneratedColumn<String> get gradesJson => $composableBuilder(
+      column: $table.gradesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get phase =>
+      $composableBuilder(column: $table.phase, builder: (column) => column);
+
+  GeneratedColumn<int> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$DailyRoundsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DailyRoundsTable,
+    DailyRoundEntry,
+    $$DailyRoundsTableFilterComposer,
+    $$DailyRoundsTableOrderingComposer,
+    $$DailyRoundsTableAnnotationComposer,
+    $$DailyRoundsTableCreateCompanionBuilder,
+    $$DailyRoundsTableUpdateCompanionBuilder,
+    (
+      DailyRoundEntry,
+      BaseReferences<_$AppDatabase, $DailyRoundsTable, DailyRoundEntry>
+    ),
+    DailyRoundEntry,
+    PrefetchHooks Function()> {
+  $$DailyRoundsTableTableManager(_$AppDatabase db, $DailyRoundsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyRoundsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyRoundsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyRoundsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> dateIso = const Value.absent(),
+            Value<String> chapterId = const Value.absent(),
+            Value<int> dayInChapter = const Value.absent(),
+            Value<String> cardIdsJson = const Value.absent(),
+            Value<String> triviaJson = const Value.absent(),
+            Value<String> gradesJson = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<String> phase = const Value.absent(),
+            Value<int> startedAt = const Value.absent(),
+            Value<int?> completedAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DailyRoundsCompanion(
+            userId: userId,
+            dateIso: dateIso,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            cardIdsJson: cardIdsJson,
+            triviaJson: triviaJson,
+            gradesJson: gradesJson,
+            answersJson: answersJson,
+            phase: phase,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            required String dateIso,
+            required String chapterId,
+            required int dayInChapter,
+            Value<String> cardIdsJson = const Value.absent(),
+            Value<String> triviaJson = const Value.absent(),
+            Value<String> gradesJson = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<String> phase = const Value.absent(),
+            required int startedAt,
+            Value<int?> completedAt = const Value.absent(),
+            required int updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DailyRoundsCompanion.insert(
+            userId: userId,
+            dateIso: dateIso,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            cardIdsJson: cardIdsJson,
+            triviaJson: triviaJson,
+            gradesJson: gradesJson,
+            answersJson: answersJson,
+            phase: phase,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DailyRoundsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DailyRoundsTable,
+    DailyRoundEntry,
+    $$DailyRoundsTableFilterComposer,
+    $$DailyRoundsTableOrderingComposer,
+    $$DailyRoundsTableAnnotationComposer,
+    $$DailyRoundsTableCreateCompanionBuilder,
+    $$DailyRoundsTableUpdateCompanionBuilder,
+    (
+      DailyRoundEntry,
+      BaseReferences<_$AppDatabase, $DailyRoundsTable, DailyRoundEntry>
+    ),
+    DailyRoundEntry,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7870,4 +8759,6 @@ class $AppDatabaseManager {
       $$SyncMetaTableTableManager(_db, _db.syncMeta);
   $$ChapterProgressTableTableManager get chapterProgress =>
       $$ChapterProgressTableTableManager(_db, _db.chapterProgress);
+  $$DailyRoundsTableTableManager get dailyRounds =>
+      $$DailyRoundsTableTableManager(_db, _db.dailyRounds);
 }

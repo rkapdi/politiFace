@@ -6,6 +6,9 @@ import '../features/curriculum/data/chapter_progress_service.dart';
 import '../features/curriculum/data/content_linker.dart';
 import '../features/curriculum/data/curriculum_loader.dart';
 import '../features/curriculum/domain/curriculum.dart';
+import '../features/round/application/daily_round_controller.dart';
+import '../features/round/data/chapter_content_sampler.dart';
+import '../features/round/domain/round_state.dart';
 import '../features/daily_challenge/data/daily_challenge_service.dart';
 import '../features/government/data/node_unlock_service.dart';
 import '../features/profile/data/profile_service.dart';
@@ -117,4 +120,20 @@ final currentChapterProgressProvider =
   ref.watch(sessionTickProvider);
   final curriculum = await ref.watch(curriculumProvider.future);
   return ref.watch(chapterProgressServiceProvider).currentProgress(curriculum);
+});
+
+// ── Daily Round (chapter-aware ritual) ──────────────────────────────────────
+
+final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) {
+  return ChapterContentSampler(
+    ref.watch(databaseProvider),
+    ref.watch(contentLinkerProvider),
+  );
+});
+
+/// The active round for today. Loads existing (mid-flight) or creates a new
+/// one on first read for the current date.
+final dailyRoundControllerProvider =
+    AsyncNotifierProvider<DailyRoundController, DailyRoundState>(() {
+  return DailyRoundController();
 });
