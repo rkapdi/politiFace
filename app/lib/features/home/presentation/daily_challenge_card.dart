@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../daily_challenge/data/daily_challenge_service.dart';
 import '../../profile/data/profile_service.dart';
 import '../../session/application/session_controller.dart';
 
+/// Editorial daily-challenge card. Replaces the gold gradient with a flat
+/// surface, hairline rule, section label, big display-serif headline, and
+/// a stamped-seal action button. Played state shows the emoji grid as the
+/// hero with copy/share underneath.
 class DailyChallengeCard extends ConsumerWidget {
   const DailyChallengeCard({
     super.key,
@@ -35,107 +39,84 @@ class _Unplayed extends ConsumerWidget {
   const _Unplayed({required this.challenge});
   final DailyChallenge challenge;
 
-  static const _bg1 = Color(0xFFB18820); // gold
-  static const _bg2 = Color(0xFFE2A23A);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final count = challenge.cardIds.length;
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [_bg1, _bg2],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: _bg2.withOpacity(0.35),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: theme.colorScheme.surface,
+        border: Border.all(color: theme.colorScheme.outline, width: 1.5),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              _Label('TODAY\'S CHALLENGE'),
-              const Spacer(),
-              Text(
-                _formatDate(challenge.date),
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.8,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Text('🏆', style: TextStyle(fontSize: 48))
-                  .animate(onPlay: (c) => c.repeat(reverse: true))
-                  .scale(
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.06, 1.06),
-                    duration: 1400.ms,
-                    curve: Curves.easeInOut,
-                  ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          // Top strip — ochre marks the day's ritual section.
+          Container(height: 4, color: EditorialPalette.ochre),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SectionHeader(date: challenge.date),
+                const SizedBox(height: 10),
+                // Big number — "5" massive, "CARDS" set in mono caps
+                // beside it on the baseline.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '${challenge.cardIds.length} cards',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
+                      '$count',
+                      style: theme.textTheme.displayLarge?.copyWith(
                         fontWeight: FontWeight.w800,
+                        height: 0.9,
+                        fontSize: 88,
+                        letterSpacing: -3,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
-                    Text(
-                      '~60 seconds',
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.85),
-                        fontSize: 14,
+                    const SizedBox(width: 12),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Text(
+                        count == 1 ? 'CARD' : 'CARDS',
+                        style: theme.textTheme.labelLarge?.copyWith(
+                          letterSpacing: 2.0,
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () {
-                HapticFeedback.lightImpact();
-                ref.read(activeSessionDeckIdProvider.notifier).state = null;
-                ref.read(activeDailyChallengeDateProvider.notifier).state =
-                    challenge.date;
-                ref.invalidate(sessionControllerProvider);
-                context.go('/session');
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: _bg1,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 6),
+                Text(
+                  '≈ 60 SECONDS',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 1.8,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              child: const Text(
-                'Play',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-              ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () {
+                      HapticFeedback.lightImpact();
+                      ref
+                          .read(activeSessionDeckIdProvider.notifier)
+                          .state = null;
+                      ref
+                          .read(activeDailyChallengeDateProvider.notifier)
+                          .state = challenge.date;
+                      ref.invalidate(sessionControllerProvider);
+                      context.go('/session');
+                    },
+                    child: const Text('PLAY'),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -144,187 +125,212 @@ class _Unplayed extends ConsumerWidget {
   }
 }
 
-// ─── Played: the trophy ─────────────────────────────────────────────────────
+// ─── Played: the result ────────────────────────────────────────────────────
 
 class _Played extends StatelessWidget {
   const _Played({required this.challenge, required this.profile});
   final DailyChallenge challenge;
   final UserProfile profile;
 
-  static const _bg1 = Color(0xFF1E5A4A);
-  static const _bg2 = Color(0xFF2E8B6F);
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final grades = challenge.grades ?? const <int>[];
     final correct = grades.where((g) => g >= 1).length;
 
     return Container(
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [_bg1, _bg2],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: _bg2.withOpacity(0.30),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: theme.colorScheme.surface,
+        border: Border.all(color: theme.colorScheme.outline, width: 1.5),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              const Icon(Icons.check_circle_outline,
-                  color: Colors.white, size: 18),
-              const SizedBox(width: 6),
-              _Label('TODAY\'S CHALLENGE'),
-              const Spacer(),
-              Text(
-                _formatDate(challenge.date),
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.8,
+          Container(height: 4, color: EditorialPalette.civicGreen),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SectionHeader(
+                  date: challenge.date,
+                  rightLabel: 'COMPLETED',
+                  rightColor: EditorialPalette.civicGreen,
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Big emoji grid centered.
-          Center(
-            child: Text(
-              grades.map(_emojiForGrade).join(' '),
-              style: const TextStyle(
-                fontSize: 36,
-                height: 1.4,
-                letterSpacing: 2,
-              ),
-            ),
-          ),
-          const SizedBox(height: 14),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _Chip(text: '$correct / ${grades.length} correct'),
-              if (profile.streakDays > 0) ...[
-                const SizedBox(width: 8),
-                _Chip(text: '🔥 ${profile.streakDays}'),
-              ],
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    Clipboard.setData(ClipboardData(
-                      text: _buildShareText(challenge, profile),
-                    ));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Copied to clipboard'),
-                        duration: Duration(seconds: 1),
+                const SizedBox(height: 18),
+                // Emoji grid — hero.
+                Center(
+                  child: Text(
+                    grades.map(_emojiForGrade).join(' '),
+                    style: const TextStyle(
+                      fontSize: 32,
+                      height: 1.4,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Big score, display serif.
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: [
+                      Text(
+                        '$correct',
+                        style: theme.textTheme.displayMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: theme.colorScheme.onSurface,
+                          fontSize: 56,
+                          height: 1.0,
+                          letterSpacing: -1.5,
+                        ),
                       ),
-                    );
-                  },
-                  icon: const Icon(Icons.copy_outlined, size: 18),
-                  label: const Text('Copy'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    side: BorderSide(color: Colors.white.withOpacity(0.6)),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                      Text(
+                        ' / ${grades.length}',
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: FilledButton.icon(
-                  onPressed: () {
-                    HapticFeedback.lightImpact();
-                    Share.share(_buildShareText(challenge, profile));
-                  },
-                  icon: const Icon(Icons.ios_share, size: 18),
-                  label: const Text('Share'),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: _bg1,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+                const SizedBox(height: 4),
+                Text(
+                  'CORRECT',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Text(
-              _untilTomorrowString(),
-              style: TextStyle(
-                color: Colors.white.withOpacity(0.7),
-                fontSize: 11,
-                fontWeight: FontWeight.w500,
-              ),
+                if (profile.streakDays > 0) ...[
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Text(
+                      '🔥 ${profile.streakDays} day${profile.streakDays == 1 ? '' : 's'}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Clipboard.setData(ClipboardData(
+                            text: _buildShareText(challenge, profile),
+                          ));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Copied to clipboard'),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.copy_outlined, size: 16),
+                        label: const Text('COPY'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () {
+                          HapticFeedback.lightImpact();
+                          Share.share(_buildShareText(challenge, profile));
+                        },
+                        icon: const Icon(Icons.ios_share, size: 16),
+                        label: const Text('SHARE'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Center(
+                  child: Text(
+                    _untilTomorrowString().toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1.6,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Section header shared by both states ──────────────────────────────────
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({
+    required this.date,
+    this.rightLabel,
+    this.rightColor,
+  });
+
+  final String date;
+  final String? rightLabel;
+  final Color? rightColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Text(
+          "TODAY'S CHALLENGE",
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            letterSpacing: 1.8,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(width: 8),
+        Container(
+          width: 4,
+          height: 4,
+          color: theme.colorScheme.outline,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          _formatDate(date).toUpperCase(),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            letterSpacing: 1.4,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const Spacer(),
+        if (rightLabel != null)
+          Text(
+            rightLabel!,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: rightColor ?? theme.colorScheme.onSurfaceVariant,
+              letterSpacing: 1.6,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+      ],
     );
   }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
-
-class _Label extends StatelessWidget {
-  const _Label(this.text);
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.2,
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.text});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.18),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.25)),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
-  }
-}
 
 String _formatDate(String yyyymmdd) {
   final parts = yyyymmdd.split('-');

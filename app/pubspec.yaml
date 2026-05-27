@@ -64,6 +64,7 @@ dependencies:
 
   # ── Secure storage (auth tokens) ─────────────────────────────────────────
   flutter_secure_storage: ^9.2.2
+  google_fonts: ^6.3.0
 
 dev_dependencies:
   flutter_test:
