@@ -199,4 +199,41 @@ void main() {
     final again = container.read(dailyRoundControllerProvider).value!;
     expect(again.cards[0].grade, 1);
   });
+
+  test('gradeCard routes through FSRS pipeline + ticks profile XP',
+      () async {
+    await seedDeck(20);
+    final notifier =
+        container.read(dailyRoundControllerProvider.notifier);
+    final initial =
+        await container.read(dailyRoundControllerProvider.future);
+    final firstCardId = initial.cards.first.cardId;
+
+    // Profile starts empty (no XP, streak 0).
+    final beforeProfile =
+        await container.read(profileServiceProvider).load();
+    expect(beforeProfile.xpTotal, 0);
+    expect(beforeProfile.streakDays, 0);
+
+    // Card memory state starts new (no row yet).
+    final beforeMemory =
+        await db.reviewsDao.stateFor(firstCardId);
+    expect(beforeMemory, isNull);
+
+    await notifier.gradeCard(0, 2); // FSRSGrade.good
+
+    // After grading: FSRS state should exist + reviewCount = 1.
+    final afterMemory = await db.reviewsDao.stateFor(firstCardId);
+    expect(afterMemory, isNotNull,
+        reason: 'gradeCard should have created a CardMemoryStates row');
+    expect(afterMemory!.reviewCount, greaterThanOrEqualTo(1));
+
+    // Profile should have advanced — XP added + streak hits 1.
+    final afterProfile =
+        await container.read(profileServiceProvider).load();
+    expect(afterProfile.xpTotal, greaterThan(0),
+        reason: 'Profile XP should increment via recordReview');
+    expect(afterProfile.streakDays, 1,
+        reason: 'Streak should tick on the first review of the day');
+  });
 }

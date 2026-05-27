@@ -7,6 +7,8 @@ import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../curriculum/data/chapter_progress_service.dart';
 import '../../curriculum/domain/curriculum.dart';
+import '../../session/data/card_review_repository.dart';
+import '../../session/domain/fsrs_algorithm.dart';
 import '../../trivia/data/trivia_generator.dart';
 import '../../trivia/domain/trivia_question.dart';
 import '../../trivia/domain/trivia_scoring.dart';
@@ -37,6 +39,8 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       ref.read(chapterProgressServiceProvider);
   ChapterContentSampler get _sampler =>
       ref.read(chapterContentSamplerProvider);
+  CardReviewRepository get _reviewRepository =>
+      ref.read(cardReviewRepositoryProvider);
   AppDatabase get _db => ref.read(databaseProvider);
 
   @override
@@ -112,13 +116,27 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
     return initial;
   }
 
-  /// Grade the card at [index] with [grade] (0..3). Advances to the trivia
-  /// phase when the last card is graded.
+  /// Grade the card at [index] with [grade] (0..3). Routes the grade
+  /// through [CardReviewRepository.recordGrade] so the existing FSRS
+  /// pipeline + profile XP/streak update — same path the free-explore
+  /// session uses. Advances to the trivia phase when the last card is
+  /// graded.
   Future<void> gradeCard(int index, int grade) async {
     final s = state.value;
     if (s == null || s.phase != RoundPhase.cards) return;
     if (index < 0 || index >= s.cards.length) return;
     if (s.cards[index].grade != null) return; // already graded
+
+    // Hand the grade to the spaced-repetition pipeline. This updates
+    // FSRS memory state for the card AND increments profile XP + streak
+    // via ProfileService.recordReview inside the repository.
+    final fsrsGrade = FSRSGrade.values[grade.clamp(0, 3)];
+    await _reviewRepository.recordGrade(
+      cardId: s.cards[index].cardId,
+      grade: fsrsGrade,
+    );
+    // Profile + map widgets watch sessionTickProvider for invalidation.
+    ref.read(sessionTickProvider.notifier).state++;
 
     final updatedCards = [...s.cards];
     updatedCards[index] = updatedCards[index].copyWith(grade: grade);
