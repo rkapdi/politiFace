@@ -15,6 +15,7 @@ import '../daos/progress_dao.dart';
 import '../daos/meta_dao.dart';
 import '../daos/chapter_progress_dao.dart';
 import '../daos/daily_rounds_dao.dart';
+import '../daos/politician_bios_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -181,6 +182,25 @@ class SyncMeta extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+// ── Politician bios (Wikipedia summary cache) ────────────────────────────────
+// One row per cardId. Populated by WikipediaBioService at first launch (or
+// on-demand when the user opens a politician detail screen). Never queried
+// during a session — pure read-on-detail-screen.
+@DataClassName('PoliticianBio')
+class PoliticianBios extends Table {
+  TextColumn get cardId        => text()();
+  TextColumn get wikidataQid   => text().nullable()();
+  TextColumn get wikipediaTitle => text().nullable()();
+  TextColumn get wikipediaUrl  => text().nullable()();
+  TextColumn get bioExtract    => text().nullable()();  // lead paragraph from Wikipedia
+  IntColumn  get fetchedAt     => integer().nullable()();   // Unix timestamp, null = never tried
+  IntColumn  get lastError     => integer().nullable()();   // Unix timestamp of last failed attempt
+  TextColumn get lastErrorMessage => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {cardId};
+}
+
 // ── Daily rounds (chapter-aware play history) ────────────────────────────────
 // One row per (user, date). Stores everything needed to resume a round
 // mid-flight (after backgrounding the app) or read back today's recap.
@@ -238,6 +258,7 @@ class ChapterProgress extends Table {
     SyncMeta,
     ChapterProgress,
     DailyRounds,
+    PoliticianBios,
   ],
   daos: [
     CardsDao,
@@ -248,6 +269,7 @@ class ChapterProgress extends Table {
     MetaDao,
     ChapterProgressDao,
     DailyRoundsDao,
+    PoliticianBiosDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -257,7 +279,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -290,6 +312,12 @@ class AppDatabase extends _$AppDatabase {
         // Replaces the role of DailyChallengeCaches once Phase 5 cutover
         // lands; for now both tables coexist.
         await m.createTable(dailyRounds);
+      }
+      if (from < 5) {
+        // v4 → v5: add PoliticianBios — Wikipedia summary cache that
+        // powers the Atlas politician detail screen. New table; empty
+        // until WikipediaBioService backfills.
+        await m.createTable(politicianBios);
       }
     },
   );

@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../features/atlas/presentation/atlas_screen.dart';
+import '../features/atlas/presentation/politician_detail_screen.dart';
 import '../features/endless/presentation/endless_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/home/presentation/home_screen.dart';
@@ -57,6 +58,11 @@ GoRouter buildRouter({String initialLocation = '/'}) {
         path: '/node/:id',
         builder: (context, state) =>
             NodeDetailScreen(nodeId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/politician/:cardId',
+        builder: (context, state) =>
+            PoliticianDetailScreen(cardId: state.pathParameters['cardId']!),
       ),
       GoRoute(
         path: '/session',

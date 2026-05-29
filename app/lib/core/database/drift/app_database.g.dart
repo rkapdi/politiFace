@@ -5909,6 +5909,465 @@ class DailyRoundsCompanion extends UpdateCompanion<DailyRoundEntry> {
   }
 }
 
+class $PoliticianBiosTable extends PoliticianBios
+    with TableInfo<$PoliticianBiosTable, PoliticianBio> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PoliticianBiosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
+  @override
+  late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
+      'card_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _wikidataQidMeta =
+      const VerificationMeta('wikidataQid');
+  @override
+  late final GeneratedColumn<String> wikidataQid = GeneratedColumn<String>(
+      'wikidata_qid', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _wikipediaTitleMeta =
+      const VerificationMeta('wikipediaTitle');
+  @override
+  late final GeneratedColumn<String> wikipediaTitle = GeneratedColumn<String>(
+      'wikipedia_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _wikipediaUrlMeta =
+      const VerificationMeta('wikipediaUrl');
+  @override
+  late final GeneratedColumn<String> wikipediaUrl = GeneratedColumn<String>(
+      'wikipedia_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bioExtractMeta =
+      const VerificationMeta('bioExtract');
+  @override
+  late final GeneratedColumn<String> bioExtract = GeneratedColumn<String>(
+      'bio_extract', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _fetchedAtMeta =
+      const VerificationMeta('fetchedAt');
+  @override
+  late final GeneratedColumn<int> fetchedAt = GeneratedColumn<int>(
+      'fetched_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _lastErrorMeta =
+      const VerificationMeta('lastError');
+  @override
+  late final GeneratedColumn<int> lastError = GeneratedColumn<int>(
+      'last_error', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _lastErrorMessageMeta =
+      const VerificationMeta('lastErrorMessage');
+  @override
+  late final GeneratedColumn<String> lastErrorMessage = GeneratedColumn<String>(
+      'last_error_message', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        cardId,
+        wikidataQid,
+        wikipediaTitle,
+        wikipediaUrl,
+        bioExtract,
+        fetchedAt,
+        lastError,
+        lastErrorMessage
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'politician_bios';
+  @override
+  VerificationContext validateIntegrity(Insertable<PoliticianBio> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('card_id')) {
+      context.handle(_cardIdMeta,
+          cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
+    } else if (isInserting) {
+      context.missing(_cardIdMeta);
+    }
+    if (data.containsKey('wikidata_qid')) {
+      context.handle(
+          _wikidataQidMeta,
+          wikidataQid.isAcceptableOrUnknown(
+              data['wikidata_qid']!, _wikidataQidMeta));
+    }
+    if (data.containsKey('wikipedia_title')) {
+      context.handle(
+          _wikipediaTitleMeta,
+          wikipediaTitle.isAcceptableOrUnknown(
+              data['wikipedia_title']!, _wikipediaTitleMeta));
+    }
+    if (data.containsKey('wikipedia_url')) {
+      context.handle(
+          _wikipediaUrlMeta,
+          wikipediaUrl.isAcceptableOrUnknown(
+              data['wikipedia_url']!, _wikipediaUrlMeta));
+    }
+    if (data.containsKey('bio_extract')) {
+      context.handle(
+          _bioExtractMeta,
+          bioExtract.isAcceptableOrUnknown(
+              data['bio_extract']!, _bioExtractMeta));
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(_fetchedAtMeta,
+          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(_lastErrorMeta,
+          lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta));
+    }
+    if (data.containsKey('last_error_message')) {
+      context.handle(
+          _lastErrorMessageMeta,
+          lastErrorMessage.isAcceptableOrUnknown(
+              data['last_error_message']!, _lastErrorMessageMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cardId};
+  @override
+  PoliticianBio map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PoliticianBio(
+      cardId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_id'])!,
+      wikidataQid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikidata_qid']),
+      wikipediaTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikipedia_title']),
+      wikipediaUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikipedia_url']),
+      bioExtract: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bio_extract']),
+      fetchedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}fetched_at']),
+      lastError: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}last_error']),
+      lastErrorMessage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_error_message']),
+    );
+  }
+
+  @override
+  $PoliticianBiosTable createAlias(String alias) {
+    return $PoliticianBiosTable(attachedDatabase, alias);
+  }
+}
+
+class PoliticianBio extends DataClass implements Insertable<PoliticianBio> {
+  final String cardId;
+  final String? wikidataQid;
+  final String? wikipediaTitle;
+  final String? wikipediaUrl;
+  final String? bioExtract;
+  final int? fetchedAt;
+  final int? lastError;
+  final String? lastErrorMessage;
+  const PoliticianBio(
+      {required this.cardId,
+      this.wikidataQid,
+      this.wikipediaTitle,
+      this.wikipediaUrl,
+      this.bioExtract,
+      this.fetchedAt,
+      this.lastError,
+      this.lastErrorMessage});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['card_id'] = Variable<String>(cardId);
+    if (!nullToAbsent || wikidataQid != null) {
+      map['wikidata_qid'] = Variable<String>(wikidataQid);
+    }
+    if (!nullToAbsent || wikipediaTitle != null) {
+      map['wikipedia_title'] = Variable<String>(wikipediaTitle);
+    }
+    if (!nullToAbsent || wikipediaUrl != null) {
+      map['wikipedia_url'] = Variable<String>(wikipediaUrl);
+    }
+    if (!nullToAbsent || bioExtract != null) {
+      map['bio_extract'] = Variable<String>(bioExtract);
+    }
+    if (!nullToAbsent || fetchedAt != null) {
+      map['fetched_at'] = Variable<int>(fetchedAt);
+    }
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<int>(lastError);
+    }
+    if (!nullToAbsent || lastErrorMessage != null) {
+      map['last_error_message'] = Variable<String>(lastErrorMessage);
+    }
+    return map;
+  }
+
+  PoliticianBiosCompanion toCompanion(bool nullToAbsent) {
+    return PoliticianBiosCompanion(
+      cardId: Value(cardId),
+      wikidataQid: wikidataQid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikidataQid),
+      wikipediaTitle: wikipediaTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikipediaTitle),
+      wikipediaUrl: wikipediaUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikipediaUrl),
+      bioExtract: bioExtract == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bioExtract),
+      fetchedAt: fetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fetchedAt),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+      lastErrorMessage: lastErrorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastErrorMessage),
+    );
+  }
+
+  factory PoliticianBio.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PoliticianBio(
+      cardId: serializer.fromJson<String>(json['cardId']),
+      wikidataQid: serializer.fromJson<String?>(json['wikidataQid']),
+      wikipediaTitle: serializer.fromJson<String?>(json['wikipediaTitle']),
+      wikipediaUrl: serializer.fromJson<String?>(json['wikipediaUrl']),
+      bioExtract: serializer.fromJson<String?>(json['bioExtract']),
+      fetchedAt: serializer.fromJson<int?>(json['fetchedAt']),
+      lastError: serializer.fromJson<int?>(json['lastError']),
+      lastErrorMessage: serializer.fromJson<String?>(json['lastErrorMessage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cardId': serializer.toJson<String>(cardId),
+      'wikidataQid': serializer.toJson<String?>(wikidataQid),
+      'wikipediaTitle': serializer.toJson<String?>(wikipediaTitle),
+      'wikipediaUrl': serializer.toJson<String?>(wikipediaUrl),
+      'bioExtract': serializer.toJson<String?>(bioExtract),
+      'fetchedAt': serializer.toJson<int?>(fetchedAt),
+      'lastError': serializer.toJson<int?>(lastError),
+      'lastErrorMessage': serializer.toJson<String?>(lastErrorMessage),
+    };
+  }
+
+  PoliticianBio copyWith(
+          {String? cardId,
+          Value<String?> wikidataQid = const Value.absent(),
+          Value<String?> wikipediaTitle = const Value.absent(),
+          Value<String?> wikipediaUrl = const Value.absent(),
+          Value<String?> bioExtract = const Value.absent(),
+          Value<int?> fetchedAt = const Value.absent(),
+          Value<int?> lastError = const Value.absent(),
+          Value<String?> lastErrorMessage = const Value.absent()}) =>
+      PoliticianBio(
+        cardId: cardId ?? this.cardId,
+        wikidataQid: wikidataQid.present ? wikidataQid.value : this.wikidataQid,
+        wikipediaTitle:
+            wikipediaTitle.present ? wikipediaTitle.value : this.wikipediaTitle,
+        wikipediaUrl:
+            wikipediaUrl.present ? wikipediaUrl.value : this.wikipediaUrl,
+        bioExtract: bioExtract.present ? bioExtract.value : this.bioExtract,
+        fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+        lastError: lastError.present ? lastError.value : this.lastError,
+        lastErrorMessage: lastErrorMessage.present
+            ? lastErrorMessage.value
+            : this.lastErrorMessage,
+      );
+  PoliticianBio copyWithCompanion(PoliticianBiosCompanion data) {
+    return PoliticianBio(
+      cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      wikidataQid:
+          data.wikidataQid.present ? data.wikidataQid.value : this.wikidataQid,
+      wikipediaTitle: data.wikipediaTitle.present
+          ? data.wikipediaTitle.value
+          : this.wikipediaTitle,
+      wikipediaUrl: data.wikipediaUrl.present
+          ? data.wikipediaUrl.value
+          : this.wikipediaUrl,
+      bioExtract:
+          data.bioExtract.present ? data.bioExtract.value : this.bioExtract,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+      lastErrorMessage: data.lastErrorMessage.present
+          ? data.lastErrorMessage.value
+          : this.lastErrorMessage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PoliticianBio(')
+          ..write('cardId: $cardId, ')
+          ..write('wikidataQid: $wikidataQid, ')
+          ..write('wikipediaTitle: $wikipediaTitle, ')
+          ..write('wikipediaUrl: $wikipediaUrl, ')
+          ..write('bioExtract: $bioExtract, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('lastError: $lastError, ')
+          ..write('lastErrorMessage: $lastErrorMessage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(cardId, wikidataQid, wikipediaTitle,
+      wikipediaUrl, bioExtract, fetchedAt, lastError, lastErrorMessage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PoliticianBio &&
+          other.cardId == this.cardId &&
+          other.wikidataQid == this.wikidataQid &&
+          other.wikipediaTitle == this.wikipediaTitle &&
+          other.wikipediaUrl == this.wikipediaUrl &&
+          other.bioExtract == this.bioExtract &&
+          other.fetchedAt == this.fetchedAt &&
+          other.lastError == this.lastError &&
+          other.lastErrorMessage == this.lastErrorMessage);
+}
+
+class PoliticianBiosCompanion extends UpdateCompanion<PoliticianBio> {
+  final Value<String> cardId;
+  final Value<String?> wikidataQid;
+  final Value<String?> wikipediaTitle;
+  final Value<String?> wikipediaUrl;
+  final Value<String?> bioExtract;
+  final Value<int?> fetchedAt;
+  final Value<int?> lastError;
+  final Value<String?> lastErrorMessage;
+  final Value<int> rowid;
+  const PoliticianBiosCompanion({
+    this.cardId = const Value.absent(),
+    this.wikidataQid = const Value.absent(),
+    this.wikipediaTitle = const Value.absent(),
+    this.wikipediaUrl = const Value.absent(),
+    this.bioExtract = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.lastErrorMessage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PoliticianBiosCompanion.insert({
+    required String cardId,
+    this.wikidataQid = const Value.absent(),
+    this.wikipediaTitle = const Value.absent(),
+    this.wikipediaUrl = const Value.absent(),
+    this.bioExtract = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.lastErrorMessage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : cardId = Value(cardId);
+  static Insertable<PoliticianBio> custom({
+    Expression<String>? cardId,
+    Expression<String>? wikidataQid,
+    Expression<String>? wikipediaTitle,
+    Expression<String>? wikipediaUrl,
+    Expression<String>? bioExtract,
+    Expression<int>? fetchedAt,
+    Expression<int>? lastError,
+    Expression<String>? lastErrorMessage,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cardId != null) 'card_id': cardId,
+      if (wikidataQid != null) 'wikidata_qid': wikidataQid,
+      if (wikipediaTitle != null) 'wikipedia_title': wikipediaTitle,
+      if (wikipediaUrl != null) 'wikipedia_url': wikipediaUrl,
+      if (bioExtract != null) 'bio_extract': bioExtract,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (lastError != null) 'last_error': lastError,
+      if (lastErrorMessage != null) 'last_error_message': lastErrorMessage,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PoliticianBiosCompanion copyWith(
+      {Value<String>? cardId,
+      Value<String?>? wikidataQid,
+      Value<String?>? wikipediaTitle,
+      Value<String?>? wikipediaUrl,
+      Value<String?>? bioExtract,
+      Value<int?>? fetchedAt,
+      Value<int?>? lastError,
+      Value<String?>? lastErrorMessage,
+      Value<int>? rowid}) {
+    return PoliticianBiosCompanion(
+      cardId: cardId ?? this.cardId,
+      wikidataQid: wikidataQid ?? this.wikidataQid,
+      wikipediaTitle: wikipediaTitle ?? this.wikipediaTitle,
+      wikipediaUrl: wikipediaUrl ?? this.wikipediaUrl,
+      bioExtract: bioExtract ?? this.bioExtract,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      lastError: lastError ?? this.lastError,
+      lastErrorMessage: lastErrorMessage ?? this.lastErrorMessage,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cardId.present) {
+      map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (wikidataQid.present) {
+      map['wikidata_qid'] = Variable<String>(wikidataQid.value);
+    }
+    if (wikipediaTitle.present) {
+      map['wikipedia_title'] = Variable<String>(wikipediaTitle.value);
+    }
+    if (wikipediaUrl.present) {
+      map['wikipedia_url'] = Variable<String>(wikipediaUrl.value);
+    }
+    if (bioExtract.present) {
+      map['bio_extract'] = Variable<String>(bioExtract.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<int>(fetchedAt.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<int>(lastError.value);
+    }
+    if (lastErrorMessage.present) {
+      map['last_error_message'] = Variable<String>(lastErrorMessage.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PoliticianBiosCompanion(')
+          ..write('cardId: $cardId, ')
+          ..write('wikidataQid: $wikidataQid, ')
+          ..write('wikipediaTitle: $wikipediaTitle, ')
+          ..write('wikipediaUrl: $wikipediaUrl, ')
+          ..write('bioExtract: $bioExtract, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('lastError: $lastError, ')
+          ..write('lastErrorMessage: $lastErrorMessage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5927,6 +6386,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ChapterProgressTable chapterProgress =
       $ChapterProgressTable(this);
   late final $DailyRoundsTable dailyRounds = $DailyRoundsTable(this);
+  late final $PoliticianBiosTable politicianBios = $PoliticianBiosTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
@@ -5937,6 +6397,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       ChapterProgressDao(this as AppDatabase);
   late final DailyRoundsDao dailyRoundsDao =
       DailyRoundsDao(this as AppDatabase);
+  late final PoliticianBiosDao politicianBiosDao =
+      PoliticianBiosDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5952,7 +6414,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         dailyChallengeCaches,
         syncMeta,
         chapterProgress,
-        dailyRounds
+        dailyRounds,
+        politicianBios
       ];
 }
 
@@ -8735,6 +9198,230 @@ typedef $$DailyRoundsTableProcessedTableManager = ProcessedTableManager<
     ),
     DailyRoundEntry,
     PrefetchHooks Function()>;
+typedef $$PoliticianBiosTableCreateCompanionBuilder = PoliticianBiosCompanion
+    Function({
+  required String cardId,
+  Value<String?> wikidataQid,
+  Value<String?> wikipediaTitle,
+  Value<String?> wikipediaUrl,
+  Value<String?> bioExtract,
+  Value<int?> fetchedAt,
+  Value<int?> lastError,
+  Value<String?> lastErrorMessage,
+  Value<int> rowid,
+});
+typedef $$PoliticianBiosTableUpdateCompanionBuilder = PoliticianBiosCompanion
+    Function({
+  Value<String> cardId,
+  Value<String?> wikidataQid,
+  Value<String?> wikipediaTitle,
+  Value<String?> wikipediaUrl,
+  Value<String?> bioExtract,
+  Value<int?> fetchedAt,
+  Value<int?> lastError,
+  Value<String?> lastErrorMessage,
+  Value<int> rowid,
+});
+
+class $$PoliticianBiosTableFilterComposer
+    extends Composer<_$AppDatabase, $PoliticianBiosTable> {
+  $$PoliticianBiosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cardId => $composableBuilder(
+      column: $table.cardId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikidataQid => $composableBuilder(
+      column: $table.wikidataQid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikipediaTitle => $composableBuilder(
+      column: $table.wikipediaTitle,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikipediaUrl => $composableBuilder(
+      column: $table.wikipediaUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bioExtract => $composableBuilder(
+      column: $table.bioExtract, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastErrorMessage => $composableBuilder(
+      column: $table.lastErrorMessage,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$PoliticianBiosTableOrderingComposer
+    extends Composer<_$AppDatabase, $PoliticianBiosTable> {
+  $$PoliticianBiosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cardId => $composableBuilder(
+      column: $table.cardId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikidataQid => $composableBuilder(
+      column: $table.wikidataQid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikipediaTitle => $composableBuilder(
+      column: $table.wikipediaTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikipediaUrl => $composableBuilder(
+      column: $table.wikipediaUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bioExtract => $composableBuilder(
+      column: $table.bioExtract, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastErrorMessage => $composableBuilder(
+      column: $table.lastErrorMessage,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$PoliticianBiosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PoliticianBiosTable> {
+  $$PoliticianBiosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cardId =>
+      $composableBuilder(column: $table.cardId, builder: (column) => column);
+
+  GeneratedColumn<String> get wikidataQid => $composableBuilder(
+      column: $table.wikidataQid, builder: (column) => column);
+
+  GeneratedColumn<String> get wikipediaTitle => $composableBuilder(
+      column: $table.wikipediaTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get wikipediaUrl => $composableBuilder(
+      column: $table.wikipediaUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get bioExtract => $composableBuilder(
+      column: $table.bioExtract, builder: (column) => column);
+
+  GeneratedColumn<int> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+
+  GeneratedColumn<String> get lastErrorMessage => $composableBuilder(
+      column: $table.lastErrorMessage, builder: (column) => column);
+}
+
+class $$PoliticianBiosTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PoliticianBiosTable,
+    PoliticianBio,
+    $$PoliticianBiosTableFilterComposer,
+    $$PoliticianBiosTableOrderingComposer,
+    $$PoliticianBiosTableAnnotationComposer,
+    $$PoliticianBiosTableCreateCompanionBuilder,
+    $$PoliticianBiosTableUpdateCompanionBuilder,
+    (
+      PoliticianBio,
+      BaseReferences<_$AppDatabase, $PoliticianBiosTable, PoliticianBio>
+    ),
+    PoliticianBio,
+    PrefetchHooks Function()> {
+  $$PoliticianBiosTableTableManager(
+      _$AppDatabase db, $PoliticianBiosTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PoliticianBiosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PoliticianBiosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PoliticianBiosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> cardId = const Value.absent(),
+            Value<String?> wikidataQid = const Value.absent(),
+            Value<String?> wikipediaTitle = const Value.absent(),
+            Value<String?> wikipediaUrl = const Value.absent(),
+            Value<String?> bioExtract = const Value.absent(),
+            Value<int?> fetchedAt = const Value.absent(),
+            Value<int?> lastError = const Value.absent(),
+            Value<String?> lastErrorMessage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PoliticianBiosCompanion(
+            cardId: cardId,
+            wikidataQid: wikidataQid,
+            wikipediaTitle: wikipediaTitle,
+            wikipediaUrl: wikipediaUrl,
+            bioExtract: bioExtract,
+            fetchedAt: fetchedAt,
+            lastError: lastError,
+            lastErrorMessage: lastErrorMessage,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String cardId,
+            Value<String?> wikidataQid = const Value.absent(),
+            Value<String?> wikipediaTitle = const Value.absent(),
+            Value<String?> wikipediaUrl = const Value.absent(),
+            Value<String?> bioExtract = const Value.absent(),
+            Value<int?> fetchedAt = const Value.absent(),
+            Value<int?> lastError = const Value.absent(),
+            Value<String?> lastErrorMessage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PoliticianBiosCompanion.insert(
+            cardId: cardId,
+            wikidataQid: wikidataQid,
+            wikipediaTitle: wikipediaTitle,
+            wikipediaUrl: wikipediaUrl,
+            bioExtract: bioExtract,
+            fetchedAt: fetchedAt,
+            lastError: lastError,
+            lastErrorMessage: lastErrorMessage,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PoliticianBiosTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PoliticianBiosTable,
+    PoliticianBio,
+    $$PoliticianBiosTableFilterComposer,
+    $$PoliticianBiosTableOrderingComposer,
+    $$PoliticianBiosTableAnnotationComposer,
+    $$PoliticianBiosTableCreateCompanionBuilder,
+    $$PoliticianBiosTableUpdateCompanionBuilder,
+    (
+      PoliticianBio,
+      BaseReferences<_$AppDatabase, $PoliticianBiosTable, PoliticianBio>
+    ),
+    PoliticianBio,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8761,4 +9448,6 @@ class $AppDatabaseManager {
       $$ChapterProgressTableTableManager(_db, _db.chapterProgress);
   $$DailyRoundsTableTableManager get dailyRounds =>
       $$DailyRoundsTableTableManager(_db, _db.dailyRounds);
+  $$PoliticianBiosTableTableManager get politicianBios =>
+      $$PoliticianBiosTableTableManager(_db, _db.politicianBios);
 }

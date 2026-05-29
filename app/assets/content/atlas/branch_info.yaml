@@ -1,0 +1,81 @@
+# Branch info — Atlas library mode.
+#
+# Tapping a branch header in the Atlas opens a modal bottom sheet with these
+# blurbs. Goal: give a curious user enough context that they understand what
+# the branch is + does, without having to study a deck. Library-shaped:
+# scannable headline, short paragraphs, key facts, links into the chapters
+# of the round where the branch shows up.
+#
+# Keep blurbs SHORT. No textbook prose. Two short paragraphs max + bullet
+# facts. If the user wants depth, they play the round.
+
+version: 1
+
+branches:
+
+  - id: atlas-legislative
+    title: Legislative
+    short: Congress — the lawmakers.
+    summary: >
+      Article I of the Constitution. Congress writes the laws, controls
+      federal spending, declares war, and oversees the executive branch.
+      Two chambers: the House (435 members, elected every 2 years) and the
+      Senate (100 members, elected every 6 years).
+    quick_facts:
+      - "100 Senators (2 per state, 6-year terms)"
+      - "435 House members (apportioned by population, 2-year terms)"
+      - "Article I powers: tax, spend, declare war, regulate commerce"
+      - "Bills become laws here before the President can sign"
+    related_chapters:
+      - ch3.three-branches
+      - ch4.machine-in-motion
+
+  - id: atlas-executive
+    title: Executive
+    short: The President and the agencies that run the government.
+    summary: >
+      Article II of the Constitution. The President is head of state, head
+      of government, and Commander-in-Chief. The Cabinet plus the Executive
+      Office of the President execute and enforce federal law through 15
+      departments and dozens of independent agencies.
+    quick_facts:
+      - "President: 4-year term, 22nd Amendment 2-term limit"
+      - "Vice President + presidential succession order"
+      - "15 Cabinet departments (State, Defense, Treasury, etc.)"
+      - "Veto power, executive orders, treaty negotiation, pardons"
+    related_chapters:
+      - ch3.three-branches
+      - ch4.machine-in-motion
+
+  - id: atlas-judicial
+    title: Judicial
+    short: The courts — interprets the laws.
+    summary: >
+      Article III of the Constitution. Federal courts settle disputes and
+      decide whether laws and executive actions match the Constitution.
+      The Supreme Court has the final word. Marbury v. Madison (1803)
+      established judicial review.
+    quick_facts:
+      - "Supreme Court: 9 Justices, lifetime tenure"
+      - "Federal hierarchy: District → Circuit → Supreme"
+      - "Judges nominated by President, confirmed by Senate"
+      - "Landmark cases shape rights — Brown, Roe, Citizens United"
+    related_chapters:
+      - ch3.three-branches
+      - ch5.rights-and-the-court
+
+  - id: atlas-state-local
+    title: State and Local
+    short: Everything outside DC — states, cities, parties, voters.
+    summary: >
+      The 10th Amendment reserves to the states (and the people) all powers
+      not granted to the federal government. State governments handle
+      education, police, most elections, and most day-to-day governance.
+      Political parties, voting, and civic participation also live here.
+    quick_facts:
+      - "50 state governments — each with its own governor + legislature"
+      - "Police, education, elections administration are mostly state-run"
+      - "Two major parties: Democratic, Republican (plus minor parties)"
+      - "Voter eligibility: 18+ citizens (15th, 19th, 24th, 26th Amendments)"
+    related_chapters:
+      - ch6.we-the-people

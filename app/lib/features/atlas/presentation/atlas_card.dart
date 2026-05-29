@@ -34,22 +34,13 @@ class AtlasCard extends StatelessWidget {
     return Material(
       color: theme.colorScheme.surface,
       child: InkWell(
-        onTap: data.isLocked
-            ? () {
-                HapticFeedback.selectionClick();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Locked — play more rounds to unlock.'),
-                    duration: Duration(seconds: 2),
-                  ),
-                );
-              }
-            : data.nodeId == null
-                ? null
-                : () {
-                    HapticFeedback.lightImpact();
-                    context.go('/node/${data.nodeId}');
-                  },
+        // Atlas is a library — every card opens its detail page regardless
+        // of lock status. The lock badge stays as a "you haven't studied
+        // this yet" signal but never blocks looking it up.
+        onTap: () {
+          HapticFeedback.lightImpact();
+          context.go('/politician/${data.cardId}');
+        },
         child: Container(
           padding: const EdgeInsets.fromLTRB(12, 14, 12, 12),
           decoration: BoxDecoration(

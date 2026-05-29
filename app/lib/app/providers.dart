@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/database/drift/app_database.dart';
+import '../features/atlas/data/branch_info_loader.dart';
+import '../features/atlas/data/wikipedia_bio_service.dart';
 import '../features/curriculum/data/chapter_progress_service.dart';
 import '../features/curriculum/data/content_linker.dart';
 import '../features/curriculum/data/curriculum_loader.dart';
@@ -131,6 +135,29 @@ final seasonProgressProvider =
   return ref
       .watch(chapterProgressServiceProvider)
       .seasonProgress(curriculum.season.id);
+});
+
+// ── Atlas branch info (library blurbs) ──────────────────────────────────────
+
+final branchInfoLibraryProvider = FutureProvider<BranchInfoLibrary>((ref) {
+  return BranchInfoLoader().load();
+});
+
+// ── Wikipedia bio service + per-card bio stream ─────────────────────────────
+
+final wikipediaBioServiceProvider = Provider<WikipediaBioService>((ref) {
+  return WikipediaBioService(ref.watch(databaseProvider));
+});
+
+/// Reactive bio for a single card. Subscribes to PoliticianBios row
+/// updates so the screen rebuilds when a fetch completes. Also triggers
+/// `ensureBio` once on first watch — fire-and-forget.
+final politicianBioProvider =
+    StreamProvider.family<PoliticianBio?, String>((ref, cardId) {
+  final service = ref.watch(wikipediaBioServiceProvider);
+  // Fire-and-forget — DB watch picks up the row when fetch lands.
+  unawaited(service.ensureBio(cardId));
+  return ref.watch(databaseProvider).politicianBiosDao.watch(cardId);
 });
 
 // ── Daily Round (chapter-aware ritual) ──────────────────────────────────────

@@ -89,6 +89,7 @@ flutter:
   assets:
     - assets/content/decks/
     - assets/content/curriculum/
+    - assets/content/atlas/
     - assets/portraits/
 
   # TODO: re-enable once asset files and .env exist (see handoff Section 14)
