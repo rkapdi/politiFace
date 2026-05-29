@@ -90,14 +90,14 @@
     },
     {
       "name": "Chris Wright",
-      "qid": "Q2964899",
+      "qid": "Q131225840",
       "wikidata_label": "Chris Wright",
       "occupations": "",
       "candidates_considered": 1,
-      "resolver": "api",
-      "file": "wikidata_Q2964899_chris-wright.jpg",
-      "source_url": "https://www.wikidata.org/wiki/Q2964899",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Chris_Wright_%282%29.JPG"
+      "resolver": "manual-disambiguation-fix",
+      "file": "wikidata_Q131225840_chris-wright.jpg",
+      "source_url": "https://www.wikidata.org/wiki/Q131225840",
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_Chris_Wright_Official_Portrait.jpg"
     },
     {
       "name": "Linda McMahon",

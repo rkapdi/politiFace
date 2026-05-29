@@ -21,11 +21,12 @@ class YamlSeedService {
   final AppDatabase _db;
   final AssetBundle _bundle;
 
-  // Bumped from v1 → v2 to force existing installs to re-upsert cards on
-  // next launch — picks up the new bundled portrait asset paths that
-  // replaced the Picsum placeholders. Card memory state is preserved by
-  // _seedDeck (only freshly-seen cards initialize a row).
-  static const _flagKey = 'yaml_seed_v2_done';
+  // Bumped from v2 → v3 to re-upsert the Chris Wright card — the v2
+  // seed shipped with a wrong-person Wikidata portrait (basketball
+  // player Q2964899 instead of Energy Secretary Q131225840). Bumping
+  // forces every install to pick the new asset filename. Card memory
+  // state preserved.
+  static const _flagKey = 'yaml_seed_v3_done';
   static const _deckPrefix = 'assets/content/decks/';
 
   Future<void> ensureSeeded() async {
