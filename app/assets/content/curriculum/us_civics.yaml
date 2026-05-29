@@ -49,8 +49,8 @@ chapters:
 
   - id: ch1.first-principles
     order: 1
-    title: First Principles
-    subtitle: Why this country exists.
+    title: The Founding
+    subtitle: Declaration, founders, Constitution origin.
     days: 2
     item_ids:
       - decl.purpose
@@ -63,8 +63,8 @@ chapters:
 
   - id: ch2.the-architecture
     order: 2
-    title: The Architecture
-    subtitle: How the system is built.
+    title: The Constitution
+    subtitle: Bill of Rights, separation of powers, federalism.
     days: 3
     item_ids:
       - const.supreme-law
@@ -84,8 +84,8 @@ chapters:
 
   - id: ch3.three-branches
     order: 3
-    title: The Three Branches
-    subtitle: Who does what.
+    title: Three Branches
+    subtitle: Congress, President, Supreme Court — who's in each.
     days: 3
     item_ids:
       - leg.bicameral
@@ -104,8 +104,8 @@ chapters:
 
   - id: ch4.machine-in-motion
     order: 4
-    title: The Machine in Motion
-    subtitle: How law and power actually move.
+    title: How Laws Get Made
+    subtitle: From bill to vote to veto to law.
     days: 3
     item_ids:
       - leg.enumerated-powers
@@ -126,8 +126,8 @@ chapters:
 
   - id: ch5.rights-and-the-court
     order: 5
-    title: Rights & The Court
-    subtitle: Where the system meets the person.
+    title: Your Rights
+    subtitle: Free speech, due process, landmark Supreme Court cases.
     days: 3
     item_ids:
       - case.marbury
@@ -147,8 +147,8 @@ chapters:
 
   - id: ch6.we-the-people
     order: 6
-    title: We the People
-    subtitle: Your turn.
+    title: Voting & You
+    subtitle: Parties, elections, civic duty, civil rights.
     days: 4
     item_ids:
       - sl.governor
