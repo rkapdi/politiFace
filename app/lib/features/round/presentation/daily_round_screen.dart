@@ -104,9 +104,18 @@ class _RoundBody extends ConsumerWidget {
           },
         );
       case RoundPhase.done:
-        // We auto-navigate in the parent's listener; show a brief loader
-        // for the one frame this state is visible.
-        return const AppLoadingView(label: 'Saving…');
+        // The parent's listener bounces home on the cards→done transition,
+        // but if the user opens /round when the round is *already* done
+        // (e.g. tapping "REVIEW TODAY" after completing the round), the
+        // listener never fires because there's no transition. Schedule the
+        // bounce from here so the user doesn't get stuck on the saving
+        // loader. Once Wave 3's history screen ships this becomes the
+        // entry point to the run review instead.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final ctx = context;
+          if (ctx.mounted) ctx.go('/');
+        });
+        return const AppLoadingView(label: 'Round complete — heading home…');
     }
   }
 }

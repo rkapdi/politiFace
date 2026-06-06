@@ -288,15 +288,25 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                 ),
               ),
               const SizedBox(height: 8),
-              // Secondary: text-only copy (kept for iMessage/X plain-text
-              // sharers) and the dismiss.
+              // Secondary row: review the run, copy plain text (kept for
+              // iMessage/X), and dismiss.
               Row(
                 children: [
                   Expanded(
                     child: TextButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/trivia/review');
+                      },
+                      icon: const Icon(Icons.fact_check_outlined, size: 16),
+                      label: const Text('Review'),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton.icon(
                       onPressed: _onCopy,
                       icon: const Icon(Icons.copy_outlined, size: 16),
-                      label: const Text('Copy text'),
+                      label: const Text('Copy'),
                     ),
                   ),
                   Expanded(

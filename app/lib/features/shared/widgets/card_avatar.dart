@@ -120,3 +120,53 @@ class CardAvatar extends StatelessWidget {
         .toUpperCase();
   }
 }
+
+/// CardAvatar variant that sizes itself relative to its container (or the
+/// device's shortest side if its container is unbounded). Use for hero
+/// photos and grid cells that should scale across iPhone SE → Pro Max.
+class ResponsiveCardAvatar extends StatelessWidget {
+  const ResponsiveCardAvatar({
+    super.key,
+    required this.name,
+    this.photoUrl,
+    this.lqipBase64,
+    this.factor = 0.28,
+    this.minRadius = 60,
+    this.maxRadius = 140,
+  });
+
+  final String name;
+  final String? photoUrl;
+  final String? lqipBase64;
+
+  /// Fraction of the basis (parent's shortest side, or screen's shortest
+  /// side if the parent is unbounded) used as the avatar radius.
+  final double factor;
+  final double minRadius;
+  final double maxRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double basis;
+        if (constraints.hasBoundedHeight && constraints.hasBoundedWidth) {
+          basis = constraints.biggest.shortestSide;
+        } else if (constraints.hasBoundedWidth) {
+          basis = constraints.maxWidth;
+        } else if (constraints.hasBoundedHeight) {
+          basis = constraints.maxHeight;
+        } else {
+          basis = MediaQuery.of(context).size.shortestSide;
+        }
+        final radius = (basis * factor).clamp(minRadius, maxRadius);
+        return CardAvatar(
+          name: name,
+          radius: radius,
+          photoUrl: photoUrl,
+          lqipBase64: lqipBase64,
+        );
+      },
+    );
+  }
+}
