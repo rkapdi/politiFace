@@ -18,6 +18,7 @@ cards:
     title: "Chief Justice of the United States"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q320178_john-roberts.jpg"
+    gender: male
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "Presides over the Supreme Court since 2005; nominated by George W. Bush."
@@ -27,6 +28,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q11142_clarence-thomas.jpg"
+    gender: male
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 1991; longest-serving current justice."
@@ -36,6 +38,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q11138_samuel-alito.jpg"
+    gender: male
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2006; nominated by George W. Bush."
@@ -45,6 +48,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q11107_sonia-sotomayor.jpg"
+    gender: female
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2009; first Hispanic justice; nominated by Obama."
@@ -54,6 +58,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q11105_elena-kagan.jpg"
+    gender: female
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2010; former Solicitor General; nominated by Obama."
@@ -63,6 +68,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q15488345_neil-gorsuch.jpg"
+    gender: male
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2017; first Trump nominee; replaced Antonin Scalia."
@@ -72,6 +78,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q4962244_brett-kavanaugh.jpg"
+    gender: male
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2018; nominated by Trump; replaced Anthony Kennedy."
@@ -81,6 +88,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q29863844_amy-coney-barrett.jpg"
+    gender: female
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2020; nominated by Trump; replaced Ruth Bader Ginsburg."
@@ -90,6 +98,7 @@ cards:
     title: "Associate Justice"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q6395324_ketanji-brown-jackson.jpeg"
+    gender: female
     source: "https://www.supremecourt.gov/about/biographies.aspx"
     last_verified: "2026-05-22"
     one_liner: "On the Court since 2022; first Black woman justice; nominated by Biden."

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../shared/widgets/card_avatar.dart';
 import '../domain/round_state.dart';
 
 /// Cards phase of the daily round. Renders the current ungraded card with
@@ -71,7 +72,7 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
               value: progress.clamp(0.0, 1.0),
               minHeight: 4,
               backgroundColor: theme.colorScheme.surfaceContainerHigh,
-              valueColor: AlwaysStoppedAnimation(EditorialPalette.ochre),
+              valueColor: AlwaysStoppedAnimation(theme.colorScheme.brandOchre),
             ),
           ),
           const SizedBox(height: 6),
@@ -197,11 +198,22 @@ class _CardBack extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final showAvatar = card.politicianName != null;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (showAvatar) ...[
+            ResponsiveCardAvatar(
+              name: card.politicianName!,
+              photoUrl: card.photoUrl,
+              factor: 0.26,
+              minRadius: 64,
+              maxRadius: 96,
+            ),
+            const SizedBox(height: 14),
+          ],
           Text(
             card.prompt,
             textAlign: TextAlign.center,

@@ -37,6 +37,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q22686_donald-trump.jpg"
+    gender: male
     source: "https://www.whitehouse.gov/administration/"
     last_verified: "2026-05-19"
     one_liner: "47th President of the United States."
@@ -47,6 +48,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q28935729_jd-vance.jpg"
+    gender: male
     source: "https://www.whitehouse.gov/administration/"
     last_verified: "2026-05-19"
     one_liner: "50th Vice President; former US Senator from Ohio."
@@ -57,6 +59,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q324546_marco-rubio.jpg"
+    gender: male
     source: "https://www.whitehouse.gov/administration/"
     last_verified: "2026-05-19"
     one_liner: "Leads US foreign policy and the State Department."
@@ -67,6 +70,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q7172014_pete-hegseth.jpg"
+    gender: male
     source: "https://www.whitehouse.gov/administration/"
     last_verified: "2026-05-19"
     one_liner: "Heads the Department of Defense and the US military."
@@ -77,6 +81,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q7128915_pam-bondi.jpg"
+    gender: female
     source: "https://www.whitehouse.gov/administration/"
     last_verified: "2026-05-19"
     one_liner: "Heads the Department of Justice; chief federal law officer."

@@ -9,7 +9,8 @@
       "resolver": "api",
       "file": "wikidata_Q7435987_scott-bessent.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q7435987",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Treasury_Secretary_Scott_Bessent.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Treasury_Secretary_Scott_Bessent.jpg",
+      "gender": "male"
     },
     {
       "name": "Doug Burgum",
@@ -20,7 +21,8 @@
       "resolver": "api",
       "file": "wikidata_Q22095395_doug-burgum.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q22095395",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Doug_Burgum_2025_DOI_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Doug_Burgum_2025_DOI_portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Brooke Rollins",
@@ -31,7 +33,8 @@
       "resolver": "api",
       "file": "wikidata_Q4974474_brooke-rollins.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q4974474",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Brooke_Rollins_%2851248667684%29_%28cropped%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Brooke_Rollins_%2851248667684%29_%28cropped%29.jpg",
+      "gender": "female"
     },
     {
       "name": "Howard Lutnick",
@@ -42,7 +45,8 @@
       "resolver": "api",
       "file": "wikidata_Q16194176_howard-lutnick.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q16194176",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Howard_Lutnick_2025.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Howard_Lutnick_2025.jpg",
+      "gender": "male"
     },
     {
       "name": "Lori Chavez-DeRemer",
@@ -53,7 +57,8 @@
       "resolver": "api",
       "file": "wikidata_Q115522128_lori-chavez-deremer.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q115522128",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_Lori_Chavez-DeRemer_official_portrait_2025_%2854382448706%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_Lori_Chavez-DeRemer_official_portrait_2025_%2854382448706%29.jpg",
+      "gender": "female"
     },
     {
       "name": "Robert F. Kennedy Jr.",
@@ -64,7 +69,8 @@
       "resolver": "api",
       "file": "wikidata_Q1352872_robert-f-kennedy-jr.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q1352872",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Robert_F._Kennedy_Jr.%2C_official_portrait_%282025%29_%28cropped_3-4%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Robert_F._Kennedy_Jr.%2C_official_portrait_%282025%29_%28cropped_3-4%29.jpg",
+      "gender": "male"
     },
     {
       "name": "Scott Turner",
@@ -75,7 +81,8 @@
       "resolver": "api",
       "file": "wikidata_Q7437419_scott-turner.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q7437419",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Scott_Turner%2C_official_portrait_%282025%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Scott_Turner%2C_official_portrait_%282025%29.jpg",
+      "gender": "male"
     },
     {
       "name": "Sean Duffy",
@@ -86,7 +93,8 @@
       "resolver": "api",
       "file": "wikidata_Q1729888_sean-duffy.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q1729888",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_of_Transportation_Sean_Duffy_Official_Portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_of_Transportation_Sean_Duffy_Official_Portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Chris Wright",
@@ -97,7 +105,8 @@
       "resolver": "manual-disambiguation-fix",
       "file": "wikidata_Q131225840_chris-wright.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q131225840",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_Chris_Wright_Official_Portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Secretary_Chris_Wright_Official_Portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Linda McMahon",
@@ -108,7 +117,8 @@
       "resolver": "api",
       "file": "wikidata_Q233905_linda-mcmahon.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q233905",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/ED_Sec_Linda_McMahon_%28cropped%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/ED_Sec_Linda_McMahon_%28cropped%29.jpg",
+      "gender": "female"
     },
     {
       "name": "Doug Collins",
@@ -119,7 +129,8 @@
       "resolver": "api",
       "file": "wikidata_Q3162841_doug-collins.jpeg",
       "source_url": "https://www.wikidata.org/wiki/Q3162841",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Douglas_Collins%2C_U.S._Secretary_of_Veterans_Affairs_%28cropped%29.jpeg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Douglas_Collins%2C_U.S._Secretary_of_Veterans_Affairs_%28cropped%29.jpeg",
+      "gender": "male"
     },
     {
       "name": "Kristi Noem",
@@ -130,7 +141,8 @@
       "resolver": "api",
       "file": "wikidata_Q465749_kristi-noem.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q465749",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_Portrait_of_Secretary_Kristi_Noem.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_Portrait_of_Secretary_Kristi_Noem.jpg",
+      "gender": "female"
     },
     {
       "name": "Susie Wiles",
@@ -141,7 +153,8 @@
       "resolver": "api",
       "file": "wikidata_Q113560461_susie-wiles.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q113560461",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Susie_Wiles_July_2025.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Susie_Wiles_July_2025.jpg",
+      "gender": "female"
     },
     {
       "name": "Mike Waltz",
@@ -152,7 +165,8 @@
       "resolver": "api",
       "file": "wikidata_Q55386653_mike-waltz.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q55386653",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Michael_Waltz%2C_official_portrait%2C_116th_Congress.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Michael_Waltz%2C_official_portrait%2C_116th_Congress.jpg",
+      "gender": "male"
     },
     {
       "name": "Karoline Leavitt",
@@ -163,7 +177,8 @@
       "resolver": "api",
       "file": "wikidata_Q100146113_karoline-leavitt.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q100146113",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Karoline_Leavitt%2C_2025.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Karoline_Leavitt%2C_2025.jpg",
+      "gender": "female"
     },
     {
       "name": "Russell Vought",
@@ -174,7 +189,8 @@
       "resolver": "api",
       "file": "wikidata_Q29963497_russell-vought.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q29963497",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Director_of_the_Office_of_Management_and_Budget_Russell_Vought_in_2025_%28cropped%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Director_of_the_Office_of_Management_and_Budget_Russell_Vought_in_2025_%28cropped%29.jpg",
+      "gender": "male"
     },
     {
       "name": "Jamieson Greer",
@@ -185,7 +201,8 @@
       "resolver": "api",
       "file": "wikidata_Q131339945_jamieson-greer.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q131339945",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_U.S._Trade_Representative_Jamieson_Greer_%28cropped_2%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_U.S._Trade_Representative_Jamieson_Greer_%28cropped_2%29.jpg",
+      "gender": "male"
     },
     {
       "name": "Donald Trump",
@@ -196,7 +213,8 @@
       "resolver": "api",
       "file": "wikidata_Q22686_donald-trump.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q22686",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_Presidential_Portrait_of_President_Donald_J._Trump_%282025%29_%28cropped%29%282%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_Presidential_Portrait_of_President_Donald_J._Trump_%282025%29_%28cropped%29%282%29.jpg",
+      "gender": "male"
     },
     {
       "name": "JD Vance",
@@ -207,7 +225,8 @@
       "resolver": "api",
       "file": "wikidata_Q28935729_jd-vance.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q28935729",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/March_2026_Official_Vice_Presidential_Portrait_of_JD_Vance.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/March_2026_Official_Vice_Presidential_Portrait_of_JD_Vance.jpg",
+      "gender": "male"
     },
     {
       "name": "Marco Rubio",
@@ -218,7 +237,8 @@
       "resolver": "api",
       "file": "wikidata_Q324546_marco-rubio.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q324546",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Secretary_Marco_Rubio.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Official_portrait_of_Secretary_Marco_Rubio.jpg",
+      "gender": "male"
     },
     {
       "name": "Pete Hegseth",
@@ -229,7 +249,8 @@
       "resolver": "api",
       "file": "wikidata_Q7172014_pete-hegseth.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q7172014",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Pete_Hegseth_Official_Portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Pete_Hegseth_Official_Portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Pam Bondi",
@@ -240,7 +261,8 @@
       "resolver": "api",
       "file": "wikidata_Q7128915_pam-bondi.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q7128915",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Pam_Bondi_official_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Pam_Bondi_official_portrait.jpg",
+      "gender": "female"
     },
     {
       "name": "John Roberts",
@@ -251,7 +273,8 @@
       "resolver": "api",
       "file": "wikidata_Q320178_john-roberts.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q320178",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/John_Roberts_by_Gage_Skidmore_2.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/John_Roberts_by_Gage_Skidmore_2.jpg",
+      "gender": "male"
     },
     {
       "name": "Clarence Thomas",
@@ -262,7 +285,8 @@
       "resolver": "api",
       "file": "wikidata_Q11142_clarence-thomas.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q11142",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Clarence_Thomas_official_SCOTUS_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Clarence_Thomas_official_SCOTUS_portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Samuel Alito",
@@ -273,7 +297,8 @@
       "resolver": "api",
       "file": "wikidata_Q11138_samuel-alito.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q11138",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Justice_Alito_official.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Justice_Alito_official.jpg",
+      "gender": "male"
     },
     {
       "name": "Sonia Sotomayor",
@@ -284,7 +309,8 @@
       "resolver": "api",
       "file": "wikidata_Q11107_sonia-sotomayor.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q11107",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sonia_Sotomayor_7_in_robe%2C_2009.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sonia_Sotomayor_7_in_robe%2C_2009.jpg",
+      "gender": "female"
     },
     {
       "name": "Elena Kagan",
@@ -295,7 +321,8 @@
       "resolver": "api",
       "file": "wikidata_Q11105_elena-kagan.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q11105",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Elena_Kagan_Official_SCOTUS_Portrait_%282013%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Elena_Kagan_Official_SCOTUS_Portrait_%282013%29.jpg",
+      "gender": "female"
     },
     {
       "name": "Neil Gorsuch",
@@ -306,7 +333,8 @@
       "resolver": "api",
       "file": "wikidata_Q15488345_neil-gorsuch.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q15488345",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Associate_Justice_Neil_Gorsuch_Official_Portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Associate_Justice_Neil_Gorsuch_Official_Portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Brett Kavanaugh",
@@ -317,7 +345,8 @@
       "resolver": "api",
       "file": "wikidata_Q4962244_brett-kavanaugh.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q4962244",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Associate_Justice_Brett_Kavanaugh_Official_Portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Associate_Justice_Brett_Kavanaugh_Official_Portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Amy Coney Barrett",
@@ -328,7 +357,8 @@
       "resolver": "api",
       "file": "wikidata_Q29863844_amy-coney-barrett.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q29863844",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Amy_Coney_Barrett_official_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Amy_Coney_Barrett_official_portrait.jpg",
+      "gender": "female"
     },
     {
       "name": "Ketanji Brown Jackson",
@@ -339,7 +369,8 @@
       "resolver": "api",
       "file": "wikidata_Q6395324_ketanji-brown-jackson.jpeg",
       "source_url": "https://www.wikidata.org/wiki/Q6395324",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ketanji_Brown_Jackson_2020.jpeg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Ketanji_Brown_Jackson_2020.jpeg",
+      "gender": "female"
     },
     {
       "name": "Mike Johnson",
@@ -350,7 +381,8 @@
       "resolver": "api",
       "file": "wikidata_Q19880665_mike-johnson.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q19880665",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Mike_Johnson%2C_official_portrait%2C_116th_Congress.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Mike_Johnson%2C_official_portrait%2C_116th_Congress.jpg",
+      "gender": "male"
     },
     {
       "name": "John Thune",
@@ -361,7 +393,8 @@
       "resolver": "api",
       "file": "wikidata_Q462981_john-thune.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q462981",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/John_Thune_117th_Congress_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/John_Thune_117th_Congress_portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Chuck Schumer",
@@ -372,7 +405,8 @@
       "resolver": "api",
       "file": "wikidata_Q380900_chuck-schumer.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q380900",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Chuck_Schumer_official_photo.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Chuck_Schumer_official_photo.jpg",
+      "gender": "male"
     },
     {
       "name": "Steve Scalise",
@@ -383,7 +417,8 @@
       "resolver": "api",
       "file": "wikidata_Q1857141_steve-scalise.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q1857141",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Steve_Scalise.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Steve_Scalise.jpg",
+      "gender": "male"
     },
     {
       "name": "Hakeem Jeffries",
@@ -394,7 +429,8 @@
       "resolver": "api",
       "file": "wikidata_Q5640425_hakeem-jeffries.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q5640425",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Hakeem_Jeffries_official_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Hakeem_Jeffries_official_portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Tom Emmer",
@@ -405,7 +441,8 @@
       "resolver": "api",
       "file": "wikidata_Q7815723_tom-emmer.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q7815723",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Tom_Emmer_official_portrait_114th_Congress_%28cropped_2%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Tom_Emmer_official_portrait_114th_Congress_%28cropped_2%29.jpg",
+      "gender": "male"
     },
     {
       "name": "Katherine Clark",
@@ -416,7 +453,8 @@
       "resolver": "api",
       "file": "wikidata_Q6376330_katherine-clark.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q6376330",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Katherine_Clark_2013.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Katherine_Clark_2013.jpg",
+      "gender": "female"
     },
     {
       "name": "Jason Smith",
@@ -427,7 +465,8 @@
       "resolver": "api",
       "file": "wikidata_Q6163589_jason-smith.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q6163589",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Congressman_Jason_T._Smith.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Congressman_Jason_T._Smith.jpg",
+      "gender": "male"
     },
     {
       "name": "Jim Jordan",
@@ -438,7 +477,8 @@
       "resolver": "api",
       "file": "wikidata_Q186215_jim-jordan.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q186215",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Jim_Jordan_official_photo%2C_114th_Congress.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Jim_Jordan_official_photo%2C_114th_Congress.jpg",
+      "gender": "male"
     },
     {
       "name": "Virginia Foxx",
@@ -449,7 +489,8 @@
       "resolver": "api",
       "file": "wikidata_Q458453_virginia-foxx.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q458453",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Virginia_Foxx_official_photo_%28slight_crop%29.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Virginia_Foxx_official_photo_%28slight_crop%29.jpg",
+      "gender": "female"
     },
     {
       "name": "Chuck Grassley",
@@ -460,7 +501,8 @@
       "resolver": "api",
       "file": "wikidata_Q529294_chuck-grassley.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q529294",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sen_Chuck_Grassley_official.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sen_Chuck_Grassley_official.jpg",
+      "gender": "male"
     },
     {
       "name": "John Barrasso",
@@ -471,7 +513,8 @@
       "resolver": "api",
       "file": "wikidata_Q720521_john-barrasso.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q720521",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sen._John_Barrasso_Official_Portrait_7.17.07.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sen._John_Barrasso_Official_Portrait_7.17.07.jpg",
+      "gender": "male"
     },
     {
       "name": "Dick Durbin",
@@ -482,7 +525,8 @@
       "resolver": "api",
       "file": "wikidata_Q434804_dick-durbin.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q434804",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Richard_Durbin_official_photo.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Richard_Durbin_official_photo.jpg",
+      "gender": "male"
     },
     {
       "name": "Jim Risch",
@@ -493,7 +537,8 @@
       "resolver": "api",
       "file": "wikidata_Q721871_jim-risch.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q721871",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Jim_Risch_official_portrait.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Jim_Risch_official_portrait.jpg",
+      "gender": "male"
     },
     {
       "name": "Susan Collins",
@@ -504,7 +549,8 @@
       "resolver": "api",
       "file": "wikidata_Q22279_susan-collins.jpg",
       "source_url": "https://www.wikidata.org/wiki/Q22279",
-      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sen_Susan_Collins_official.jpg"
+      "image_commons_url": "http://commons.wikimedia.org/wiki/Special:FilePath/Sen_Susan_Collins_official.jpg",
+      "gender": "female"
     }
   ],
   "misses": []

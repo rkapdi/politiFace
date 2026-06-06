@@ -97,6 +97,7 @@ class YamlSeedService {
         jurisdiction: Value(raw['jurisdiction'] as String? ?? 'US Federal'),
         oneLiner: Value(raw['one_liner'] as String?),
         photoUrl: Value(raw['photo_url'] as String?),
+        gender: Value(raw['gender'] as String?),
         sourceUrl: raw['source'] as String? ?? '',
         sortOrder: Value(i),
         updatedAt: nowSeconds,
