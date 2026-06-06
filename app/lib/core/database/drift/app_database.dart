@@ -13,6 +13,9 @@ import '../daos/decks_dao.dart';
 import '../daos/government_dao.dart';
 import '../daos/progress_dao.dart';
 import '../daos/meta_dao.dart';
+import '../daos/chapter_progress_dao.dart';
+import '../daos/daily_rounds_dao.dart';
+import '../daos/politician_bios_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -179,6 +182,68 @@ class SyncMeta extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+// ── Politician bios (Wikipedia summary cache) ────────────────────────────────
+// One row per cardId. Populated by WikipediaBioService at first launch (or
+// on-demand when the user opens a politician detail screen). Never queried
+// during a session — pure read-on-detail-screen.
+@DataClassName('PoliticianBio')
+class PoliticianBios extends Table {
+  TextColumn get cardId        => text()();
+  TextColumn get wikidataQid   => text().nullable()();
+  TextColumn get wikipediaTitle => text().nullable()();
+  TextColumn get wikipediaUrl  => text().nullable()();
+  TextColumn get bioExtract    => text().nullable()();  // lead paragraph from Wikipedia
+  IntColumn  get fetchedAt     => integer().nullable()();   // Unix timestamp, null = never tried
+  IntColumn  get lastError     => integer().nullable()();   // Unix timestamp of last failed attempt
+  TextColumn get lastErrorMessage => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {cardId};
+}
+
+// ── Daily rounds (chapter-aware play history) ────────────────────────────────
+// One row per (user, date). Stores everything needed to resume a round
+// mid-flight (after backgrounding the app) or read back today's recap.
+// JSON columns keep the schema flexible — round content shape will evolve
+// across phases without further migrations.
+@DataClassName('DailyRoundEntry')
+class DailyRounds extends Table {
+  TextColumn get userId          => text().withDefault(const Constant('local-user'))();
+  TextColumn get dateIso         => text()();                  // YYYY-MM-DD
+  TextColumn get chapterId       => text()();
+  IntColumn  get dayInChapter    => integer()();
+  TextColumn get cardIdsJson     => text().withDefault(const Constant('[]'))();
+  TextColumn get triviaJson      => text().withDefault(const Constant('[]'))();
+  TextColumn get gradesJson      => text().withDefault(const Constant('[]'))();
+  TextColumn get answersJson     => text().withDefault(const Constant('[]'))();
+  TextColumn get phase           => text().withDefault(const Constant('cards'))();
+  IntColumn  get startedAt       => integer()();               // Unix timestamp
+  IntColumn  get completedAt     => integer().nullable()();
+  IntColumn  get updatedAt       => integer()();
+
+  @override
+  Set<Column> get primaryKey => {userId, dateIso};
+}
+
+// ── Chapter progress (player's position in a season) ─────────────────────────
+// One row per (user, season, chapter). Chapters the user hasn't reached yet
+// have no row — absent = locked. The "current" chapter is the one with a
+// startedAt set AND no completedAt yet (max one per season).
+@DataClassName('ChapterProgressEntry')
+class ChapterProgress extends Table {
+  TextColumn get userId           => text().withDefault(const Constant('local-user'))();
+  TextColumn get seasonId         => text()();
+  TextColumn get chapterId        => text()();
+  IntColumn  get dayInChapter     => integer().withDefault(const Constant(1))();
+  IntColumn  get roundsCompleted  => integer().withDefault(const Constant(0))();
+  IntColumn  get startedAt        => integer()();              // Unix timestamp
+  IntColumn  get completedAt      => integer().nullable()();   // Unix timestamp, null = in progress
+  IntColumn  get updatedAt        => integer()();
+
+  @override
+  Set<Column> get primaryKey => {userId, seasonId, chapterId};
+}
+
 // ── Database class ────────────────────────────────────────────────────────────
 @DriftDatabase(
   tables: [
@@ -191,6 +256,9 @@ class SyncMeta extends Table {
     UserNodeProgress,
     DailyChallengeCaches,
     SyncMeta,
+    ChapterProgress,
+    DailyRounds,
+    PoliticianBios,
   ],
   daos: [
     CardsDao,
@@ -199,6 +267,9 @@ class SyncMeta extends Table {
     GovernmentDao,
     ProgressDao,
     MetaDao,
+    ChapterProgressDao,
+    DailyRoundsDao,
+    PoliticianBiosDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -208,7 +279,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -229,6 +300,24 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(reviewLogs, reviewLogs.userId);
         await m.addColumn(userNodeProgress, userNodeProgress.userId);
         await m.addColumn(syncMeta, syncMeta.userId);
+      }
+      if (from < 3) {
+        // v2 → v3: add ChapterProgress for the chapter-aware daily round.
+        // Brand-new table; no data backfill needed (existing users will
+        // get a Chapter 1 entry created on first call to currentProgress).
+        await m.createTable(chapterProgress);
+      }
+      if (from < 4) {
+        // v3 → v4: add DailyRounds — the chapter-aware round history.
+        // Replaces the role of DailyChallengeCaches once Phase 5 cutover
+        // lands; for now both tables coexist.
+        await m.createTable(dailyRounds);
+      }
+      if (from < 5) {
+        // v4 → v5: add PoliticianBios — Wikipedia summary cache that
+        // powers the Atlas politician detail screen. New table; empty
+        // until WikipediaBioService backfills.
+        await m.createTable(politicianBios);
       }
     },
   );

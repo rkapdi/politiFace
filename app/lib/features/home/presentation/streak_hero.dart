@@ -1,101 +1,122 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/editorial_theme.dart';
 import '../../profile/data/profile_service.dart';
 
-/// Full-width hero banner that frames the streak as the user's primary
-/// motivation. XP and level become small footer pills so they're still
-/// visible but don't compete for attention.
+/// Masthead-style streak banner. Big display-serif day count, hairline
+/// rules separating XP / Level columns. Reads like a newspaper top-of-page
+/// nameplate rather than a gradient marketing card.
 class StreakHero extends StatelessWidget {
   const StreakHero({super.key, required this.profile});
   final UserProfile profile;
-
-  static const _hot = Color(0xFFE74C3C);   // red
-  static const _warm = Color(0xFFE67E22);  // orange
-  static const _cool = Color(0xFF34495E);  // slate (when streak is 0)
-  static const _cool2 = Color(0xFF2C3E50);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final active = profile.streakDays > 0;
+    final dayCount = profile.streakDays;
+    final dayLabel = dayCount == 1 ? 'DAY' : 'DAYS';
+    final streakColor =
+        active ? EditorialPalette.actionRed : theme.colorScheme.onSurface;
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: active ? const [_hot, _warm] : const [_cool, _cool2],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: (active ? _hot : _cool).withOpacity(0.30),
-            blurRadius: 18,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        color: theme.colorScheme.surface,
+        border: Border.all(color: theme.colorScheme.outline, width: 1.5),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Masthead label.
           Row(
             children: [
-              _Flame(active: active),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TweenAnimationBuilder<double>(
-                      // begin = end so re-mounting the home screen (e.g. after
-                      // navigating to /session and back) doesn't replay the
-                      // 0 → N count-up — that read as "I just earned XP".
-                      // Genuine value changes still animate because
-                      // TweenAnimationBuilder tweens from current → new end.
-                      tween: Tween<double>(
-                          begin: profile.streakDays.toDouble(),
-                          end: profile.streakDays.toDouble()),
-                      duration: const Duration(milliseconds: 800),
-                      curve: Curves.easeOutCubic,
-                      builder: (context, v, _) {
-                        final n = v.round();
-                        return Text(
-                          '$n day${n == 1 ? '' : 's'}',
-                          style: theme.textTheme.displaySmall?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            height: 1.0,
-                          ),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _subtitleFor(profile.streakDays),
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: Colors.white.withOpacity(0.92),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              Container(
+                width: 8,
+                height: 8,
+                color: streakColor,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                active ? 'POLITIFACE · ACTIVE STREAK' : 'POLITIFACE · STREAK',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.8,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 14),
+          // Big day count — display serif, color shifts to actionRed when active.
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _Pill(
-                label: 'XP',
-                value: profile.xpTotal,
-                progress: profile.xpForNextLevel == 0
-                    ? 0
-                    : profile.xpInLevel / profile.xpForNextLevel,
+              Text(
+                '$dayCount',
+                style: theme.textTheme.displayLarge?.copyWith(
+                  color: streakColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 80,
+                  height: 0.9,
+                  letterSpacing: -2,
+                ),
               ),
               const SizedBox(width: 10),
-              _Pill(label: 'Level', value: profile.level),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Text(
+                  dayLabel,
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 2.0,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _subtitleFor(profile.streakDays),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+          const SizedBox(height: 18),
+          Divider(color: theme.colorScheme.outline, thickness: 1.5, height: 1),
+          const SizedBox(height: 14),
+          // Two-column metric strip — tabular mono numbers.
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _Metric(
+                    label: 'XP',
+                    value: profile.xpTotal,
+                    progress: profile.xpForNextLevel == 0
+                        ? null
+                        : profile.xpInLevel / profile.xpForNextLevel,
+                    accent: EditorialPalette.civicNavy,
+                  ),
+                ),
+                VerticalDivider(
+                  color: theme.colorScheme.outline,
+                  thickness: 1.5,
+                  width: 32,
+                ),
+                Expanded(
+                  child: _Metric(
+                    label: 'LEVEL',
+                    value: profile.level,
+                    progress: null,
+                    accent: EditorialPalette.ochre,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -111,98 +132,66 @@ class StreakHero extends StatelessWidget {
   }
 }
 
-class _Flame extends StatelessWidget {
-  const _Flame({required this.active});
-  final bool active;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 64,
-      height: 64,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withOpacity(0.30), width: 1.5),
-      ),
-      child: Text(
-        active ? '🔥' : '🕯️',
-        style: const TextStyle(fontSize: 34),
-      ),
-    );
-  }
-}
-
-class _Pill extends StatelessWidget {
-  const _Pill({
+class _Metric extends StatelessWidget {
+  const _Metric({
     required this.label,
     required this.value,
-    this.progress,
+    required this.progress,
+    required this.accent,
   });
   final String label;
   final int value;
-  final double? progress; // 0..1, optional progress bar fill
+  final double? progress;
+  final Color accent;
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.18),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.white.withOpacity(0.20)),
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            letterSpacing: 1.8,
+            fontWeight: FontWeight.w800,
+          ),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        const SizedBox(height: 6),
+        TweenAnimationBuilder<double>(
+          tween:
+              Tween<double>(begin: value.toDouble(), end: value.toDouble()),
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutCubic,
+          builder: (context, v, _) => Text(
+            v.round().toString(),
+            style: theme.textTheme.displaySmall?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w800,
+              fontSize: 34,
+              height: 1.0,
+            ),
+          ),
+        ),
+        if (progress != null) ...[
+          const SizedBox(height: 8),
+          // Hard-edge progress bar — no rounded corners.
+          SizedBox(
+            height: 4,
+            child: Stack(
               children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                TweenAnimationBuilder<double>(
-                  // See StreakHero — begin = end avoids replaying the 0 → N
-                  // count-up on every home re-mount, which read as XP gained.
-                  tween: Tween<double>(
-                      begin: value.toDouble(), end: value.toDouble()),
-                  duration: const Duration(milliseconds: 800),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, v, _) => Text(
-                    v.round().toString(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
+                Container(color: theme.colorScheme.outline),
+                FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: progress!.clamp(0.0, 1.0),
+                  child: Container(color: accent),
                 ),
               ],
             ),
-            if (progress != null) ...[
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: progress!.clamp(0.0, 1.0),
-                  minHeight: 4,
-                  backgroundColor: Colors.white.withOpacity(0.20),
-                  valueColor:
-                      const AlwaysStoppedAnimation(Colors.white),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
+          ),
+        ],
+      ],
     );
   }
 }

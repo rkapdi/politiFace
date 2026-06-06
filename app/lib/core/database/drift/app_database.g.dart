@@ -4862,6 +4862,1512 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
   }
 }
 
+class $ChapterProgressTable extends ChapterProgress
+    with TableInfo<$ChapterProgressTable, ChapterProgressEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ChapterProgressTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
+  static const VerificationMeta _seasonIdMeta =
+      const VerificationMeta('seasonId');
+  @override
+  late final GeneratedColumn<String> seasonId = GeneratedColumn<String>(
+      'season_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chapterIdMeta =
+      const VerificationMeta('chapterId');
+  @override
+  late final GeneratedColumn<String> chapterId = GeneratedColumn<String>(
+      'chapter_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dayInChapterMeta =
+      const VerificationMeta('dayInChapter');
+  @override
+  late final GeneratedColumn<int> dayInChapter = GeneratedColumn<int>(
+      'day_in_chapter', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _roundsCompletedMeta =
+      const VerificationMeta('roundsCompleted');
+  @override
+  late final GeneratedColumn<int> roundsCompleted = GeneratedColumn<int>(
+      'rounds_completed', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<int> completedAt = GeneratedColumn<int>(
+      'completed_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        userId,
+        seasonId,
+        chapterId,
+        dayInChapter,
+        roundsCompleted,
+        startedAt,
+        completedAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'chapter_progress';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<ChapterProgressEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('season_id')) {
+      context.handle(_seasonIdMeta,
+          seasonId.isAcceptableOrUnknown(data['season_id']!, _seasonIdMeta));
+    } else if (isInserting) {
+      context.missing(_seasonIdMeta);
+    }
+    if (data.containsKey('chapter_id')) {
+      context.handle(_chapterIdMeta,
+          chapterId.isAcceptableOrUnknown(data['chapter_id']!, _chapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_chapterIdMeta);
+    }
+    if (data.containsKey('day_in_chapter')) {
+      context.handle(
+          _dayInChapterMeta,
+          dayInChapter.isAcceptableOrUnknown(
+              data['day_in_chapter']!, _dayInChapterMeta));
+    }
+    if (data.containsKey('rounds_completed')) {
+      context.handle(
+          _roundsCompletedMeta,
+          roundsCompleted.isAcceptableOrUnknown(
+              data['rounds_completed']!, _roundsCompletedMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, seasonId, chapterId};
+  @override
+  ChapterProgressEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ChapterProgressEntry(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      seasonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}season_id'])!,
+      chapterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapter_id'])!,
+      dayInChapter: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}day_in_chapter'])!,
+      roundsCompleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rounds_completed'])!,
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}started_at'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}completed_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $ChapterProgressTable createAlias(String alias) {
+    return $ChapterProgressTable(attachedDatabase, alias);
+  }
+}
+
+class ChapterProgressEntry extends DataClass
+    implements Insertable<ChapterProgressEntry> {
+  final String userId;
+  final String seasonId;
+  final String chapterId;
+  final int dayInChapter;
+  final int roundsCompleted;
+  final int startedAt;
+  final int? completedAt;
+  final int updatedAt;
+  const ChapterProgressEntry(
+      {required this.userId,
+      required this.seasonId,
+      required this.chapterId,
+      required this.dayInChapter,
+      required this.roundsCompleted,
+      required this.startedAt,
+      this.completedAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['season_id'] = Variable<String>(seasonId);
+    map['chapter_id'] = Variable<String>(chapterId);
+    map['day_in_chapter'] = Variable<int>(dayInChapter);
+    map['rounds_completed'] = Variable<int>(roundsCompleted);
+    map['started_at'] = Variable<int>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<int>(completedAt);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  ChapterProgressCompanion toCompanion(bool nullToAbsent) {
+    return ChapterProgressCompanion(
+      userId: Value(userId),
+      seasonId: Value(seasonId),
+      chapterId: Value(chapterId),
+      dayInChapter: Value(dayInChapter),
+      roundsCompleted: Value(roundsCompleted),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory ChapterProgressEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ChapterProgressEntry(
+      userId: serializer.fromJson<String>(json['userId']),
+      seasonId: serializer.fromJson<String>(json['seasonId']),
+      chapterId: serializer.fromJson<String>(json['chapterId']),
+      dayInChapter: serializer.fromJson<int>(json['dayInChapter']),
+      roundsCompleted: serializer.fromJson<int>(json['roundsCompleted']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      completedAt: serializer.fromJson<int?>(json['completedAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'seasonId': serializer.toJson<String>(seasonId),
+      'chapterId': serializer.toJson<String>(chapterId),
+      'dayInChapter': serializer.toJson<int>(dayInChapter),
+      'roundsCompleted': serializer.toJson<int>(roundsCompleted),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'completedAt': serializer.toJson<int?>(completedAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  ChapterProgressEntry copyWith(
+          {String? userId,
+          String? seasonId,
+          String? chapterId,
+          int? dayInChapter,
+          int? roundsCompleted,
+          int? startedAt,
+          Value<int?> completedAt = const Value.absent(),
+          int? updatedAt}) =>
+      ChapterProgressEntry(
+        userId: userId ?? this.userId,
+        seasonId: seasonId ?? this.seasonId,
+        chapterId: chapterId ?? this.chapterId,
+        dayInChapter: dayInChapter ?? this.dayInChapter,
+        roundsCompleted: roundsCompleted ?? this.roundsCompleted,
+        startedAt: startedAt ?? this.startedAt,
+        completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  ChapterProgressEntry copyWithCompanion(ChapterProgressCompanion data) {
+    return ChapterProgressEntry(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      seasonId: data.seasonId.present ? data.seasonId.value : this.seasonId,
+      chapterId: data.chapterId.present ? data.chapterId.value : this.chapterId,
+      dayInChapter: data.dayInChapter.present
+          ? data.dayInChapter.value
+          : this.dayInChapter,
+      roundsCompleted: data.roundsCompleted.present
+          ? data.roundsCompleted.value
+          : this.roundsCompleted,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterProgressEntry(')
+          ..write('userId: $userId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('roundsCompleted: $roundsCompleted, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(userId, seasonId, chapterId, dayInChapter,
+      roundsCompleted, startedAt, completedAt, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ChapterProgressEntry &&
+          other.userId == this.userId &&
+          other.seasonId == this.seasonId &&
+          other.chapterId == this.chapterId &&
+          other.dayInChapter == this.dayInChapter &&
+          other.roundsCompleted == this.roundsCompleted &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class ChapterProgressCompanion extends UpdateCompanion<ChapterProgressEntry> {
+  final Value<String> userId;
+  final Value<String> seasonId;
+  final Value<String> chapterId;
+  final Value<int> dayInChapter;
+  final Value<int> roundsCompleted;
+  final Value<int> startedAt;
+  final Value<int?> completedAt;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const ChapterProgressCompanion({
+    this.userId = const Value.absent(),
+    this.seasonId = const Value.absent(),
+    this.chapterId = const Value.absent(),
+    this.dayInChapter = const Value.absent(),
+    this.roundsCompleted = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ChapterProgressCompanion.insert({
+    this.userId = const Value.absent(),
+    required String seasonId,
+    required String chapterId,
+    this.dayInChapter = const Value.absent(),
+    this.roundsCompleted = const Value.absent(),
+    required int startedAt,
+    this.completedAt = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  })  : seasonId = Value(seasonId),
+        chapterId = Value(chapterId),
+        startedAt = Value(startedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<ChapterProgressEntry> custom({
+    Expression<String>? userId,
+    Expression<String>? seasonId,
+    Expression<String>? chapterId,
+    Expression<int>? dayInChapter,
+    Expression<int>? roundsCompleted,
+    Expression<int>? startedAt,
+    Expression<int>? completedAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (seasonId != null) 'season_id': seasonId,
+      if (chapterId != null) 'chapter_id': chapterId,
+      if (dayInChapter != null) 'day_in_chapter': dayInChapter,
+      if (roundsCompleted != null) 'rounds_completed': roundsCompleted,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ChapterProgressCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? seasonId,
+      Value<String>? chapterId,
+      Value<int>? dayInChapter,
+      Value<int>? roundsCompleted,
+      Value<int>? startedAt,
+      Value<int?>? completedAt,
+      Value<int>? updatedAt,
+      Value<int>? rowid}) {
+    return ChapterProgressCompanion(
+      userId: userId ?? this.userId,
+      seasonId: seasonId ?? this.seasonId,
+      chapterId: chapterId ?? this.chapterId,
+      dayInChapter: dayInChapter ?? this.dayInChapter,
+      roundsCompleted: roundsCompleted ?? this.roundsCompleted,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (seasonId.present) {
+      map['season_id'] = Variable<String>(seasonId.value);
+    }
+    if (chapterId.present) {
+      map['chapter_id'] = Variable<String>(chapterId.value);
+    }
+    if (dayInChapter.present) {
+      map['day_in_chapter'] = Variable<int>(dayInChapter.value);
+    }
+    if (roundsCompleted.present) {
+      map['rounds_completed'] = Variable<int>(roundsCompleted.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<int>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ChapterProgressCompanion(')
+          ..write('userId: $userId, ')
+          ..write('seasonId: $seasonId, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('roundsCompleted: $roundsCompleted, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyRoundsTable extends DailyRounds
+    with TableInfo<$DailyRoundsTable, DailyRoundEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyRoundsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
+  static const VerificationMeta _dateIsoMeta =
+      const VerificationMeta('dateIso');
+  @override
+  late final GeneratedColumn<String> dateIso = GeneratedColumn<String>(
+      'date_iso', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _chapterIdMeta =
+      const VerificationMeta('chapterId');
+  @override
+  late final GeneratedColumn<String> chapterId = GeneratedColumn<String>(
+      'chapter_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dayInChapterMeta =
+      const VerificationMeta('dayInChapter');
+  @override
+  late final GeneratedColumn<int> dayInChapter = GeneratedColumn<int>(
+      'day_in_chapter', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _cardIdsJsonMeta =
+      const VerificationMeta('cardIdsJson');
+  @override
+  late final GeneratedColumn<String> cardIdsJson = GeneratedColumn<String>(
+      'card_ids_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _triviaJsonMeta =
+      const VerificationMeta('triviaJson');
+  @override
+  late final GeneratedColumn<String> triviaJson = GeneratedColumn<String>(
+      'trivia_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _gradesJsonMeta =
+      const VerificationMeta('gradesJson');
+  @override
+  late final GeneratedColumn<String> gradesJson = GeneratedColumn<String>(
+      'grades_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _answersJsonMeta =
+      const VerificationMeta('answersJson');
+  @override
+  late final GeneratedColumn<String> answersJson = GeneratedColumn<String>(
+      'answers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _phaseMeta = const VerificationMeta('phase');
+  @override
+  late final GeneratedColumn<String> phase = GeneratedColumn<String>(
+      'phase', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('cards'));
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<int> startedAt = GeneratedColumn<int>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<int> completedAt = GeneratedColumn<int>(
+      'completed_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        userId,
+        dateIso,
+        chapterId,
+        dayInChapter,
+        cardIdsJson,
+        triviaJson,
+        gradesJson,
+        answersJson,
+        phase,
+        startedAt,
+        completedAt,
+        updatedAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_rounds';
+  @override
+  VerificationContext validateIntegrity(Insertable<DailyRoundEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('date_iso')) {
+      context.handle(_dateIsoMeta,
+          dateIso.isAcceptableOrUnknown(data['date_iso']!, _dateIsoMeta));
+    } else if (isInserting) {
+      context.missing(_dateIsoMeta);
+    }
+    if (data.containsKey('chapter_id')) {
+      context.handle(_chapterIdMeta,
+          chapterId.isAcceptableOrUnknown(data['chapter_id']!, _chapterIdMeta));
+    } else if (isInserting) {
+      context.missing(_chapterIdMeta);
+    }
+    if (data.containsKey('day_in_chapter')) {
+      context.handle(
+          _dayInChapterMeta,
+          dayInChapter.isAcceptableOrUnknown(
+              data['day_in_chapter']!, _dayInChapterMeta));
+    } else if (isInserting) {
+      context.missing(_dayInChapterMeta);
+    }
+    if (data.containsKey('card_ids_json')) {
+      context.handle(
+          _cardIdsJsonMeta,
+          cardIdsJson.isAcceptableOrUnknown(
+              data['card_ids_json']!, _cardIdsJsonMeta));
+    }
+    if (data.containsKey('trivia_json')) {
+      context.handle(
+          _triviaJsonMeta,
+          triviaJson.isAcceptableOrUnknown(
+              data['trivia_json']!, _triviaJsonMeta));
+    }
+    if (data.containsKey('grades_json')) {
+      context.handle(
+          _gradesJsonMeta,
+          gradesJson.isAcceptableOrUnknown(
+              data['grades_json']!, _gradesJsonMeta));
+    }
+    if (data.containsKey('answers_json')) {
+      context.handle(
+          _answersJsonMeta,
+          answersJson.isAcceptableOrUnknown(
+              data['answers_json']!, _answersJsonMeta));
+    }
+    if (data.containsKey('phase')) {
+      context.handle(
+          _phaseMeta, phase.isAcceptableOrUnknown(data['phase']!, _phaseMeta));
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {userId, dateIso};
+  @override
+  DailyRoundEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyRoundEntry(
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      dateIso: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}date_iso'])!,
+      chapterId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chapter_id'])!,
+      dayInChapter: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}day_in_chapter'])!,
+      cardIdsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_ids_json'])!,
+      triviaJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}trivia_json'])!,
+      gradesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grades_json'])!,
+      answersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}answers_json'])!,
+      phase: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}phase'])!,
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}started_at'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}completed_at']),
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $DailyRoundsTable createAlias(String alias) {
+    return $DailyRoundsTable(attachedDatabase, alias);
+  }
+}
+
+class DailyRoundEntry extends DataClass implements Insertable<DailyRoundEntry> {
+  final String userId;
+  final String dateIso;
+  final String chapterId;
+  final int dayInChapter;
+  final String cardIdsJson;
+  final String triviaJson;
+  final String gradesJson;
+  final String answersJson;
+  final String phase;
+  final int startedAt;
+  final int? completedAt;
+  final int updatedAt;
+  const DailyRoundEntry(
+      {required this.userId,
+      required this.dateIso,
+      required this.chapterId,
+      required this.dayInChapter,
+      required this.cardIdsJson,
+      required this.triviaJson,
+      required this.gradesJson,
+      required this.answersJson,
+      required this.phase,
+      required this.startedAt,
+      this.completedAt,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['user_id'] = Variable<String>(userId);
+    map['date_iso'] = Variable<String>(dateIso);
+    map['chapter_id'] = Variable<String>(chapterId);
+    map['day_in_chapter'] = Variable<int>(dayInChapter);
+    map['card_ids_json'] = Variable<String>(cardIdsJson);
+    map['trivia_json'] = Variable<String>(triviaJson);
+    map['grades_json'] = Variable<String>(gradesJson);
+    map['answers_json'] = Variable<String>(answersJson);
+    map['phase'] = Variable<String>(phase);
+    map['started_at'] = Variable<int>(startedAt);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<int>(completedAt);
+    }
+    map['updated_at'] = Variable<int>(updatedAt);
+    return map;
+  }
+
+  DailyRoundsCompanion toCompanion(bool nullToAbsent) {
+    return DailyRoundsCompanion(
+      userId: Value(userId),
+      dateIso: Value(dateIso),
+      chapterId: Value(chapterId),
+      dayInChapter: Value(dayInChapter),
+      cardIdsJson: Value(cardIdsJson),
+      triviaJson: Value(triviaJson),
+      gradesJson: Value(gradesJson),
+      answersJson: Value(answersJson),
+      phase: Value(phase),
+      startedAt: Value(startedAt),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory DailyRoundEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyRoundEntry(
+      userId: serializer.fromJson<String>(json['userId']),
+      dateIso: serializer.fromJson<String>(json['dateIso']),
+      chapterId: serializer.fromJson<String>(json['chapterId']),
+      dayInChapter: serializer.fromJson<int>(json['dayInChapter']),
+      cardIdsJson: serializer.fromJson<String>(json['cardIdsJson']),
+      triviaJson: serializer.fromJson<String>(json['triviaJson']),
+      gradesJson: serializer.fromJson<String>(json['gradesJson']),
+      answersJson: serializer.fromJson<String>(json['answersJson']),
+      phase: serializer.fromJson<String>(json['phase']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      completedAt: serializer.fromJson<int?>(json['completedAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'userId': serializer.toJson<String>(userId),
+      'dateIso': serializer.toJson<String>(dateIso),
+      'chapterId': serializer.toJson<String>(chapterId),
+      'dayInChapter': serializer.toJson<int>(dayInChapter),
+      'cardIdsJson': serializer.toJson<String>(cardIdsJson),
+      'triviaJson': serializer.toJson<String>(triviaJson),
+      'gradesJson': serializer.toJson<String>(gradesJson),
+      'answersJson': serializer.toJson<String>(answersJson),
+      'phase': serializer.toJson<String>(phase),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'completedAt': serializer.toJson<int?>(completedAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+    };
+  }
+
+  DailyRoundEntry copyWith(
+          {String? userId,
+          String? dateIso,
+          String? chapterId,
+          int? dayInChapter,
+          String? cardIdsJson,
+          String? triviaJson,
+          String? gradesJson,
+          String? answersJson,
+          String? phase,
+          int? startedAt,
+          Value<int?> completedAt = const Value.absent(),
+          int? updatedAt}) =>
+      DailyRoundEntry(
+        userId: userId ?? this.userId,
+        dateIso: dateIso ?? this.dateIso,
+        chapterId: chapterId ?? this.chapterId,
+        dayInChapter: dayInChapter ?? this.dayInChapter,
+        cardIdsJson: cardIdsJson ?? this.cardIdsJson,
+        triviaJson: triviaJson ?? this.triviaJson,
+        gradesJson: gradesJson ?? this.gradesJson,
+        answersJson: answersJson ?? this.answersJson,
+        phase: phase ?? this.phase,
+        startedAt: startedAt ?? this.startedAt,
+        completedAt: completedAt.present ? completedAt.value : this.completedAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  DailyRoundEntry copyWithCompanion(DailyRoundsCompanion data) {
+    return DailyRoundEntry(
+      userId: data.userId.present ? data.userId.value : this.userId,
+      dateIso: data.dateIso.present ? data.dateIso.value : this.dateIso,
+      chapterId: data.chapterId.present ? data.chapterId.value : this.chapterId,
+      dayInChapter: data.dayInChapter.present
+          ? data.dayInChapter.value
+          : this.dayInChapter,
+      cardIdsJson:
+          data.cardIdsJson.present ? data.cardIdsJson.value : this.cardIdsJson,
+      triviaJson:
+          data.triviaJson.present ? data.triviaJson.value : this.triviaJson,
+      gradesJson:
+          data.gradesJson.present ? data.gradesJson.value : this.gradesJson,
+      answersJson:
+          data.answersJson.present ? data.answersJson.value : this.answersJson,
+      phase: data.phase.present ? data.phase.value : this.phase,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyRoundEntry(')
+          ..write('userId: $userId, ')
+          ..write('dateIso: $dateIso, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('cardIdsJson: $cardIdsJson, ')
+          ..write('triviaJson: $triviaJson, ')
+          ..write('gradesJson: $gradesJson, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('phase: $phase, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      userId,
+      dateIso,
+      chapterId,
+      dayInChapter,
+      cardIdsJson,
+      triviaJson,
+      gradesJson,
+      answersJson,
+      phase,
+      startedAt,
+      completedAt,
+      updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyRoundEntry &&
+          other.userId == this.userId &&
+          other.dateIso == this.dateIso &&
+          other.chapterId == this.chapterId &&
+          other.dayInChapter == this.dayInChapter &&
+          other.cardIdsJson == this.cardIdsJson &&
+          other.triviaJson == this.triviaJson &&
+          other.gradesJson == this.gradesJson &&
+          other.answersJson == this.answersJson &&
+          other.phase == this.phase &&
+          other.startedAt == this.startedAt &&
+          other.completedAt == this.completedAt &&
+          other.updatedAt == this.updatedAt);
+}
+
+class DailyRoundsCompanion extends UpdateCompanion<DailyRoundEntry> {
+  final Value<String> userId;
+  final Value<String> dateIso;
+  final Value<String> chapterId;
+  final Value<int> dayInChapter;
+  final Value<String> cardIdsJson;
+  final Value<String> triviaJson;
+  final Value<String> gradesJson;
+  final Value<String> answersJson;
+  final Value<String> phase;
+  final Value<int> startedAt;
+  final Value<int?> completedAt;
+  final Value<int> updatedAt;
+  final Value<int> rowid;
+  const DailyRoundsCompanion({
+    this.userId = const Value.absent(),
+    this.dateIso = const Value.absent(),
+    this.chapterId = const Value.absent(),
+    this.dayInChapter = const Value.absent(),
+    this.cardIdsJson = const Value.absent(),
+    this.triviaJson = const Value.absent(),
+    this.gradesJson = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.phase = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyRoundsCompanion.insert({
+    this.userId = const Value.absent(),
+    required String dateIso,
+    required String chapterId,
+    required int dayInChapter,
+    this.cardIdsJson = const Value.absent(),
+    this.triviaJson = const Value.absent(),
+    this.gradesJson = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.phase = const Value.absent(),
+    required int startedAt,
+    this.completedAt = const Value.absent(),
+    required int updatedAt,
+    this.rowid = const Value.absent(),
+  })  : dateIso = Value(dateIso),
+        chapterId = Value(chapterId),
+        dayInChapter = Value(dayInChapter),
+        startedAt = Value(startedAt),
+        updatedAt = Value(updatedAt);
+  static Insertable<DailyRoundEntry> custom({
+    Expression<String>? userId,
+    Expression<String>? dateIso,
+    Expression<String>? chapterId,
+    Expression<int>? dayInChapter,
+    Expression<String>? cardIdsJson,
+    Expression<String>? triviaJson,
+    Expression<String>? gradesJson,
+    Expression<String>? answersJson,
+    Expression<String>? phase,
+    Expression<int>? startedAt,
+    Expression<int>? completedAt,
+    Expression<int>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (userId != null) 'user_id': userId,
+      if (dateIso != null) 'date_iso': dateIso,
+      if (chapterId != null) 'chapter_id': chapterId,
+      if (dayInChapter != null) 'day_in_chapter': dayInChapter,
+      if (cardIdsJson != null) 'card_ids_json': cardIdsJson,
+      if (triviaJson != null) 'trivia_json': triviaJson,
+      if (gradesJson != null) 'grades_json': gradesJson,
+      if (answersJson != null) 'answers_json': answersJson,
+      if (phase != null) 'phase': phase,
+      if (startedAt != null) 'started_at': startedAt,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyRoundsCompanion copyWith(
+      {Value<String>? userId,
+      Value<String>? dateIso,
+      Value<String>? chapterId,
+      Value<int>? dayInChapter,
+      Value<String>? cardIdsJson,
+      Value<String>? triviaJson,
+      Value<String>? gradesJson,
+      Value<String>? answersJson,
+      Value<String>? phase,
+      Value<int>? startedAt,
+      Value<int?>? completedAt,
+      Value<int>? updatedAt,
+      Value<int>? rowid}) {
+    return DailyRoundsCompanion(
+      userId: userId ?? this.userId,
+      dateIso: dateIso ?? this.dateIso,
+      chapterId: chapterId ?? this.chapterId,
+      dayInChapter: dayInChapter ?? this.dayInChapter,
+      cardIdsJson: cardIdsJson ?? this.cardIdsJson,
+      triviaJson: triviaJson ?? this.triviaJson,
+      gradesJson: gradesJson ?? this.gradesJson,
+      answersJson: answersJson ?? this.answersJson,
+      phase: phase ?? this.phase,
+      startedAt: startedAt ?? this.startedAt,
+      completedAt: completedAt ?? this.completedAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (dateIso.present) {
+      map['date_iso'] = Variable<String>(dateIso.value);
+    }
+    if (chapterId.present) {
+      map['chapter_id'] = Variable<String>(chapterId.value);
+    }
+    if (dayInChapter.present) {
+      map['day_in_chapter'] = Variable<int>(dayInChapter.value);
+    }
+    if (cardIdsJson.present) {
+      map['card_ids_json'] = Variable<String>(cardIdsJson.value);
+    }
+    if (triviaJson.present) {
+      map['trivia_json'] = Variable<String>(triviaJson.value);
+    }
+    if (gradesJson.present) {
+      map['grades_json'] = Variable<String>(gradesJson.value);
+    }
+    if (answersJson.present) {
+      map['answers_json'] = Variable<String>(answersJson.value);
+    }
+    if (phase.present) {
+      map['phase'] = Variable<String>(phase.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<int>(completedAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyRoundsCompanion(')
+          ..write('userId: $userId, ')
+          ..write('dateIso: $dateIso, ')
+          ..write('chapterId: $chapterId, ')
+          ..write('dayInChapter: $dayInChapter, ')
+          ..write('cardIdsJson: $cardIdsJson, ')
+          ..write('triviaJson: $triviaJson, ')
+          ..write('gradesJson: $gradesJson, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('phase: $phase, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PoliticianBiosTable extends PoliticianBios
+    with TableInfo<$PoliticianBiosTable, PoliticianBio> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PoliticianBiosTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
+  @override
+  late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
+      'card_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _wikidataQidMeta =
+      const VerificationMeta('wikidataQid');
+  @override
+  late final GeneratedColumn<String> wikidataQid = GeneratedColumn<String>(
+      'wikidata_qid', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _wikipediaTitleMeta =
+      const VerificationMeta('wikipediaTitle');
+  @override
+  late final GeneratedColumn<String> wikipediaTitle = GeneratedColumn<String>(
+      'wikipedia_title', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _wikipediaUrlMeta =
+      const VerificationMeta('wikipediaUrl');
+  @override
+  late final GeneratedColumn<String> wikipediaUrl = GeneratedColumn<String>(
+      'wikipedia_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _bioExtractMeta =
+      const VerificationMeta('bioExtract');
+  @override
+  late final GeneratedColumn<String> bioExtract = GeneratedColumn<String>(
+      'bio_extract', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _fetchedAtMeta =
+      const VerificationMeta('fetchedAt');
+  @override
+  late final GeneratedColumn<int> fetchedAt = GeneratedColumn<int>(
+      'fetched_at', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _lastErrorMeta =
+      const VerificationMeta('lastError');
+  @override
+  late final GeneratedColumn<int> lastError = GeneratedColumn<int>(
+      'last_error', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _lastErrorMessageMeta =
+      const VerificationMeta('lastErrorMessage');
+  @override
+  late final GeneratedColumn<String> lastErrorMessage = GeneratedColumn<String>(
+      'last_error_message', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        cardId,
+        wikidataQid,
+        wikipediaTitle,
+        wikipediaUrl,
+        bioExtract,
+        fetchedAt,
+        lastError,
+        lastErrorMessage
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'politician_bios';
+  @override
+  VerificationContext validateIntegrity(Insertable<PoliticianBio> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('card_id')) {
+      context.handle(_cardIdMeta,
+          cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
+    } else if (isInserting) {
+      context.missing(_cardIdMeta);
+    }
+    if (data.containsKey('wikidata_qid')) {
+      context.handle(
+          _wikidataQidMeta,
+          wikidataQid.isAcceptableOrUnknown(
+              data['wikidata_qid']!, _wikidataQidMeta));
+    }
+    if (data.containsKey('wikipedia_title')) {
+      context.handle(
+          _wikipediaTitleMeta,
+          wikipediaTitle.isAcceptableOrUnknown(
+              data['wikipedia_title']!, _wikipediaTitleMeta));
+    }
+    if (data.containsKey('wikipedia_url')) {
+      context.handle(
+          _wikipediaUrlMeta,
+          wikipediaUrl.isAcceptableOrUnknown(
+              data['wikipedia_url']!, _wikipediaUrlMeta));
+    }
+    if (data.containsKey('bio_extract')) {
+      context.handle(
+          _bioExtractMeta,
+          bioExtract.isAcceptableOrUnknown(
+              data['bio_extract']!, _bioExtractMeta));
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(_fetchedAtMeta,
+          fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta));
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(_lastErrorMeta,
+          lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta));
+    }
+    if (data.containsKey('last_error_message')) {
+      context.handle(
+          _lastErrorMessageMeta,
+          lastErrorMessage.isAcceptableOrUnknown(
+              data['last_error_message']!, _lastErrorMessageMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cardId};
+  @override
+  PoliticianBio map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PoliticianBio(
+      cardId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_id'])!,
+      wikidataQid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikidata_qid']),
+      wikipediaTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikipedia_title']),
+      wikipediaUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikipedia_url']),
+      bioExtract: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}bio_extract']),
+      fetchedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}fetched_at']),
+      lastError: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}last_error']),
+      lastErrorMessage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}last_error_message']),
+    );
+  }
+
+  @override
+  $PoliticianBiosTable createAlias(String alias) {
+    return $PoliticianBiosTable(attachedDatabase, alias);
+  }
+}
+
+class PoliticianBio extends DataClass implements Insertable<PoliticianBio> {
+  final String cardId;
+  final String? wikidataQid;
+  final String? wikipediaTitle;
+  final String? wikipediaUrl;
+  final String? bioExtract;
+  final int? fetchedAt;
+  final int? lastError;
+  final String? lastErrorMessage;
+  const PoliticianBio(
+      {required this.cardId,
+      this.wikidataQid,
+      this.wikipediaTitle,
+      this.wikipediaUrl,
+      this.bioExtract,
+      this.fetchedAt,
+      this.lastError,
+      this.lastErrorMessage});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['card_id'] = Variable<String>(cardId);
+    if (!nullToAbsent || wikidataQid != null) {
+      map['wikidata_qid'] = Variable<String>(wikidataQid);
+    }
+    if (!nullToAbsent || wikipediaTitle != null) {
+      map['wikipedia_title'] = Variable<String>(wikipediaTitle);
+    }
+    if (!nullToAbsent || wikipediaUrl != null) {
+      map['wikipedia_url'] = Variable<String>(wikipediaUrl);
+    }
+    if (!nullToAbsent || bioExtract != null) {
+      map['bio_extract'] = Variable<String>(bioExtract);
+    }
+    if (!nullToAbsent || fetchedAt != null) {
+      map['fetched_at'] = Variable<int>(fetchedAt);
+    }
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<int>(lastError);
+    }
+    if (!nullToAbsent || lastErrorMessage != null) {
+      map['last_error_message'] = Variable<String>(lastErrorMessage);
+    }
+    return map;
+  }
+
+  PoliticianBiosCompanion toCompanion(bool nullToAbsent) {
+    return PoliticianBiosCompanion(
+      cardId: Value(cardId),
+      wikidataQid: wikidataQid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikidataQid),
+      wikipediaTitle: wikipediaTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikipediaTitle),
+      wikipediaUrl: wikipediaUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikipediaUrl),
+      bioExtract: bioExtract == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bioExtract),
+      fetchedAt: fetchedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fetchedAt),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+      lastErrorMessage: lastErrorMessage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastErrorMessage),
+    );
+  }
+
+  factory PoliticianBio.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PoliticianBio(
+      cardId: serializer.fromJson<String>(json['cardId']),
+      wikidataQid: serializer.fromJson<String?>(json['wikidataQid']),
+      wikipediaTitle: serializer.fromJson<String?>(json['wikipediaTitle']),
+      wikipediaUrl: serializer.fromJson<String?>(json['wikipediaUrl']),
+      bioExtract: serializer.fromJson<String?>(json['bioExtract']),
+      fetchedAt: serializer.fromJson<int?>(json['fetchedAt']),
+      lastError: serializer.fromJson<int?>(json['lastError']),
+      lastErrorMessage: serializer.fromJson<String?>(json['lastErrorMessage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cardId': serializer.toJson<String>(cardId),
+      'wikidataQid': serializer.toJson<String?>(wikidataQid),
+      'wikipediaTitle': serializer.toJson<String?>(wikipediaTitle),
+      'wikipediaUrl': serializer.toJson<String?>(wikipediaUrl),
+      'bioExtract': serializer.toJson<String?>(bioExtract),
+      'fetchedAt': serializer.toJson<int?>(fetchedAt),
+      'lastError': serializer.toJson<int?>(lastError),
+      'lastErrorMessage': serializer.toJson<String?>(lastErrorMessage),
+    };
+  }
+
+  PoliticianBio copyWith(
+          {String? cardId,
+          Value<String?> wikidataQid = const Value.absent(),
+          Value<String?> wikipediaTitle = const Value.absent(),
+          Value<String?> wikipediaUrl = const Value.absent(),
+          Value<String?> bioExtract = const Value.absent(),
+          Value<int?> fetchedAt = const Value.absent(),
+          Value<int?> lastError = const Value.absent(),
+          Value<String?> lastErrorMessage = const Value.absent()}) =>
+      PoliticianBio(
+        cardId: cardId ?? this.cardId,
+        wikidataQid: wikidataQid.present ? wikidataQid.value : this.wikidataQid,
+        wikipediaTitle:
+            wikipediaTitle.present ? wikipediaTitle.value : this.wikipediaTitle,
+        wikipediaUrl:
+            wikipediaUrl.present ? wikipediaUrl.value : this.wikipediaUrl,
+        bioExtract: bioExtract.present ? bioExtract.value : this.bioExtract,
+        fetchedAt: fetchedAt.present ? fetchedAt.value : this.fetchedAt,
+        lastError: lastError.present ? lastError.value : this.lastError,
+        lastErrorMessage: lastErrorMessage.present
+            ? lastErrorMessage.value
+            : this.lastErrorMessage,
+      );
+  PoliticianBio copyWithCompanion(PoliticianBiosCompanion data) {
+    return PoliticianBio(
+      cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      wikidataQid:
+          data.wikidataQid.present ? data.wikidataQid.value : this.wikidataQid,
+      wikipediaTitle: data.wikipediaTitle.present
+          ? data.wikipediaTitle.value
+          : this.wikipediaTitle,
+      wikipediaUrl: data.wikipediaUrl.present
+          ? data.wikipediaUrl.value
+          : this.wikipediaUrl,
+      bioExtract:
+          data.bioExtract.present ? data.bioExtract.value : this.bioExtract,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+      lastErrorMessage: data.lastErrorMessage.present
+          ? data.lastErrorMessage.value
+          : this.lastErrorMessage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PoliticianBio(')
+          ..write('cardId: $cardId, ')
+          ..write('wikidataQid: $wikidataQid, ')
+          ..write('wikipediaTitle: $wikipediaTitle, ')
+          ..write('wikipediaUrl: $wikipediaUrl, ')
+          ..write('bioExtract: $bioExtract, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('lastError: $lastError, ')
+          ..write('lastErrorMessage: $lastErrorMessage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(cardId, wikidataQid, wikipediaTitle,
+      wikipediaUrl, bioExtract, fetchedAt, lastError, lastErrorMessage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PoliticianBio &&
+          other.cardId == this.cardId &&
+          other.wikidataQid == this.wikidataQid &&
+          other.wikipediaTitle == this.wikipediaTitle &&
+          other.wikipediaUrl == this.wikipediaUrl &&
+          other.bioExtract == this.bioExtract &&
+          other.fetchedAt == this.fetchedAt &&
+          other.lastError == this.lastError &&
+          other.lastErrorMessage == this.lastErrorMessage);
+}
+
+class PoliticianBiosCompanion extends UpdateCompanion<PoliticianBio> {
+  final Value<String> cardId;
+  final Value<String?> wikidataQid;
+  final Value<String?> wikipediaTitle;
+  final Value<String?> wikipediaUrl;
+  final Value<String?> bioExtract;
+  final Value<int?> fetchedAt;
+  final Value<int?> lastError;
+  final Value<String?> lastErrorMessage;
+  final Value<int> rowid;
+  const PoliticianBiosCompanion({
+    this.cardId = const Value.absent(),
+    this.wikidataQid = const Value.absent(),
+    this.wikipediaTitle = const Value.absent(),
+    this.wikipediaUrl = const Value.absent(),
+    this.bioExtract = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.lastErrorMessage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PoliticianBiosCompanion.insert({
+    required String cardId,
+    this.wikidataQid = const Value.absent(),
+    this.wikipediaTitle = const Value.absent(),
+    this.wikipediaUrl = const Value.absent(),
+    this.bioExtract = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.lastErrorMessage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : cardId = Value(cardId);
+  static Insertable<PoliticianBio> custom({
+    Expression<String>? cardId,
+    Expression<String>? wikidataQid,
+    Expression<String>? wikipediaTitle,
+    Expression<String>? wikipediaUrl,
+    Expression<String>? bioExtract,
+    Expression<int>? fetchedAt,
+    Expression<int>? lastError,
+    Expression<String>? lastErrorMessage,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cardId != null) 'card_id': cardId,
+      if (wikidataQid != null) 'wikidata_qid': wikidataQid,
+      if (wikipediaTitle != null) 'wikipedia_title': wikipediaTitle,
+      if (wikipediaUrl != null) 'wikipedia_url': wikipediaUrl,
+      if (bioExtract != null) 'bio_extract': bioExtract,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (lastError != null) 'last_error': lastError,
+      if (lastErrorMessage != null) 'last_error_message': lastErrorMessage,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PoliticianBiosCompanion copyWith(
+      {Value<String>? cardId,
+      Value<String?>? wikidataQid,
+      Value<String?>? wikipediaTitle,
+      Value<String?>? wikipediaUrl,
+      Value<String?>? bioExtract,
+      Value<int?>? fetchedAt,
+      Value<int?>? lastError,
+      Value<String?>? lastErrorMessage,
+      Value<int>? rowid}) {
+    return PoliticianBiosCompanion(
+      cardId: cardId ?? this.cardId,
+      wikidataQid: wikidataQid ?? this.wikidataQid,
+      wikipediaTitle: wikipediaTitle ?? this.wikipediaTitle,
+      wikipediaUrl: wikipediaUrl ?? this.wikipediaUrl,
+      bioExtract: bioExtract ?? this.bioExtract,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      lastError: lastError ?? this.lastError,
+      lastErrorMessage: lastErrorMessage ?? this.lastErrorMessage,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cardId.present) {
+      map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (wikidataQid.present) {
+      map['wikidata_qid'] = Variable<String>(wikidataQid.value);
+    }
+    if (wikipediaTitle.present) {
+      map['wikipedia_title'] = Variable<String>(wikipediaTitle.value);
+    }
+    if (wikipediaUrl.present) {
+      map['wikipedia_url'] = Variable<String>(wikipediaUrl.value);
+    }
+    if (bioExtract.present) {
+      map['bio_extract'] = Variable<String>(bioExtract.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<int>(fetchedAt.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<int>(lastError.value);
+    }
+    if (lastErrorMessage.present) {
+      map['last_error_message'] = Variable<String>(lastErrorMessage.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PoliticianBiosCompanion(')
+          ..write('cardId: $cardId, ')
+          ..write('wikidataQid: $wikidataQid, ')
+          ..write('wikipediaTitle: $wikipediaTitle, ')
+          ..write('wikipediaUrl: $wikipediaUrl, ')
+          ..write('bioExtract: $bioExtract, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('lastError: $lastError, ')
+          ..write('lastErrorMessage: $lastErrorMessage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4877,12 +6383,22 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DailyChallengeCachesTable dailyChallengeCaches =
       $DailyChallengeCachesTable(this);
   late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
+  late final $ChapterProgressTable chapterProgress =
+      $ChapterProgressTable(this);
+  late final $DailyRoundsTable dailyRounds = $DailyRoundsTable(this);
+  late final $PoliticianBiosTable politicianBios = $PoliticianBiosTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
   late final GovernmentDao governmentDao = GovernmentDao(this as AppDatabase);
   late final ProgressDao progressDao = ProgressDao(this as AppDatabase);
   late final MetaDao metaDao = MetaDao(this as AppDatabase);
+  late final ChapterProgressDao chapterProgressDao =
+      ChapterProgressDao(this as AppDatabase);
+  late final DailyRoundsDao dailyRoundsDao =
+      DailyRoundsDao(this as AppDatabase);
+  late final PoliticianBiosDao politicianBiosDao =
+      PoliticianBiosDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4896,7 +6412,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         reviewLogs,
         userNodeProgress,
         dailyChallengeCaches,
-        syncMeta
+        syncMeta,
+        chapterProgress,
+        dailyRounds,
+        politicianBios
       ];
 }
 
@@ -7178,6 +8697,731 @@ typedef $$SyncMetaTableProcessedTableManager = ProcessedTableManager<
     (SyncMetaData, BaseReferences<_$AppDatabase, $SyncMetaTable, SyncMetaData>),
     SyncMetaData,
     PrefetchHooks Function()>;
+typedef $$ChapterProgressTableCreateCompanionBuilder = ChapterProgressCompanion
+    Function({
+  Value<String> userId,
+  required String seasonId,
+  required String chapterId,
+  Value<int> dayInChapter,
+  Value<int> roundsCompleted,
+  required int startedAt,
+  Value<int?> completedAt,
+  required int updatedAt,
+  Value<int> rowid,
+});
+typedef $$ChapterProgressTableUpdateCompanionBuilder = ChapterProgressCompanion
+    Function({
+  Value<String> userId,
+  Value<String> seasonId,
+  Value<String> chapterId,
+  Value<int> dayInChapter,
+  Value<int> roundsCompleted,
+  Value<int> startedAt,
+  Value<int?> completedAt,
+  Value<int> updatedAt,
+  Value<int> rowid,
+});
+
+class $$ChapterProgressTableFilterComposer
+    extends Composer<_$AppDatabase, $ChapterProgressTable> {
+  $$ChapterProgressTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get roundsCompleted => $composableBuilder(
+      column: $table.roundsCompleted,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$ChapterProgressTableOrderingComposer
+    extends Composer<_$AppDatabase, $ChapterProgressTable> {
+  $$ChapterProgressTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get seasonId => $composableBuilder(
+      column: $table.seasonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get roundsCompleted => $composableBuilder(
+      column: $table.roundsCompleted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$ChapterProgressTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ChapterProgressTable> {
+  $$ChapterProgressTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get seasonId =>
+      $composableBuilder(column: $table.seasonId, builder: (column) => column);
+
+  GeneratedColumn<String> get chapterId =>
+      $composableBuilder(column: $table.chapterId, builder: (column) => column);
+
+  GeneratedColumn<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => column);
+
+  GeneratedColumn<int> get roundsCompleted => $composableBuilder(
+      column: $table.roundsCompleted, builder: (column) => column);
+
+  GeneratedColumn<int> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$ChapterProgressTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $ChapterProgressTable,
+    ChapterProgressEntry,
+    $$ChapterProgressTableFilterComposer,
+    $$ChapterProgressTableOrderingComposer,
+    $$ChapterProgressTableAnnotationComposer,
+    $$ChapterProgressTableCreateCompanionBuilder,
+    $$ChapterProgressTableUpdateCompanionBuilder,
+    (
+      ChapterProgressEntry,
+      BaseReferences<_$AppDatabase, $ChapterProgressTable, ChapterProgressEntry>
+    ),
+    ChapterProgressEntry,
+    PrefetchHooks Function()> {
+  $$ChapterProgressTableTableManager(
+      _$AppDatabase db, $ChapterProgressTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ChapterProgressTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ChapterProgressTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ChapterProgressTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> seasonId = const Value.absent(),
+            Value<String> chapterId = const Value.absent(),
+            Value<int> dayInChapter = const Value.absent(),
+            Value<int> roundsCompleted = const Value.absent(),
+            Value<int> startedAt = const Value.absent(),
+            Value<int?> completedAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChapterProgressCompanion(
+            userId: userId,
+            seasonId: seasonId,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            roundsCompleted: roundsCompleted,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            required String seasonId,
+            required String chapterId,
+            Value<int> dayInChapter = const Value.absent(),
+            Value<int> roundsCompleted = const Value.absent(),
+            required int startedAt,
+            Value<int?> completedAt = const Value.absent(),
+            required int updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              ChapterProgressCompanion.insert(
+            userId: userId,
+            seasonId: seasonId,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            roundsCompleted: roundsCompleted,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$ChapterProgressTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $ChapterProgressTable,
+    ChapterProgressEntry,
+    $$ChapterProgressTableFilterComposer,
+    $$ChapterProgressTableOrderingComposer,
+    $$ChapterProgressTableAnnotationComposer,
+    $$ChapterProgressTableCreateCompanionBuilder,
+    $$ChapterProgressTableUpdateCompanionBuilder,
+    (
+      ChapterProgressEntry,
+      BaseReferences<_$AppDatabase, $ChapterProgressTable, ChapterProgressEntry>
+    ),
+    ChapterProgressEntry,
+    PrefetchHooks Function()>;
+typedef $$DailyRoundsTableCreateCompanionBuilder = DailyRoundsCompanion
+    Function({
+  Value<String> userId,
+  required String dateIso,
+  required String chapterId,
+  required int dayInChapter,
+  Value<String> cardIdsJson,
+  Value<String> triviaJson,
+  Value<String> gradesJson,
+  Value<String> answersJson,
+  Value<String> phase,
+  required int startedAt,
+  Value<int?> completedAt,
+  required int updatedAt,
+  Value<int> rowid,
+});
+typedef $$DailyRoundsTableUpdateCompanionBuilder = DailyRoundsCompanion
+    Function({
+  Value<String> userId,
+  Value<String> dateIso,
+  Value<String> chapterId,
+  Value<int> dayInChapter,
+  Value<String> cardIdsJson,
+  Value<String> triviaJson,
+  Value<String> gradesJson,
+  Value<String> answersJson,
+  Value<String> phase,
+  Value<int> startedAt,
+  Value<int?> completedAt,
+  Value<int> updatedAt,
+  Value<int> rowid,
+});
+
+class $$DailyRoundsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyRoundsTable> {
+  $$DailyRoundsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get dateIso => $composableBuilder(
+      column: $table.dateIso, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cardIdsJson => $composableBuilder(
+      column: $table.cardIdsJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get triviaJson => $composableBuilder(
+      column: $table.triviaJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gradesJson => $composableBuilder(
+      column: $table.gradesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get phase => $composableBuilder(
+      column: $table.phase, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$DailyRoundsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyRoundsTable> {
+  $$DailyRoundsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get dateIso => $composableBuilder(
+      column: $table.dateIso, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chapterId => $composableBuilder(
+      column: $table.chapterId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get cardIdsJson => $composableBuilder(
+      column: $table.cardIdsJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get triviaJson => $composableBuilder(
+      column: $table.triviaJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gradesJson => $composableBuilder(
+      column: $table.gradesJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get phase => $composableBuilder(
+      column: $table.phase, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DailyRoundsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyRoundsTable> {
+  $$DailyRoundsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get dateIso =>
+      $composableBuilder(column: $table.dateIso, builder: (column) => column);
+
+  GeneratedColumn<String> get chapterId =>
+      $composableBuilder(column: $table.chapterId, builder: (column) => column);
+
+  GeneratedColumn<int> get dayInChapter => $composableBuilder(
+      column: $table.dayInChapter, builder: (column) => column);
+
+  GeneratedColumn<String> get cardIdsJson => $composableBuilder(
+      column: $table.cardIdsJson, builder: (column) => column);
+
+  GeneratedColumn<String> get triviaJson => $composableBuilder(
+      column: $table.triviaJson, builder: (column) => column);
+
+  GeneratedColumn<String> get gradesJson => $composableBuilder(
+      column: $table.gradesJson, builder: (column) => column);
+
+  GeneratedColumn<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get phase =>
+      $composableBuilder(column: $table.phase, builder: (column) => column);
+
+  GeneratedColumn<int> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$DailyRoundsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $DailyRoundsTable,
+    DailyRoundEntry,
+    $$DailyRoundsTableFilterComposer,
+    $$DailyRoundsTableOrderingComposer,
+    $$DailyRoundsTableAnnotationComposer,
+    $$DailyRoundsTableCreateCompanionBuilder,
+    $$DailyRoundsTableUpdateCompanionBuilder,
+    (
+      DailyRoundEntry,
+      BaseReferences<_$AppDatabase, $DailyRoundsTable, DailyRoundEntry>
+    ),
+    DailyRoundEntry,
+    PrefetchHooks Function()> {
+  $$DailyRoundsTableTableManager(_$AppDatabase db, $DailyRoundsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyRoundsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyRoundsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyRoundsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            Value<String> dateIso = const Value.absent(),
+            Value<String> chapterId = const Value.absent(),
+            Value<int> dayInChapter = const Value.absent(),
+            Value<String> cardIdsJson = const Value.absent(),
+            Value<String> triviaJson = const Value.absent(),
+            Value<String> gradesJson = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<String> phase = const Value.absent(),
+            Value<int> startedAt = const Value.absent(),
+            Value<int?> completedAt = const Value.absent(),
+            Value<int> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DailyRoundsCompanion(
+            userId: userId,
+            dateIso: dateIso,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            cardIdsJson: cardIdsJson,
+            triviaJson: triviaJson,
+            gradesJson: gradesJson,
+            answersJson: answersJson,
+            phase: phase,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            Value<String> userId = const Value.absent(),
+            required String dateIso,
+            required String chapterId,
+            required int dayInChapter,
+            Value<String> cardIdsJson = const Value.absent(),
+            Value<String> triviaJson = const Value.absent(),
+            Value<String> gradesJson = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<String> phase = const Value.absent(),
+            required int startedAt,
+            Value<int?> completedAt = const Value.absent(),
+            required int updatedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              DailyRoundsCompanion.insert(
+            userId: userId,
+            dateIso: dateIso,
+            chapterId: chapterId,
+            dayInChapter: dayInChapter,
+            cardIdsJson: cardIdsJson,
+            triviaJson: triviaJson,
+            gradesJson: gradesJson,
+            answersJson: answersJson,
+            phase: phase,
+            startedAt: startedAt,
+            completedAt: completedAt,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DailyRoundsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $DailyRoundsTable,
+    DailyRoundEntry,
+    $$DailyRoundsTableFilterComposer,
+    $$DailyRoundsTableOrderingComposer,
+    $$DailyRoundsTableAnnotationComposer,
+    $$DailyRoundsTableCreateCompanionBuilder,
+    $$DailyRoundsTableUpdateCompanionBuilder,
+    (
+      DailyRoundEntry,
+      BaseReferences<_$AppDatabase, $DailyRoundsTable, DailyRoundEntry>
+    ),
+    DailyRoundEntry,
+    PrefetchHooks Function()>;
+typedef $$PoliticianBiosTableCreateCompanionBuilder = PoliticianBiosCompanion
+    Function({
+  required String cardId,
+  Value<String?> wikidataQid,
+  Value<String?> wikipediaTitle,
+  Value<String?> wikipediaUrl,
+  Value<String?> bioExtract,
+  Value<int?> fetchedAt,
+  Value<int?> lastError,
+  Value<String?> lastErrorMessage,
+  Value<int> rowid,
+});
+typedef $$PoliticianBiosTableUpdateCompanionBuilder = PoliticianBiosCompanion
+    Function({
+  Value<String> cardId,
+  Value<String?> wikidataQid,
+  Value<String?> wikipediaTitle,
+  Value<String?> wikipediaUrl,
+  Value<String?> bioExtract,
+  Value<int?> fetchedAt,
+  Value<int?> lastError,
+  Value<String?> lastErrorMessage,
+  Value<int> rowid,
+});
+
+class $$PoliticianBiosTableFilterComposer
+    extends Composer<_$AppDatabase, $PoliticianBiosTable> {
+  $$PoliticianBiosTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cardId => $composableBuilder(
+      column: $table.cardId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikidataQid => $composableBuilder(
+      column: $table.wikidataQid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikipediaTitle => $composableBuilder(
+      column: $table.wikipediaTitle,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikipediaUrl => $composableBuilder(
+      column: $table.wikipediaUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get bioExtract => $composableBuilder(
+      column: $table.bioExtract, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastErrorMessage => $composableBuilder(
+      column: $table.lastErrorMessage,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$PoliticianBiosTableOrderingComposer
+    extends Composer<_$AppDatabase, $PoliticianBiosTable> {
+  $$PoliticianBiosTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cardId => $composableBuilder(
+      column: $table.cardId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikidataQid => $composableBuilder(
+      column: $table.wikidataQid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikipediaTitle => $composableBuilder(
+      column: $table.wikipediaTitle,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikipediaUrl => $composableBuilder(
+      column: $table.wikipediaUrl,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get bioExtract => $composableBuilder(
+      column: $table.bioExtract, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get fetchedAt => $composableBuilder(
+      column: $table.fetchedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastErrorMessage => $composableBuilder(
+      column: $table.lastErrorMessage,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$PoliticianBiosTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PoliticianBiosTable> {
+  $$PoliticianBiosTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cardId =>
+      $composableBuilder(column: $table.cardId, builder: (column) => column);
+
+  GeneratedColumn<String> get wikidataQid => $composableBuilder(
+      column: $table.wikidataQid, builder: (column) => column);
+
+  GeneratedColumn<String> get wikipediaTitle => $composableBuilder(
+      column: $table.wikipediaTitle, builder: (column) => column);
+
+  GeneratedColumn<String> get wikipediaUrl => $composableBuilder(
+      column: $table.wikipediaUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get bioExtract => $composableBuilder(
+      column: $table.bioExtract, builder: (column) => column);
+
+  GeneratedColumn<int> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+
+  GeneratedColumn<String> get lastErrorMessage => $composableBuilder(
+      column: $table.lastErrorMessage, builder: (column) => column);
+}
+
+class $$PoliticianBiosTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PoliticianBiosTable,
+    PoliticianBio,
+    $$PoliticianBiosTableFilterComposer,
+    $$PoliticianBiosTableOrderingComposer,
+    $$PoliticianBiosTableAnnotationComposer,
+    $$PoliticianBiosTableCreateCompanionBuilder,
+    $$PoliticianBiosTableUpdateCompanionBuilder,
+    (
+      PoliticianBio,
+      BaseReferences<_$AppDatabase, $PoliticianBiosTable, PoliticianBio>
+    ),
+    PoliticianBio,
+    PrefetchHooks Function()> {
+  $$PoliticianBiosTableTableManager(
+      _$AppDatabase db, $PoliticianBiosTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PoliticianBiosTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PoliticianBiosTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PoliticianBiosTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> cardId = const Value.absent(),
+            Value<String?> wikidataQid = const Value.absent(),
+            Value<String?> wikipediaTitle = const Value.absent(),
+            Value<String?> wikipediaUrl = const Value.absent(),
+            Value<String?> bioExtract = const Value.absent(),
+            Value<int?> fetchedAt = const Value.absent(),
+            Value<int?> lastError = const Value.absent(),
+            Value<String?> lastErrorMessage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PoliticianBiosCompanion(
+            cardId: cardId,
+            wikidataQid: wikidataQid,
+            wikipediaTitle: wikipediaTitle,
+            wikipediaUrl: wikipediaUrl,
+            bioExtract: bioExtract,
+            fetchedAt: fetchedAt,
+            lastError: lastError,
+            lastErrorMessage: lastErrorMessage,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String cardId,
+            Value<String?> wikidataQid = const Value.absent(),
+            Value<String?> wikipediaTitle = const Value.absent(),
+            Value<String?> wikipediaUrl = const Value.absent(),
+            Value<String?> bioExtract = const Value.absent(),
+            Value<int?> fetchedAt = const Value.absent(),
+            Value<int?> lastError = const Value.absent(),
+            Value<String?> lastErrorMessage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PoliticianBiosCompanion.insert(
+            cardId: cardId,
+            wikidataQid: wikidataQid,
+            wikipediaTitle: wikipediaTitle,
+            wikipediaUrl: wikipediaUrl,
+            bioExtract: bioExtract,
+            fetchedAt: fetchedAt,
+            lastError: lastError,
+            lastErrorMessage: lastErrorMessage,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PoliticianBiosTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PoliticianBiosTable,
+    PoliticianBio,
+    $$PoliticianBiosTableFilterComposer,
+    $$PoliticianBiosTableOrderingComposer,
+    $$PoliticianBiosTableAnnotationComposer,
+    $$PoliticianBiosTableCreateCompanionBuilder,
+    $$PoliticianBiosTableUpdateCompanionBuilder,
+    (
+      PoliticianBio,
+      BaseReferences<_$AppDatabase, $PoliticianBiosTable, PoliticianBio>
+    ),
+    PoliticianBio,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7200,4 +9444,10 @@ class $AppDatabaseManager {
       $$DailyChallengeCachesTableTableManager(_db, _db.dailyChallengeCaches);
   $$SyncMetaTableTableManager get syncMeta =>
       $$SyncMetaTableTableManager(_db, _db.syncMeta);
+  $$ChapterProgressTableTableManager get chapterProgress =>
+      $$ChapterProgressTableTableManager(_db, _db.chapterProgress);
+  $$DailyRoundsTableTableManager get dailyRounds =>
+      $$DailyRoundsTableTableManager(_db, _db.dailyRounds);
+  $$PoliticianBiosTableTableManager get politicianBios =>
+      $$PoliticianBiosTableTableManager(_db, _db.politicianBios);
 }

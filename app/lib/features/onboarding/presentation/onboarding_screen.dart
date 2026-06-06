@@ -1,164 +1,152 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
 
-class OnboardingScreen extends ConsumerStatefulWidget {
+/// First-run onboarding. Single screen, single CTA, single archetype hook.
+///
+/// Replaces the prior 3-page Material-icon walkthrough. Philosophy:
+/// the Confidence Score archetype IS the hook — leading with "Are you a
+/// Civic Bullshitter?" sets expectations that this isn't a dry civics
+/// app, and ties the first impression to the same wedge the share card
+/// + trivia reveal lean on. Yellow + black palette is deliberately
+/// off-system (high-contrast App Store stopping power, not party-coded)
+/// so the onboarding stands apart from the editorial Home theme.
+///
+/// Design source: `~/.gstack/projects/rkapdi-politiFace/designs/onboarding-20260528/approved.json`.
+class OnboardingScreen extends ConsumerWidget {
   const OnboardingScreen({super.key});
 
-  @override
-  ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
-}
+  // Brand-coherent yellow/black palette for the onboarding only.
+  // Intentionally distinct from the editorial Home theme — first
+  // impression should feel viral, not magazine.
+  static const _yellow = Color(0xFFFFC93A);
+  static const _ink = Color(0xFF0A0A0A);
 
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _controller = PageController();
-  int _page = 0;
-
-  static const _pages = <_PageData>[
-    _PageData(
-      icon: Icons.account_balance_outlined,
-      title: "Memorize who's running your government",
-      body: "Faces, names, roles — and how it all fits together.",
-    ),
-    _PageData(
-      icon: Icons.schedule_outlined,
-      title: 'Spaced repetition does the remembering',
-      body:
-          "Each card shows up exactly when you're about to forget. Grade how it went — we schedule the next review automatically.",
-    ),
-    _PageData(
-      icon: Icons.bolt_outlined,
-      title: 'Your first deck is ready',
-      body:
-          'About 60 seconds a day. Your streak starts the moment you grade your first card.',
-    ),
-  ];
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _finish() async {
+  Future<void> _start(BuildContext context, WidgetRef ref) async {
+    HapticFeedback.mediumImpact();
     final db = ref.read(databaseProvider);
     await db.metaDao.set('onboarding_v1_done', '1');
-    if (!mounted) return;
-    context.go('/');
+    if (!context.mounted) return;
+    // Drop the user directly into today's round — the actual game is
+    // the best demo of the game. No more "ok let me explain" screens.
+    context.go('/round');
   }
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isLast = _page == _pages.length - 1;
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: isLast ? null : _finish,
-                child: Text(isLast ? '' : 'Skip'),
-              ),
-            ),
-            Expanded(
-              child: PageView.builder(
-                controller: _controller,
-                itemCount: _pages.length,
-                onPageChanged: (i) => setState(() => _page = i),
-                itemBuilder: (ctx, i) => _PageView(data: _pages[i]),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_pages.length, (i) {
-                final active = i == _page;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: active ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: active
-                        ? theme.colorScheme.primary
-                        : theme.colorScheme.outlineVariant,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton(
-                  onPressed: () {
-                    if (isLast) {
-                      _finish();
-                    } else {
-                      _controller.nextPage(
-                        duration: const Duration(milliseconds: 280),
-                        curve: Curves.easeOutCubic,
-                      );
-                    }
-                  },
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Text(isLast ? 'Start learning' : 'Next'),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context).copyWith(
+      scaffoldBackgroundColor: _yellow,
     );
-  }
-}
-
-class _PageData {
-  const _PageData({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
-  final IconData icon;
-  final String title;
-  final String body;
-}
-
-class _PageView extends StatelessWidget {
-  const _PageView({required this.data});
-  final _PageData data;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 32),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(data.icon, size: 96, color: theme.colorScheme.primary),
-          const SizedBox(height: 32),
-          Text(
-            data.title,
-            style: theme.textTheme.headlineMedium,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            data.body,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+    return Theme(
+      data: theme,
+      child: Scaffold(
+        backgroundColor: _yellow,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Top-right skip — same idempotent finish as the CTA but
+                // routes home instead of /round (in case someone wants
+                // to poke around first).
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () async {
+                      HapticFeedback.lightImpact();
+                      final db = ref.read(databaseProvider);
+                      await db.metaDao.set('onboarding_v1_done', '1');
+                      if (!context.mounted) return;
+                      context.go('/');
+                    },
+                    style: TextButton.styleFrom(foregroundColor: _ink),
+                    child: const Text(
+                      'SKIP',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 1.4,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+                const Spacer(flex: 2),
+                // Hero emoji — the archetype that does the most viral work.
+                const Text(
+                  '💩',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 140, height: 1.0),
+                ),
+                const SizedBox(height: 32),
+                // Headline — the hook. All-caps, tight, two lines.
+                Text(
+                  'ARE YOU A\nCIVIC BULLSHITTER?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _ink,
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                    height: 1.05,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Subtitle — sets the stakes (Confidence Score wedge).
+                Text(
+                  'Find out in 10 questions.\nThe Confidence Score is brutal.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _ink.withOpacity(0.75),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    height: 1.35,
+                  ),
+                ),
+                const Spacer(flex: 3),
+                // Single CTA — drops the user into the actual round.
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => _start(context, ref),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _ink,
+                      foregroundColor: _yellow,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                      ),
+                    ),
+                    child: const Text(
+                      'TAKE THE TEST',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Honest footnote — depletes friction by setting
+                // expectations: no signup, fast.
+                Text(
+                  '60 seconds · No signup',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _ink.withOpacity(0.55),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ],
             ),
-            textAlign: TextAlign.center,
           ),
-        ],
+        ),
       ),
     );
   }

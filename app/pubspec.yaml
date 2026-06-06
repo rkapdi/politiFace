@@ -64,6 +64,7 @@ dependencies:
 
   # ── Secure storage (auth tokens) ─────────────────────────────────────────
   flutter_secure_storage: ^9.2.2
+  google_fonts: ^6.3.0
 
 dev_dependencies:
   flutter_test:
@@ -87,6 +88,9 @@ flutter:
 
   assets:
     - assets/content/decks/
+    - assets/content/curriculum/
+    - assets/content/atlas/
+    - assets/portraits/
 
   # TODO: re-enable once asset files and .env exist (see handoff Section 14)
   # assets:

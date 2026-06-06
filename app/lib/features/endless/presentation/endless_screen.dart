@@ -1,21 +1,111 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/database/drift/app_database.dart';
 import '../../shared/widgets/card_avatar.dart';
+import '../../shared/widgets/photo_zoom_modal.dart';
 import '../../shared/widgets/state_views.dart';
+import '../../trivia/presentation/share_card_renderer.dart';
 import '../application/endless_controller.dart';
 import '../domain/endless_question.dart';
+import 'endless_share_card.dart';
 
-class EndlessScreen extends ConsumerWidget {
+class EndlessScreen extends ConsumerStatefulWidget {
   const EndlessScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<EndlessScreen> createState() => _EndlessScreenState();
+}
+
+class _EndlessScreenState extends ConsumerState<EndlessScreen> {
+  final _portalController = OverlayPortalController();
+  final _boundaryKey = GlobalKey();
+  final _shareIconKey = GlobalKey();
+  bool _isSharing = false;
+  bool _routingToResult = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _portalController.show();
+    });
+  }
+
+  String get _todayLabel {
+    final now = DateTime.now();
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    return '${months[now.month - 1]} ${now.day}';
+  }
+
+  Rect? _shareOriginRect() {
+    final ctx = _shareIconKey.currentContext;
+    final box = ctx?.findRenderObject() as RenderBox?;
+    if (box == null || !box.attached) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  Future<void> _share() async {
+    if (_isSharing) return;
+    HapticFeedback.lightImpact();
+    final originRect = _shareOriginRect();
+    setState(() => _isSharing = true);
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      final renderer = ShareCardRenderer(
+        boundaryKey: _boundaryKey,
+        dateLabel: 'endless-${DateTime.now().millisecondsSinceEpoch}',
+      );
+      final xfile = await renderer.render();
+      await Share.shareXFiles(
+        [xfile],
+        subject: 'Politiface Endless',
+        sharePositionOrigin: originRect,
+      );
+    } on Object catch (e, st) {
+      debugPrint('[endless-share] render failed: $e\n$st');
+      unawaited(Sentry.captureException(e, stackTrace: st));
+      if (!mounted) return;
+      final s = ref.read(endlessControllerProvider).valueOrNull;
+      final text =
+          'Politiface Endless — streak ${s?.bestStreak ?? 0} (${s?.totalCorrect ?? 0}/${s?.totalAnswered ?? 0} correct)\npolitiface.app';
+      await Clipboard.setData(ClipboardData(text: text));
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image share unavailable — copied as text instead'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
+  }
+
+  Future<void> _endRun() async {
+    HapticFeedback.mediumImpact();
+    await ref.read(endlessControllerProvider.notifier).endRun();
+    if (!mounted) return;
+    setState(() => _routingToResult = true);
+    context.push('/endless/result');
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final async = ref.watch(endlessControllerProvider);
+    final state = async.valueOrNull;
+    final canEnd = state != null && state.totalAnswered > 0 && !state.runEnded;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Endless'),
@@ -24,30 +114,93 @@ class EndlessScreen extends ConsumerWidget {
           icon: const Icon(Icons.close),
           onPressed: () => context.go('/'),
         ),
-      ),
-      body: async.when(
-        loading: () => const AppLoadingView(),
-        error: (e, _) => AppErrorView(
-          title: 'Endless failed to start',
-          message: '$e',
-          onRetry: () => ref.invalidate(endlessControllerProvider),
-        ),
-        data: (s) {
-          if (s.question == null) {
-            return AppEmptyView(
-              icon: Icons.layers_outlined,
-              title: 'Not enough cards yet',
-              body:
-                  'Endless needs at least 4 cards in the pool. Add more content '
-                  'or sit tight — V1.1 will have a lot more.',
-              action: FilledButton(
-                onPressed: () => context.go('/'),
-                child: const Text('Home'),
+        actions: [
+          if (canEnd)
+            IconButton(
+              key: _shareIconKey,
+              tooltip: 'Share streak',
+              icon: _isSharing
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.ios_share_rounded),
+              onPressed: _isSharing ? null : _share,
+            ),
+          if (canEnd)
+            TextButton(
+              onPressed: _routingToResult ? null : _endRun,
+              child: const Text(
+                'END RUN',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.4,
+                  fontSize: 12,
+                ),
               ),
-            );
-          }
-          return _EndlessView(state: s);
+            ),
+        ],
+      ),
+      body: OverlayPortal(
+        controller: _portalController,
+        overlayChildBuilder: (overlayContext) {
+          // Off-screen share-card RepaintBoundary. The OverlayPortal mounts
+          // it outside the visible viewport but with real layout
+          // dimensions, so ShareCardRenderer can call toImage successfully.
+          final s = state;
+          return Positioned(
+            left: -10000,
+            top: -10000,
+            child: RepaintBoundary(
+              key: _boundaryKey,
+              child: SizedBox(
+                width: EndlessShareCard.canvasWidth,
+                height: EndlessShareCard.canvasHeight,
+                child: MediaQuery(
+                  data: const MediaQueryData(),
+                  child: Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: EndlessShareCard(
+                      currentStreak: s?.currentStreak ?? 0,
+                      bestStreak: s?.bestStreak ?? 0,
+                      totalCorrect: s?.totalCorrect ?? 0,
+                      totalAnswered: s?.totalAnswered ?? 0,
+                      dateLabel: _todayLabel,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
         },
+        child: async.when(
+          loading: () => const AppLoadingView(),
+          error: (e, _) => AppErrorView(
+            title: 'Endless failed to start',
+            message: '$e',
+            onRetry: () => ref.invalidate(endlessControllerProvider),
+          ),
+          data: (s) {
+            if (s.question == null) {
+              if (s.runEnded) {
+                return const AppLoadingView(label: 'Wrapping up run…');
+              }
+              return AppEmptyView(
+                icon: Icons.layers_outlined,
+                title: 'Not enough cards yet',
+                body:
+                    'Endless needs at least 4 cards in the pool. Add more '
+                    'content or sit tight — V1.1 will have a lot more.',
+                action: FilledButton(
+                  onPressed: () => context.go('/'),
+                  child: const Text('Home'),
+                ),
+              );
+            }
+            return _EndlessView(state: s);
+          },
+        ),
       ),
     );
   }
@@ -211,9 +364,9 @@ class _Prompt extends StatelessWidget {
     switch (question.mode) {
       case QuestionMode.photoToName:
         label = 'Who is this?';
-        body = CardAvatar(
+        body = _ZoomablePromptAvatar(
+          heroTag: 'endless-prompt-${question.correct.id}',
           name: question.correct.politicianName,
-          radius: 80,
           photoUrl: question.correct.photoUrl,
         );
       case QuestionMode.nameToPhoto:
@@ -224,9 +377,9 @@ class _Prompt extends StatelessWidget {
         body = _PromptText(question.correct.title);
       case QuestionMode.photoToTitle:
         label = 'What is their role?';
-        body = CardAvatar(
+        body = _ZoomablePromptAvatar(
+          heroTag: 'endless-prompt-${question.correct.id}',
           name: question.correct.politicianName,
-          radius: 80,
           photoUrl: question.correct.photoUrl,
         );
     }
@@ -427,10 +580,12 @@ class _PhotoOption extends StatelessWidget {
             children: [
               Expanded(
                 child: Center(
-                  child: CardAvatar(
+                  child: ResponsiveCardAvatar(
                     name: card.politicianName,
-                    radius: 38,
                     photoUrl: card.photoUrl,
+                    factor: 0.42,
+                    minRadius: 38,
+                    maxRadius: 72,
                   ),
                 ),
               ),
@@ -441,6 +596,45 @@ class _PhotoOption extends StatelessWidget {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Prompt-sized avatar in Endless mode. Scales to the device and opens a
+/// full-screen Hero-animated zoom when tapped.
+class _ZoomablePromptAvatar extends StatelessWidget {
+  const _ZoomablePromptAvatar({
+    required this.heroTag,
+    required this.name,
+    required this.photoUrl,
+  });
+
+  final String heroTag;
+  final String name;
+  final String? photoUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        PhotoZoomModal.show(
+          context,
+          heroTag: heroTag,
+          name: name,
+          photoUrl: photoUrl,
+        );
+      },
+      child: Hero(
+        tag: heroTag,
+        child: ResponsiveCardAvatar(
+          name: name,
+          photoUrl: photoUrl,
+          factor: 0.28,
+          minRadius: 80,
+          maxRadius: 140,
         ),
       ),
     );

@@ -1,7 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/database/drift/app_database.dart';
+import '../features/atlas/data/branch_info_loader.dart';
+import '../features/atlas/data/wikipedia_bio_service.dart';
+import '../features/curriculum/data/chapter_progress_service.dart';
+import '../features/curriculum/data/content_linker.dart';
+import '../features/curriculum/data/curriculum_loader.dart';
+import '../features/curriculum/domain/curriculum.dart';
+import '../features/round/application/daily_round_controller.dart';
+import '../features/round/data/chapter_content_sampler.dart';
+import '../features/round/domain/round_state.dart';
 import '../features/daily_challenge/data/daily_challenge_service.dart';
 import '../features/government/data/node_unlock_service.dart';
 import '../features/profile/data/profile_service.dart';
@@ -80,3 +91,104 @@ final cardRevealedProvider = StateProvider<bool>((ref) => false);
 // The Learn tab now renders a single OSINT-style progression tree
 // (OrgChartMap). The previous Path / System toggle and its provider have
 // been retired.
+
+// ── Curriculum (chapter-aware daily round) ──────────────────────────────────
+
+final curriculumLoaderProvider = Provider<CurriculumLoader>((_) {
+  return CurriculumLoader();
+});
+
+/// Parsed `us_civics.yaml`. Loaded once per app launch; cached for the
+/// lifetime of the Riverpod scope.
+final curriculumProvider = FutureProvider<Curriculum>((ref) async {
+  return ref.watch(curriculumLoaderProvider).load();
+});
+
+final chapterProgressServiceProvider =
+    Provider<ChapterProgressService>((ref) {
+  return ChapterProgressService(ref.watch(databaseProvider));
+});
+
+final contentLinkerProvider = Provider<ContentLinker>((ref) {
+  return ContentLinker(ref.watch(databaseProvider));
+});
+
+/// The user's current in-progress chapter entry, or null when the season is
+/// done. Returns null while [curriculumProvider] is still loading.
+///
+/// Drives the home-screen "Today's Round: Chapter X · Day Y of Z" CTA.
+/// Refetches when [sessionTickProvider] bumps (so completing a round
+/// immediately reflects in the UI).
+final currentChapterProgressProvider =
+    FutureProvider<ChapterProgressEntry?>((ref) async {
+  ref.watch(sessionTickProvider);
+  final curriculum = await ref.watch(curriculumProvider.future);
+  return ref.watch(chapterProgressServiceProvider).currentProgress(curriculum);
+});
+
+/// All chapter entries for the active season (in-progress + completed),
+/// ordered by start time. Drives the Season Spine widget on home.
+final seasonProgressProvider =
+    FutureProvider<List<ChapterProgressEntry>>((ref) async {
+  ref.watch(sessionTickProvider);
+  final curriculum = await ref.watch(curriculumProvider.future);
+  return ref
+      .watch(chapterProgressServiceProvider)
+      .seasonProgress(curriculum.season.id);
+});
+
+// ── Atlas branch info (library blurbs) ──────────────────────────────────────
+
+final branchInfoLibraryProvider = FutureProvider<BranchInfoLibrary>((ref) {
+  return BranchInfoLoader().load();
+});
+
+// ── Wikipedia bio service + per-card bio stream ─────────────────────────────
+
+final wikipediaBioServiceProvider = Provider<WikipediaBioService>((ref) {
+  return WikipediaBioService(ref.watch(databaseProvider));
+});
+
+/// Reactive bio for a single card. Subscribes to PoliticianBios row
+/// updates so the screen rebuilds when a fetch completes. Also triggers
+/// `ensureBio` once on first watch — fire-and-forget.
+final politicianBioProvider =
+    StreamProvider.family<PoliticianBio?, String>((ref, cardId) {
+  final service = ref.watch(wikipediaBioServiceProvider);
+  // Fire-and-forget — DB watch picks up the row when fetch lands.
+  unawaited(service.ensureBio(cardId));
+  return ref.watch(databaseProvider).politicianBiosDao.watch(cardId);
+});
+
+// ── Daily Round (chapter-aware ritual) ──────────────────────────────────────
+
+final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) {
+  return ChapterContentSampler(
+    ref.watch(databaseProvider),
+    ref.watch(contentLinkerProvider),
+  );
+});
+
+/// The active round for today. Loads existing (mid-flight) or creates a new
+/// one on first read for the current date.
+final dailyRoundControllerProvider =
+    AsyncNotifierProvider<DailyRoundController, DailyRoundState>(() {
+  return DailyRoundController();
+});
+
+/// Lightweight check: has today's round been completed yet? Reads the
+/// `daily_rounds` DAO directly so home can render a "Played" badge
+/// without triggering the heavier round-controller build (which would
+/// sample + persist a fresh round just from visiting home).
+final todayRoundPlayedProvider = FutureProvider<bool>((ref) async {
+  ref.watch(sessionTickProvider);
+  final db = ref.watch(databaseProvider);
+  final now = DateTime.now();
+  String two(int n) => n.toString().padLeft(2, '0');
+  final today = '${now.year}-${two(now.month)}-${two(now.day)}';
+  final row = await db.dailyRoundsDao.get(
+    userId: ChapterProgressService.defaultUserId,
+    dateIso: today,
+  );
+  return row?.completedAt != null;
+});

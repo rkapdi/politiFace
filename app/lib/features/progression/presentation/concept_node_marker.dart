@@ -23,8 +23,11 @@ class ConceptNodeMarker extends StatelessWidget {
     this.labelOnLeft = false,
     this.size = 18,
     this.onTap,
+    this.onLongPress,
     this.pulseT = 0.0,
     this.unlockFlashT = 0.0,
+    this.hasChildren = false,
+    this.isCollapsed = false,
   });
 
   final String label;
@@ -41,6 +44,11 @@ class ConceptNodeMarker extends StatelessWidget {
   final double size;
   final VoidCallback? onTap;
 
+  /// Long-press handler — used by real-parent nodes (e.g. President) so the
+  /// user can open the tier sheet even though tap toggles collapse for any
+  /// node that has children.
+  final VoidCallback? onLongPress;
+
   /// 0..1 phase for the "available" pulse animation. Caller drives this.
   final double pulseT;
 
@@ -49,6 +57,14 @@ class ConceptNodeMarker extends StatelessWidget {
   /// halo overlay no matter what the state is, so the user can SEE the
   /// thing they earned.
   final double unlockFlashT;
+
+  /// Whether this node has any children — drives the expand/collapse
+  /// chevron rendering and changes the tap-target semantics.
+  final bool hasChildren;
+
+  /// True when the user has collapsed this node's subtree. Chevron points
+  /// right when collapsed (▶), down when expanded (▼).
+  final bool isCollapsed;
 
   @override
   Widget build(BuildContext context) {
@@ -112,14 +128,44 @@ class ConceptNodeMarker extends StatelessWidget {
       ),
     );
 
+    // Chevron — only shown when this node has children. Rotates 0° when
+    // expanded (▼) and -90° when collapsed (▶) so the affordance reads as
+    // a folder-style disclosure indicator.
+    final chevron = hasChildren
+        ? Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: AnimatedRotation(
+              turns: isCollapsed ? -0.25 : 0,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              child: Icon(
+                Icons.expand_more_rounded,
+                size: 16,
+                color: textColor.withOpacity(0.55),
+              ),
+            ),
+          )
+        : null;
+
     final children = labelOnLeft
-        ? [text, const SizedBox(width: 6), marker]
-        : [marker, const SizedBox(width: 6), text];
+        ? [
+            if (chevron != null) chevron,
+            text,
+            const SizedBox(width: 6),
+            marker,
+          ]
+        : [
+            marker,
+            const SizedBox(width: 6),
+            text,
+            if (chevron != null) chevron,
+          ];
 
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
+        onLongPress: onLongPress,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),

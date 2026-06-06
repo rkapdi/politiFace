@@ -54,17 +54,29 @@ class CardAvatar extends StatelessWidget {
 
     if (!hasPhoto) return fallback();
 
+    final url = photoUrl!;
+    // Detect bundled-asset paths (start with "assets/") and render via
+    // Image.asset — synchronous, no network. HTTP(S) URLs go through
+    // CachedNetworkImage as before.
+    final isAssetPath = url.startsWith('assets/');
+
     return ClipOval(
       child: SizedBox(
         width: size,
         height: size,
-        child: CachedNetworkImage(
-          imageUrl: photoUrl!,
-          fit: BoxFit.cover,
-          placeholder: (ctx, url) => _lqipOrInitials(theme),
-          errorWidget: (ctx, url, err) => fallback(),
-          fadeInDuration: const Duration(milliseconds: 220),
-        ),
+        child: isAssetPath
+            ? Image.asset(
+                url,
+                fit: BoxFit.cover,
+                errorBuilder: (ctx, err, st) => fallback(),
+              )
+            : CachedNetworkImage(
+                imageUrl: url,
+                fit: BoxFit.cover,
+                placeholder: (ctx, url) => _lqipOrInitials(theme),
+                errorWidget: (ctx, url, err) => fallback(),
+                fadeInDuration: const Duration(milliseconds: 220),
+              ),
       ),
     );
   }
@@ -106,5 +118,55 @@ class CardAvatar extends StatelessWidget {
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
     return (parts.first.characters.first + parts.last.characters.first)
         .toUpperCase();
+  }
+}
+
+/// CardAvatar variant that sizes itself relative to its container (or the
+/// device's shortest side if its container is unbounded). Use for hero
+/// photos and grid cells that should scale across iPhone SE → Pro Max.
+class ResponsiveCardAvatar extends StatelessWidget {
+  const ResponsiveCardAvatar({
+    super.key,
+    required this.name,
+    this.photoUrl,
+    this.lqipBase64,
+    this.factor = 0.28,
+    this.minRadius = 60,
+    this.maxRadius = 140,
+  });
+
+  final String name;
+  final String? photoUrl;
+  final String? lqipBase64;
+
+  /// Fraction of the basis (parent's shortest side, or screen's shortest
+  /// side if the parent is unbounded) used as the avatar radius.
+  final double factor;
+  final double minRadius;
+  final double maxRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double basis;
+        if (constraints.hasBoundedHeight && constraints.hasBoundedWidth) {
+          basis = constraints.biggest.shortestSide;
+        } else if (constraints.hasBoundedWidth) {
+          basis = constraints.maxWidth;
+        } else if (constraints.hasBoundedHeight) {
+          basis = constraints.maxHeight;
+        } else {
+          basis = MediaQuery.of(context).size.shortestSide;
+        }
+        final radius = (basis * factor).clamp(minRadius, maxRadius);
+        return CardAvatar(
+          name: name,
+          radius: radius,
+          photoUrl: photoUrl,
+          lqipBase64: lqipBase64,
+        );
+      },
+    );
   }
 }

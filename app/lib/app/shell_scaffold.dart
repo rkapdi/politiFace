@@ -33,7 +33,7 @@ class ShellScaffold extends StatelessWidget {
           NavigationDestination(
             icon: Icon(Icons.account_balance_outlined),
             selectedIcon: Icon(Icons.account_balance),
-            label: 'Learn',
+            label: 'Atlas',
           ),
           NavigationDestination(
             icon: Icon(Icons.insights_outlined),
