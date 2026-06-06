@@ -19,6 +19,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q19880665_mike-johnson.jpg"
+    gender: male
     source: "https://www.speaker.gov/"
     last_verified: "2026-05-22"
     one_liner: "Presides over the House; 2nd in line of presidential succession."
@@ -29,6 +30,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q462981_john-thune.jpg"
+    gender: male
     source: "https://www.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Sets the Senate's agenda; the majority party's chief floor strategist."
@@ -39,6 +41,7 @@ cards:
     party: "Democratic"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q380900_chuck-schumer.jpg"
+    gender: male
     source: "https://www.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Leads the opposition in the Senate; negotiates on behalf of the minority."
@@ -49,6 +52,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q1857141_steve-scalise.jpg"
+    gender: male
     source: "https://www.majorityleader.gov/"
     last_verified: "2026-05-22"
     one_liner: "Manages the floor schedule for the majority in the House."
@@ -59,6 +63,7 @@ cards:
     party: "Democratic"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q5640425_hakeem-jeffries.jpg"
+    gender: male
     source: "https://www.democraticleader.gov/"
     last_verified: "2026-05-22"
     one_liner: "Leads House Democrats; the party's top House messenger."

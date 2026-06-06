@@ -38,12 +38,29 @@ class EndlessEngine {
       _recent.removeAt(0);
     }
 
-    // Build 3 distractors. For "title" modes we'd ideally bias toward cards
-    // with distinct titles, but in practice our pool is small enough that
-    // random distractors work fine.
-    final distractors = pool.where((c) => c.id != correct.id).toList()
+    // Build 3 distractors. When the correct card has a known gender, prefer
+    // gender-matched cards so "identify the male senator" doesn't get women
+    // as wrong-option foils. Fall through to the unfiltered pool if the
+    // gendered subset is too small to fill three options.
+    final answerGender = correct.gender;
+    final genderMatched = answerGender == null || answerGender == 'nonbinary'
+        ? const <LocalCard>[]
+        : pool
+            .where((c) => c.id != correct.id && c.gender == answerGender)
+            .toList()
       ..shuffle(_random);
-    final options = [correct, ...distractors.take(3)]..shuffle(_random);
+    final unfiltered = pool.where((c) => c.id != correct.id).toList()
+      ..shuffle(_random);
+    final distractors = <LocalCard>[];
+    final seen = <String>{};
+    for (final source in [genderMatched, unfiltered]) {
+      for (final c in source) {
+        if (distractors.length == 3) break;
+        if (seen.add(c.id)) distractors.add(c);
+      }
+      if (distractors.length == 3) break;
+    }
+    final options = [correct, ...distractors]..shuffle(_random);
     final correctIndex = options.indexWhere((c) => c.id == correct.id);
 
     final mode = forceMode ??

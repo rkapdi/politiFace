@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Walk every deck YAML and rewrite each card's photo_url to point at the
-bundled portrait when the politician's name has a manifest entry.
+"""Walk every deck YAML and rewrite each card's photo_url + gender to match
+the bundled portrait manifest.
 
 Run from repo root:
 
@@ -8,10 +8,13 @@ Run from repo root:
 
 What it does:
 - Loads `app/assets/portraits/manifest.json`
-- Builds a name → asset-path map
+- Builds a name → (file, gender) map
 - For each YAML under `app/assets/content/decks/`:
-    - For each card block, finds `name:` and `photo_url:` lines
+    - For each card block, finds `name:`, `photo_url:`, and `gender:` lines
     - Sets photo_url to `assets/portraits/<file>` on match, or `null` on miss
+    - Sets gender from the manifest if the card has no manual `gender:` line.
+      If a card already has `gender:` set in the YAML, it is preserved —
+      manual annotations beat Wikidata.
 - Preserves formatting + comments (line-based, not full YAML roundtrip).
 
 Idempotent — run as many times as you want.
@@ -42,71 +45,113 @@ def normalize(s: str) -> str:
     return s
 
 
-def load_manifest() -> dict[str, str]:
-    """name (normalized) -> filename."""
+def load_manifest() -> dict[str, dict]:
+    """name (normalized) -> {file, gender}."""
     with MANIFEST_PATH.open() as f:
         data = json.load(f)
-    out: dict[str, str] = {}
+    out: dict[str, dict] = {}
     for hit in data.get("hits", []):
         name = hit.get("name")
         filename = hit.get("file")
         if name and filename:
-            out[normalize(name)] = filename
+            out[normalize(name)] = {
+                "file": filename,
+                "gender": hit.get("gender"),
+            }
     return out
 
 
-def rewrite_deck(path: Path, name_to_file: dict[str, str]) -> tuple[int, int]:
+def rewrite_deck(path: Path, name_to_meta: dict[str, dict]) -> tuple[int, int]:
     """Returns (matched, total) card counts for the deck."""
     text = path.read_text()
-    lines = text.splitlines()
+    src_lines = text.splitlines()
 
     matched = 0
     total = 0
 
-    # Walk the file looking for card blocks. A card block starts with a
-    # line matching `^  - id:` and is followed (within the same block) by
-    # a `name:` and (optionally) a `photo_url:` line.
-    current_card_start: int | None = None
-    current_name: str | None = None
-    current_photo_idx: int | None = None
+    # Parse into card blocks. Each card starts at `^  - id:`. Within the
+    # block we look for `name:`, `photo_url:`, and `gender:` lines. After
+    # collecting, we emit the rewritten YAML — this single-pass build avoids
+    # the index-drift mess of mutating + inserting in place.
+    out_lines: list[str] = []
 
-    def commit() -> None:
+    name: str | None = None
+    photo_idx_in_block: int | None = None
+    gender_idx_in_block: int | None = None
+    block_lines: list[str] = []
+    in_card = False
+
+    def flush_block() -> None:
         nonlocal matched, total
-        nonlocal current_card_start, current_name, current_photo_idx
-        if current_card_start is None:
+        nonlocal name, photo_idx_in_block, gender_idx_in_block, block_lines
+        if not block_lines:
             return
         total += 1
-        if current_name and current_photo_idx is not None:
-            norm = normalize(current_name)
-            file_match = name_to_file.get(norm)
-            if file_match:
-                matched += 1
-                new_url = f'    photo_url: "{ASSET_PREFIX}/{file_match}"'
-                lines[current_photo_idx] = new_url
-            else:
-                # No manifest entry → drop to a null URL so CardAvatar
-                # falls back to initials instead of a random Picsum image.
-                lines[current_photo_idx] = "    photo_url: null"
-        current_card_start = None
-        current_name = None
-        current_photo_idx = None
+        meta = name_to_meta.get(normalize(name or "")) if name else None
 
-    for i, line in enumerate(lines):
+        # Photo URL rewrite — match → assets path, no match → null.
+        if photo_idx_in_block is not None:
+            if meta:
+                matched += 1
+                block_lines[photo_idx_in_block] = (
+                    f'    photo_url: "{ASSET_PREFIX}/{meta["file"]}"'
+                )
+            else:
+                block_lines[photo_idx_in_block] = "    photo_url: null"
+
+        # Gender wiring — only when manifest has a value AND the YAML doesn't
+        # already declare one (manual override always wins).
+        if meta and meta.get("gender") and gender_idx_in_block is None:
+            insert_after = (
+                photo_idx_in_block
+                if photo_idx_in_block is not None
+                else len(block_lines) - 1
+            )
+            block_lines.insert(
+                insert_after + 1,
+                f'    gender: {meta["gender"]}',
+            )
+
+        out_lines.extend(block_lines)
+        # Reset block state.
+        name = None
+        photo_idx_in_block = None
+        gender_idx_in_block = None
+        block_lines = []
+
+    for line in src_lines:
         if re.match(r"^  - id:", line):
-            commit()
-            current_card_start = i
-        elif current_card_start is not None:
+            if in_card:
+                flush_block()
+            in_card = True
+            block_lines.append(line)
+            continue
+        if in_card:
+            block_lines.append(line)
+            # Lines that end the card block: another top-level key. Cards
+            # are 2-space indented, so a 0-2 space line at column 0 ends them.
+            if re.match(r"^[^ ]", line):
+                # New top-level key encountered → end the cards section.
+                flush_block()
+                in_card = False
+                continue
+            in_block_idx = len(block_lines) - 1
             m = re.match(r'^    name:\s*"(.+)"\s*$', line)
             if m:
-                current_name = m.group(1)
+                name = m.group(1)
                 continue
-            m = re.match(r"^    photo_url:", line)
-            if m:
-                current_photo_idx = i
+            if re.match(r"^    photo_url:", line):
+                photo_idx_in_block = in_block_idx
                 continue
-    commit()
+            if re.match(r"^    gender:", line):
+                gender_idx_in_block = in_block_idx
+                continue
+        else:
+            out_lines.append(line)
+    if in_card:
+        flush_block()
 
-    new_text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
+    new_text = "\n".join(out_lines) + ("\n" if text.endswith("\n") else "")
     if new_text != text:
         path.write_text(new_text)
     return matched, total
@@ -120,13 +165,17 @@ def main() -> int:
         print(f"ERROR: decks dir not found at {DECKS_DIR}", file=sys.stderr)
         return 1
 
-    name_to_file = load_manifest()
-    print(f"Loaded {len(name_to_file)} manifest entries.\n")
+    name_to_meta = load_manifest()
+    with_gender = sum(1 for m in name_to_meta.values() if m.get("gender"))
+    print(
+        f"Loaded {len(name_to_meta)} manifest entries "
+        f"({with_gender} with gender).\n"
+    )
 
     total_matched = 0
     total_cards = 0
     for path in sorted(DECKS_DIR.glob("*.yaml")):
-        matched, total = rewrite_deck(path, name_to_file)
+        matched, total = rewrite_deck(path, name_to_meta)
         total_matched += matched
         total_cards += total
         bar = "#" * matched + "." * (total - matched)

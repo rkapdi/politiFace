@@ -54,6 +54,8 @@ class RoundCard {
     required this.cardId,
     required this.prompt,
     required this.answer,
+    this.politicianName,
+    this.photoUrl,
     this.grade,
   });
 
@@ -68,6 +70,15 @@ class RoundCard {
   /// answer).
   final String answer;
 
+  /// Display name of the politician this card is about. Used as fallback for
+  /// the avatar's initials when no portrait is available. Null for concept
+  /// flashcards once those ship.
+  final String? politicianName;
+
+  /// Bundled-asset path or HTTP(S) URL to the politician's portrait. Drives
+  /// the avatar shown on the card's reveal side. Null for text-only cards.
+  final String? photoUrl;
+
   /// 0..3 once graded; null while the card is still face-down.
   final int? grade;
 
@@ -76,6 +87,8 @@ class RoundCard {
       cardId: cardId,
       prompt: prompt,
       answer: answer,
+      politicianName: politicianName,
+      photoUrl: photoUrl,
       grade: grade ?? this.grade,
     );
   }
@@ -158,6 +171,23 @@ class DailyRoundState {
       if (trivia[i].answer == null) return i;
     }
     return null;
+  }
+
+  /// Trailing run of consecutive correct trivia answers. Drives the streak
+  /// chip in the trivia phase — borrows the visual vocabulary of Endless's
+  /// score bar so the game-feel reads the same in both modes.
+  int get currentCorrectStreak {
+    var streak = 0;
+    for (final t in trivia) {
+      final a = t.answer;
+      if (a == null) break;
+      if (a.isCorrect) {
+        streak++;
+      } else {
+        streak = 0;
+      }
+    }
+    return streak;
   }
 
   DailyRoundState copyWith({

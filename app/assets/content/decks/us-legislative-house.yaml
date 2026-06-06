@@ -18,6 +18,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q7815723_tom-emmer.jpg"
+    gender: male
     source: "https://www.majoritywhip.gov/"
     last_verified: "2026-05-22"
     one_liner: "Counts votes and disciplines the majority caucus in the House."
@@ -28,6 +29,7 @@ cards:
     party: "Democratic"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q6376330_katherine-clark.jpg"
+    gender: female
     source: "https://www.democraticwhip.gov/"
     last_verified: "2026-05-22"
     one_liner: "Counts votes for House Democrats; #2 in House minority leadership."
@@ -38,6 +40,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q6163589_jason-smith.jpg"
+    gender: male
     source: "https://waysandmeans.house.gov/"
     last_verified: "2026-05-22"
     one_liner: "Originates federal tax and revenue legislation."
@@ -48,6 +51,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q186215_jim-jordan.jpg"
+    gender: male
     source: "https://judiciary.house.gov/"
     last_verified: "2026-05-22"
     one_liner: "Oversees federal courts, impeachment, and constitutional law in the House."
@@ -58,6 +62,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q458453_virginia-foxx.jpg"
+    gender: female
     source: "https://rules.house.gov/"
     last_verified: "2026-05-22"
     one_liner: "Decides which bills reach the House floor and under what rules."

@@ -94,6 +94,11 @@ class TriviaGenerator {
 
   /// Pick 3 wrong-but-plausible options. Prefer same-deck cards first
   /// (Cabinet members for a Cabinet question, etc.) then widen to anywhere.
+  ///
+  /// For name-answer formats we also try to gender-match the distractors
+  /// against the correct card. If the correct card's gender is missing or
+  /// the filtered pool is too small, we fall through to the unfiltered
+  /// pool — better one mixed-gender option than no question at all.
   List<String> _pickDistractors({
     required LocalCard card,
     required TriviaFormat format,
@@ -112,32 +117,47 @@ class TriviaGenerator {
       }
     }
 
-    final sameDeck = [
-      for (final c in pool)
-        if (c.id != card.id && c.deckId == card.deckId)
-          fieldFor(c),
-    ].toSet().toList();
+    // Gender matching only matters for name-answer formats — title strings
+    // (roles) aren't gendered. Nonbinary / missing answer gender = no filter.
+    final genderFilters = format == TriviaFormat.photoToName ||
+        format == TriviaFormat.titleToName;
+    final answerGender = card.gender;
+    bool genderMatches(LocalCard c) {
+      if (!genderFilters) return true;
+      if (answerGender == null) return true;
+      if (answerGender == 'nonbinary') return true;
+      return c.gender == answerGender;
+    }
 
-    final widePool = [
+    final sameDeckGendered = <String>{
+      for (final c in pool)
+        if (c.id != card.id && c.deckId == card.deckId && genderMatches(c))
+          fieldFor(c),
+    }.toList();
+    final widePoolGendered = <String>{
+      for (final c in pool)
+        if (c.id != card.id && genderMatches(c)) fieldFor(c),
+    }.toList();
+    // Unfiltered backup — used only if gendered pools come up short. Keeps
+    // the question generator robust on tiny decks (a single woman in SCOTUS,
+    // etc.).
+    final widePoolAll = <String>{
       for (final c in pool)
         if (c.id != card.id) fieldFor(c),
-    ].toSet().toList();
+    }.toList();
 
-    // Build candidate list: same-deck first (shuffled), then wide pool to
-    // fill in if a small deck doesn't have 3 distinct alternates.
-    sameDeck.remove(correctAnswer);
-    widePool.remove(correctAnswer);
-    sameDeck.shuffle(rng);
-    widePool.shuffle(rng);
+    for (final list in [sameDeckGendered, widePoolGendered, widePoolAll]) {
+      list.remove(correctAnswer);
+      list.shuffle(rng);
+    }
 
     final picked = <String>{};
-    for (final candidate in sameDeck) {
+    for (final list in [sameDeckGendered, widePoolGendered, widePoolAll]) {
+      for (final candidate in list) {
+        if (picked.length == 3) break;
+        picked.add(candidate);
+      }
       if (picked.length == 3) break;
-      picked.add(candidate);
-    }
-    for (final candidate in widePool) {
-      if (picked.length == 3) break;
-      picked.add(candidate);
     }
     return picked.toList();
   }

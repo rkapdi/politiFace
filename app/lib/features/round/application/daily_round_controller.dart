@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -92,6 +94,8 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
               cardId: c.id,
               prompt: '${c.politicianName} · ${c.title}',
               answer: c.oneLiner ?? c.title,
+              politicianName: c.politicianName,
+              photoUrl: c.photoUrl,
             ))
         .toList();
     final triviaQuestions = const TriviaGenerator()
@@ -209,8 +213,48 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     await _persist(next, completedAt: now);
 
+    // History row — best-effort, never blocks completion.
+    unawaited(_writeHistoryRow(next, completedAt: now));
+
     // Force any chapter-aware UI to refetch.
     ref.read(sessionTickProvider.notifier).state++;
+  }
+
+  Future<void> _writeHistoryRow(
+    DailyRoundState s, {
+    required int completedAt,
+  }) async {
+    try {
+      final result = s.result;
+      final correct = result?.correctCount;
+      final total = result?.totalQuestions;
+      // Salt the id so re-completing the same chapter on the same day (rare
+      // but possible — backgrounded, reloaded, replayed) inserts a fresh
+      // history row instead of upserting over the original.
+      final salt = math.Random().nextInt(1 << 32);
+      await _db.completedRunsDao.insert(CompletedRunsCompanion.insert(
+        id: 'round_${s.dateIso}_${s.chapterId}_$salt',
+        mode: 'round',
+        completedAt: completedAt,
+        score: Value(result?.totalScore),
+        correctCount: Value(correct),
+        totalCount: Value(total),
+        summary: Value(s.chapterTitle),
+        payload: Value(jsonEncode({
+          'dateIso': s.dateIso,
+          'chapterId': s.chapterId,
+          'chapterTitle': s.chapterTitle,
+          'dayInChapter': s.dayInChapter,
+          'daysInChapter': s.daysInChapter,
+          'cards': _serializeCards(s.cards),
+          'grades': s.cards.map((c) => c.grade).toList(),
+          'trivia': _serializeTrivia(s.trivia),
+          'answers': _serializeAnswers(s.trivia),
+        })),
+      ));
+    } catch (_) {
+      // Swallow — history-write failures must not block round completion.
+    }
   }
 
   // ── Persistence ────────────────────────────────────────────────────────
@@ -264,6 +308,8 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         cardId: m['cardId'] as String,
         prompt: m['prompt'] as String,
         answer: m['answer'] as String,
+        politicianName: m['politicianName'] as String?,
+        photoUrl: m['photoUrl'] as String?,
         grade: i < grades.length ? grades[i] as int? : null,
       ));
     }
@@ -309,7 +355,13 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
   List<Map<String, dynamic>> _serializeCards(List<RoundCard> cards) {
     return [
       for (final c in cards)
-        {'cardId': c.cardId, 'prompt': c.prompt, 'answer': c.answer},
+        {
+          'cardId': c.cardId,
+          'prompt': c.prompt,
+          'answer': c.answer,
+          'politicianName': c.politicianName,
+          'photoUrl': c.photoUrl,
+        },
     ];
   }
 

@@ -16,6 +16,7 @@ import '../daos/meta_dao.dart';
 import '../daos/chapter_progress_dao.dart';
 import '../daos/daily_rounds_dao.dart';
 import '../daos/politician_bios_dao.dart';
+import '../daos/completed_runs_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -94,6 +95,10 @@ class LocalCards extends Table {
   TextColumn get jurisdiction    => text().nullable()();
   TextColumn get oneLiner        => text().nullable()();
   TextColumn get sourceUrl       => text()();
+  // Wikidata P21 sex/gender: 'male', 'female', 'nonbinary', or null. Drives
+  // gender-aware distractor selection in TriviaGenerator + EndlessEngine so
+  // "identify the male senator" doesn't get women as wrong-option foils.
+  TextColumn get gender          => text().nullable()();
   TextColumn get tags            => text().withDefault(const Constant('[]'))(); // JSON array
   BoolColumn get isActive        => boolean().withDefault(const Constant(true))();
   IntColumn  get sortOrder       => integer().withDefault(const Constant(0))();
@@ -225,6 +230,27 @@ class DailyRounds extends Table {
   Set<Column> get primaryKey => {userId, dateIso};
 }
 
+// ── Completed runs (cross-mode history log) ──────────────────────────────────
+// One row per finished trivia run, daily round, or ended endless session.
+// Powers the Memory tab's history view + per-mode review screens. Payload
+// is opaque JSON keyed by mode — review screens deserialize on read.
+@DataClassName('CompletedRunEntry')
+class CompletedRuns extends Table {
+  TextColumn get id           => text()();
+  TextColumn get userId       => text().withDefault(const Constant('local-user'))();
+  TextColumn get mode         => text()();  // 'trivia' | 'round' | 'endless'
+  IntColumn  get completedAt  => integer()(); // Unix seconds
+  IntColumn  get durationMs   => integer().nullable()();
+  IntColumn  get score        => integer().nullable()();
+  IntColumn  get correctCount => integer().nullable()();
+  IntColumn  get totalCount   => integer().nullable()();
+  TextColumn get summary      => text().nullable()(); // short one-line label
+  TextColumn get payload      => text().withDefault(const Constant('{}'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ── Chapter progress (player's position in a season) ─────────────────────────
 // One row per (user, season, chapter). Chapters the user hasn't reached yet
 // have no row — absent = locked. The "current" chapter is the one with a
@@ -259,6 +285,7 @@ class ChapterProgress extends Table {
     ChapterProgress,
     DailyRounds,
     PoliticianBios,
+    CompletedRuns,
   ],
   daos: [
     CardsDao,
@@ -270,6 +297,7 @@ class ChapterProgress extends Table {
     ChapterProgressDao,
     DailyRoundsDao,
     PoliticianBiosDao,
+    CompletedRunsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -279,7 +307,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -318,6 +346,21 @@ class AppDatabase extends _$AppDatabase {
         // powers the Atlas politician detail screen. New table; empty
         // until WikipediaBioService backfills.
         await m.createTable(politicianBios);
+      }
+      if (from < 6) {
+        // v5 → v6: add LocalCards.gender (nullable text) — sourced from
+        // Wikidata P21 by the portraits fetcher, used to gender-match
+        // distractors in trivia and endless modes. NULL falls through to
+        // unfiltered behavior, so old rows degrade gracefully until a
+        // re-seed populates the column.
+        await m.addColumn(localCards, localCards.gender);
+      }
+      if (from < 7) {
+        // v6 → v7: add CompletedRuns — the cross-mode history log that
+        // powers the Memory tab's History view and the per-mode review
+        // screens. Empty table at first; trivia/round/endless completion
+        // paths backfill on every finished run going forward.
+        await m.createTable(completedRuns);
       }
     },
   );

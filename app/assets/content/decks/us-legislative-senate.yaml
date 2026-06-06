@@ -18,6 +18,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q529294_chuck-grassley.jpg"
+    gender: male
     source: "https://www.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Presides over the Senate in the VP's absence; 3rd in succession."
@@ -28,6 +29,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q720521_john-barrasso.jpg"
+    gender: male
     source: "https://www.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Counts votes and rallies majority senators on key bills."
@@ -38,6 +40,7 @@ cards:
     party: "Democratic"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q434804_dick-durbin.jpg"
+    gender: male
     source: "https://www.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Manages whip operations for Senate Democrats."
@@ -48,6 +51,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q721871_jim-risch.jpg"
+    gender: male
     source: "https://www.foreign.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Oversees treaties, ambassadors, and US foreign policy in the Senate."
@@ -58,6 +62,7 @@ cards:
     party: "Republican"
     jurisdiction: "US Federal"
     photo_url: "assets/portraits/wikidata_Q22279_susan-collins.jpg"
+    gender: female
     source: "https://www.appropriations.senate.gov/"
     last_verified: "2026-05-22"
     one_liner: "Controls discretionary federal spending bills in the Senate."

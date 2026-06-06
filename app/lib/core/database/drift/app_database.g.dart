@@ -2175,6 +2175,11 @@ class $LocalCardsTable extends LocalCards
   late final GeneratedColumn<String> sourceUrl = GeneratedColumn<String>(
       'source_url', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _genderMeta = const VerificationMeta('gender');
+  @override
+  late final GeneratedColumn<String> gender = GeneratedColumn<String>(
+      'gender', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
   @override
   late final GeneratedColumn<String> tags = GeneratedColumn<String>(
@@ -2219,6 +2224,7 @@ class $LocalCardsTable extends LocalCards
         jurisdiction,
         oneLiner,
         sourceUrl,
+        gender,
         tags,
         isActive,
         sortOrder,
@@ -2297,6 +2303,10 @@ class $LocalCardsTable extends LocalCards
     } else if (isInserting) {
       context.missing(_sourceUrlMeta);
     }
+    if (data.containsKey('gender')) {
+      context.handle(_genderMeta,
+          gender.isAcceptableOrUnknown(data['gender']!, _genderMeta));
+    }
     if (data.containsKey('tags')) {
       context.handle(
           _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
@@ -2346,6 +2356,8 @@ class $LocalCardsTable extends LocalCards
           .read(DriftSqlType.string, data['${effectivePrefix}one_liner']),
       sourceUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}source_url'])!,
+      gender: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gender']),
       tags: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
       isActive: attachedDatabase.typeMapping
@@ -2375,6 +2387,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
   final String? jurisdiction;
   final String? oneLiner;
   final String sourceUrl;
+  final String? gender;
   final String tags;
   final bool isActive;
   final int sortOrder;
@@ -2391,6 +2404,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       this.jurisdiction,
       this.oneLiner,
       required this.sourceUrl,
+      this.gender,
       required this.tags,
       required this.isActive,
       required this.sortOrder,
@@ -2419,6 +2433,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       map['one_liner'] = Variable<String>(oneLiner);
     }
     map['source_url'] = Variable<String>(sourceUrl);
+    if (!nullToAbsent || gender != null) {
+      map['gender'] = Variable<String>(gender);
+    }
     map['tags'] = Variable<String>(tags);
     map['is_active'] = Variable<bool>(isActive);
     map['sort_order'] = Variable<int>(sortOrder);
@@ -2448,6 +2465,8 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           ? const Value.absent()
           : Value(oneLiner),
       sourceUrl: Value(sourceUrl),
+      gender:
+          gender == null && nullToAbsent ? const Value.absent() : Value(gender),
       tags: Value(tags),
       isActive: Value(isActive),
       sortOrder: Value(sortOrder),
@@ -2470,6 +2489,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       jurisdiction: serializer.fromJson<String?>(json['jurisdiction']),
       oneLiner: serializer.fromJson<String?>(json['oneLiner']),
       sourceUrl: serializer.fromJson<String>(json['sourceUrl']),
+      gender: serializer.fromJson<String?>(json['gender']),
       tags: serializer.fromJson<String>(json['tags']),
       isActive: serializer.fromJson<bool>(json['isActive']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
@@ -2491,6 +2511,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       'jurisdiction': serializer.toJson<String?>(jurisdiction),
       'oneLiner': serializer.toJson<String?>(oneLiner),
       'sourceUrl': serializer.toJson<String>(sourceUrl),
+      'gender': serializer.toJson<String?>(gender),
       'tags': serializer.toJson<String>(tags),
       'isActive': serializer.toJson<bool>(isActive),
       'sortOrder': serializer.toJson<int>(sortOrder),
@@ -2510,6 +2531,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           Value<String?> jurisdiction = const Value.absent(),
           Value<String?> oneLiner = const Value.absent(),
           String? sourceUrl,
+          Value<String?> gender = const Value.absent(),
           String? tags,
           bool? isActive,
           int? sortOrder,
@@ -2527,6 +2549,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
             jurisdiction.present ? jurisdiction.value : this.jurisdiction,
         oneLiner: oneLiner.present ? oneLiner.value : this.oneLiner,
         sourceUrl: sourceUrl ?? this.sourceUrl,
+        gender: gender.present ? gender.value : this.gender,
         tags: tags ?? this.tags,
         isActive: isActive ?? this.isActive,
         sortOrder: sortOrder ?? this.sortOrder,
@@ -2551,6 +2574,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           : this.jurisdiction,
       oneLiner: data.oneLiner.present ? data.oneLiner.value : this.oneLiner,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
+      gender: data.gender.present ? data.gender.value : this.gender,
       tags: data.tags.present ? data.tags.value : this.tags,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
@@ -2572,6 +2596,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           ..write('jurisdiction: $jurisdiction, ')
           ..write('oneLiner: $oneLiner, ')
           ..write('sourceUrl: $sourceUrl, ')
+          ..write('gender: $gender, ')
           ..write('tags: $tags, ')
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
@@ -2593,6 +2618,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       jurisdiction,
       oneLiner,
       sourceUrl,
+      gender,
       tags,
       isActive,
       sortOrder,
@@ -2612,6 +2638,7 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           other.jurisdiction == this.jurisdiction &&
           other.oneLiner == this.oneLiner &&
           other.sourceUrl == this.sourceUrl &&
+          other.gender == this.gender &&
           other.tags == this.tags &&
           other.isActive == this.isActive &&
           other.sortOrder == this.sortOrder &&
@@ -2630,6 +2657,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
   final Value<String?> jurisdiction;
   final Value<String?> oneLiner;
   final Value<String> sourceUrl;
+  final Value<String?> gender;
   final Value<String> tags;
   final Value<bool> isActive;
   final Value<int> sortOrder;
@@ -2647,6 +2675,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     this.jurisdiction = const Value.absent(),
     this.oneLiner = const Value.absent(),
     this.sourceUrl = const Value.absent(),
+    this.gender = const Value.absent(),
     this.tags = const Value.absent(),
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -2665,6 +2694,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     this.jurisdiction = const Value.absent(),
     this.oneLiner = const Value.absent(),
     required String sourceUrl,
+    this.gender = const Value.absent(),
     this.tags = const Value.absent(),
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -2689,6 +2719,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     Expression<String>? jurisdiction,
     Expression<String>? oneLiner,
     Expression<String>? sourceUrl,
+    Expression<String>? gender,
     Expression<String>? tags,
     Expression<bool>? isActive,
     Expression<int>? sortOrder,
@@ -2707,6 +2738,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       if (jurisdiction != null) 'jurisdiction': jurisdiction,
       if (oneLiner != null) 'one_liner': oneLiner,
       if (sourceUrl != null) 'source_url': sourceUrl,
+      if (gender != null) 'gender': gender,
       if (tags != null) 'tags': tags,
       if (isActive != null) 'is_active': isActive,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -2727,6 +2759,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       Value<String?>? jurisdiction,
       Value<String?>? oneLiner,
       Value<String>? sourceUrl,
+      Value<String?>? gender,
       Value<String>? tags,
       Value<bool>? isActive,
       Value<int>? sortOrder,
@@ -2744,6 +2777,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       jurisdiction: jurisdiction ?? this.jurisdiction,
       oneLiner: oneLiner ?? this.oneLiner,
       sourceUrl: sourceUrl ?? this.sourceUrl,
+      gender: gender ?? this.gender,
       tags: tags ?? this.tags,
       isActive: isActive ?? this.isActive,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -2788,6 +2822,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     if (sourceUrl.present) {
       map['source_url'] = Variable<String>(sourceUrl.value);
     }
+    if (gender.present) {
+      map['gender'] = Variable<String>(gender.value);
+    }
     if (tags.present) {
       map['tags'] = Variable<String>(tags.value);
     }
@@ -2820,6 +2857,7 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
           ..write('jurisdiction: $jurisdiction, ')
           ..write('oneLiner: $oneLiner, ')
           ..write('sourceUrl: $sourceUrl, ')
+          ..write('gender: $gender, ')
           ..write('tags: $tags, ')
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
@@ -6368,6 +6406,525 @@ class PoliticianBiosCompanion extends UpdateCompanion<PoliticianBio> {
   }
 }
 
+class $CompletedRunsTable extends CompletedRuns
+    with TableInfo<$CompletedRunsTable, CompletedRunEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CompletedRunsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+      'user_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('local-user'));
+  static const VerificationMeta _modeMeta = const VerificationMeta('mode');
+  @override
+  late final GeneratedColumn<String> mode = GeneratedColumn<String>(
+      'mode', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedAtMeta =
+      const VerificationMeta('completedAt');
+  @override
+  late final GeneratedColumn<int> completedAt = GeneratedColumn<int>(
+      'completed_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _durationMsMeta =
+      const VerificationMeta('durationMs');
+  @override
+  late final GeneratedColumn<int> durationMs = GeneratedColumn<int>(
+      'duration_ms', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<int> score = GeneratedColumn<int>(
+      'score', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _correctCountMeta =
+      const VerificationMeta('correctCount');
+  @override
+  late final GeneratedColumn<int> correctCount = GeneratedColumn<int>(
+      'correct_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _totalCountMeta =
+      const VerificationMeta('totalCount');
+  @override
+  late final GeneratedColumn<int> totalCount = GeneratedColumn<int>(
+      'total_count', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _summaryMeta =
+      const VerificationMeta('summary');
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+      'summary', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        userId,
+        mode,
+        completedAt,
+        durationMs,
+        score,
+        correctCount,
+        totalCount,
+        summary,
+        payload
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'completed_runs';
+  @override
+  VerificationContext validateIntegrity(Insertable<CompletedRunEntry> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(_userIdMeta,
+          userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta));
+    }
+    if (data.containsKey('mode')) {
+      context.handle(
+          _modeMeta, mode.isAcceptableOrUnknown(data['mode']!, _modeMeta));
+    } else if (isInserting) {
+      context.missing(_modeMeta);
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+          _completedAtMeta,
+          completedAt.isAcceptableOrUnknown(
+              data['completed_at']!, _completedAtMeta));
+    } else if (isInserting) {
+      context.missing(_completedAtMeta);
+    }
+    if (data.containsKey('duration_ms')) {
+      context.handle(
+          _durationMsMeta,
+          durationMs.isAcceptableOrUnknown(
+              data['duration_ms']!, _durationMsMeta));
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+          _scoreMeta, score.isAcceptableOrUnknown(data['score']!, _scoreMeta));
+    }
+    if (data.containsKey('correct_count')) {
+      context.handle(
+          _correctCountMeta,
+          correctCount.isAcceptableOrUnknown(
+              data['correct_count']!, _correctCountMeta));
+    }
+    if (data.containsKey('total_count')) {
+      context.handle(
+          _totalCountMeta,
+          totalCount.isAcceptableOrUnknown(
+              data['total_count']!, _totalCountMeta));
+    }
+    if (data.containsKey('summary')) {
+      context.handle(_summaryMeta,
+          summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta));
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CompletedRunEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CompletedRunEntry(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      userId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}user_id'])!,
+      mode: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mode'])!,
+      completedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}completed_at'])!,
+      durationMs: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}duration_ms']),
+      score: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}score']),
+      correctCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}correct_count']),
+      totalCount: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}total_count']),
+      summary: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}summary']),
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+    );
+  }
+
+  @override
+  $CompletedRunsTable createAlias(String alias) {
+    return $CompletedRunsTable(attachedDatabase, alias);
+  }
+}
+
+class CompletedRunEntry extends DataClass
+    implements Insertable<CompletedRunEntry> {
+  final String id;
+  final String userId;
+  final String mode;
+  final int completedAt;
+  final int? durationMs;
+  final int? score;
+  final int? correctCount;
+  final int? totalCount;
+  final String? summary;
+  final String payload;
+  const CompletedRunEntry(
+      {required this.id,
+      required this.userId,
+      required this.mode,
+      required this.completedAt,
+      this.durationMs,
+      this.score,
+      this.correctCount,
+      this.totalCount,
+      this.summary,
+      required this.payload});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['user_id'] = Variable<String>(userId);
+    map['mode'] = Variable<String>(mode);
+    map['completed_at'] = Variable<int>(completedAt);
+    if (!nullToAbsent || durationMs != null) {
+      map['duration_ms'] = Variable<int>(durationMs);
+    }
+    if (!nullToAbsent || score != null) {
+      map['score'] = Variable<int>(score);
+    }
+    if (!nullToAbsent || correctCount != null) {
+      map['correct_count'] = Variable<int>(correctCount);
+    }
+    if (!nullToAbsent || totalCount != null) {
+      map['total_count'] = Variable<int>(totalCount);
+    }
+    if (!nullToAbsent || summary != null) {
+      map['summary'] = Variable<String>(summary);
+    }
+    map['payload'] = Variable<String>(payload);
+    return map;
+  }
+
+  CompletedRunsCompanion toCompanion(bool nullToAbsent) {
+    return CompletedRunsCompanion(
+      id: Value(id),
+      userId: Value(userId),
+      mode: Value(mode),
+      completedAt: Value(completedAt),
+      durationMs: durationMs == null && nullToAbsent
+          ? const Value.absent()
+          : Value(durationMs),
+      score:
+          score == null && nullToAbsent ? const Value.absent() : Value(score),
+      correctCount: correctCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(correctCount),
+      totalCount: totalCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(totalCount),
+      summary: summary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(summary),
+      payload: Value(payload),
+    );
+  }
+
+  factory CompletedRunEntry.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CompletedRunEntry(
+      id: serializer.fromJson<String>(json['id']),
+      userId: serializer.fromJson<String>(json['userId']),
+      mode: serializer.fromJson<String>(json['mode']),
+      completedAt: serializer.fromJson<int>(json['completedAt']),
+      durationMs: serializer.fromJson<int?>(json['durationMs']),
+      score: serializer.fromJson<int?>(json['score']),
+      correctCount: serializer.fromJson<int?>(json['correctCount']),
+      totalCount: serializer.fromJson<int?>(json['totalCount']),
+      summary: serializer.fromJson<String?>(json['summary']),
+      payload: serializer.fromJson<String>(json['payload']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'userId': serializer.toJson<String>(userId),
+      'mode': serializer.toJson<String>(mode),
+      'completedAt': serializer.toJson<int>(completedAt),
+      'durationMs': serializer.toJson<int?>(durationMs),
+      'score': serializer.toJson<int?>(score),
+      'correctCount': serializer.toJson<int?>(correctCount),
+      'totalCount': serializer.toJson<int?>(totalCount),
+      'summary': serializer.toJson<String?>(summary),
+      'payload': serializer.toJson<String>(payload),
+    };
+  }
+
+  CompletedRunEntry copyWith(
+          {String? id,
+          String? userId,
+          String? mode,
+          int? completedAt,
+          Value<int?> durationMs = const Value.absent(),
+          Value<int?> score = const Value.absent(),
+          Value<int?> correctCount = const Value.absent(),
+          Value<int?> totalCount = const Value.absent(),
+          Value<String?> summary = const Value.absent(),
+          String? payload}) =>
+      CompletedRunEntry(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        mode: mode ?? this.mode,
+        completedAt: completedAt ?? this.completedAt,
+        durationMs: durationMs.present ? durationMs.value : this.durationMs,
+        score: score.present ? score.value : this.score,
+        correctCount:
+            correctCount.present ? correctCount.value : this.correctCount,
+        totalCount: totalCount.present ? totalCount.value : this.totalCount,
+        summary: summary.present ? summary.value : this.summary,
+        payload: payload ?? this.payload,
+      );
+  CompletedRunEntry copyWithCompanion(CompletedRunsCompanion data) {
+    return CompletedRunEntry(
+      id: data.id.present ? data.id.value : this.id,
+      userId: data.userId.present ? data.userId.value : this.userId,
+      mode: data.mode.present ? data.mode.value : this.mode,
+      completedAt:
+          data.completedAt.present ? data.completedAt.value : this.completedAt,
+      durationMs:
+          data.durationMs.present ? data.durationMs.value : this.durationMs,
+      score: data.score.present ? data.score.value : this.score,
+      correctCount: data.correctCount.present
+          ? data.correctCount.value
+          : this.correctCount,
+      totalCount:
+          data.totalCount.present ? data.totalCount.value : this.totalCount,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      payload: data.payload.present ? data.payload.value : this.payload,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CompletedRunEntry(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('mode: $mode, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('score: $score, ')
+          ..write('correctCount: $correctCount, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('summary: $summary, ')
+          ..write('payload: $payload')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, userId, mode, completedAt, durationMs,
+      score, correctCount, totalCount, summary, payload);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CompletedRunEntry &&
+          other.id == this.id &&
+          other.userId == this.userId &&
+          other.mode == this.mode &&
+          other.completedAt == this.completedAt &&
+          other.durationMs == this.durationMs &&
+          other.score == this.score &&
+          other.correctCount == this.correctCount &&
+          other.totalCount == this.totalCount &&
+          other.summary == this.summary &&
+          other.payload == this.payload);
+}
+
+class CompletedRunsCompanion extends UpdateCompanion<CompletedRunEntry> {
+  final Value<String> id;
+  final Value<String> userId;
+  final Value<String> mode;
+  final Value<int> completedAt;
+  final Value<int?> durationMs;
+  final Value<int?> score;
+  final Value<int?> correctCount;
+  final Value<int?> totalCount;
+  final Value<String?> summary;
+  final Value<String> payload;
+  final Value<int> rowid;
+  const CompletedRunsCompanion({
+    this.id = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.mode = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.durationMs = const Value.absent(),
+    this.score = const Value.absent(),
+    this.correctCount = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CompletedRunsCompanion.insert({
+    required String id,
+    this.userId = const Value.absent(),
+    required String mode,
+    required int completedAt,
+    this.durationMs = const Value.absent(),
+    this.score = const Value.absent(),
+    this.correctCount = const Value.absent(),
+    this.totalCount = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        mode = Value(mode),
+        completedAt = Value(completedAt);
+  static Insertable<CompletedRunEntry> custom({
+    Expression<String>? id,
+    Expression<String>? userId,
+    Expression<String>? mode,
+    Expression<int>? completedAt,
+    Expression<int>? durationMs,
+    Expression<int>? score,
+    Expression<int>? correctCount,
+    Expression<int>? totalCount,
+    Expression<String>? summary,
+    Expression<String>? payload,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (userId != null) 'user_id': userId,
+      if (mode != null) 'mode': mode,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (durationMs != null) 'duration_ms': durationMs,
+      if (score != null) 'score': score,
+      if (correctCount != null) 'correct_count': correctCount,
+      if (totalCount != null) 'total_count': totalCount,
+      if (summary != null) 'summary': summary,
+      if (payload != null) 'payload': payload,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CompletedRunsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? userId,
+      Value<String>? mode,
+      Value<int>? completedAt,
+      Value<int?>? durationMs,
+      Value<int?>? score,
+      Value<int?>? correctCount,
+      Value<int?>? totalCount,
+      Value<String?>? summary,
+      Value<String>? payload,
+      Value<int>? rowid}) {
+    return CompletedRunsCompanion(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      mode: mode ?? this.mode,
+      completedAt: completedAt ?? this.completedAt,
+      durationMs: durationMs ?? this.durationMs,
+      score: score ?? this.score,
+      correctCount: correctCount ?? this.correctCount,
+      totalCount: totalCount ?? this.totalCount,
+      summary: summary ?? this.summary,
+      payload: payload ?? this.payload,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (mode.present) {
+      map['mode'] = Variable<String>(mode.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<int>(completedAt.value);
+    }
+    if (durationMs.present) {
+      map['duration_ms'] = Variable<int>(durationMs.value);
+    }
+    if (score.present) {
+      map['score'] = Variable<int>(score.value);
+    }
+    if (correctCount.present) {
+      map['correct_count'] = Variable<int>(correctCount.value);
+    }
+    if (totalCount.present) {
+      map['total_count'] = Variable<int>(totalCount.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CompletedRunsCompanion(')
+          ..write('id: $id, ')
+          ..write('userId: $userId, ')
+          ..write('mode: $mode, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('durationMs: $durationMs, ')
+          ..write('score: $score, ')
+          ..write('correctCount: $correctCount, ')
+          ..write('totalCount: $totalCount, ')
+          ..write('summary: $summary, ')
+          ..write('payload: $payload, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6387,6 +6944,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $ChapterProgressTable(this);
   late final $DailyRoundsTable dailyRounds = $DailyRoundsTable(this);
   late final $PoliticianBiosTable politicianBios = $PoliticianBiosTable(this);
+  late final $CompletedRunsTable completedRuns = $CompletedRunsTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
@@ -6399,6 +6957,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       DailyRoundsDao(this as AppDatabase);
   late final PoliticianBiosDao politicianBiosDao =
       PoliticianBiosDao(this as AppDatabase);
+  late final CompletedRunsDao completedRunsDao =
+      CompletedRunsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6415,7 +6975,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         syncMeta,
         chapterProgress,
         dailyRounds,
-        politicianBios
+        politicianBios,
+        completedRuns
       ];
 }
 
@@ -7359,6 +7920,7 @@ typedef $$LocalCardsTableCreateCompanionBuilder = LocalCardsCompanion Function({
   Value<String?> jurisdiction,
   Value<String?> oneLiner,
   required String sourceUrl,
+  Value<String?> gender,
   Value<String> tags,
   Value<bool> isActive,
   Value<int> sortOrder,
@@ -7377,6 +7939,7 @@ typedef $$LocalCardsTableUpdateCompanionBuilder = LocalCardsCompanion Function({
   Value<String?> jurisdiction,
   Value<String?> oneLiner,
   Value<String> sourceUrl,
+  Value<String?> gender,
   Value<String> tags,
   Value<bool> isActive,
   Value<int> sortOrder,
@@ -7426,6 +7989,9 @@ class $$LocalCardsTableFilterComposer
 
   ColumnFilters<String> get sourceUrl => $composableBuilder(
       column: $table.sourceUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gender => $composableBuilder(
+      column: $table.gender, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnFilters(column));
@@ -7484,6 +8050,9 @@ class $$LocalCardsTableOrderingComposer
   ColumnOrderings<String> get sourceUrl => $composableBuilder(
       column: $table.sourceUrl, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get gender => $composableBuilder(
+      column: $table.gender, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnOrderings(column));
 
@@ -7539,6 +8108,9 @@ class $$LocalCardsTableAnnotationComposer
   GeneratedColumn<String> get sourceUrl =>
       $composableBuilder(column: $table.sourceUrl, builder: (column) => column);
 
+  GeneratedColumn<String> get gender =>
+      $composableBuilder(column: $table.gender, builder: (column) => column);
+
   GeneratedColumn<String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
 
@@ -7586,6 +8158,7 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             Value<String?> jurisdiction = const Value.absent(),
             Value<String?> oneLiner = const Value.absent(),
             Value<String> sourceUrl = const Value.absent(),
+            Value<String?> gender = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -7604,6 +8177,7 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             jurisdiction: jurisdiction,
             oneLiner: oneLiner,
             sourceUrl: sourceUrl,
+            gender: gender,
             tags: tags,
             isActive: isActive,
             sortOrder: sortOrder,
@@ -7622,6 +8196,7 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             Value<String?> jurisdiction = const Value.absent(),
             Value<String?> oneLiner = const Value.absent(),
             required String sourceUrl,
+            Value<String?> gender = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -7640,6 +8215,7 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             jurisdiction: jurisdiction,
             oneLiner: oneLiner,
             sourceUrl: sourceUrl,
+            gender: gender,
             tags: tags,
             isActive: isActive,
             sortOrder: sortOrder,
@@ -9422,6 +9998,255 @@ typedef $$PoliticianBiosTableProcessedTableManager = ProcessedTableManager<
     ),
     PoliticianBio,
     PrefetchHooks Function()>;
+typedef $$CompletedRunsTableCreateCompanionBuilder = CompletedRunsCompanion
+    Function({
+  required String id,
+  Value<String> userId,
+  required String mode,
+  required int completedAt,
+  Value<int?> durationMs,
+  Value<int?> score,
+  Value<int?> correctCount,
+  Value<int?> totalCount,
+  Value<String?> summary,
+  Value<String> payload,
+  Value<int> rowid,
+});
+typedef $$CompletedRunsTableUpdateCompanionBuilder = CompletedRunsCompanion
+    Function({
+  Value<String> id,
+  Value<String> userId,
+  Value<String> mode,
+  Value<int> completedAt,
+  Value<int?> durationMs,
+  Value<int?> score,
+  Value<int?> correctCount,
+  Value<int?> totalCount,
+  Value<String?> summary,
+  Value<String> payload,
+  Value<int> rowid,
+});
+
+class $$CompletedRunsTableFilterComposer
+    extends Composer<_$AppDatabase, $CompletedRunsTable> {
+  $$CompletedRunsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get mode => $composableBuilder(
+      column: $table.mode, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get durationMs => $composableBuilder(
+      column: $table.durationMs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get score => $composableBuilder(
+      column: $table.score, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get correctCount => $composableBuilder(
+      column: $table.correctCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+}
+
+class $$CompletedRunsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CompletedRunsTable> {
+  $$CompletedRunsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+      column: $table.userId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get mode => $composableBuilder(
+      column: $table.mode, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get durationMs => $composableBuilder(
+      column: $table.durationMs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get score => $composableBuilder(
+      column: $table.score, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get correctCount => $composableBuilder(
+      column: $table.correctCount,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CompletedRunsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CompletedRunsTable> {
+  $$CompletedRunsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+
+  GeneratedColumn<String> get mode =>
+      $composableBuilder(column: $table.mode, builder: (column) => column);
+
+  GeneratedColumn<int> get completedAt => $composableBuilder(
+      column: $table.completedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get durationMs => $composableBuilder(
+      column: $table.durationMs, builder: (column) => column);
+
+  GeneratedColumn<int> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<int> get correctCount => $composableBuilder(
+      column: $table.correctCount, builder: (column) => column);
+
+  GeneratedColumn<int> get totalCount => $composableBuilder(
+      column: $table.totalCount, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+}
+
+class $$CompletedRunsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CompletedRunsTable,
+    CompletedRunEntry,
+    $$CompletedRunsTableFilterComposer,
+    $$CompletedRunsTableOrderingComposer,
+    $$CompletedRunsTableAnnotationComposer,
+    $$CompletedRunsTableCreateCompanionBuilder,
+    $$CompletedRunsTableUpdateCompanionBuilder,
+    (
+      CompletedRunEntry,
+      BaseReferences<_$AppDatabase, $CompletedRunsTable, CompletedRunEntry>
+    ),
+    CompletedRunEntry,
+    PrefetchHooks Function()> {
+  $$CompletedRunsTableTableManager(_$AppDatabase db, $CompletedRunsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CompletedRunsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CompletedRunsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CompletedRunsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> userId = const Value.absent(),
+            Value<String> mode = const Value.absent(),
+            Value<int> completedAt = const Value.absent(),
+            Value<int?> durationMs = const Value.absent(),
+            Value<int?> score = const Value.absent(),
+            Value<int?> correctCount = const Value.absent(),
+            Value<int?> totalCount = const Value.absent(),
+            Value<String?> summary = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CompletedRunsCompanion(
+            id: id,
+            userId: userId,
+            mode: mode,
+            completedAt: completedAt,
+            durationMs: durationMs,
+            score: score,
+            correctCount: correctCount,
+            totalCount: totalCount,
+            summary: summary,
+            payload: payload,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            Value<String> userId = const Value.absent(),
+            required String mode,
+            required int completedAt,
+            Value<int?> durationMs = const Value.absent(),
+            Value<int?> score = const Value.absent(),
+            Value<int?> correctCount = const Value.absent(),
+            Value<int?> totalCount = const Value.absent(),
+            Value<String?> summary = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CompletedRunsCompanion.insert(
+            id: id,
+            userId: userId,
+            mode: mode,
+            completedAt: completedAt,
+            durationMs: durationMs,
+            score: score,
+            correctCount: correctCount,
+            totalCount: totalCount,
+            summary: summary,
+            payload: payload,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CompletedRunsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CompletedRunsTable,
+    CompletedRunEntry,
+    $$CompletedRunsTableFilterComposer,
+    $$CompletedRunsTableOrderingComposer,
+    $$CompletedRunsTableAnnotationComposer,
+    $$CompletedRunsTableCreateCompanionBuilder,
+    $$CompletedRunsTableUpdateCompanionBuilder,
+    (
+      CompletedRunEntry,
+      BaseReferences<_$AppDatabase, $CompletedRunsTable, CompletedRunEntry>
+    ),
+    CompletedRunEntry,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9450,4 +10275,6 @@ class $AppDatabaseManager {
       $$DailyRoundsTableTableManager(_db, _db.dailyRounds);
   $$PoliticianBiosTableTableManager get politicianBios =>
       $$PoliticianBiosTableTableManager(_db, _db.politicianBios);
+  $$CompletedRunsTableTableManager get completedRuns =>
+      $$CompletedRunsTableTableManager(_db, _db.completedRuns);
 }
