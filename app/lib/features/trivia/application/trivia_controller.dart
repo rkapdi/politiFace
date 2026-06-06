@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:math' as math;
+
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/database/drift/app_database.dart';
 import '../data/trivia_generator.dart';
 import '../domain/trivia_question.dart';
 import '../domain/trivia_scoring.dart';
@@ -87,10 +92,59 @@ class TriviaController extends AsyncNotifier<TriviaState> {
       answerIndex: pending,
       confidence: confidence,
     );
-    state = AsyncData(s.copyWith(
+    final nextState = s.copyWith(
       answers: [...s.answers, answer],
       clearPending: true,
-    ));
+    );
+    state = AsyncData(nextState);
+    if (nextState.isComplete) {
+      // Fire-and-forget persistence — failure is non-fatal (the run result
+      // is still computed live in memory for the active result screen).
+      Future.microtask(() => _persistCompletedRun(nextState));
+    }
+  }
+
+  Future<void> _persistCompletedRun(TriviaState s) async {
+    try {
+      final db = ref.read(databaseProvider);
+      final result = s.result;
+      await db.completedRunsDao.insert(CompletedRunsCompanion.insert(
+        id: _newRunId('trivia'),
+        mode: 'trivia',
+        completedAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        score: Value(result.totalScore),
+        correctCount: Value(result.correctCount),
+        totalCount: Value(result.totalQuestions),
+        summary: Value(result.archetype.name),
+        payload: Value(jsonEncode(_serializeAnswers(s.answers))),
+      ));
+    } catch (_) {
+      // Swallow — we never want a history-write to crash the result screen.
+    }
+  }
+
+  List<Map<String, dynamic>> _serializeAnswers(List<TriviaAnswer> answers) {
+    return [
+      for (final a in answers)
+        {
+          'question': {
+            'cardId': a.question.cardId,
+            'format': a.question.format.name,
+            'prompt': a.question.prompt,
+            'photoUrl': a.question.photoUrl,
+            'options': a.question.options,
+            'correctIndex': a.question.correctIndex,
+          },
+          'answerIndex': a.answerIndex,
+          'confidence': a.confidence.name,
+        },
+    ];
+  }
+
+  String _newRunId(String mode) {
+    final epoch = DateTime.now().millisecondsSinceEpoch;
+    final salt = math.Random().nextInt(1 << 32);
+    return '${mode}_${epoch}_$salt';
   }
 
   /// Restart from scratch — used by the result screen's "play tomorrow's"

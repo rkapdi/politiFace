@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -255,9 +256,19 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
                 children: [
                   Expanded(
                     child: TextButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/round/review');
+                      },
+                      icon: const Icon(Icons.fact_check_outlined, size: 16),
+                      label: const Text('Review'),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton.icon(
                       onPressed: () => _onCopy(result),
                       icon: const Icon(Icons.copy_outlined, size: 16),
-                      label: const Text('Copy text'),
+                      label: const Text('Copy'),
                     ),
                   ),
                   Expanded(

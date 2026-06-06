@@ -44,14 +44,11 @@ Future<void> _bootstrap() async {
       await NotificationService.instance.cancel();
     }
   }
-  final onboardingDone = (await db.metaDao.get('onboarding_v1_done')) == '1';
   runApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
-        initialRouteProvider.overrideWithValue(
-          onboardingDone ? '/' : '/onboarding',
-        ),
+        initialRouteProvider.overrideWithValue('/'),
       ],
       child: const PolitifaceApp(),
     ),

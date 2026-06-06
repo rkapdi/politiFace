@@ -58,6 +58,13 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         children: [
+          _SectionHeader(text: 'Appearance', theme: theme),
+          _ThemeModePicker(
+            value: ref.watch(themeModeProvider),
+            onChanged: (m) =>
+                ref.read(themeModeProvider.notifier).set(m),
+          ),
+          const Divider(height: 32),
           _SectionHeader(text: 'Notifications', theme: theme),
           SwitchListTile(
             title: const Text('Daily review reminder'),
@@ -179,6 +186,103 @@ class SettingsScreen extends ConsumerWidget {
       duration: Duration(seconds: 3),
     ));
     context.go('/');
+  }
+}
+
+class _ThemeModePicker extends StatelessWidget {
+  const _ThemeModePicker({required this.value, required this.onChanged});
+  final ThemeMode value;
+  final ValueChanged<ThemeMode> onChanged;
+
+  static const _options = [
+    (ThemeMode.system, 'System', Icons.brightness_auto_outlined),
+    (ThemeMode.light, 'Light', Icons.light_mode_outlined),
+    (ThemeMode.dark, 'Dark', Icons.dark_mode_outlined),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Row(
+        children: [
+          for (final opt in _options) ...[
+            Expanded(
+              child: _ThemeOptionTile(
+                selected: value == opt.$1,
+                label: opt.$2,
+                icon: opt.$3,
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onChanged(opt.$1);
+                },
+                theme: theme,
+              ),
+            ),
+            if (opt.$1 != _options.last.$1) const SizedBox(width: 8),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeOptionTile extends StatelessWidget {
+  const _ThemeOptionTile({
+    required this.selected,
+    required this.label,
+    required this.icon,
+    required this.onTap,
+    required this.theme,
+  });
+  final bool selected;
+  final String label;
+  final IconData icon;
+  final VoidCallback onTap;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    final accent = theme.colorScheme.primary;
+    return Material(
+      color: selected
+          ? accent.withOpacity(0.12)
+          : theme.colorScheme.surfaceContainerLow,
+      borderRadius: BorderRadius.circular(6),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: selected ? accent : theme.colorScheme.outlineVariant,
+              width: selected ? 2 : 1.2,
+            ),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: selected ? accent : theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label.toUpperCase(),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: selected ? accent : theme.colorScheme.onSurface,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

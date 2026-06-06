@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -75,6 +76,43 @@ final dailyChallengeTodayProvider =
 
 /// Initial route, set in main() based on the onboarding flag.
 final initialRouteProvider = Provider<String>((ref) => '/');
+
+/// Controls MaterialApp.themeMode. Defaults to system on first launch; the
+/// Settings screen flips it and persists the choice via SettingsService.
+final themeModeProvider =
+    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
+  return ThemeModeNotifier(ref.read(databaseProvider));
+});
+
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  ThemeModeNotifier(this._db) : super(ThemeMode.system) {
+    _load();
+  }
+
+  final AppDatabase _db;
+
+  Future<void> _load() async {
+    final raw = await _db.metaDao.get('settings.theme_mode');
+    switch (raw) {
+      case 'light':
+        state = ThemeMode.light;
+      case 'dark':
+        state = ThemeMode.dark;
+      default:
+        state = ThemeMode.system;
+    }
+  }
+
+  Future<void> set(ThemeMode mode) async {
+    state = mode;
+    final wire = switch (mode) {
+      ThemeMode.light => 'light',
+      ThemeMode.dark => 'dark',
+      ThemeMode.system => 'system',
+    };
+    await _db.metaDao.set('settings.theme_mode', wire);
+  }
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   return buildRouter(initialLocation: ref.read(initialRouteProvider));

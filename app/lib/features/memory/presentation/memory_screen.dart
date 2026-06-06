@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
 import '../../shared/widgets/card_avatar.dart';
@@ -27,7 +28,16 @@ class MemoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(memoryStatsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Memory')),
+      appBar: AppBar(
+        title: const Text('Memory'),
+        actions: [
+          IconButton(
+            tooltip: 'History',
+            icon: const Icon(Icons.history),
+            onPressed: () => context.push('/memory/history'),
+          ),
+        ],
+      ),
       body: async.when(
         loading: () => const AppLoadingView(),
         error: (e, _) => AppErrorView(
@@ -58,6 +68,8 @@ class _MemoryView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
+        _BrainStrengthHero(stats: stats),
+        const SizedBox(height: 8),
         _HeadlineRow(stats: stats),
         const SizedBox(height: 8),
         _SectionTitle('Memory field'),
@@ -97,6 +109,179 @@ class _FieldLegend extends StatelessWidget {
       textAlign: TextAlign.center,
     );
   }
+}
+
+/// Hero strip above the headline stats — shows the brain-strength score
+/// (0-100), a maturation stage label, and one line of aspirational copy.
+/// Animates the score from 0 → current on first mount so the moment
+/// reads like a level-up rather than a stale dashboard tile.
+class _BrainStrengthHero extends StatelessWidget {
+  const _BrainStrengthHero({required this.stats});
+  final MemoryStats stats;
+
+  Color _stageColor(BrainStage stage) {
+    switch (stage) {
+      case BrainStage.forming:
+        return const Color(0xFFE57373); // soft red — early growth
+      case BrainStage.crystallizing:
+        return const Color(0xFF60A5FA); // blue — taking shape
+      case BrainStage.solidifying:
+        return const Color(0xFF34D399); // green — locking in
+      case BrainStage.mastered:
+        return const Color(0xFFFFC107); // gold — long-term
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final stage = stats.brainStage;
+    final color = _stageColor(stage);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          border: Border.all(color: theme.colorScheme.outline, width: 1.5),
+          borderRadius: const BorderRadius.all(Radius.circular(6)),
+        ),
+        child: Row(
+          children: [
+            _StrengthRing(value: stats.brainStrength, color: color),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'BRAIN STRENGTH',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1.6,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    stage.label.toUpperCase(),
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: color,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    stage.copy,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      height: 1.35,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StrengthRing extends StatelessWidget {
+  const _StrengthRing({required this.value, required this.color});
+  final double value;  // 0..100
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: value.clamp(0, 100)),
+      duration: const Duration(milliseconds: 1000),
+      curve: Curves.easeOutCubic,
+      builder: (context, animated, _) {
+        return CustomPaint(
+          painter: _RingPainter(
+            value: animated,
+            color: color,
+            background: theme.colorScheme.surfaceContainerHigh,
+          ),
+          child: SizedBox(
+            width: 84,
+            height: 84,
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${animated.round()}',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w900,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                  Text(
+                    '/ 100',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _RingPainter extends CustomPainter {
+  _RingPainter({
+    required this.value,
+    required this.color,
+    required this.background,
+  });
+
+  final double value;
+  final Color color;
+  final Color background;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final radius = size.shortestSide / 2 - 4;
+    final strokeWidth = 6.0;
+    final bg = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = strokeWidth
+      ..color = background;
+    canvas.drawCircle(center, radius, bg);
+
+    final sweep = (value.clamp(0, 100) / 100) * 2 * 3.141592653589793;
+    final fg = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = strokeWidth
+      ..color = color;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      -3.141592653589793 / 2,
+      sweep,
+      false,
+      fg,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _RingPainter old) =>
+      old.value != value || old.color != color || old.background != background;
 }
 
 class _HeadlineRow extends StatelessWidget {

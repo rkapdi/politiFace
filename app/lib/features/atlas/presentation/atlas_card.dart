@@ -24,11 +24,13 @@ class AtlasCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // Locked cards stay slightly muted as a "you haven't studied this"
+    // hint, but not so faint that the role becomes unreadable on dark.
     final muted = data.isLocked
-        ? theme.colorScheme.onSurfaceVariant.withOpacity(0.5)
+        ? theme.colorScheme.onSurface.withOpacity(0.75)
         : theme.colorScheme.onSurface;
     final mutedSecondary = data.isLocked
-        ? theme.colorScheme.onSurfaceVariant.withOpacity(0.4)
+        ? theme.colorScheme.onSurfaceVariant.withOpacity(0.70)
         : theme.colorScheme.onSurfaceVariant;
 
     return Material(
@@ -77,7 +79,7 @@ class AtlasCard extends StatelessWidget {
               Text(
                 data.title,
                 textAlign: TextAlign.center,
-                maxLines: 2,
+                maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: mutedSecondary,

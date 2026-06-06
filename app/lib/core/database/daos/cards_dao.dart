@@ -15,6 +15,16 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
         .get();
   }
 
+  /// Cheap count of active cards — used as the denominator of the
+  /// Memory tab's brain-strength score.
+  Future<int> activeCardCount() async {
+    final row = await (selectOnly(localCards)
+          ..addColumns([localCards.id.count()])
+          ..where(localCards.isActive.equals(true)))
+        .getSingle();
+    return row.read(localCards.id.count()) ?? 0;
+  }
+
   Future<LocalCard?> cardById(String id) {
     return (select(localCards)..where((c) => c.id.equals(id))).getSingleOrNull();
   }

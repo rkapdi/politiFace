@@ -24,17 +24,46 @@ class EditorialPalette {
   static const inkSubdued = Color(0xFF5C5C66);     // secondary text
   static const rule = Color(0xFFD8D2C2);           // hairline border
 
-  // Dark theme.
+  // Dark theme. Recalibrated for OLED — subdued text and outlines were
+  // landing too close to the surface on real device, leaving rooms feeling
+  // muddy and hard to scan. Lifted both ~25% to restore a real hierarchy
+  // step between heading text, secondary text, and frame chrome.
   static const inkInverted = Color(0xFF0F0F12);    // near-black base
-  static const paperInverted = Color(0xFFEDE9DD);  // off-white text
-  static const inkInvertedSubdued = Color(0xFF8A8A93);
-  static const ruleInverted = Color(0xFF2A2A30);
+  static const paperInverted = Color(0xFFF5F1E4);  // brighter cream text
+  static const inkInvertedSubdued = Color(0xFFB6B6C0);  // legible secondary
+  static const ruleInverted = Color(0xFF44444F);   // visible card borders
 
-  // Brand colors — same in both themes; saturation does the work.
+  // Brand colors — light-theme defaults. Each has a lifted dark-theme
+  // sibling because the dark navy/green get swallowed on near-black surfaces.
+  // Use [BrandColors] (extension on ColorScheme) when you want the
+  // brightness-appropriate variant; reach for the constants only when you
+  // need a fixed value (e.g. share-card render that ignores theme).
   static const actionRed = Color(0xFFD6242C);      // campaign poster red
   static const civicNavy = Color(0xFF1E2A4A);      // trust
   static const ochre = Color(0xFFC9A05B);          // vintage paper highlight
   static const civicGreen = Color(0xFF2F6F4F);     // ledger / approval
+
+  // Dark-mode siblings of the brand colors. Saturation lowered, brightness
+  // lifted so each reads on a #0F0F12 surface without losing identity.
+  static const civicNavyDark = Color(0xFF7895CC);
+  static const ochreDark = Color(0xFFE0B373);
+  static const civicGreenDark = Color(0xFF5DAA80);
+}
+
+/// Brightness-aware accessors so the same widget can pull the right brand
+/// color in light vs dark without scattering `Theme.of(context).brightness`
+/// branches everywhere.
+extension BrandColors on ColorScheme {
+  Color get brandRed => EditorialPalette.actionRed;
+  Color get brandNavy => brightness == Brightness.dark
+      ? EditorialPalette.civicNavyDark
+      : EditorialPalette.civicNavy;
+  Color get brandOchre => brightness == Brightness.dark
+      ? EditorialPalette.ochreDark
+      : EditorialPalette.ochre;
+  Color get brandGreen => brightness == Brightness.dark
+      ? EditorialPalette.civicGreenDark
+      : EditorialPalette.civicGreen;
 }
 
 /// Build the Editorial Campaign light theme.
@@ -78,13 +107,15 @@ ThemeData buildDarkTheme() {
     surface: EditorialPalette.inkInverted,
     onSurface: EditorialPalette.paperInverted,
     onSurfaceVariant: EditorialPalette.inkInvertedSubdued,
+    // Surface containers stepped up so cards read as real cards, not
+    // adjacent puddles of near-black.
     surfaceContainerLowest: const Color(0xFF0B0B0E),
-    surfaceContainerLow: const Color(0xFF161619),
-    surfaceContainer: const Color(0xFF1C1C20),
-    surfaceContainerHigh: const Color(0xFF24242A),
-    surfaceContainerHighest: const Color(0xFF2C2C33),
+    surfaceContainerLow: const Color(0xFF1A1A1F),
+    surfaceContainer: const Color(0xFF22222A),
+    surfaceContainerHigh: const Color(0xFF2C2C36),
+    surfaceContainerHighest: const Color(0xFF363641),
     outline: EditorialPalette.ruleInverted,
-    outlineVariant: const Color(0xFF1F1F25),
+    outlineVariant: const Color(0xFF34343C),
   );
   return _themeFrom(base);
 }
