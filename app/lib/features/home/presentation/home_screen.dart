@@ -229,7 +229,7 @@ class _EndlessTile extends StatelessWidget {
       section: 'ENDLESS',
       headline: 'Play forever.',
       body: 'Quick MCQ. No streak burn. Beat your best run.',
-      accent: EditorialPalette.civicNavy,
+      accent: Theme.of(context).colorScheme.brandNavy,
       mark: '∞',
       onTap: () {
         HapticFeedback.lightImpact();

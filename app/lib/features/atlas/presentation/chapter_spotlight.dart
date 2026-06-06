@@ -108,7 +108,7 @@ class _Strip extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Container(height: 3, color: EditorialPalette.ochre),
+              Container(height: 3, color: theme.colorScheme.brandOchre),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 14),
                 child: Column(

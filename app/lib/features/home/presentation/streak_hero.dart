@@ -99,7 +99,7 @@ class StreakHero extends StatelessWidget {
                     progress: profile.xpForNextLevel == 0
                         ? null
                         : profile.xpInLevel / profile.xpForNextLevel,
-                    accent: EditorialPalette.civicNavy,
+                    accent: theme.colorScheme.brandNavy,
                   ),
                 ),
                 VerticalDivider(
@@ -112,7 +112,7 @@ class StreakHero extends StatelessWidget {
                     label: 'LEVEL',
                     value: profile.level,
                     progress: null,
-                    accent: EditorialPalette.ochre,
+                    accent: theme.colorScheme.brandOchre,
                   ),
                 ),
               ],

@@ -58,8 +58,8 @@ class BranchSection extends StatelessWidget {
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: const BoxDecoration(
-                            color: EditorialPalette.ochre,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.brandOchre,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -120,10 +120,10 @@ class BranchSection extends StatelessWidget {
                         crossAxisCount: 2,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
-                        // Tile aspect tuned so the portrait + 2 lines of text
-                        // sit cleanly without forcing ellipsis on common
-                        // names + titles.
-                        childAspectRatio: 0.78,
+                        // Tile aspect tuned so the portrait + name (1 line) +
+                        // role (2 lines) sit cleanly without the second
+                        // subtitle line getting clipped by the cell edge.
+                        childAspectRatio: 0.70,
                       ),
                     itemCount: branch.cards.length,
                     itemBuilder: (context, i) {

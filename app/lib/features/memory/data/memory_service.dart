@@ -24,15 +24,22 @@ class OrbitalCard {
 class MemoryStats {
   const MemoryStats({
     required this.totalReviewed,
+    required this.totalCardsInPool,
     required this.masteredCount,
     required this.avgStabilityDays,
     required this.tierDistribution,
     required this.topCards,
     required this.orbits,
+    required this.brainStrength,
   });
 
   /// Cards with reviewCount >= 1 (excluding still-new cards).
   final int totalReviewed;
+
+  /// Total active cards in the deck pool — the denominator for coverage.
+  /// Unreviewed cards count as mastery 0 toward the brain-strength score,
+  /// so finishing a chapter actually moves the needle.
+  final int totalCardsInPool;
 
   /// Cards at mastery level 5 (stability ≥ 30 days).
   final int masteredCount;
@@ -50,6 +57,45 @@ class MemoryStats {
   /// Every reviewed card with enough state to plot it in the Memory Field
   /// orbital visualization and compute its live retrievability.
   final List<OrbitalCard> orbits;
+
+  /// 0..100 — a single "your political brain" score. Weighted average of
+  /// mastery levels across the *whole* active pool (unreviewed cards count
+  /// as 0). Means real growth from both depth (mastering known cards) AND
+  /// breadth (encountering new ones). Drives the Memory-tab hero header.
+  final double brainStrength;
+
+  BrainStage get brainStage {
+    if (brainStrength >= 75) return BrainStage.mastered;
+    if (brainStrength >= 50) return BrainStage.solidifying;
+    if (brainStrength >= 25) return BrainStage.crystallizing;
+    return BrainStage.forming;
+  }
+}
+
+/// Maturation stages for the brain-strength indicator. Each describes a
+/// different point in the FSRS curve: synapses forming → memories
+/// crystallizing → recall solidifying → long-term mastery.
+enum BrainStage {
+  forming(
+    label: 'Forming',
+    copy: 'Your political brain is wiring up. Keep practicing — synapses are firing.',
+  ),
+  crystallizing(
+    label: 'Crystallizing',
+    copy: 'Memories are taking shape. Each review locks the structure in tighter.',
+  ),
+  solidifying(
+    label: 'Solidifying',
+    copy: 'Recall is getting durable. The civic map is etching itself into long-term memory.',
+  ),
+  mastered(
+    label: 'Mastered',
+    copy: 'Your political brain is rock solid. Recall happens without effort.',
+  );
+
+  const BrainStage({required this.label, required this.copy});
+  final String label;
+  final String copy;
 }
 
 class TopCardEntry {
@@ -113,10 +159,12 @@ class MemoryService {
     // Pull every memory state, filter to reviewed cards.
     final allStates = await _db.select(_db.cardMemoryStates).get();
     final reviewed = allStates.where((s) => !s.isNew).toList();
+    final activeCardCount = await _db.cardsDao.activeCardCount();
 
     final tierCounts = List<int>.filled(6, 0);
     var totalStability = 0.0;
     var mastered = 0;
+    var masterySum = 0;
     for (final s in reviewed) {
       final level = masteryLevelFromStability(
         isNewCard: false,
@@ -124,9 +172,17 @@ class MemoryService {
       );
       tierCounts[level]++;
       totalStability += s.stability;
+      masterySum += level;
       if (level == 5) mastered++;
     }
     final avg = reviewed.isEmpty ? 0.0 : totalStability / reviewed.length;
+    // Brain strength = weighted average mastery against the FULL pool.
+    // Unreviewed cards contribute 0 toward the numerator but still count
+    // in the denominator so a fresh user starts near zero and the score
+    // grows from both encountering cards (depth+1) and mastering them.
+    final brainStrength = activeCardCount == 0
+        ? 0.0
+        : (masterySum / (activeCardCount * 5)) * 100.0;
 
     // Top by stability — pull card metadata for the strongest N.
     final top = [...reviewed]
@@ -176,11 +232,13 @@ class MemoryService {
 
     return MemoryStats(
       totalReviewed: reviewed.length,
+      totalCardsInPool: activeCardCount,
       masteredCount: mastered,
       avgStabilityDays: avg,
       tierDistribution: tierCounts,
       topCards: topCards,
       orbits: orbits,
+      brainStrength: brainStrength,
     );
   }
 }

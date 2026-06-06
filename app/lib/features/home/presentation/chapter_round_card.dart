@@ -97,7 +97,7 @@ class _ActiveChapterCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(height: 4, color: EditorialPalette.ochre),
+          Container(height: 4, color: theme.colorScheme.brandOchre),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 18),
             child: Column(
@@ -118,7 +118,7 @@ class _ActiveChapterCard extends StatelessWidget {
                       Text(
                         'PLAYED',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          color: EditorialPalette.civicGreen,
+                          color: theme.colorScheme.brandGreen,
                           letterSpacing: 1.6,
                           fontWeight: FontWeight.w800,
                         ),
@@ -172,7 +172,7 @@ class _ActiveChapterCard extends StatelessWidget {
                     minHeight: 6,
                     backgroundColor: theme.colorScheme.surfaceContainerHigh,
                     valueColor:
-                        const AlwaysStoppedAnimation(EditorialPalette.ochre),
+                        AlwaysStoppedAnimation(theme.colorScheme.brandOchre),
                   ),
                 ),
                 const SizedBox(height: 14),
@@ -234,7 +234,7 @@ class _SeasonCompleteCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(height: 4, color: EditorialPalette.civicGreen),
+          Container(height: 4, color: theme.colorScheme.brandGreen),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             child: Column(
@@ -243,7 +243,7 @@ class _SeasonCompleteCard extends StatelessWidget {
                 Text(
                   'SEASON COMPLETE',
                   style: theme.textTheme.labelSmall?.copyWith(
-                    color: EditorialPalette.civicGreen,
+                    color: theme.colorScheme.brandGreen,
                     letterSpacing: 1.8,
                     fontWeight: FontWeight.w800,
                   ),
