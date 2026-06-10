@@ -1,3 +1,8 @@
+---
+title: Support
+permalink: /support/
+---
+
 # Politiface — Support
 
 _Last updated: June 10, 2026_

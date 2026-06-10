@@ -1,0 +1,23 @@
+title: Politiface
+description: Local-first civics learning. Faces, roles, structure.
+url: https://rkapdi.github.io
+baseurl: /politiFace
+
+theme: jekyll-theme-minimal
+
+# Pretty URLs — drop the `.html` so the App Store Connect links read
+# cleanly. /privacy-policy and /support become valid paths.
+permalink: pretty
+
+# Don't ship the screenshot samples folder or the App Store metadata to
+# the public Pages site — they're for repo readers, not site visitors.
+exclude:
+  - app-store-metadata.md
+  - app-store-screenshots/
+
+defaults:
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: default
