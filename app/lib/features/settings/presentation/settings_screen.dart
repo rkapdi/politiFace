@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/providers.dart';
 import '../../notifications/data/notification_service.dart';
 import '../data/settings_service.dart';
 
-const _appVersion = '1.0.0'; // TODO: replace with package_info_plus once added.
 const _githubUrl = 'https://github.com/rkapdi/politiFace';
 const _licenseUrl =
     'https://github.com/rkapdi/politiFace/blob/main/LICENSE';
-const _privacyUrl = 'https://politiface.com/privacy'; // TODO: actually host.
+const _privacyUrl = 'https://rkapdi.github.io/politiFace/privacy';
+
+/// Runtime app version string, read once at first access. Format: "1.1.0 (2)".
+final appVersionProvider = FutureProvider<String>((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return '${info.version} (${info.buildNumber})';
+});
 
 final settingsServiceProvider = Provider<SettingsService>((ref) {
   return SettingsService(ref.watch(databaseProvider));
@@ -113,7 +119,10 @@ class SettingsScreen extends ConsumerWidget {
           _SectionHeader(text: 'About', theme: theme),
           ListTile(
             title: const Text('Version'),
-            trailing: Text(_appVersion, style: theme.textTheme.bodyMedium),
+            trailing: Text(
+              ref.watch(appVersionProvider).valueOrNull ?? '…',
+              style: theme.textTheme.bodyMedium,
+            ),
           ),
           ListTile(
             title: const Text('Source code on GitHub'),
