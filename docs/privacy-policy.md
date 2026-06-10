@@ -1,3 +1,8 @@
+---
+title: Privacy Policy
+permalink: /privacy-policy/
+---
+
 # Politiface — Privacy Policy
 
 _Last updated: June 10, 2026_
