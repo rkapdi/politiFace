@@ -208,7 +208,7 @@ class _TriviaTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return _ActionTile(
       section: 'TRIVIA · DAILY',
-      headline: 'Are you a Civic Bullshitter?',
+      headline: 'Are you a Civic Bluffer?',
       body: '10 questions. Bet your confidence. Get an archetype.',
       accent: EditorialPalette.actionRed,
       mark: '✦',

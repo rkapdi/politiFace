@@ -1,6 +1,6 @@
 name: politiface
 description: Global political literacy platform.
-version: 1.0.0+1
+version: 1.1.0+2
 publish_to: none
 
 environment:
@@ -55,6 +55,9 @@ dependencies:
 
   # ── Env / config ─────────────────────────────────────────────────────────
   flutter_dotenv: ^5.2.1
+
+  # ── Build metadata ───────────────────────────────────────────────────────
+  package_info_plus: ^8.0.0
 
   # ── Data structures ───────────────────────────────────────────────────────
   collection: ^1.18.0         # HeapPriorityQueue for session queue

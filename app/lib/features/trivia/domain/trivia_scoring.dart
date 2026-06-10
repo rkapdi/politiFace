@@ -20,9 +20,11 @@ enum TriviaArchetype {
   ),
 
   /// Low score, high confidence. The viral one — negative-score territory.
+  /// Display name softened from "Civic Bullshitter" for App Store review;
+  /// enum identifier stays the same to avoid breaking persisted run history.
   civicBullshitter(
     emoji: '💩',
-    name: 'Civic Bullshitter',
+    name: 'Civic Bluffer',
     blurb: 'Confidently incorrect. Dunning-Kruger says hi.',
   ),
 
