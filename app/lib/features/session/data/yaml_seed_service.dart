@@ -4,16 +4,17 @@ import 'package:drift/drift.dart';
 import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
 
+import '../../../core/content/content_checksum.dart';
 import '../../../core/database/drift/app_database.dart';
 
 /// Reads every deck YAML file bundled under `assets/content/decks/` and
 /// upserts decks + cards into Drift. Card memory state is only initialized
 /// the first time a card is seen so existing user progress is preserved.
 ///
-/// Bump [_flagKey] when the YAML schema itself changes; for *content* edits
-/// you don't need to bump — re-running the service on app launch picks up
-/// renames / new cards via upsert (memory state never touched for
-/// already-seen cards).
+/// Checksum-versioned: the SHA-256 of all bundled deck YAML is stored in
+/// app_meta. Content edits change the hash and re-seed automatically on the
+/// next launch — no manual flag bumping (the old `yaml_seed_v3_done` flag
+/// made it easy to ship edits existing installs never saw).
 class YamlSeedService {
   YamlSeedService(this._db, {AssetBundle? bundle})
       : _bundle = bundle ?? rootBundle;
@@ -21,18 +22,11 @@ class YamlSeedService {
   final AppDatabase _db;
   final AssetBundle _bundle;
 
-  // Bumped from v2 → v3 to re-upsert the Chris Wright card — the v2
-  // seed shipped with a wrong-person Wikidata portrait (basketball
-  // player Q2964899 instead of Energy Secretary Q131225840). Bumping
-  // forces every install to pick the new asset filename. Card memory
-  // state preserved.
-  static const _flagKey = 'yaml_seed_v3_done';
+  static const _hashKey = 'seed.decks_hash';
+  static const _legacyFlagKey = 'yaml_seed_v3_done';
   static const _deckPrefix = 'assets/content/decks/';
 
   Future<void> ensureSeeded() async {
-    final flag = await _db.metaDao.get(_flagKey);
-    final firstRun = flag != '1';
-
     final manifest = await _loadManifest();
     final deckPaths = manifest.keys
         .where((p) => p.startsWith(_deckPrefix) && p.endsWith('.yaml'))
@@ -40,14 +34,20 @@ class YamlSeedService {
       ..sort();
     if (deckPaths.isEmpty) return;
 
+    final contentByPath = <String, String>{
+      for (final path in deckPaths) path: await _bundle.loadString(path),
+    };
+    final hash = contentChecksum(contentByPath);
+    if (await _db.metaDao.get(_hashKey) == hash) return;
+
     await _db.transaction(() async {
       for (final path in deckPaths) {
-        final raw = await _bundle.loadString(path);
-        final yaml = loadYaml(raw);
+        final yaml = loadYaml(contentByPath[path]!);
         if (yaml is! Map) continue;
-        await _seedDeck(yaml, firstRun: firstRun);
+        await _seedDeck(yaml);
       }
-      await _db.metaDao.set(_flagKey, '1');
+      await _db.metaDao.set(_hashKey, hash);
+      await _db.metaDao.remove(_legacyFlagKey);
     });
   }
 
@@ -56,7 +56,7 @@ class YamlSeedService {
     return jsonDecode(json) as Map<String, dynamic>;
   }
 
-  Future<void> _seedDeck(Map<dynamic, dynamic> yaml, {required bool firstRun}) async {
+  Future<void> _seedDeck(Map<dynamic, dynamic> yaml) async {
     final meta = yaml['meta'] as Map?;
     if (meta == null) return;
     final deckExternalId = meta['external_id'] as String? ?? meta['id'] as String?;
@@ -114,11 +114,6 @@ class YamlSeedService {
           ),
         );
       }
-
-      // Suppress unused-variable warning for firstRun.
-      // Keeping it in signature in case a future patch needs it.
-      // ignore: unused_local_variable
-      final _ = firstRun;
     }
   }
 }
