@@ -1,0 +1,50 @@
+name: content-ci
+
+# Validates the canonical content the app actually consumes.
+#
+# Two guarantees:
+#   1. content/governments/us/government.yaml passes the structural validator
+#      (schema, unlock-graph cycles, reachability, map coordinates).
+#   2. The bundled copy the app ships (app/assets/content/governments/us/)
+#      is byte-identical to the canonical file — Flutter can only bundle
+#      assets inside the package, so the repo carries a synced copy and CI
+#      refuses drift between them.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'app/assets/content/**'
+      - 'scripts/validate_government.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'app/assets/content/**'
+      - 'scripts/validate_government.py'
+
+jobs:
+  validate-content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validator dependencies
+        run: pip install pyyaml
+
+      - name: Validate government graph (canonical file)
+        run: python scripts/validate_government.py content/governments/us/government.yaml
+
+      - name: Bundled copy matches canonical content
+        run: |
+          if ! cmp -s content/governments/us/government.yaml \
+                      app/assets/content/governments/us/government.yaml; then
+            echo "::error::app/assets/content/governments/us/government.yaml is out of sync with content/governments/us/government.yaml"
+            echo "Run: cp content/governments/us/government.yaml app/assets/content/governments/us/government.yaml"
+            exit 1
+          fi

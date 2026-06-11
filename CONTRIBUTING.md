@@ -23,7 +23,11 @@ The content is plain YAML:
 - **Curriculum:** `app/assets/content/curriculum/us_civics.yaml` — the six-chapter
   civics learning path.
 - **Government structure:** `content/governments/us/government.yaml` — institutions
-  and their relationships.
+  and their relationships. This file is canonical; the app ships a byte-identical
+  bundled copy at `app/assets/content/governments/us/government.yaml` (Flutter can
+  only bundle files inside the app package). If you edit the canonical file, run
+  `cp content/governments/us/government.yaml app/assets/content/governments/us/government.yaml`
+  — CI fails the PR if the two differ.
 - **Portraits:** `content/portraits/` (tracked for provenance) and
   `app/assets/portraits/` (bundled in the app), with `manifest.json` recording the
   Wikidata source of every image.
@@ -36,8 +40,15 @@ The content is plain YAML:
    website (e.g. `https://www.whitehouse.gov/administration/...`,
    `https://www.senate.gov/...`). This is non-negotiable for accuracy and neutrality.
 4. Read the [Editorial Neutrality Guidelines](#editorial-neutrality-guidelines) below.
-5. Open a pull request. CI validates YAML structure automatically; a maintainer
-   reviews for accuracy and neutrality before merging.
+5. Open a pull request. CI validates the government YAML structurally
+   (schema, unlock-graph cycles, map coordinates — see
+   `.github/workflows/content-ci.yml`) and runs the app's content-pinning
+   tests; a maintainer reviews for accuracy and neutrality before merging.
+
+One important rule: **node IDs are forever.** Existing installs key their
+unlock progress to node ids like `us-node-senate`; renaming an id orphans that
+progress. The test suite pins the id set and will fail your PR if an id
+changes — that's intentional, not a flaky test.
 
 When a politician changes office (new Cabinet secretary, new Speaker), the fix is:
 update the deck YAML entry, and if a new portrait is needed, run
