@@ -1,99 +1,95 @@
 # Politiface
 
-**Global political literacy. Open source. No tracking.**
+**Learn how the US government actually works. Fully offline. Open source. No tracking.**
 
-Politiface is a mobile-first app that uses spaced repetition and gamification to help you learn politicians, government structures, and civics. Think Duolingo meets Anki, but for political knowledge.
+Politiface is an iOS app that uses spaced repetition and gamification to help you learn
+the people and structure of the United States federal government. Think Duolingo meets
+Anki, but for civic knowledge.
 
-We open sourced this because a political literacy app has no business knowing your political preferences. Read the code yourself.
-
----
-
-## Why Open Source?
-
-A privacy policy says we don't track your political interests. An open source codebase **proves** it.
-
-The [complete list of analytics events](VERIFIED.md) we send is published in this repository. We never collect which politicians you review, which cards you get right or wrong, or anything that could imply your political leanings.
+We open sourced this because a political literacy app has no business knowing your
+political preferences. Read the code yourself.
 
 ---
+
+## What the app is (V1)
+
+- **iOS only.** Android and web are not supported in V1.
+- **Fully offline.** All content ships inside the app; all of your progress lives in a
+  local SQLite database on your device. There are no accounts, no cloud sync, and no
+  server of ours that the app talks to.
+- **No analytics.** The app collects no analytics events of any kind. The only telemetry
+  is anonymous crash reporting via Sentry — see [VERIFIED.md](VERIFIED.md) for exactly
+  what that means and how to verify it.
+- **Open source under MIT** — see [LICENSE](LICENSE).
 
 ## Features
 
-- **Government map** — progress through a visual representation of each country's government structure, unlocking institutions and people as you go
-- **FSRS-4.5 spaced repetition** — empirically superior to SM-2, trained on 1.7 billion reviews
-- **Daily Challenge** — same 5 cards for everyone worldwide, shareable emoji result grid
-- **Offline-first** — works on the subway, syncs when connected
-- **Multiple card types** — face recognition, role identification, concept comprehension, sequence ordering
-- **Streaks, XP, leagues** — the gamification layer that makes daily sessions stick
+- **FSRS-4.5 spaced repetition** — the published FSRS-4.5 algorithm in pure Dart, using
+  the default weights trained on 1.7 billion reviews. Same-day repeats are treated as
+  practice so they never corrupt your memory schedule.
+- **Daily chapter rounds** — a short daily session of flashcards plus a trivia quiz,
+  tied to a six-chapter US civics curriculum.
+- **Atlas** — a browsable, searchable directory of the politicians in the app, with
+  mastery rings and on-demand Wikipedia bios.
+- **Endless and Trivia modes** — keep going past the daily round, share your results
+  as an emoji grid.
+- **Streaks, XP, and mastery tiers** — the gamification layer that makes daily
+  sessions stick.
+- **History** — review every past run.
 
----
+The only network requests the app makes are: fetching politician bio summaries from
+Wikipedia/Wikidata when you open a detail screen (cached locally afterward), and crash
+reports if Sentry is enabled in the build. Everything else works in airplane mode.
 
-## Countries
+## Content
 
-| Country | Status | Maintainer |
-|---|---|---|
-| 🇺🇸 United States | ✅ Active | Core team |
-| More coming | | [Contribute yours →](CONTRIBUTING.md) |
+V1 covers the United States federal government: the Presidency, Cabinet, Executive
+Office, Congress, and the Supreme Court — 7 decks, 46 politicians with sourced
+portraits, and a 6-chapter civics curriculum. All content is plain YAML under
+[`content/`](content/) and [`app/assets/content/`](app/assets/content/), validated in CI.
 
----
+Support for additional countries is a goal, but the app code does not support it yet —
+see [CONTRIBUTING.md](CONTRIBUTING.md) for what you can contribute today.
 
-## Tech Stack
+## Tech stack
 
-- **Flutter** — single codebase for iOS, Android, and Web
-- **Drift** — local SQLite, offline-first source of truth
-- **Supabase** — remote Postgres, auth, storage
-- **FSRS-4.5** — spaced repetition algorithm (pure Dart)
+- **Flutter** (3.22, iOS target)
+- **Drift** — local SQLite, the single source of truth for user data
+- **FSRS-4.5** — spaced repetition scheduling (pure Dart, no dependencies)
 - **Riverpod** — state management
+- **go_router** — navigation
 
----
-
-## Self-Hosting
-
-Run your own instance:
+## Running it yourself
 
 ```bash
-# Clone the repo
 git clone https://github.com/politiface/politiface.git
-cd politiface
-
-# Start local Supabase
-supabase init && supabase start
-
-# Apply schema
-supabase db push
-
-# Seed US content
-pip install pyyaml supabase
-python scripts/seed_governments.py content/governments/
-python scripts/seed_decks.py content/decks/
-
-# Run the app
-cd app
-cp .env.example .env
-# Edit .env with your local Supabase URL and anon key
+cd politiface/app
 flutter pub get
-dart run build_runner build --delete-conflicting-outputs
 flutter run
 ```
 
-Or use Docker:
-```bash
-docker-compose up
-```
+That's it — there is no backend to set up. The app seeds its database from bundled YAML
+on first launch.
 
----
+To run the tests:
+
+```bash
+cd app
+flutter test
+flutter analyze
+```
 
 ## Contributing
 
-Adding politicians from your country requires no programming knowledge — just YAML files. See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide.
+Content fixes (US politician updates, curriculum corrections) require no programming —
+just YAML edits. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
----
+## Privacy
 
-## Analytics
-
-We collect minimal, opt-in analytics. Every event we track is listed in [VERIFIED.md](VERIFIED.md).
-
----
+The app sends no analytics. The complete, verifiable description of the app's telemetry
+(crash reporting only) is in [VERIFIED.md](VERIFIED.md). The privacy policy is at
+[docs/privacy-policy.md](docs/privacy-policy.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT — see [LICENSE](LICENSE).

@@ -1,45 +1,64 @@
-# VERIFIED: Complete Analytics Event List
+# VERIFIED: What This App Sends
 
-This document lists every analytics event Politiface sends. Nothing else is sent.
+This document describes every byte of telemetry Politiface transmits. It is kept in
+lockstep with the code; if the code and this document ever disagree, that is a bug —
+please report it.
 
-Analytics are **opt-in only**. If you did not explicitly consent during onboarding, nothing is sent.
+## The short version
 
----
+**Politiface has no analytics.** No events, no user IDs, no usage tracking, no
+third-party analytics SDK. There is no analytics code in this repository.
 
-## Events We Send
+The only telemetry is **crash reporting via Sentry**, and the only other network
+traffic is **Wikipedia/Wikidata bio fetches** that you trigger by opening a
+politician's detail screen.
 
-| Event | Payload | Purpose |
-|---|---|---|
-| `session_started` | `deck_id`, `card_count` | Know how many sessions are started per deck |
-| `session_completed` | `cards_reviewed`, `correct_pct`, `duration_ms` | Measure session completion and difficulty |
-| `streak_extended` | `streak_count` | Track streak growth |
-| `streak_broken` | `streak_count` | Understand where streaks end |
-| `challenge_completed` | `score` (0-5), `shared` (boolean) | Measure Daily Challenge engagement |
-| `module_completed` | `node_external_id` (e.g. `us-node-senate`) | Track curriculum progression |
-| `deck_unlocked` | `deck_external_id` | Track content discovery |
-| `app_opened` | `days_since_install` | Basic retention measurement |
+## Crash reporting (Sentry)
 
-## What We NEVER Send
+- Initialized in [`app/lib/main.dart`](app/lib/main.dart). If the build contains no
+  Sentry DSN, the SDK no-ops and **nothing is ever sent** — this is the case for any
+  build you compile yourself from this repo.
+- Official TestFlight/App Store builds inject a DSN at build time
+  (see [`codemagic.yaml`](codemagic.yaml)) so we can see crashes.
+- `sendDefaultPii` is `false`: no names, emails, or personal info are attached.
+- Performance traces are sampled at 10%.
+- Crash reports contain stack traces and device/OS class information — never which
+  cards you reviewed, what you answered, or anything about your political interests.
 
-- Which specific politician cards you reviewed
-- Which cards you got right or wrong
+**Known gap, stated honestly:** crash reporting in official builds is currently
+enabled by default, not gated behind an in-app consent toggle. An explicit opt-in/out
+switch is planned before public launch; this document will be updated when it ships.
+
+## Wikipedia bio fetches
+
+When you open a politician's detail screen, the app fetches a short bio summary from
+the public Wikipedia/Wikidata APIs (`app/lib/features/atlas/data/wikipedia_bio_service.dart`)
+and caches it locally. This is a plain content request to Wikimedia servers, not
+telemetry to us — we operate no server and cannot see it. It reveals to Wikimedia only
+that some IP requested a public article summary.
+
+## What is NEVER sent, to anyone
+
+- Which politician cards you review
+- Which cards you get right or wrong
+- Your streaks, XP, scores, or progress
 - Your political preferences, affiliations, or leanings
-- Any information that could identify your political views
-- Your name, email, or any personally identifiable information (events are keyed to an anonymous UUID only)
-- Your location
-- Your device model
+- Your name, email, location, or any personally identifiable information
 
-## Verification
+None of this *can* be sent: all user data lives in a local SQLite database on your
+device, and the app has no backend.
 
-You can verify this yourself:
+## Verify it yourself
 
-1. Clone this repository
-2. Search for `PostHog` or `analytics` in `app/lib/`
-3. Every event capture is in `app/lib/core/analytics/analytics_service.dart`
-4. That file is the single source of truth for what we send
+1. Clone this repository.
+2. Search `app/lib/` for network code: the only HTTP client usage is in
+   `wikipedia_bio_service.dart`, and the only SDK that transmits anything is
+   `sentry_flutter` in `main.dart`.
+3. Search for `posthog`, `firebase`, `analytics` — there are no hits in `app/lib/`.
+4. Build the app yourself (no DSN) and observe zero telemetry traffic.
 
-The analytics implementation is in the open source codebase. There is no private analytics layer.
+There is no private analytics layer. What you can read here is everything.
 
 ---
 
-*Last updated: May 2026*
+*Last updated: June 2026*
