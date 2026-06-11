@@ -19,4 +19,8 @@ class MetaDao extends DatabaseAccessor<AppDatabase> with _$MetaDaoMixin {
       AppMetaCompanion.insert(key: key, value: value),
     );
   }
+
+  Future<void> remove(String key) {
+    return (delete(appMeta)..where((m) => m.key.equals(key))).go();
+  }
 }
