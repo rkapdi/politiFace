@@ -15,7 +15,6 @@ class SessionState {
     required this.again,
     required this.isComplete,
     required this.deckId,
-    required this.dailyChallengeDate,
     required this.gradeHistory,
     required this.reviewedCardIds,
   });
@@ -28,7 +27,6 @@ class SessionState {
   final int again;
   final bool isComplete;
   final String? deckId;             // null = global / FSRS-driven
-  final String? dailyChallengeDate; // null = not a daily challenge
   final List<int> gradeHistory;     // FSRSGrade.value sequence
   final List<String> reviewedCardIds; // every card graded this session, in order
 
@@ -54,7 +52,6 @@ class SessionState {
       again: again ?? this.again,
       isComplete: isComplete ?? this.isComplete,
       deckId: deckId,
-      dailyChallengeDate: dailyChallengeDate,
       gradeHistory: gradeHistory ?? this.gradeHistory,
       reviewedCardIds: reviewedCardIds ?? this.reviewedCardIds,
     );
@@ -71,15 +68,13 @@ class SessionController extends AsyncNotifier<SessionState> {
     final repo = ref.read(cardReviewRepositoryProvider);
     final pendingStore = ref.read(pendingSessionStoreProvider);
     final deckId = ref.watch(activeSessionDeckIdProvider);
-    final challengeDate = ref.watch(activeDailyChallengeDateProvider);
 
     // Try to restore an in-progress session if one exists and matches the
     // current navigation context. Mismatched pending snapshots get cleared
     // so we never silently launch a different session than the user asked for.
     final pending = await pendingStore.load();
     if (pending != null) {
-      final matches = pending.deckId == deckId &&
-          pending.dailyChallengeDate == challengeDate;
+      final matches = pending.deckId == deckId;
       if (matches && pending.pendingCardIds.isNotEmpty) {
         return _restore(pending);
       } else if (!matches) {
@@ -87,17 +82,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       }
     }
 
-    List<String>? cardIds;
-    if (challengeDate != null) {
-      final svc = ref.read(dailyChallengeServiceProvider);
-      final challenge = await svc.challengeFor(when: DateTime.now());
-      cardIds = challenge?.cardIds;
-    }
-
-    final candidates = await repo.loadSessionCandidates(
-      deckId: deckId,
-      cardIds: cardIds,
-    );
+    final candidates = await repo.loadSessionCandidates(deckId: deckId);
     final queue = SessionQueue()
       ..buildSession(
         dueCards: candidates.due,
@@ -116,7 +101,6 @@ class SessionController extends AsyncNotifier<SessionState> {
       again: 0,
       isComplete: first == null,
       deckId: deckId,
-      dailyChallengeDate: challengeDate,
       gradeHistory: const [],
       reviewedCardIds: const [],
     );
@@ -145,7 +129,6 @@ class SessionController extends AsyncNotifier<SessionState> {
       again: pending.again,
       isComplete: first == null,
       deckId: pending.deckId,
-      dailyChallengeDate: pending.dailyChallengeDate,
       gradeHistory: pending.gradeHistory,
       reviewedCardIds: pending.reviewedCardIds,
     );
@@ -204,19 +187,10 @@ class SessionController extends AsyncNotifier<SessionState> {
     } catch (_) {}
 
     if (next == null) {
-      // Session done — recompute node unlocks + persist challenge result.
+      // Session done — recompute node unlocks.
       try {
         await ref.read(nodeUnlockServiceProvider).recalculate();
       } catch (_) {}
-      final challengeDate = current.dailyChallengeDate;
-      if (challengeDate != null) {
-        try {
-          await ref.read(dailyChallengeServiceProvider).recordResult(
-                date: challengeDate,
-                grades: updatedHistory,
-              );
-        } catch (_) {}
-      }
     }
 
     _gradeInFlight = false;
@@ -234,7 +208,6 @@ class SessionController extends AsyncNotifier<SessionState> {
     ];
     await store.save(PendingSessionSnapshot(
       deckId: s.deckId,
-      dailyChallengeDate: s.dailyChallengeDate,
       pendingCardIds: pending,
       completed: s.completed,
       correct: s.correct,

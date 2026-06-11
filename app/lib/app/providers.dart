@@ -14,7 +14,6 @@ import '../features/curriculum/domain/curriculum.dart';
 import '../features/round/application/daily_round_controller.dart';
 import '../features/round/data/chapter_content_sampler.dart';
 import '../features/round/domain/round_state.dart';
-import '../features/daily_challenge/data/daily_challenge_service.dart';
 import '../features/government/data/node_unlock_service.dart';
 import '../features/profile/data/profile_service.dart';
 import '../features/session/data/card_review_repository.dart';
@@ -55,23 +54,8 @@ final nodeUnlockServiceProvider = Provider<NodeUnlockService>((ref) {
   return NodeUnlockService(ref.watch(databaseProvider));
 });
 
-final dailyChallengeServiceProvider = Provider<DailyChallengeService>((ref) {
-  return DailyChallengeService(ref.watch(databaseProvider));
-});
-
 final pendingSessionStoreProvider = Provider<PendingSessionStore>((ref) {
   return PendingSessionStore(ref.watch(databaseProvider));
-});
-
-/// When non-null, SessionController loads the daily challenge cards for this
-/// YYYY-MM-DD date instead of the global FSRS-driven queue.
-final activeDailyChallengeDateProvider = StateProvider<String?>((_) => null);
-
-/// Today's challenge state (cards + grades if played). Refetches via tick.
-final dailyChallengeTodayProvider =
-    FutureProvider<DailyChallenge?>((ref) async {
-  ref.watch(sessionTickProvider);
-  return ref.watch(dailyChallengeServiceProvider).challengeFor();
 });
 
 /// Initial route, set in main() based on the onboarding flag.

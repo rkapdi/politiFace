@@ -144,9 +144,6 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                       onPressed: () {
                         ref.read(activeSessionDeckIdProvider.notifier).state =
                             null;
-                        ref
-                            .read(activeDailyChallengeDateProvider.notifier)
-                            .state = null;
                         ref.read(sessionControllerProvider.notifier).reset();
                         ref.invalidate(govMapDataProvider);
                         ref.invalidate(nodeDetailProvider);

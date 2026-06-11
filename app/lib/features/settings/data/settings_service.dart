@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/database/drift/app_database.dart';
 
-/// User-facing preferences. Stored in sync_meta so no schema migration is
+/// User-facing preferences. Stored in app_meta so no schema migration is
 /// needed, and they survive app restart.
 class SettingsService {
   SettingsService(this._db);
@@ -60,9 +60,8 @@ class SettingsService {
       await _db.delete(_db.cardMemoryStates).go();
       await _db.delete(_db.reviewLogs).go();
       await _db.delete(_db.userNodeProgress).go();
-      await _db.delete(_db.dailyChallengeCaches).go();
       // Clear gamification + seed flags so seeds re-run + onboarding shows again.
-      await _db.delete(_db.syncMeta).go();
+      await _db.delete(_db.appMeta).go();
     });
   }
 }

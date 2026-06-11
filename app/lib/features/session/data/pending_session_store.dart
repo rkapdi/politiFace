@@ -11,7 +11,6 @@ import '../../../core/database/drift/app_database.dart';
 class PendingSessionSnapshot {
   const PendingSessionSnapshot({
     required this.deckId,
-    required this.dailyChallengeDate,
     required this.pendingCardIds,
     required this.completed,
     required this.correct,
@@ -23,7 +22,6 @@ class PendingSessionSnapshot {
   });
 
   final String? deckId;             // null = global / FSRS-driven
-  final String? dailyChallengeDate; // null = not a daily challenge
   final List<String> pendingCardIds; // remaining cards, in order
   final int completed;
   final int correct;
@@ -35,7 +33,6 @@ class PendingSessionSnapshot {
 
   Map<String, dynamic> toJson() => {
         'deckId': deckId,
-        'dailyChallengeDate': dailyChallengeDate,
         'pendingCardIds': pendingCardIds,
         'completed': completed,
         'correct': correct,
@@ -49,8 +46,9 @@ class PendingSessionSnapshot {
   static PendingSessionSnapshot? fromJsonOrNull(Map<String, dynamic> j) {
     try {
       return PendingSessionSnapshot(
+        // Note: snapshots written before v1.2 may carry a now-ignored
+        // 'dailyChallengeDate' key from the removed daily-challenge flow.
         deckId: j['deckId'] as String?,
-        dailyChallengeDate: j['dailyChallengeDate'] as String?,
         pendingCardIds:
             (j['pendingCardIds'] as List).map((e) => e as String).toList(),
         completed: j['completed'] as int,
@@ -72,7 +70,7 @@ class PendingSessionSnapshot {
   }
 }
 
-/// Persists [PendingSessionSnapshot] to `sync_meta` so no schema migration is
+/// Persists [PendingSessionSnapshot] to `app_meta` so no schema migration is
 /// needed. Snapshots older than 24h are treated as stale (auto-discarded).
 class PendingSessionStore {
   PendingSessionStore(this._db);

@@ -186,7 +186,6 @@ class SettingsScreen extends ConsumerWidget {
     HapticFeedback.heavyImpact();
     await ref.read(settingsServiceProvider).resetProgress();
     ref.invalidate(profileProvider);
-    ref.invalidate(dailyChallengeTodayProvider);
     ref.invalidate(remindersEnabledProvider);
     ref.invalidate(analyticsEnabledProvider);
     if (!context.mounted) return;
