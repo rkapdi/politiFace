@@ -39,18 +39,39 @@ Goal: the repo tells the truth about itself before any code changes.
   project spec.
 - Verification: `flutter test` green, `flutter analyze` 0 errors / 0 warnings.
 
-## Phase 2 — Dead code removal (NEXT, awaiting approval)
+## Phase 2 — Dead code removal ✅ (2026-06-11)
 
-Planned:
-- Delete `SyncEngine`, `supabase/` directory, `SyncMeta` table usage.
-- Drop unused deps: supabase_flutter, flutter_secure_storage, flutter_dotenv, shimmer,
-  intl, path, riverpod_annotation, riverpod_generator.
-- Remove the analytics opt-in toggle from Settings + its stored flag.
-- Remove legacy daily_challenge subsystem + `DailyChallengeCaches` table via a
-  **Drift v7→v8 migration** that preserves FSRS state, streaks, XP, CompletedRuns;
-  with a migration test seeding a v7 DB and verifying user-data survival.
-- Proposed addition (needs founder sign-off): in-app crash-reporting consent toggle so
-  "opt-in Sentry" becomes true (see Phase 1 honesty note).
+- **Supabase fully cut:** deleted `core/sync/sync_engine.dart` (never
+  instantiated), the `supabase/` schema directory, and `.env.example`. Removed
+  8 unused deps (supabase_flutter, flutter_secure_storage, flutter_dotenv,
+  shimmer, intl, path, riverpod_annotation, riverpod_generator); added
+  `sqlite3` as an explicit dev dep for migration-test fixtures.
+- **Plan correction, flagged:** `SyncMeta` was NOT dead sync code — it is the
+  app's key-value store (streak, XP, settings, seed flags, pending-session
+  snapshot); my reconnaissance brief was wrong on this point. Instead of
+  dropping it, schema v8 renames `sync_meta` → `app_meta` in place; every row
+  survives. The always-false `ReviewLogs.synced` column stays (dropping a
+  column = full table rebuild; not worth the risk for a cosmetic win).
+- **Legacy daily_challenge subsystem removed** (service, providers, the
+  challenge-origin plumbing in SessionController/PendingSessionStore — the
+  flow was already unreachable from the UI). Schema v8 drops
+  `daily_challenge_caches`; FSRS reviews made during old challenges live in
+  `review_logs`/`card_memory_states` and are untouched.
+- **Migration test added** (`app/test/core/database/migration_v7_to_v8_test.dart`):
+  seeds a real v7 database from verbatim captured v7 DDL with FSRS state,
+  review logs, streak (42) / XP (1337) meta, chapter progress, history, node
+  progress, and a populated legacy cache row → opens under v8 → asserts
+  bit-for-bit survival, dropped/renamed tables, user_version 8.
+- **Crash reporting is now truly opt-in** (founder-approved item 6): the dead
+  analytics toggle is gone; a working Settings → Privacy → Crash reports
+  toggle (default OFF) gates `SentryFlutter.init` in `main.dart`. No consent
+  or no DSN → the SDK never starts. VERIFIED.md's known-gap note removed
+  because the gap is fixed. Tests pin the default-off posture.
+- **Stale docs cleaned:** SETUP.md rewritten for the offline reality;
+  GIT_AND_FLUTTER_SETUP.sh (Supabase-era genesis script) deleted;
+  docs/index.md checked — already truthful.
+- Verification: 157 tests passed + 4 skipped, `flutter analyze` 0 errors /
+  0 warnings, iOS release build succeeds.
 
 ## Phase 3 — Canonical content pipeline (pending)
 
