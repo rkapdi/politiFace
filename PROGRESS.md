@@ -73,12 +73,39 @@ Goal: the repo tells the truth about itself before any code changes.
 - Verification: 157 tests passed + 4 skipped, `flutter analyze` 0 errors /
   0 warnings, iOS release build succeeds.
 
-## Phase 3 — Canonical content pipeline (pending)
+## Phase 3 — Canonical content pipeline ✅ (2026-06-11)
 
-Government graph parsed from `content/governments/us/government.yaml` at seed time;
-delete `gov_seed_data.dart`; CI validates the file the app actually uses;
-checksum-based seed versioning replaces the manual `yaml_seed_v3_done` flag;
-tests prove content edits propagate without data loss.
+- **Government graph now loads from YAML** (`government_yaml_loader.dart` +
+  rewritten `GovernmentSeedService`); `gov_seed_data.dart` deleted. The canonical
+  file is `content/governments/us/government.yaml`; the app bundles a
+  byte-identical copy under `app/assets/content/governments/us/` (Flutter can't
+  bundle outside the package) and CI fails on drift between the two.
+- **Canonical-wins divergences adopted:** node names/descriptions where the Dart
+  mirror had drifted (e.g. "The Senate" vs "United States Senate"); the loader
+  also now populates `map.icon`/`map.label_position` (schema columns the Dart
+  seed never set). The YAML `concepts:` section is NOT ingested — no table for
+  it yet; that's Phase 5 concept-card territory.
+- **Checksum-based reseeding** replaces manual flag bumping for BOTH seeders
+  (`seed.government_hash`, `seed.decks_hash` in app_meta; SHA-256 via
+  `core/content/content_checksum.dart`). Content edits reach existing installs
+  on next launch; unchanged content is a no-op; legacy flags
+  (`gov_seed_v1_done`, `yaml_seed_v3_done`) cleaned up on first checksum seed.
+  This is the mechanism the OTA-content-packs roadmap project piggybacks on.
+- **Data-safety guarantees, tested (26 new tests):** progress rows are
+  insert-if-absent only (a content update can never reset unlocks — new
+  `ProgressDao.insertIfAbsent`); FSRS memory state survives deck re-seeds
+  bit-for-bit; nodes removed from content are deactivated, never deleted;
+  malformed bundled YAML keeps the existing graph instead of crashing/wiping.
+- **Graph contract pinned:** `government_yaml_loader_test.dart` parses the real
+  bundled YAML and pins the node-ID set, tiers, and unlock graph — exactly the
+  values the deleted Dart seed carried (the parity proof). Node IDs are forever;
+  renaming one now fails CI.
+- **New CI workflow** `.github/workflows/content-ci.yml`: runs
+  `validate_government.py` on the canonical file (no content CI existed before —
+  CONTRIBUTING's claim was aspirational until now) + the canonical/bundled sync
+  check. Validator passes locally.
+- Verification: 179 tests passed + 4 skipped, `flutter analyze` 0 errors /
+  0 warnings, iOS release build succeeds (75.4MB).
 
 ## Phase 4 — iOS launch readiness (pending)
 

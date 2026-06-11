@@ -5,6 +5,36 @@ Post-launch projects, recorded so a future session can pick them up cold.
 
 ---
 
+## Beta-only analytics (option 1)
+
+**Status:** designed 2026-06-11, deliberately deferred — founder decision.
+**Trigger:** build when beta testers exceed ~20, or before the public launch
+push, whichever comes first. At the current 2 testers, talking to them beats
+dashboards; TestFlight + opt-in Sentry cover crashes and session counts.
+**Estimated scope:** ~half a day.
+
+### Design (agreed with founder)
+
+- Small `AnalyticsService` implementing the 8-event list with content-free
+  payloads: `app_opened`, `session_started`, `session_completed`,
+  `streak_extended`, `streak_broken`, `round_completed`, `module_completed`,
+  `onboarding_completed`. Never card IDs, never review outcomes per card.
+- Compile-time gate: `const bool.fromEnvironment('BETA_ANALYTICS')`. Default
+  false; App Store builds are built without the flag so the entire layer is
+  tree-shaken out — verifiably absent from the public binary.
+- Anonymous install UUID stored in `app_meta`, attached to beta events only.
+- Destination: PostHog free hosted tier via plain HTTP POST to the capture API
+  (no SDK dependency). API key injected via `--dart-define`, never committed.
+- Codemagic: separate beta workflow with the flag + key; the App Store build
+  stays clean. Note: a beta binary can therefore never be promoted to the App
+  Store — the store submission is always a separate clean build.
+- Docs: VERIFIED.md gains a "TestFlight beta builds" section stating exactly
+  what beta builds send and that App Store builds send none; consent via the
+  TestFlight beta agreement + What to Test notes.
+- Tests: events round-trip when flagged on; no-op when off.
+
+---
+
 ## Over-the-air content packs
 
 **Status:** recorded 2026-06-11, not started. Founder-approved design sketch below.
