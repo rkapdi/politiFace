@@ -39,8 +39,8 @@ final remindersEnabledProvider = FutureProvider<bool>((ref) async {
   return true;
 });
 
-final analyticsEnabledProvider = FutureProvider<bool>((ref) async {
-  return ref.watch(settingsServiceProvider).analyticsEnabled();
+final crashReportsEnabledProvider = FutureProvider<bool>((ref) async {
+  return ref.watch(settingsServiceProvider).crashReportsEnabled();
 });
 
 class SettingsScreen extends ConsumerWidget {
@@ -50,7 +50,8 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final reminders = ref.watch(remindersEnabledProvider).valueOrNull ?? false;
-    final analytics = ref.watch(analyticsEnabledProvider).valueOrNull ?? false;
+    final crashReports =
+        ref.watch(crashReportsEnabledProvider).valueOrNull ?? false;
     final settings = ref.read(settingsServiceProvider);
 
     return Scaffold(
@@ -101,13 +102,14 @@ class SettingsScreen extends ConsumerWidget {
           const Divider(height: 32),
           _SectionHeader(text: 'Privacy', theme: theme),
           SwitchListTile(
-            title: const Text('Anonymous usage analytics'),
+            title: const Text('Crash reports'),
             subtitle: const Text(
-                'Help us improve. No political preferences are ever tracked.'),
-            value: analytics,
+                'Off by default. Sends anonymous crash reports so we can fix '
+                'bugs — never what you review. Takes effect on next launch.'),
+            value: crashReports,
             onChanged: (v) async {
-              await settings.setAnalyticsEnabled(v);
-              ref.invalidate(analyticsEnabledProvider);
+              await settings.setCrashReportsEnabled(v);
+              ref.invalidate(crashReportsEnabledProvider);
             },
           ),
           ListTile(
@@ -187,7 +189,7 @@ class SettingsScreen extends ConsumerWidget {
     await ref.read(settingsServiceProvider).resetProgress();
     ref.invalidate(profileProvider);
     ref.invalidate(remindersEnabledProvider);
-    ref.invalidate(analyticsEnabledProvider);
+    ref.invalidate(crashReportsEnabledProvider);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Progress wiped. Restart the app to re-seed.'),

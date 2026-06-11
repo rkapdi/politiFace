@@ -9,8 +9,10 @@ class SettingsService {
   final AppDatabase _db;
 
   static const _kReminders = 'settings.daily_reminder';
-  static const _kAnalytics = 'settings.analytics_opt_in';
   static const _kThemeMode = 'settings.theme_mode';
+
+  /// Key is read directly in main.dart before Sentry init — keep in sync.
+  static const kCrashReports = 'settings.crash_reports';
 
   Future<bool> remindersEnabled() async =>
       (await _db.metaDao.get(_kReminders)) == '1';
@@ -18,11 +20,14 @@ class SettingsService {
   Future<void> setRemindersEnabled(bool value) =>
       _db.metaDao.set(_kReminders, value ? '1' : '0');
 
-  Future<bool> analyticsEnabled() async =>
-      (await _db.metaDao.get(_kAnalytics)) == '1';
+  /// Opt-in crash reporting (Sentry). Off by default — the toggle is the
+  /// only thing that enables the app's only telemetry. Takes effect on the
+  /// next launch because Sentry must wrap the app from startup.
+  Future<bool> crashReportsEnabled() async =>
+      (await _db.metaDao.get(kCrashReports)) == '1';
 
-  Future<void> setAnalyticsEnabled(bool value) =>
-      _db.metaDao.set(_kAnalytics, value ? '1' : '0');
+  Future<void> setCrashReportsEnabled(bool value) =>
+      _db.metaDao.set(kCrashReports, value ? '1' : '0');
 
   /// Persisted ThemeMode. Defaults to system when unset so first-launch
   /// users get whatever their phone is on.
