@@ -174,6 +174,16 @@ class ChapterInfoSheet extends ConsumerWidget {
                           : 0,
                   accent: accent,
                 ),
+                if (chapter.lessons.isNotEmpty) ...[
+                  const SizedBox(height: 22),
+                  const _SectionHeader(label: 'LESSONS'),
+                  const SizedBox(height: 10),
+                  for (final lesson in chapter.lessons)
+                    _LessonRow(
+                      lesson: lesson,
+                      encountered: _lessonEncountered(lesson),
+                    ),
+                ],
                 if (branches.isNotEmpty) ...[
                   const SizedBox(height: 22),
                   const _SectionHeader(label: 'TOUCHES'),
@@ -211,6 +221,15 @@ class ChapterInfoSheet extends ConsumerWidget {
     );
   }
 
+  /// A lesson is "encountered" once its chapter day has been played:
+  /// completed chapters expose everything, the in-progress chapter exposes
+  /// days before the current one, locked chapters expose nothing.
+  bool _lessonEncountered(Lesson lesson) {
+    if (_isCompleted) return true;
+    if (_isLocked || entry == null) return false;
+    return lesson.day < entry!.dayInChapter;
+  }
+
   /// Replay a completed chapter as a practice session over its card pool.
   /// Grading rides the normal FSRS pipeline: due cards get real reviews,
   /// same-day repeats route to the practice path, so replaying is always
@@ -243,6 +262,114 @@ class ChapterInfoSheet extends ConsumerWidget {
     ref.read(sessionControllerProvider.notifier).reset();
     Navigator.of(context).pop();
     context.go('/session');
+  }
+}
+
+/// One lesson title row. Encountered lessons get a check mark and reopen
+/// as a readable sheet; future lessons show a day chip and stay locked
+/// (no spoilers, and the briefing should be the first read).
+class _LessonRow extends StatelessWidget {
+  const _LessonRow({required this.lesson, required this.encountered});
+  final Lesson lesson;
+  final bool encountered;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = encountered
+        ? theme.colorScheme.onSurface
+        : theme.colorScheme.onSurfaceVariant;
+    return InkWell(
+      onTap: encountered ? () => _read(context) : null,
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              encountered
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+              size: 18,
+              color: encountered
+                  ? theme.colorScheme.brandGreen
+                  : theme.colorScheme.outlineVariant,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                lesson.title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight:
+                      encountered ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+            Text(
+              'DAY ${lesson.day}',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (encountered) ...[
+              const SizedBox(width: 6),
+              Icon(Icons.chevron_right,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant,),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _read(BuildContext context) {
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                lesson.title,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    lesson.body,
+                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.55),
+                  ),
+                ),
+              ),
+              if (lesson.source != null) ...[
+                const SizedBox(height: 14),
+                Text(
+                  'Source: ${Uri.tryParse(lesson.source!)?.host ?? lesson.source!}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

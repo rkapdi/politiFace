@@ -7,6 +7,7 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../profile/data/profile_service.dart';
 import 'chapter_round_card.dart';
+import 'first_run_tour.dart';
 import 'next_up_section.dart';
 import 'season_spine.dart';
 import 'streak_hero.dart';
@@ -18,6 +19,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileProvider);
     final profile = profileAsync.valueOrNull ?? UserProfile.empty;
+
+    // First-run orientation — one-time, checked once per launch.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) FirstRunTour.maybeShow(context, ref);
+    });
 
     return Scaffold(
       appBar: AppBar(
