@@ -107,6 +107,15 @@ Goal: the repo tells the truth about itself before any code changes.
 - Verification: 179 tests passed + 4 skipped, `flutter analyze` 0 errors /
   0 warnings, iOS release build succeeds (75.4MB).
 
+## Interlude — founder-reported fixes (2026-06-11, pre-Phase 4)
+
+- **Chapter replay** (founder request, from device screenshots): completed
+  chapters showed a dead-end "Replay coming with History" banner. Now a
+  REPLAY THIS CHAPTER button samples 10 cards from the chapter pool and
+  launches a session via a new explicit-card-list path
+  (`activeSessionCardIdsProvider`). Non-due cards load by design; the FSRS
+  practice path makes replays safe for the memory model. 3 new tests.
+
 ## Phase 4 — iOS launch readiness (pending)
 
 Error-handling audit (Wikipedia fetch, offline, notification denial); release path
