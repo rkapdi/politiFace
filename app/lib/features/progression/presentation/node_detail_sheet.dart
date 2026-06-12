@@ -331,6 +331,7 @@ class _TierActionButton extends ConsumerWidget {
     if (!context.mounted) return;
     Navigator.of(context).pop(); // close the sheet first
     ref.read(activeSessionDeckIdProvider.notifier).state = decks.first.id;
+    ref.read(activeSessionCardIdsProvider.notifier).state = null;
     ref.invalidate(sessionControllerProvider);
     GoRouter.of(context).go('/session');
   }

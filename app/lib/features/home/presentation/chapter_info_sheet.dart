@@ -7,6 +7,8 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../curriculum/domain/curriculum.dart';
+import '../../round/application/daily_round_controller.dart';
+import '../../session/application/session_controller.dart';
 
 /// Library-style detail sheet for a chapter in the season spine. Opens when
 /// the user taps a chapter row. Mirrors the visual language of
@@ -205,6 +207,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                     HapticFeedback.lightImpact();
                     context.go('/round');
                   },
+                  onReplay: () => _startReplay(context, ref),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -213,6 +216,40 @@ class ChapterInfoSheet extends ConsumerWidget {
         ),
       ],
     );
+  }
+
+  /// Replay a completed chapter as a practice session over its card pool.
+  /// Grading rides the normal FSRS pipeline: due cards get real reviews,
+  /// same-day repeats route to the practice path, so replaying is always
+  /// safe for the memory model (and still earns XP).
+  Future<void> _startReplay(BuildContext context, WidgetRef ref) async {
+    final sampler = ref.read(chapterContentSamplerProvider);
+    final now = DateTime.now();
+    final today = '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+    final sample = await sampler.sampleCards(
+      chapter: chapter,
+      count: DailyRoundController.cardsPerRound * 2,
+      // Distinct seed salt from today's round so a replay right after the
+      // daily round isn't the identical card set.
+      dateIso: '$today/replay',
+    );
+    if (!context.mounted) return;
+    if (sample.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('No cards available to replay yet.'),
+        duration: Duration(seconds: 3),
+      ));
+      return;
+    }
+    HapticFeedback.lightImpact();
+    ref.read(activeSessionDeckIdProvider.notifier).state = null;
+    ref.read(activeSessionCardIdsProvider.notifier).state =
+        sample.cards.map((c) => c.id).toList();
+    ref.read(sessionControllerProvider.notifier).reset();
+    Navigator.of(context).pop();
+    context.go('/session');
   }
 }
 
@@ -338,11 +375,13 @@ class _ChapterCta extends StatelessWidget {
     required this.isCurrent,
     required this.isLocked,
     required this.onContinue,
+    required this.onReplay,
   });
   final bool isCompleted;
   final bool isCurrent;
   final bool isLocked;
   final VoidCallback onContinue;
+  final VoidCallback onReplay;
 
   @override
   Widget build(BuildContext context) {
@@ -373,31 +412,56 @@ class _ChapterCta extends StatelessWidget {
     }
     if (isCompleted) {
       final green = theme.colorScheme.brandGreen;
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: green.withOpacity(0.10),
-          border: Border.all(color: green.withOpacity(0.55)),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.check_circle,
-              color: green,
-              size: 20,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: green.withOpacity(0.10),
+              border: Border.all(color: green.withOpacity(0.55)),
+              borderRadius: BorderRadius.circular(6),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Completed. Replay coming with History.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: green,
+                  size: 20,
                 ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Completed. Replay anytime — reviews always count.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: onReplay,
+            style: FilledButton.styleFrom(
+              backgroundColor: green,
+              foregroundColor: theme.colorScheme.surface,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(6)),
               ),
             ),
-          ],
-        ),
+            icon: const Icon(Icons.replay_rounded),
+            label: const Text(
+              'REPLAY THIS CHAPTER',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+        ],
       );
     }
     // Current chapter — primary CTA into today's round.

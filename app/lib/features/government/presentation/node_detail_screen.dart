@@ -79,6 +79,7 @@ class _NodeView extends ConsumerWidget {
                 deck: d,
                 onTap: () {
                   ref.read(activeSessionDeckIdProvider.notifier).state = d.id;
+                  ref.read(activeSessionCardIdsProvider.notifier).state = null;
                   ref.invalidate(sessionControllerProvider);
                   context.go('/session');
                 },

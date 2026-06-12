@@ -68,11 +68,14 @@ class SessionController extends AsyncNotifier<SessionState> {
     final repo = ref.read(cardReviewRepositoryProvider);
     final pendingStore = ref.read(pendingSessionStoreProvider);
     final deckId = ref.watch(activeSessionDeckIdProvider);
+    final cardIds = ref.watch(activeSessionCardIdsProvider);
 
-    // Try to restore an in-progress session if one exists and matches the
-    // current navigation context. Mismatched pending snapshots get cleared
-    // so we never silently launch a different session than the user asked for.
-    final pending = await pendingStore.load();
+    // An explicit card list (chapter replay) is always a fresh session —
+    // skip restore so a stale snapshot can't hijack what the user asked for.
+    // Otherwise try to restore an in-progress session if one exists and
+    // matches the current navigation context; mismatched snapshots get
+    // cleared so we never silently launch a different session.
+    final pending = cardIds == null ? await pendingStore.load() : null;
     if (pending != null) {
       final matches = pending.deckId == deckId;
       if (matches && pending.pendingCardIds.isNotEmpty) {
@@ -82,12 +85,15 @@ class SessionController extends AsyncNotifier<SessionState> {
       }
     }
 
-    final candidates = await repo.loadSessionCandidates(deckId: deckId);
+    final candidates = await repo.loadSessionCandidates(
+      deckId: deckId,
+      cardIds: cardIds,
+    );
     final queue = SessionQueue()
       ..buildSession(
         dueCards: candidates.due,
         newCards: candidates.fresh,
-        targetSize: 20,
+        targetSize: cardIds?.length ?? 20,
       );
     final first = queue.next();
     final planned = candidates.due.length + candidates.fresh.length;

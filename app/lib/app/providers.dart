@@ -106,6 +106,13 @@ final routerProvider = Provider<GoRouter>((ref) {
 // Set by NodeDetailScreen before navigating to /session.
 final activeSessionDeckIdProvider = StateProvider<String?>((ref) => null);
 
+/// Explicit card list for the next session — takes precedence over deck scope.
+/// Set by ChapterInfoSheet's replay CTA (a practice pass over a completed
+/// chapter's card pool). Non-due cards load too: the FSRS practice path in
+/// CardReviewRepository keeps replays from corrupting the memory model.
+final activeSessionCardIdsProvider =
+    StateProvider<List<String>?>((ref) => null);
+
 /// Whether the current card's answer is revealed. Resets to false when
 /// SessionController advances to the next card.
 final cardRevealedProvider = StateProvider<bool>((ref) => false);
