@@ -77,7 +77,7 @@ class YamlSeedService {
       tierOrder: Value(tierOrder),
       cardCount: Value(cards.length),
       updatedAt: nowSeconds,
-    ));
+    ),);
 
     for (var i = 0; i < cards.length; i++) {
       final raw = cards[i];
@@ -101,7 +101,7 @@ class YamlSeedService {
         sourceUrl: raw['source'] as String? ?? '',
         sortOrder: Value(i),
         updatedAt: nowSeconds,
-      ));
+      ),);
 
       // Only init memory state if this card is genuinely new. Re-seeding a
       // YAML edit must not wipe a user's review history.

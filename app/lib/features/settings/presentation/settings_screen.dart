@@ -20,9 +20,7 @@ final appVersionProvider = FutureProvider<String>((ref) async {
   return '${info.version} (${info.buildNumber})';
 });
 
-final settingsServiceProvider = Provider<SettingsService>((ref) {
-  return SettingsService(ref.watch(databaseProvider));
-});
+final settingsServiceProvider = Provider<SettingsService>((ref) => SettingsService(ref.watch(databaseProvider)));
 
 final remindersEnabledProvider = FutureProvider<bool>((ref) async {
   final settings = ref.watch(settingsServiceProvider);
@@ -39,9 +37,7 @@ final remindersEnabledProvider = FutureProvider<bool>((ref) async {
   return true;
 });
 
-final crashReportsEnabledProvider = FutureProvider<bool>((ref) async {
-  return ref.watch(settingsServiceProvider).crashReportsEnabled();
-});
+final crashReportsEnabledProvider = FutureProvider<bool>((ref) async => ref.watch(settingsServiceProvider).crashReportsEnabled());
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -76,7 +72,7 @@ class SettingsScreen extends ConsumerWidget {
           SwitchListTile(
             title: const Text('Daily review reminder'),
             subtitle: const Text(
-                "We'll nudge you at 7 PM so your streak doesn't break."),
+                "We'll nudge you at 7 PM so your streak doesn't break.",),
             value: reminders,
             onChanged: (v) async {
               if (v) {
@@ -86,9 +82,9 @@ class SettingsScreen extends ConsumerWidget {
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     content: Text(
-                        'Permission denied. Enable in iOS Settings → Notifications.'),
+                        'Permission denied. Enable in iOS Settings → Notifications.',),
                     duration: Duration(seconds: 3),
-                  ));
+                  ),);
                   return;
                 }
                 await NotificationService.instance.scheduleDailyReminder();
@@ -146,7 +142,7 @@ class SettingsScreen extends ConsumerWidget {
               style: TextStyle(color: theme.colorScheme.error),
             ),
             subtitle: const Text(
-                'Wipes streak, XP, reviews, and onboarding. Content stays.'),
+                'Wipes streak, XP, reviews, and onboarding. Content stays.',),
             onTap: () => _confirmReset(context, ref),
           ),
           const SizedBox(height: 32),
@@ -178,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(
-                foregroundColor: Theme.of(ctx).colorScheme.error),
+                foregroundColor: Theme.of(ctx).colorScheme.error,),
             child: const Text('Reset'),
           ),
         ],
@@ -194,7 +190,7 @@ class SettingsScreen extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text('Progress wiped. Restart the app to re-seed.'),
       duration: Duration(seconds: 3),
-    ));
+    ),);
     context.go('/');
   }
 }
@@ -302,17 +298,15 @@ class _SectionHeader extends StatelessWidget {
   final ThemeData theme;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+  Widget build(BuildContext context) => Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Text(
         text.toUpperCase(),
         style: theme.textTheme.labelSmall?.copyWith(
           color: theme.colorScheme.primary,
-          letterSpacing: 1.0,
+          letterSpacing: 1,
           fontWeight: FontWeight.w600,
         ),
       ),
     );
-  }
 }

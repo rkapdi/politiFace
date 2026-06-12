@@ -133,7 +133,7 @@ class _EndlessResultScreenState extends ConsumerState<EndlessResultScreen> {
                 Text(
                   'BEST STREAK',
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        letterSpacing: 2.0,
+                        letterSpacing: 2,
                         fontWeight: FontWeight.w900,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -147,12 +147,12 @@ class _EndlessResultScreenState extends ConsumerState<EndlessResultScreen> {
                       fontSize: 130,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFFE67E22),
-                      height: 1.0,
+                      height: 1,
                       fontFeatures: [FontFeature.tabularFigures()],
                     ),
                   ).animate().scale(
                         begin: const Offset(0.6, 0.6),
-                        end: const Offset(1.0, 1.0),
+                        end: const Offset(1, 1),
                         duration: 460.ms,
                         curve: Curves.elasticOut,
                       ),

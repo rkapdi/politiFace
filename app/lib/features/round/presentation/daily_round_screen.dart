@@ -69,8 +69,7 @@ class _RoundBody extends ConsumerWidget {
   final DailyRoundState state;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Column(
+  Widget build(BuildContext context, WidgetRef ref) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ChapterHeader(state: state),
@@ -78,7 +77,6 @@ class _RoundBody extends ConsumerWidget {
         Expanded(child: _phaseBody(context, ref)),
       ],
     );
-  }
 
   Widget _phaseBody(BuildContext context, WidgetRef ref) {
     switch (state.phase) {
@@ -247,8 +245,7 @@ class _NoTriviaView extends StatelessWidget {
   final DailyRoundState state;
 
   @override
-  Widget build(BuildContext context) {
-    return AppEmptyView(
+  Widget build(BuildContext context) => AppEmptyView(
       icon: Icons.quiz_outlined,
       title: 'No trivia today',
       body:
@@ -259,15 +256,12 @@ class _NoTriviaView extends StatelessWidget {
         child: const Text('Home'),
       ),
     );
-  }
 }
 
 class _SkipToTriviaView extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return const AppEmptyView(
+  Widget build(BuildContext context) => const AppEmptyView(
       icon: Icons.arrow_forward_rounded,
       title: 'Skipping to trivia…',
     );
-  }
 }

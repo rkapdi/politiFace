@@ -7,9 +7,7 @@ import 'package:politiface/features/round/domain/round_state.dart';
 import 'package:politiface/features/trivia/domain/trivia_question.dart';
 
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   late AppDatabase db;
   late ProviderContainer container;
@@ -18,7 +16,7 @@ void main() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     container = ProviderContainer(overrides: [
       databaseProvider.overrideWithValue(db),
-    ]);
+    ],);
   });
 
   tearDown(() {
@@ -33,7 +31,7 @@ void main() {
           externalId: 'd',
           name: 'd',
           updatedAt: now,
-        ));
+        ),);
     for (var i = 0; i < count; i++) {
       await db.into(db.localCards).insert(LocalCardsCompanion.insert(
             id: 'c$i',
@@ -43,7 +41,7 @@ void main() {
             title: 'Title $i',
             sourceUrl: '',
             updatedAt: now,
-          ));
+          ),);
     }
   }
 
@@ -73,7 +71,7 @@ void main() {
 
     final container2 = ProviderContainer(overrides: [
       databaseProvider.overrideWithValue(db),
-    ]);
+    ],);
     addTearDown(container2.dispose);
     final hydrated =
         await container2.read(dailyRoundControllerProvider.future);
@@ -162,7 +160,7 @@ void main() {
     await notifier.gradeCard(0, 0);
     final after = container.read(dailyRoundControllerProvider).value!;
     expect(after.cards[0].grade, 2,
-        reason: 'gradeCard should not overwrite once past cards phase');
+        reason: 'gradeCard should not overwrite once past cards phase',);
   });
 
   test('answerTrivia is no-op until cards phase completes', () async {
@@ -225,15 +223,15 @@ void main() {
     // After grading: FSRS state should exist + reviewCount = 1.
     final afterMemory = await db.reviewsDao.stateFor(firstCardId);
     expect(afterMemory, isNotNull,
-        reason: 'gradeCard should have created a CardMemoryStates row');
+        reason: 'gradeCard should have created a CardMemoryStates row',);
     expect(afterMemory!.reviewCount, greaterThanOrEqualTo(1));
 
     // Profile should have advanced — XP added + streak hits 1.
     final afterProfile =
         await container.read(profileServiceProvider).load();
     expect(afterProfile.xpTotal, greaterThan(0),
-        reason: 'Profile XP should increment via recordReview');
+        reason: 'Profile XP should increment via recordReview',);
     expect(afterProfile.streakDays, 1,
-        reason: 'Streak should tick on the first review of the day');
+        reason: 'Streak should tick on the first review of the day',);
   });
 }

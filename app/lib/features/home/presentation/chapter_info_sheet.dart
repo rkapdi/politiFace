@@ -16,10 +16,7 @@ import '../../session/application/session_controller.dart';
 /// eyebrow + display title, sections, CTA — so the two feel like siblings.
 class ChapterInfoSheet extends ConsumerWidget {
   const ChapterInfoSheet({
-    super.key,
-    required this.chapter,
-    required this.entry,
-    required this.currentOrder,
+    required this.chapter, required this.entry, required this.currentOrder, super.key,
     this.scrollController,
   });
 
@@ -38,16 +35,14 @@ class ChapterInfoSheet extends ConsumerWidget {
     required Chapter chapter,
     required ChapterProgressEntry? entry,
     required int currentOrder,
-  }) {
-    return showModalBottomSheet<void>(
+  }) => showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
+      builder: (ctx) => DraggableScrollableSheet(
           initialChildSize: 0.6,
           minChildSize: 0.35,
           maxChildSize: 0.9,
@@ -58,10 +53,8 @@ class ChapterInfoSheet extends ConsumerWidget {
             currentOrder: currentOrder,
             scrollController: controller,
           ),
-        );
-      },
+        ),
     );
-  }
 
   bool get _isCompleted => entry?.completedAt != null;
   bool get _isCurrent => chapter.order == currentOrder && !_isCompleted;
@@ -170,7 +163,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 22),
-                _SectionHeader(label: 'PROGRESS'),
+                const _SectionHeader(label: 'PROGRESS'),
                 const SizedBox(height: 10),
                 _ProgressRow(
                   total: chapter.days,
@@ -183,7 +176,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                 ),
                 if (branches.isNotEmpty) ...[
                   const SizedBox(height: 22),
-                  _SectionHeader(label: 'TOUCHES'),
+                  const _SectionHeader(label: 'TOUCHES'),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -240,7 +233,7 @@ class ChapterInfoSheet extends ConsumerWidget {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text('No cards available to replay yet.'),
         duration: Duration(seconds: 3),
-      ));
+      ),);
       return;
     }
     HapticFeedback.lightImpact();
@@ -344,7 +337,7 @@ class _BranchChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
-        border: Border.all(color: color.withOpacity(0.55), width: 1),
+        border: Border.all(color: color.withOpacity(0.55)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -396,7 +389,7 @@ class _ChapterCta extends StatelessWidget {
         child: Row(
           children: [
             Icon(Icons.lock_outline,
-                color: theme.colorScheme.onSurfaceVariant, size: 18),
+                color: theme.colorScheme.onSurfaceVariant, size: 18,),
             const SizedBox(width: 10),
             Expanded(
               child: Text(

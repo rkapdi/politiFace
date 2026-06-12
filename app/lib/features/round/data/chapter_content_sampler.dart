@@ -35,15 +35,13 @@ class ChapterContentSampler {
     required int count,
     required String dateIso,
     bool allowFallback = true,
-  }) async {
-    return _sample(
+  }) async => _sample(
       chapter: chapter,
       count: count,
       dateIso: dateIso,
       saltSuffix: 'cards',
       allowFallback: allowFallback,
     );
-  }
 
   /// Samples [count] cards to seed trivia questions from. Same shape as
   /// [sampleCards] but with a different deterministic seed so a single
@@ -54,15 +52,13 @@ class ChapterContentSampler {
     required int count,
     required String dateIso,
     bool allowFallback = true,
-  }) async {
-    return _sample(
+  }) async => _sample(
       chapter: chapter,
       count: count,
       dateIso: dateIso,
       saltSuffix: 'trivia',
       allowFallback: allowFallback,
     );
-  }
 
   Future<SampledContent> _sample({
     required Chapter chapter,

@@ -13,9 +13,7 @@ import 'package:politiface/features/government/data/government_seed_service.dart
 import 'package:politiface/features/government/data/government_yaml_loader.dart';
 
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   Future<GovernmentDefinition> loadBundled() async {
     final raw = await rootBundle.loadString(GovernmentSeedService.assetPath);
@@ -69,7 +67,7 @@ void main() {
     expect(unlocks['us-node-senate'], ['us-node-congress']);
     expect(unlocks['us-node-house'], ['us-node-congress']);
     expect(unlocks['us-node-how-laws-are-made'],
-        ['us-node-senate', 'us-node-house']);
+        ['us-node-senate', 'us-node-house'],);
     expect(unlocks['us-node-scotus'], ['us-node-senate']);
     expect(unlocks['us-node-parties'], ['us-node-senate', 'us-node-house']);
   });
@@ -77,9 +75,9 @@ void main() {
   test('exactly one head of state / head of government', () async {
     final gov = await loadBundled();
     expect(gov.nodes.where((n) => n.isHeadOfState).map((n) => n.id),
-        ['us-node-president']);
+        ['us-node-president'],);
     expect(gov.nodes.where((n) => n.isHeadOfGovt).map((n) => n.id),
-        ['us-node-president']);
+        ['us-node-president'],);
   });
 
   test('edges parse with deterministic ids and valid node references',
@@ -95,7 +93,7 @@ void main() {
     // Determinism — parsing twice yields identical edge ids in order.
     final again = await loadBundled();
     expect(again.edges.map((e) => e.id).toList(),
-        gov.edges.map((e) => e.id).toList());
+        gov.edges.map((e) => e.id).toList(),);
   });
 
   test('map metadata the old Dart seed never carried is now loaded', () async {
@@ -121,7 +119,7 @@ void main() {
 
     test('missing meta.id', () {
       expect(() => loader.parse('nodes: []\nedges: []'),
-          throwsFormatException);
+          throwsFormatException,);
     });
 
     test('node without id', () {

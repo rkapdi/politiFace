@@ -13,7 +13,7 @@ import 'features/settings/data/settings_service.dart';
 /// Sentry DSN. Empty → SDK no-ops (no crash reports sent). Builds you compile
 /// yourself contain no DSN; official builds inject one via
 /// --dart-define=SENTRY_DSN=... (see codemagic.yaml).
-const _sentryDsn = String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

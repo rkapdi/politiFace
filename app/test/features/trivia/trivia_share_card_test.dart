@@ -157,8 +157,7 @@ void main() {
 /// Wrap the share card in the minimum scaffolding needed for layout (size,
 /// theme, MediaQuery, Directionality). The card sizes itself to 360x640;
 /// the SizedBox just gives the test viewport room.
-Widget _wrap(Widget child) {
-  return MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
     home: Scaffold(
       body: Center(
         child: SizedBox(
@@ -169,4 +168,3 @@ Widget _wrap(Widget child) {
       ),
     ),
   );
-}

@@ -149,7 +149,7 @@ class CurriculumLoader {
       sources: _parseSources(raw['sources'], itemId: id),
       coverage: _parseCoverage(raw['coverage'], itemId: id),
       crossLinks: _stringList(raw['cross_links'], 'item[$id].cross_links',
-          allowMissing: true),
+          allowMissing: true,),
     );
   }
 
@@ -246,7 +246,7 @@ class CurriculumLoader {
   }
 
   List<String> _stringList(Object? raw, String context,
-      {bool allowMissing = false}) {
+      {bool allowMissing = false,}) {
     if (raw == null) {
       if (allowMissing) return const [];
       throw CurriculumLoadException('$context: missing.');

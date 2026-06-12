@@ -4,23 +4,20 @@ import '../../../core/database/drift/app_database.dart';
 import '../domain/fsrs_algorithm.dart';
 import '../domain/session_queue.dart';
 
-MemoryState memoryStateFromRow(CardMemoryState row) {
-  return MemoryState(
+MemoryState memoryStateFromRow(CardMemoryState row) => MemoryState(
     difficulty: row.difficulty,
     stability: row.stability,
     retrievability: row.retrievability,
     lapses: row.lapses,
     reviewCount: row.reviewCount,
   );
-}
 
 CardMemoryStatesCompanion memoryStateToCompanion({
   required String cardId,
   required FSRSResult result,
   required FSRSGrade grade,
   required DateTime now,
-}) {
-  return CardMemoryStatesCompanion(
+}) => CardMemoryStatesCompanion(
     cardId: Value(cardId),
     difficulty: Value(result.nextState.difficulty),
     stability: Value(result.nextState.stability),
@@ -36,7 +33,6 @@ CardMemoryStatesCompanion memoryStateToCompanion({
     practiceCountSinceReview: const Value(0),
     lastGrade: Value(grade.value),
   );
-}
 
 SessionCard sessionCardFromRows({
   required LocalCard card,

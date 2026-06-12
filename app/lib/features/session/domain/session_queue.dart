@@ -33,13 +33,10 @@ class SessionCard implements Comparable<SessionCard> {
     required this.externalId,
     required this.politicianName,
     required this.title,
-    this.photoUrl,
+    required this.phase, required this.stability, required this.priority, this.photoUrl,
     this.lqipBase64,
     this.oneLiner,
-    required this.phase,
-    required this.stability,
     this.reviewCount = 0,
-    required this.priority,
   });
 
   @override
@@ -80,7 +77,7 @@ class SessionQueue {
         stability: card.stability,
         reviewCount: card.reviewCount,
         priority: card.stability,
-      ));
+      ),);
     }
 
     // New cards always follow due cards. The big offset keeps them strictly
@@ -88,7 +85,7 @@ class SessionQueue {
     final newCardSlots = (targetSize / _newCardEvery).floor();
     final selectedNew = newCards.take(min(newCardSlots, newCards.length)).toList();
 
-    for (int i = 0; i < selectedNew.length; i++) {
+    for (var i = 0; i < selectedNew.length; i++) {
       final card = selectedNew[i];
       _heap.add(SessionCard(
         cardId: card.cardId,
@@ -99,15 +96,15 @@ class SessionQueue {
         lqipBase64: card.lqipBase64,
         oneLiner: card.oneLiner,
         phase: CardPhase.newCard,
-        stability: 0.0,
+        stability: 0,
         reviewCount: card.reviewCount,
         priority: _newCardPriorityOffset + (i / selectedNew.length),
-      ));
+      ),);
     }
   }
 
   // Larger than any FSRS stability ever produced (clamp upper bound is 36500).
-  static const double _newCardPriorityOffset = 1e6;
+  static const double _newCardPriorityOffset = 1000000;
 
   /// O(log n) — returns null when session is complete
   SessionCard? next() {
@@ -137,7 +134,7 @@ class SessionQueue {
           stability: candidate.stability,
           reviewCount: candidate.reviewCount,
           priority: candidate.priority + 100.0,
-        ));
+        ),);
         requeues++;
         continue;
       }
@@ -164,7 +161,7 @@ class SessionQueue {
       reviewCount: card.reviewCount,
       // Re-insert after all current cards but before very-end cards
       priority: 50.0 + (_heap.length * 0.01),
-    ));
+    ),);
   }
 
   bool get isEmpty => _heap.isEmpty;

@@ -11,15 +11,15 @@ Future<List<LocalCard>> _seedPool(AppDatabase db, int count) async {
     externalId: 'deck-a',
     name: 'Deck A',
     updatedAt: 0,
-  ));
+  ),);
   await db.decksDao.upsertDeck(LocalDecksCompanion.insert(
     id: 'deck-b',
     externalId: 'deck-b',
     name: 'Deck B',
     updatedAt: 0,
-  ));
+  ),);
   for (var i = 0; i < count; i++) {
-    final deckId = i % 2 == 0 ? 'deck-a' : 'deck-b';
+    final deckId = i.isEven ? 'deck-a' : 'deck-b';
     await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
       id: 'card-$i',
       deckId: deckId,
@@ -30,7 +30,7 @@ Future<List<LocalCard>> _seedPool(AppDatabase db, int count) async {
       sourceUrl: 'about:blank',
       sortOrder: Value(i),
       updatedAt: 0,
-    ));
+    ),);
   }
   return db.cardsDao.allActiveCards();
 }

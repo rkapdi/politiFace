@@ -112,7 +112,7 @@ void main() {
       lapses: Value(1),
       reviewCount: Value(12),
       isNew: Value(false),
-    ));
+    ),);
 
     await seedWith(_deckV2);
 

@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -26,9 +26,7 @@ import '../domain/round_state.dart';
 /// and showing a snackbar — never silent.
 class RoundRevealPhase extends ConsumerStatefulWidget {
   const RoundRevealPhase({
-    super.key,
-    required this.state,
-    required this.onDone,
+    required this.state, required this.onDone, super.key,
   });
 
   final DailyRoundState state;
@@ -132,8 +130,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
 
     return OverlayPortal(
       controller: _portalController,
-      overlayChildBuilder: (overlayContext) {
-        return Positioned(
+      overlayChildBuilder: (overlayContext) => Positioned(
           left: -10000,
           top: -10000,
           child: RepaintBoundary(
@@ -153,8 +150,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
               ),
             ),
           ),
-        );
-      },
+        ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -171,7 +167,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
                     .animate()
                     .scale(
                       begin: const Offset(0.4, 0.4),
-                      end: const Offset(1.0, 1.0),
+                      end: const Offset(1, 1),
                       duration: 520.ms,
                       curve: Curves.elasticOut,
                     )
@@ -317,12 +313,10 @@ class _ChapterCompletionStrip extends StatelessWidget {
   }
 }
 
-String _shareText(TriviaResult r) {
-  return 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
+String _shareText(TriviaResult r) => 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
       '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
-      '${r.gridEmojis.join('')}\n'
+      '${r.gridEmojis.join()}\n'
       'politiface.app';
-}
 
 Color _archetypeColor(TriviaArchetype a) {
   switch (a) {

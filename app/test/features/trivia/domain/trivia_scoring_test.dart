@@ -2,8 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/features/trivia/domain/trivia_question.dart';
 import 'package:politiface/features/trivia/domain/trivia_scoring.dart';
 
-TriviaQuestion _question({int correctIndex = 0}) {
-  return TriviaQuestion(
+TriviaQuestion _question({int correctIndex = 0}) => TriviaQuestion(
     cardId: 'c',
     format: TriviaFormat.photoToName,
     prompt: 'Who is this?',
@@ -11,18 +10,15 @@ TriviaQuestion _question({int correctIndex = 0}) {
     options: const ['A', 'B', 'C', 'D'],
     correctIndex: correctIndex,
   );
-}
 
 TriviaAnswer _answer({
   required bool correct,
   required TriviaConfidence confidence,
-}) {
-  return TriviaAnswer(
+}) => TriviaAnswer(
     question: _question(),
     answerIndex: correct ? 0 : 1,
     confidence: confidence,
   );
-}
 
 void main() {
   group('scoreAnswer matrix', () {

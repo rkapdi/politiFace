@@ -7,15 +7,15 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../daos/cards_dao.dart';
-import '../daos/reviews_dao.dart';
+import '../daos/chapter_progress_dao.dart';
+import '../daos/completed_runs_dao.dart';
+import '../daos/daily_rounds_dao.dart';
 import '../daos/decks_dao.dart';
 import '../daos/government_dao.dart';
-import '../daos/progress_dao.dart';
 import '../daos/meta_dao.dart';
-import '../daos/chapter_progress_dao.dart';
-import '../daos/daily_rounds_dao.dart';
 import '../daos/politician_bios_dao.dart';
-import '../daos/completed_runs_dao.dart';
+import '../daos/progress_dao.dart';
+import '../daos/reviews_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -115,9 +115,9 @@ class CardMemoryStates extends Table {
   // userId is 'local-user' for the no-account MVP. When Supabase auth ships,
   // backfill with auth.uid() and the rest of the schema is unchanged.
   TextColumn get userId          => text().withDefault(const Constant('local-user'))();
-  RealColumn get difficulty      => real().withDefault(const Constant(5.0))();   // FSRS D: 1-10
-  RealColumn get stability       => real().withDefault(const Constant(1.0))();   // FSRS S: days to 90% retention
-  RealColumn get retrievability  => real().withDefault(const Constant(1.0))();   // FSRS R: current recall probability
+  RealColumn get difficulty      => real().withDefault(const Constant(5))();   // FSRS D: 1-10
+  RealColumn get stability       => real().withDefault(const Constant(1))();   // FSRS S: days to 90% retention
+  RealColumn get retrievability  => real().withDefault(const Constant(1))();   // FSRS R: current recall probability
   IntColumn  get lastReviewedAt  => integer().withDefault(const Constant(0))();  // Unix timestamp
   IntColumn  get nextReviewAt    => integer().withDefault(const Constant(0))();  // Unix timestamp — INDEXED
   IntColumn  get intervalDays    => integer().withDefault(const Constant(1))();
@@ -295,7 +295,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   /// Test-only constructor. Inject an in-memory `NativeDatabase.memory()`.
-  AppDatabase.forTesting(QueryExecutor e) : super(e);
+  AppDatabase.forTesting(super.e);
 
   @override
   int get schemaVersion => 8;
@@ -322,7 +322,7 @@ class AppDatabase extends _$AppDatabase {
         // demonstrated-recall unlock gate. All additive ALTER TABLEs.
         await m.addColumn(cardMemoryStates, cardMemoryStates.userId);
         await m.addColumn(
-            cardMemoryStates, cardMemoryStates.practiceCountSinceReview);
+            cardMemoryStates, cardMemoryStates.practiceCountSinceReview,);
         await m.addColumn(cardMemoryStates, cardMemoryStates.lastGrade);
         await m.addColumn(reviewLogs, reviewLogs.userId);
         await m.addColumn(userNodeProgress, userNodeProgress.userId);
@@ -373,7 +373,5 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'politiface_db');
-  }
+  static QueryExecutor _openConnection() => driftDatabase(name: 'politiface_db');
 }

@@ -142,7 +142,7 @@ void main() {
     final a = (await db.governmentDao.nodes())
         .singleWhere((n) => n.id == 't-node-a');
     expect(a.name, 'TAMPERED',
-        reason: 'identical content must not re-seed');
+        reason: 'identical content must not re-seed',);
   });
 
   test('content update propagates without touching user unlock progress',
@@ -156,14 +156,14 @@ void main() {
       status: const Value('completed'),
       unlockedAt: const Value(1716000000),
       completedAt: const Value(1717000000),
-    ));
+    ),);
 
     await seedWith(_yamlV2);
 
     final nodes = await db.governmentDao.nodes();
     final b = nodes.singleWhere((n) => n.id == 't-node-b');
     expect(b.description, contains('updated description'),
-        reason: 'content edits must reach existing installs');
+        reason: 'content edits must reach existing installs',);
 
     final c = nodes.singleWhere((n) => n.id == 't-node-c');
     expect(c.tierOrder, 3);
@@ -188,7 +188,7 @@ void main() {
     final nodes = await db.governmentDao.nodes();
     final c = nodes.singleWhere((n) => n.id == 't-node-c');
     expect(c.isActive, false, reason: 'removed nodes deactivate, not delete');
-    expect((await db.progressDao.forNode('t-node-c')), isNotNull);
+    expect(await db.progressDao.forNode('t-node-c'), isNotNull);
 
     final active = nodes.where((n) => n.isActive).map((n) => n.id).toSet();
     expect(active, {'t-node-a', 't-node-b'});

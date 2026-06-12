@@ -11,8 +11,7 @@ class GovMapScreen extends ConsumerWidget {
   const GovMapScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) => Scaffold(
       appBar: AppBar(title: const Text('US Government')),
       body: OrgChartMap(
         onNodeTap: (nodeId) {
@@ -21,5 +20,4 @@ class GovMapScreen extends ConsumerWidget {
         },
       ),
     );
-  }
 }

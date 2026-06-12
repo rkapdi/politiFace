@@ -74,9 +74,9 @@ void main() {
   });
 
   group('FSRS Review Scheduling (repeat reviews)', () {
-    final wellLearnedState = MemoryState(
-      difficulty: 4.0,
-      stability: 30.0,
+    const wellLearnedState = MemoryState(
+      difficulty: 4,
+      stability: 30,
       retrievability: 0.9,
       lapses: 0,
       reviewCount: 10,
@@ -126,17 +126,17 @@ void main() {
 
     test('easy gives longer interval than good', () {
       final goodResult = fsrs.schedule(
-        current: wellLearnedState, grade: FSRSGrade.good, lastReviewedAt: lastReview);
+        current: wellLearnedState, grade: FSRSGrade.good, lastReviewedAt: lastReview,);
       final easyResult = fsrs.schedule(
-        current: wellLearnedState, grade: FSRSGrade.easy, lastReviewedAt: lastReview);
+        current: wellLearnedState, grade: FSRSGrade.easy, lastReviewedAt: lastReview,);
       expect(easyResult.intervalDays, greaterThan(goodResult.intervalDays));
     });
 
     test('hard gives shorter interval than good', () {
       final hardResult = fsrs.schedule(
-        current: wellLearnedState, grade: FSRSGrade.hard, lastReviewedAt: lastReview);
+        current: wellLearnedState, grade: FSRSGrade.hard, lastReviewedAt: lastReview,);
       final goodResult = fsrs.schedule(
-        current: wellLearnedState, grade: FSRSGrade.good, lastReviewedAt: lastReview);
+        current: wellLearnedState, grade: FSRSGrade.good, lastReviewedAt: lastReview,);
       expect(hardResult.intervalDays, lessThanOrEqualTo(goodResult.intervalDays));
     });
 
@@ -154,8 +154,8 @@ void main() {
 
   group('FSRS Edge Cases', () {
     test('zero elapsed days does not crash', () {
-      final state = MemoryState(
-        difficulty: 5.0, stability: 5.0, retrievability: 1.0,
+      const state = MemoryState(
+        difficulty: 5, stability: 5, retrievability: 1,
         lapses: 0, reviewCount: 1,
       );
       expect(
@@ -169,8 +169,8 @@ void main() {
     });
 
     test('very high stability does not produce infinite interval', () {
-      final state = MemoryState(
-        difficulty: 1.0, stability: 36500.0, retrievability: 0.9,
+      const state = MemoryState(
+        difficulty: 1, stability: 36500, retrievability: 0.9,
         lapses: 0, reviewCount: 100,
       );
       final result = fsrs.schedule(
@@ -182,8 +182,8 @@ void main() {
     });
 
     test('very low stability (near 0) does not crash', () {
-      final state = MemoryState(
-        difficulty: 10.0, stability: 0.1, retrievability: 0.1,
+      const state = MemoryState(
+        difficulty: 10, stability: 0.1, retrievability: 0.1,
         lapses: 50, reviewCount: 55,
       );
       expect(
@@ -197,8 +197,8 @@ void main() {
     });
 
     test('retrievability is always between 0 and 1', () {
-      final state = MemoryState(
-        difficulty: 5.0, stability: 10.0, retrievability: 0.9,
+      const state = MemoryState(
+        difficulty: 5, stability: 10, retrievability: 0.9,
         lapses: 0, reviewCount: 5,
       );
       for (final grade in FSRSGrade.values) {
@@ -213,7 +213,7 @@ void main() {
 
     test('difficulty stays clamped through repeated again grades', () {
       var state = MemoryState.initial;
-      for (int i = 0; i < 20; i++) {
+      for (var i = 0; i < 20; i++) {
         final result = fsrs.schedule(
           current: state,
           grade: FSRSGrade.again,
@@ -228,10 +228,10 @@ void main() {
     test('100 alternating good/again reviews does not crash', () {
       var state = MemoryState.initial;
       var lastReview = DateTime.now().subtract(const Duration(days: 1));
-      for (int i = 0; i < 100; i++) {
+      for (var i = 0; i < 100; i++) {
         final grade = i.isEven ? FSRSGrade.good : FSRSGrade.again;
         final result = fsrs.schedule(
-          current: state, grade: grade, lastReviewedAt: lastReview);
+          current: state, grade: grade, lastReviewedAt: lastReview,);
         state = result.nextState;
         lastReview = result.nextReviewAt.subtract(const Duration(days: 1));
         expect(state.stability, greaterThan(0.0));
@@ -242,18 +242,18 @@ void main() {
 
   group('FSRS Retrievability', () {
     test('retrievability at day 0 is near 1.0', () {
-      expect(fsrs.retrievability(0, 10.0), closeTo(1.0, 0.01));
+      expect(fsrs.retrievability(0, 10), closeTo(1.0, 0.01));
     });
 
     test('retrievability decreases over time', () {
-      final r10 = fsrs.retrievability(10, 20.0);
-      final r20 = fsrs.retrievability(20, 20.0);
+      final r10 = fsrs.retrievability(10, 20);
+      final r20 = fsrs.retrievability(20, 20);
       expect(r10, greaterThan(r20));
     });
 
     test('higher stability means higher retrievability at same elapsed time', () {
-      final lowStability  = fsrs.retrievability(30, 10.0);
-      final highStability = fsrs.retrievability(30, 60.0);
+      final lowStability  = fsrs.retrievability(30, 10);
+      final highStability = fsrs.retrievability(30, 60);
       expect(highStability, greaterThan(lowStability));
     });
   });

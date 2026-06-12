@@ -11,9 +11,7 @@ import '../../shared/widgets/state_views.dart';
 import '../data/memory_service.dart';
 import 'memory_field.dart';
 
-final memoryServiceProvider = Provider<MemoryService>((ref) {
-  return MemoryService(ref.watch(databaseProvider));
-});
+final memoryServiceProvider = Provider<MemoryService>((ref) => MemoryService(ref.watch(databaseProvider)));
 
 final memoryStatsProvider = FutureProvider<MemoryStats>((ref) async {
   // Refetch after every grade so stats stay current.
@@ -72,7 +70,7 @@ class _MemoryView extends StatelessWidget {
         const SizedBox(height: 8),
         _HeadlineRow(stats: stats),
         const SizedBox(height: 8),
-        _SectionTitle('Memory field'),
+        const _SectionTitle('Memory field'),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: MemoryField(orbits: stats.orbits),
@@ -82,10 +80,10 @@ class _MemoryView extends StatelessWidget {
           child: _FieldLegend(),
         ),
         const SizedBox(height: 16),
-        _SectionTitle('Mastery distribution'),
+        const _SectionTitle('Mastery distribution'),
         _TierDistribution(stats: stats),
         const SizedBox(height: 16),
-        _SectionTitle('Your strongest cards'),
+        const _SectionTitle('Your strongest cards'),
         ...stats.topCards.map((c) => _TopCardTile(entry: c)),
         const SizedBox(height: 32),
       ],
@@ -201,8 +199,7 @@ class _StrengthRing extends StatelessWidget {
       tween: Tween(begin: 0, end: value.clamp(0, 100)),
       duration: const Duration(milliseconds: 1000),
       curve: Curves.easeOutCubic,
-      builder: (context, animated, _) {
-        return CustomPaint(
+      builder: (context, animated, _) => CustomPaint(
           painter: _RingPainter(
             value: animated,
             color: color,
@@ -227,7 +224,7 @@ class _StrengthRing extends StatelessWidget {
                     '/ 100',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
-                      letterSpacing: 1.0,
+                      letterSpacing: 1,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -235,8 +232,7 @@ class _StrengthRing extends StatelessWidget {
               ),
             ),
           ),
-        );
-      },
+        ),
     );
   }
 }
@@ -256,7 +252,7 @@ class _RingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.shortestSide / 2 - 4;
-    final strokeWidth = 6.0;
+    const strokeWidth = 6.0;
     final bg = Paint()
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
@@ -453,7 +449,6 @@ class _TierRow extends StatelessWidget {
     final theme = Theme.of(context);
     final color = _levelColor(level, theme);
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         SizedBox(
           width: 80,
@@ -532,8 +527,7 @@ class _TierTrack extends StatelessWidget {
   final Color backgroundColor;
 
   @override
-  Widget build(BuildContext context) {
-    return SizedBox(
+  Widget build(BuildContext context) => SizedBox(
       height: 22,
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: 0, end: 1),
@@ -552,7 +546,6 @@ class _TierTrack extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class _TrackPainter extends CustomPainter {

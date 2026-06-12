@@ -6,9 +6,7 @@ import 'package:politiface/features/curriculum/data/curriculum_loader.dart';
 import 'package:politiface/features/curriculum/domain/curriculum.dart';
 
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   late AppDatabase db;
   late ContentLinker linker;
@@ -46,7 +44,7 @@ void main() {
           externalId: 'test-deck',
           name: 'Test deck',
           updatedAt: now,
-        ));
+        ),);
     await db.into(db.localCards).insert(LocalCardsCompanion.insert(
           id: 'card_test',
           deckId: 'deck_test',
@@ -55,7 +53,7 @@ void main() {
           title: 'The Constitution is supreme',
           sourceUrl: '',
           updatedAt: now,
-        ));
+        ),);
 
     final item = curriculum.itemById(itemId)!;
     final card = await linker.cardFor(item);
@@ -73,7 +71,7 @@ void main() {
           externalId: 'test-deck',
           name: 'Test deck',
           updatedAt: now,
-        ));
+        ),);
     await db.into(db.localCards).insert(LocalCardsCompanion.insert(
           id: 'card_present',
           deckId: 'deck_test',
@@ -82,7 +80,7 @@ void main() {
           title: 'Present card',
           sourceUrl: '',
           updatedAt: now,
-        ));
+        ),);
 
     final items = [
       curriculum.itemById(present)!,

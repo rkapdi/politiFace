@@ -102,8 +102,7 @@ class _FilterRow extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
+  Widget build(BuildContext context) => SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
       child: Row(
@@ -122,7 +121,6 @@ class _FilterRow extends StatelessWidget {
         ],
       ),
     );
-  }
 }
 
 class _Chip extends StatelessWidget {
@@ -284,7 +282,7 @@ class _Row extends StatelessWidget {
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: modeColor,
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
+                      letterSpacing: 1,
                     ),
                   ),
                 ),

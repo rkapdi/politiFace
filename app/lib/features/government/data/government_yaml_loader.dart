@@ -140,7 +140,7 @@ class GovernmentYamlLoader {
     final tierOrder = raw['tier_order'];
     if (name is! String || shortName is! String || nodeType is! String) {
       throw FormatException(
-          'government.yaml: node $id missing name/short_name/node_type');
+          'government.yaml: node $id missing name/short_name/node_type',);
     }
     if (tierOrder is! int) {
       throw FormatException('government.yaml: node $id missing tier_order');
@@ -155,7 +155,7 @@ class GovernmentYamlLoader {
       nodeType: nodeType,
       tierOrder: tierOrder,
       unlockRequires: [
-        for (final r in (raw['unlock_requires'] as List? ?? const []))
+        for (final r in raw['unlock_requires'] as List? ?? const [])
           r as String,
       ],
       mapX: _toDouble(map['x'], id, 'map.x'),

@@ -43,9 +43,7 @@ class SettingsService {
     }
   }
 
-  Future<void> setThemeMode(ThemeMode mode) {
-    return _db.metaDao.set(_kThemeMode, _wireName(mode));
-  }
+  Future<void> setThemeMode(ThemeMode mode) => _db.metaDao.set(_kThemeMode, _wireName(mode));
 
   String _wireName(ThemeMode m) {
     switch (m) {

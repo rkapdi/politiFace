@@ -32,7 +32,7 @@ enum TriviaArchetype {
   humbleApprentice(
     emoji: '🙏',
     name: 'Humble Apprentice',
-    blurb: "You didn't know, you said you didn't know, and now you might.");
+    blurb: "You didn't know, you said you didn't know, and now you might.",);
 
   const TriviaArchetype({
     required this.emoji,
@@ -152,7 +152,7 @@ TriviaResult summarize(List<TriviaAnswer> answers) {
       totalScore: 0,
       correctCount: 0,
       totalQuestions: 0,
-      averageConfidence: 1.0,
+      averageConfidence: 1,
       archetype: TriviaArchetype.humbleApprentice,
       gridEmojis: [],
     );

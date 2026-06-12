@@ -82,8 +82,7 @@ class RoundCard {
   /// 0..3 once graded; null while the card is still face-down.
   final int? grade;
 
-  RoundCard copyWith({int? grade}) {
-    return RoundCard(
+  RoundCard copyWith({int? grade}) => RoundCard(
       cardId: cardId,
       prompt: prompt,
       answer: answer,
@@ -91,7 +90,6 @@ class RoundCard {
       photoUrl: photoUrl,
       grade: grade ?? this.grade,
     );
-  }
 }
 
 /// One trivia MCQ inside the trivia phase. The question + answer match
@@ -108,9 +106,7 @@ class RoundTrivia {
   /// Set once the user picks an option + confidence; null while pending.
   final TriviaAnswer? answer;
 
-  RoundTrivia copyWith({TriviaAnswer? answer}) {
-    return RoundTrivia(question: question, answer: answer ?? this.answer);
-  }
+  RoundTrivia copyWith({TriviaAnswer? answer}) => RoundTrivia(question: question, answer: answer ?? this.answer);
 
   bool get isAnswered => answer != null;
 }
@@ -195,8 +191,7 @@ class DailyRoundState {
     List<RoundCard>? cards,
     List<RoundTrivia>? trivia,
     TriviaResult? result,
-  }) {
-    return DailyRoundState(
+  }) => DailyRoundState(
       dateIso: dateIso,
       chapterId: chapterId,
       chapterTitle: chapterTitle,
@@ -208,7 +203,6 @@ class DailyRoundState {
       trivia: trivia ?? this.trivia,
       result: result ?? this.result,
     );
-  }
 }
 
 /// Reason a round can't be started — surfaced to the UI as a structured

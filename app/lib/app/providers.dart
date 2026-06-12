@@ -11,11 +11,11 @@ import '../features/curriculum/data/chapter_progress_service.dart';
 import '../features/curriculum/data/content_linker.dart';
 import '../features/curriculum/data/curriculum_loader.dart';
 import '../features/curriculum/domain/curriculum.dart';
+import '../features/government/data/node_unlock_service.dart';
+import '../features/profile/data/profile_service.dart';
 import '../features/round/application/daily_round_controller.dart';
 import '../features/round/data/chapter_content_sampler.dart';
 import '../features/round/domain/round_state.dart';
-import '../features/government/data/node_unlock_service.dart';
-import '../features/profile/data/profile_service.dart';
 import '../features/session/data/card_review_repository.dart';
 import '../features/session/data/pending_session_store.dart';
 import '../features/session/domain/fsrs_algorithm.dart';
@@ -29,17 +29,13 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 
 final fsrsProvider = Provider<FSRS>((ref) => const FSRS());
 
-final profileServiceProvider = Provider<ProfileService>((ref) {
-  return ProfileService(ref.watch(databaseProvider));
-});
+final profileServiceProvider = Provider<ProfileService>((ref) => ProfileService(ref.watch(databaseProvider)));
 
-final cardReviewRepositoryProvider = Provider<CardReviewRepository>((ref) {
-  return CardReviewRepository(
+final cardReviewRepositoryProvider = Provider<CardReviewRepository>((ref) => CardReviewRepository(
     ref.watch(databaseProvider),
     ref.watch(fsrsProvider),
     ref.watch(profileServiceProvider),
-  );
-});
+  ),);
 
 final profileProvider = FutureProvider<UserProfile>((ref) async {
   // Watching the session controller forces a refetch after every review.
@@ -50,13 +46,9 @@ final profileProvider = FutureProvider<UserProfile>((ref) async {
 /// Bumped by SessionController after each grade so [profileProvider] refetches.
 final sessionTickProvider = StateProvider<int>((ref) => 0);
 
-final nodeUnlockServiceProvider = Provider<NodeUnlockService>((ref) {
-  return NodeUnlockService(ref.watch(databaseProvider));
-});
+final nodeUnlockServiceProvider = Provider<NodeUnlockService>((ref) => NodeUnlockService(ref.watch(databaseProvider)));
 
-final pendingSessionStoreProvider = Provider<PendingSessionStore>((ref) {
-  return PendingSessionStore(ref.watch(databaseProvider));
-});
+final pendingSessionStoreProvider = Provider<PendingSessionStore>((ref) => PendingSessionStore(ref.watch(databaseProvider)));
 
 /// Initial route, set in main() based on the onboarding flag.
 final initialRouteProvider = Provider<String>((ref) => '/');
@@ -64,9 +56,7 @@ final initialRouteProvider = Provider<String>((ref) => '/');
 /// Controls MaterialApp.themeMode. Defaults to system on first launch; the
 /// Settings screen flips it and persists the choice via SettingsService.
 final themeModeProvider =
-    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) {
-  return ThemeModeNotifier(ref.read(databaseProvider));
-});
+    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) => ThemeModeNotifier(ref.read(databaseProvider)));
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier(this._db) : super(ThemeMode.system) {
@@ -98,9 +88,7 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-final routerProvider = Provider<GoRouter>((ref) {
-  return buildRouter(initialLocation: ref.read(initialRouteProvider));
-});
+final routerProvider = Provider<GoRouter>((ref) => buildRouter(initialLocation: ref.read(initialRouteProvider)));
 
 // Null = global session (FSRS-driven across all decks).
 // Set by NodeDetailScreen before navigating to /session.
@@ -123,24 +111,16 @@ final cardRevealedProvider = StateProvider<bool>((ref) => false);
 
 // ── Curriculum (chapter-aware daily round) ──────────────────────────────────
 
-final curriculumLoaderProvider = Provider<CurriculumLoader>((_) {
-  return CurriculumLoader();
-});
+final curriculumLoaderProvider = Provider<CurriculumLoader>((_) => CurriculumLoader());
 
 /// Parsed `us_civics.yaml`. Loaded once per app launch; cached for the
 /// lifetime of the Riverpod scope.
-final curriculumProvider = FutureProvider<Curriculum>((ref) async {
-  return ref.watch(curriculumLoaderProvider).load();
-});
+final curriculumProvider = FutureProvider<Curriculum>((ref) async => ref.watch(curriculumLoaderProvider).load());
 
 final chapterProgressServiceProvider =
-    Provider<ChapterProgressService>((ref) {
-  return ChapterProgressService(ref.watch(databaseProvider));
-});
+    Provider<ChapterProgressService>((ref) => ChapterProgressService(ref.watch(databaseProvider)));
 
-final contentLinkerProvider = Provider<ContentLinker>((ref) {
-  return ContentLinker(ref.watch(databaseProvider));
-});
+final contentLinkerProvider = Provider<ContentLinker>((ref) => ContentLinker(ref.watch(databaseProvider)));
 
 /// The user's current in-progress chapter entry, or null when the season is
 /// done. Returns null while [curriculumProvider] is still loading.
@@ -168,15 +148,11 @@ final seasonProgressProvider =
 
 // ── Atlas branch info (library blurbs) ──────────────────────────────────────
 
-final branchInfoLibraryProvider = FutureProvider<BranchInfoLibrary>((ref) {
-  return BranchInfoLoader().load();
-});
+final branchInfoLibraryProvider = FutureProvider<BranchInfoLibrary>((ref) => BranchInfoLoader().load());
 
 // ── Wikipedia bio service + per-card bio stream ─────────────────────────────
 
-final wikipediaBioServiceProvider = Provider<WikipediaBioService>((ref) {
-  return WikipediaBioService(ref.watch(databaseProvider));
-});
+final wikipediaBioServiceProvider = Provider<WikipediaBioService>((ref) => WikipediaBioService(ref.watch(databaseProvider)));
 
 /// Reactive bio for a single card. Subscribes to PoliticianBios row
 /// updates so the screen rebuilds when a fetch completes. Also triggers
@@ -191,19 +167,15 @@ final politicianBioProvider =
 
 // ── Daily Round (chapter-aware ritual) ──────────────────────────────────────
 
-final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) {
-  return ChapterContentSampler(
+final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) => ChapterContentSampler(
     ref.watch(databaseProvider),
     ref.watch(contentLinkerProvider),
-  );
-});
+  ),);
 
 /// The active round for today. Loads existing (mid-flight) or creates a new
 /// one on first read for the current date.
 final dailyRoundControllerProvider =
-    AsyncNotifierProvider<DailyRoundController, DailyRoundState>(() {
-  return DailyRoundController();
-});
+    AsyncNotifierProvider<DailyRoundController, DailyRoundState>(DailyRoundController.new);
 
 /// Lightweight check: has today's round been completed yet? Reads the
 /// `daily_rounds` DAO directly so home can render a "Played" badge

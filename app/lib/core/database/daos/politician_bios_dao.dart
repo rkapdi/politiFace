@@ -10,30 +10,20 @@ part 'politician_bios_dao.g.dart';
 @DriftAccessor(tables: [PoliticianBios])
 class PoliticianBiosDao extends DatabaseAccessor<AppDatabase>
     with _$PoliticianBiosDaoMixin {
-  PoliticianBiosDao(AppDatabase db) : super(db);
+  PoliticianBiosDao(super.db);
 
-  Future<PoliticianBio?> get(String cardId) {
-    return (select(politicianBios)..where((b) => b.cardId.equals(cardId)))
+  Future<PoliticianBio?> get(String cardId) => (select(politicianBios)..where((b) => b.cardId.equals(cardId)))
         .getSingleOrNull();
-  }
 
-  Future<List<PoliticianBio>> getAll() {
-    return select(politicianBios).get();
-  }
+  Future<List<PoliticianBio>> getAll() => select(politicianBios).get();
 
   /// Reactive watcher for the politician detail screen — refreshes when
   /// the bio backfills (e.g. fetch completes while the screen is open).
-  Stream<PoliticianBio?> watch(String cardId) {
-    return (select(politicianBios)..where((b) => b.cardId.equals(cardId)))
+  Stream<PoliticianBio?> watch(String cardId) => (select(politicianBios)..where((b) => b.cardId.equals(cardId)))
         .watchSingleOrNull();
-  }
 
-  Future<void> upsert(PoliticianBiosCompanion entry) {
-    return into(politicianBios).insertOnConflictUpdate(entry);
-  }
+  Future<void> upsert(PoliticianBiosCompanion entry) => into(politicianBios).insertOnConflictUpdate(entry);
 
   /// Wipe all bios (for testing / forced refresh). Not used in app code.
-  Future<int> deleteAll() {
-    return delete(politicianBios).go();
-  }
+  Future<int> deleteAll() => delete(politicianBios).go();
 }

@@ -19,7 +19,7 @@ import '../domain/round_state.dart';
 /// round; photo rendering comes back when the curriculum content layer
 /// catches up.
 class RoundCardsPhase extends ConsumerStatefulWidget {
-  const RoundCardsPhase({super.key, required this.state});
+  const RoundCardsPhase({required this.state, super.key});
   final DailyRoundState state;
 
   @override
@@ -127,8 +127,7 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
     );
   }
 
-  Widget _gradeBtn(String label, int grade, Color color) {
-    return FilledButton(
+  Widget _gradeBtn(String label, int grade, Color color) => FilledButton(
       onPressed: () => _grade(grade),
       style: FilledButton.styleFrom(
         backgroundColor: color,
@@ -136,13 +135,12 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
         padding: const EdgeInsets.symmetric(vertical: 14),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.0,
+          letterSpacing: 1,
           fontSize: 12,
         ),
       ),
       child: Text(label),
     );
-  }
 }
 
 class _CardFront extends StatelessWidget {
@@ -248,10 +246,7 @@ class _CardBack extends StatelessWidget {
 /// don't have to widen the session module's public API for one consumer.
 class _FlipCard extends StatelessWidget {
   const _FlipCard({
-    super.key,
-    required this.revealed,
-    required this.front,
-    required this.back,
+    required this.revealed, required this.front, required this.back, super.key,
   });
 
   final bool revealed;
@@ -259,8 +254,7 @@ class _FlipCard extends StatelessWidget {
   final Widget back;
 
   @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
       // begin = end on remount — prevents the flash-of-back-side bug the
       // session screen also fixed by keying the flip card.
       tween: Tween<double>(begin: revealed ? 1.0 : 0.0, end: revealed ? 1.0 : 0.0),
@@ -284,5 +278,4 @@ class _FlipCard extends StatelessWidget {
         );
       },
     );
-  }
 }

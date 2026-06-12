@@ -7,9 +7,7 @@ void main() {
   // validates the v1 curriculum is internally consistent. Tests that
   // touch the file system bind to the real rootBundle via
   // TestWidgetsFlutterBinding.
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   test('loads the bundled us_civics.yaml without error', () async {
     final curriculum = await CurriculumLoader().load();
@@ -39,7 +37,7 @@ void main() {
     );
     for (final branch in curriculum.branches) {
       expect(branch.conceptNodes, isNotEmpty,
-          reason: 'branch ${branch.id} has no concept nodes');
+          reason: 'branch ${branch.id} has no concept nodes',);
     }
   });
 
@@ -51,7 +49,7 @@ void main() {
     for (final chapter in curriculum.chapters) {
       for (final id in chapter.itemIds) {
         expect(curriculum.itemById(id), isNotNull,
-            reason: 'chapter ${chapter.id} references missing item $id');
+            reason: 'chapter ${chapter.id} references missing item $id',);
       }
     }
   });
@@ -69,14 +67,14 @@ void main() {
         .map((e) => '${e.key} -> ${e.value.join(", ")}')
         .toList();
     expect(duplicates, isEmpty,
-        reason: 'curriculum items assigned to multiple chapters: $duplicates');
+        reason: 'curriculum items assigned to multiple chapters: $duplicates',);
 
     final orphans = curriculum.allItems
         .where((i) => !itemToChapters.containsKey(i.id))
         .map((i) => i.id)
         .toList();
     expect(orphans, isEmpty,
-        reason: 'curriculum items not assigned to any chapter: $orphans');
+        reason: 'curriculum items not assigned to any chapter: $orphans',);
   });
 
   test('chapterAfter walks the season in order, returns null past the end',
@@ -113,7 +111,7 @@ void main() {
     final curriculum = await CurriculumLoader().load();
     for (final item in curriculum.allItems) {
       expect(item.sources, isNotEmpty,
-          reason: 'item ${item.id} has no source attribution');
+          reason: 'item ${item.id} has no source attribution',);
     }
   });
 }

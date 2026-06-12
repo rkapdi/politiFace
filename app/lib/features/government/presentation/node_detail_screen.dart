@@ -9,7 +9,7 @@ import '../../shared/widgets/state_views.dart';
 import '../application/node_detail_data.dart';
 
 class NodeDetailScreen extends ConsumerWidget {
-  const NodeDetailScreen({super.key, required this.nodeId});
+  const NodeDetailScreen({required this.nodeId, super.key});
   final String nodeId;
 
   @override
@@ -63,7 +63,7 @@ class _NodeView extends ConsumerWidget {
           n.nodeType.toUpperCase(),
           style: theme.textTheme.labelMedium?.copyWith(
             color: theme.colorScheme.primary,
-            letterSpacing: 1.0,
+            letterSpacing: 1,
           ),
         ),
         const SizedBox(height: 16),
@@ -83,7 +83,7 @@ class _NodeView extends ConsumerWidget {
                   ref.invalidate(sessionControllerProvider);
                   context.go('/session');
                 },
-              )),
+              ),),
       ],
     );
   }
@@ -95,8 +95,7 @@ class _DeckTile extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
+  Widget build(BuildContext context) => Card(
       child: ListTile(
         title: Text(deck.name),
         subtitle: Text('${deck.cardCount} cards'),
@@ -108,7 +107,6 @@ class _DeckTile extends StatelessWidget {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       ),
     );
-  }
 }
 
 class _EmptyDecks extends StatelessWidget {
@@ -116,8 +114,7 @@ class _EmptyDecks extends StatelessWidget {
   final ThemeData theme;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+  Widget build(BuildContext context) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
       child: Row(
         children: [
@@ -137,5 +134,4 @@ class _EmptyDecks extends StatelessWidget {
         ],
       ),
     );
-  }
 }

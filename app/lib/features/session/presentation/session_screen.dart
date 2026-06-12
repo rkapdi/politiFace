@@ -242,10 +242,7 @@ class _CardViewState extends ConsumerState<_CardView> {
 /// TweenAnimationBuilder so we don't need an AnimationController.
 class _FlipCard extends StatelessWidget {
   const _FlipCard({
-    super.key,
-    required this.revealed,
-    required this.front,
-    required this.back,
+    required this.revealed, required this.front, required this.back, super.key,
   });
 
   final bool revealed;
@@ -253,8 +250,7 @@ class _FlipCard extends StatelessWidget {
   final Widget back;
 
   @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
       tween: Tween<double>(begin: 0, end: revealed ? 1.0 : 0.0),
       duration: const Duration(milliseconds: 480),
       curve: Curves.easeInOutCubic,
@@ -276,11 +272,10 @@ class _FlipCard extends StatelessWidget {
         );
       },
     );
-  }
 }
 
 class _Question extends StatelessWidget {
-  const _Question({super.key, required this.card});
+  const _Question({required this.card});
   final SessionCard card;
 
   @override
@@ -310,7 +305,7 @@ class _Question extends StatelessWidget {
 }
 
 class _Answer extends StatelessWidget {
-  const _Answer({super.key, required this.card});
+  const _Answer({required this.card});
   final SessionCard card;
 
   @override
@@ -363,14 +358,12 @@ class _Avatar extends StatelessWidget {
   final double radius;
 
   @override
-  Widget build(BuildContext context) {
-    return CardAvatar(
+  Widget build(BuildContext context) => CardAvatar(
       name: card.politicianName,
       radius: radius,
       photoUrl: card.photoUrl,
       lqipBase64: card.lqipBase64,
     );
-  }
 }
 
 class _GradeButton extends StatelessWidget {
@@ -384,8 +377,7 @@ class _GradeButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) {
-    return FilledButton(
+  Widget build(BuildContext context) => FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
         backgroundColor: color,
@@ -393,6 +385,4 @@ class _GradeButton extends StatelessWidget {
       ),
       child: Text(label),
     );
-  }
 }
-

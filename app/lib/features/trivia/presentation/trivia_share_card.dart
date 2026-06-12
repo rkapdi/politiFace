@@ -52,20 +52,20 @@ class TriviaShareCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'POLITIFACE',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: EditorialPalette.ink,
                           letterSpacing: 2.4,
-                          height: 1.0,
+                          height: 1,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         'DAILY TRIVIA · ${dateLabel.toUpperCase()}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: EditorialPalette.inkSubdued,
@@ -80,7 +80,6 @@ class TriviaShareCard extends StatelessWidget {
                   height: 8,
                   decoration: BoxDecoration(
                     color: accent,
-                    shape: BoxShape.rectangle,
                   ),
                 ),
               ],
@@ -105,10 +104,9 @@ class TriviaShareCard extends StatelessWidget {
                   SizedBox(
                     height: 140,
                     child: FittedBox(
-                      fit: BoxFit.contain,
                       child: Text(
                         result.archetype.emoji,
-                        style: const TextStyle(fontSize: 140, height: 1.0),
+                        style: const TextStyle(fontSize: 140, height: 1),
                       ),
                     ),
                   ),
@@ -137,7 +135,7 @@ class TriviaShareCard extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       color: scoreColor,
                       letterSpacing: -1,
-                      height: 1.0,
+                      height: 1,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
@@ -150,7 +148,7 @@ class TriviaShareCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                         maxLines: 3,
                         overflow: TextOverflow.fade,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: EditorialPalette.inkSubdued,
@@ -186,8 +184,8 @@ class TriviaShareCard extends StatelessWidget {
             color: EditorialPalette.rule,
             margin: const EdgeInsets.symmetric(horizontal: 24),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 14, 24, 22),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 14, 24, 22),
             child: Column(
               children: [
                 Text(
@@ -199,7 +197,7 @@ class TriviaShareCard extends StatelessWidget {
                     letterSpacing: 1.8,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   'politiface.app',
                   style: TextStyle(

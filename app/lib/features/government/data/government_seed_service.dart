@@ -70,7 +70,7 @@ class GovernmentSeedService {
           tierOrder: node.tierOrder,
           unlockRequires: Value(_encodeStringList(node.unlockRequires)),
           isActive: const Value(true),
-        ));
+        ),);
 
         // Create progress for nodes the user has never seen; NEVER overwrite
         // an existing row — a content update must not reset unlocks.
@@ -83,14 +83,14 @@ class GovernmentSeedService {
                 ? DateTime.now().millisecondsSinceEpoch ~/ 1000
                 : null,
           ),
-        ));
+        ),);
       }
 
       // Nodes removed from the YAML are deactivated, not deleted — decks and
       // progress rows may still reference them, and history must stay intact.
       await (_db.update(_db.govNodes)
             ..where((n) =>
-                n.governmentId.equals(gov.id) & n.id.isNotIn(yamlNodeIds)))
+                n.governmentId.equals(gov.id) & n.id.isNotIn(yamlNodeIds),))
           .write(const GovNodesCompanion(isActive: Value(false)));
 
       // Edges carry no user data and have no stable ids in the YAML, so
@@ -110,7 +110,7 @@ class GovernmentSeedService {
           lineStyle: Value(edge.lineStyle),
           lineColor: Value(edge.lineColor),
           arrowDirection: Value(edge.arrowDirection),
-        ));
+        ),);
       }
 
       // Backfill the genesis-era deck's nodeId for DBs created before the

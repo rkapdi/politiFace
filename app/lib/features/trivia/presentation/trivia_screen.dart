@@ -164,8 +164,7 @@ class _QuestionViewState extends ConsumerState<_QuestionView> {
                 physics: const ClampingScrollPhysics(),
                 itemCount: q.options.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, i) {
-                  return _OptionTile(
+                itemBuilder: (context, i) => _OptionTile(
                     label: q.options[i],
                     selected: pending == i,
                     revealMode: revealActive
@@ -183,8 +182,7 @@ class _QuestionViewState extends ConsumerState<_QuestionView> {
                                 .read(triviaControllerProvider.notifier)
                                 .selectAnswer(i);
                           },
-                  );
-                },
+                  ),
               ),
             ),
             // Confidence picker — appears once an answer is selected. This
@@ -229,8 +227,7 @@ class _ZoomablePromptAvatar extends StatelessWidget {
   final String? photoUrl;
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
         PhotoZoomModal.show(
@@ -251,7 +248,6 @@ class _ZoomablePromptAvatar extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class _ProgressDots extends StatelessWidget {
@@ -359,7 +355,7 @@ class _OptionTile extends StatelessWidget {
                 ),
                 if (isCorrectReveal)
                   Icon(Icons.check_circle,
-                      color: Colors.green.shade400, size: 22)
+                      color: Colors.green.shade400, size: 22,)
                 else if (isWrongReveal)
                   Icon(Icons.cancel, color: Colors.red.shade400, size: 22)
                 else if (selected)

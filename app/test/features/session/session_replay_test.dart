@@ -14,9 +14,7 @@ import 'package:politiface/features/session/application/session_controller.dart'
 import 'package:politiface/features/session/domain/fsrs_algorithm.dart';
 
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   late AppDatabase db;
   late ProviderContainer container;
@@ -25,7 +23,7 @@ void main() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     container = ProviderContainer(overrides: [
       databaseProvider.overrideWithValue(db),
-    ]);
+    ],);
   });
 
   tearDown(() {
@@ -42,7 +40,7 @@ void main() {
           externalId: 'd',
           name: 'd',
           updatedAt: now,
-        ));
+        ),);
     final ids = <String>[];
     for (var i = 0; i < count; i++) {
       final id = 'c$i';
@@ -55,15 +53,15 @@ void main() {
             title: 'Title $i',
             sourceUrl: '',
             updatedAt: now,
-          ));
+          ),);
       await db.reviewsDao.upsertState(CardMemoryStatesCompanion.insert(
         cardId: id,
         isNew: const Value(false),
         lastReviewedAt: Value(now),
         nextReviewAt: Value(now + 21 * 86400), // due in 3 weeks
-        stability: const Value(20.0),
+        stability: const Value(20),
         reviewCount: const Value(4),
-      ));
+      ),);
     }
     return ids;
   }
@@ -76,7 +74,7 @@ void main() {
     final state = await container.read(sessionControllerProvider.future);
 
     expect(state.totalPlanned, 3,
-        reason: 'non-due cards must load for a replay');
+        reason: 'non-due cards must load for a replay',);
     expect(state.isComplete, false);
     expect(ids, contains(state.currentCard!.cardId));
   });
@@ -113,7 +111,7 @@ void main() {
     // lastGrade ticks, FSRS stability untouched.
     final memory = await db.reviewsDao.stateFor(ids.first);
     expect(memory!.stability, 20.0,
-        reason: 'replay grades must not corrupt FSRS scheduling');
+        reason: 'replay grades must not corrupt FSRS scheduling',);
     expect(memory.lastGrade, FSRSGrade.good.value);
   });
 }

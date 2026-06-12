@@ -42,8 +42,7 @@ class SessionState {
     bool? isComplete,
     List<int>? gradeHistory,
     List<String>? reviewedCardIds,
-  }) {
-    return SessionState(
+  }) => SessionState(
       queue: queue,
       currentCard: clearCurrentCard ? null : (currentCard ?? this.currentCard),
       totalPlanned: totalPlanned,
@@ -55,7 +54,6 @@ class SessionState {
       gradeHistory: gradeHistory ?? this.gradeHistory,
       reviewedCardIds: reviewedCardIds ?? this.reviewedCardIds,
     );
-  }
 }
 
 class SessionController extends AsyncNotifier<SessionState> {
@@ -222,7 +220,7 @@ class SessionController extends AsyncNotifier<SessionState> {
       gradeHistory: s.gradeHistory,
       reviewedCardIds: s.reviewedCardIds,
       savedAtUnix: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-    ));
+    ),);
   }
 
   void reset() {

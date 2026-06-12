@@ -22,8 +22,8 @@ class LRUCache<K, V> {
   final _head = _Node<K, V>.sentinel();
   final _tail = _Node<K, V>.sentinel();
 
-  LRUCache(this.capacity) {
-    assert(capacity > 0, 'LRUCache capacity must be positive');
+  LRUCache(this.capacity)
+      : assert(capacity > 0, 'LRUCache capacity must be positive') {
     _head.next = _tail;
     _tail.prev = _head;
   }

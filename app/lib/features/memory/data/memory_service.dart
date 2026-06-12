@@ -204,7 +204,7 @@ class MemoryService {
           isNewCard: false,
           stability: s.stability,
         ),
-      ));
+      ),);
     }
 
     // Orbital entries — needs card metadata for every reviewed card, not just
@@ -227,7 +227,7 @@ class MemoryService {
           isNewCard: false,
           stability: s.stability,
         ),
-      ));
+      ),);
     }
 
     return MemoryStats(

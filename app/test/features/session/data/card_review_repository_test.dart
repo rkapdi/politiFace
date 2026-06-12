@@ -12,7 +12,7 @@ Future<void> _seedCard(AppDatabase db, String id, {bool newState = true}) async 
     externalId: 'deck-$id',
     name: 'Deck $id',
     updatedAt: 0,
-  ));
+  ),);
   await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
     id: id,
     deckId: 'deck-$id',
@@ -21,7 +21,7 @@ Future<void> _seedCard(AppDatabase db, String id, {bool newState = true}) async 
     title: 'Title $id',
     sourceUrl: 'about:blank',
     updatedAt: 0,
-  ));
+  ),);
   if (newState) {
     await db.reviewsDao.upsertState(
       CardMemoryStatesCompanion(cardId: Value(id), isNew: const Value(true)),
@@ -112,7 +112,7 @@ void main() {
       final cands = await repo.loadSessionCandidates();
       expect(cands.fresh, isEmpty);
       expect(cands.due, isEmpty,
-          reason: 'globally-driven session shouldnt include scheduled-out cards');
+          reason: 'globally-driven session shouldnt include scheduled-out cards',);
     });
   });
 
@@ -134,7 +134,7 @@ void main() {
       final cands = await repo.loadSessionCandidates(deckId: 'deck-a');
       final all = [...cands.fresh, ...cands.due];
       expect(all.length, 1,
-          reason: 'deck scope acts as study mode — include even non-due cards');
+          reason: 'deck scope acts as study mode — include even non-due cards',);
       expect(all.first.cardId, 'a');
     });
   });

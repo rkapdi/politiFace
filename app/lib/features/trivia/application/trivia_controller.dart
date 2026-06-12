@@ -47,14 +47,12 @@ class TriviaState {
     List<TriviaAnswer>? answers,
     int? pendingAnswerIndex,
     bool clearPending = false,
-  }) {
-    return TriviaState(
+  }) => TriviaState(
       questions: questions ?? this.questions,
       answers: answers ?? this.answers,
       pendingAnswerIndex:
           clearPending ? null : (pendingAnswerIndex ?? this.pendingAnswerIndex),
     );
-  }
 }
 
 class TriviaController extends AsyncNotifier<TriviaState> {
@@ -117,14 +115,13 @@ class TriviaController extends AsyncNotifier<TriviaState> {
         totalCount: Value(result.totalQuestions),
         summary: Value(result.archetype.name),
         payload: Value(jsonEncode(_serializeAnswers(s.answers))),
-      ));
+      ),);
     } catch (_) {
       // Swallow — we never want a history-write to crash the result screen.
     }
   }
 
-  List<Map<String, dynamic>> _serializeAnswers(List<TriviaAnswer> answers) {
-    return [
+  List<Map<String, dynamic>> _serializeAnswers(List<TriviaAnswer> answers) => [
       for (final a in answers)
         {
           'question': {
@@ -139,7 +136,6 @@ class TriviaController extends AsyncNotifier<TriviaState> {
           'confidence': a.confidence.name,
         },
     ];
-  }
 
   String _newRunId(String mode) {
     final epoch = DateTime.now().millisecondsSinceEpoch;

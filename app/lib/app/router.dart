@@ -19,8 +19,7 @@ import '../features/trivia/presentation/trivia_review_screen.dart';
 import '../features/trivia/presentation/trivia_screen.dart';
 import 'shell_scaffold.dart';
 
-GoRouter buildRouter({String initialLocation = '/'}) {
-  return GoRouter(
+GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
     initialLocation: initialLocation,
     routes: [
       StatefulShellRoute.indexedStack(
@@ -120,4 +119,3 @@ GoRouter buildRouter({String initialLocation = '/'}) {
       ),
     ],
   );
-}

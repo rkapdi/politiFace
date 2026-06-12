@@ -9,9 +9,7 @@ import 'package:flutter/material.dart';
 /// decoded from base64 stands in if available.
 class CardAvatar extends StatelessWidget {
   const CardAvatar({
-    super.key,
-    required this.name,
-    required this.radius,
+    required this.name, required this.radius, super.key,
     this.photoUrl,
     this.lqipBase64,
   });
@@ -22,13 +20,11 @@ class CardAvatar extends StatelessWidget {
   final String? lqipBase64;
 
   @override
-  Widget build(BuildContext context) {
-    return Semantics(
+  Widget build(BuildContext context) => Semantics(
       label: 'Photo of $name',
       image: true,
       child: _build(context),
     );
-  }
 
   Widget _build(BuildContext context) {
     final theme = Theme.of(context);
@@ -126,8 +122,7 @@ class CardAvatar extends StatelessWidget {
 /// photos and grid cells that should scale across iPhone SE → Pro Max.
 class ResponsiveCardAvatar extends StatelessWidget {
   const ResponsiveCardAvatar({
-    super.key,
-    required this.name,
+    required this.name, super.key,
     this.photoUrl,
     this.lqipBase64,
     this.factor = 0.28,
@@ -146,8 +141,7 @@ class ResponsiveCardAvatar extends StatelessWidget {
   final double maxRadius;
 
   @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
+  Widget build(BuildContext context) => LayoutBuilder(
       builder: (context, constraints) {
         final double basis;
         if (constraints.hasBoundedHeight && constraints.hasBoundedWidth) {
@@ -168,5 +162,4 @@ class ResponsiveCardAvatar extends StatelessWidget {
         );
       },
     );
-  }
 }

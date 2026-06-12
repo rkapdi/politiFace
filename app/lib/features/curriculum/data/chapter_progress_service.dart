@@ -55,7 +55,7 @@ class ChapterProgressService {
     for (final chapter in curriculum.chapters) {
       if (!completedIds.contains(chapter.id)) {
         return _startChapter(chapter,
-            userId: userId, seasonId: seasonId);
+            userId: userId, seasonId: seasonId,);
       }
     }
     return null; // Season complete.
@@ -79,12 +79,10 @@ class ChapterProgressService {
   Future<List<ChapterProgressEntry>> seasonProgress(
     String seasonId, {
     String userId = defaultUserId,
-  }) {
-    return _db.chapterProgressDao.listForSeason(
+  }) => _db.chapterProgressDao.listForSeason(
       userId: userId,
       seasonId: seasonId,
     );
-  }
 
   /// Called by the daily-round controller after a round completes. Advances
   /// `dayInChapter`. If that pushes past `chapter.days`, marks the chapter
@@ -167,7 +165,6 @@ class ChapterProgressService {
       dayInChapter: 1,
       roundsCompleted: 0,
       startedAt: now,
-      completedAt: null,
       updatedAt: now,
     );
   }

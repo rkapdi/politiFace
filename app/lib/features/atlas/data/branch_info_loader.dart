@@ -68,12 +68,12 @@ class BranchInfoLoader {
         short: entry['short'] as String? ?? '',
         summary: entry['summary'] as String? ?? '',
         quickFacts: [
-          for (final f in (entry['quick_facts'] as List<dynamic>? ?? const []))
+          for (final f in entry['quick_facts'] as List<dynamic>? ?? const [])
             '$f',
         ],
         relatedChapterIds: [
           for (final c
-              in (entry['related_chapters'] as List<dynamic>? ?? const []))
+              in entry['related_chapters'] as List<dynamic>? ?? const [])
             '$c',
         ],
       );
