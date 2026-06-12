@@ -18,7 +18,7 @@ class EndlessEngine {
   Future<List<LocalCard>> _loadPool() async {
     final cached = _pool;
     if (cached != null) return cached;
-    final cards = await _db.cardsDao.allActiveCards();
+    final cards = await _db.cardsDao.allActiveFaceCards();
     _pool = cards;
     return cards;
   }

@@ -161,6 +161,7 @@ class Chapter {
     required this.subtitle,
     required this.days,
     required this.itemIds,
+    this.lessons = const [],
   });
 
   final String id;
@@ -177,6 +178,45 @@ class Chapter {
   /// Curriculum item ids this chapter samples from. Each id must resolve
   /// against [Curriculum.itemById] — [CurriculumLoader] validates this.
   final List<String> itemIds;
+
+  /// Readable teaching content, the round's briefing phase. Ordered as
+  /// declared in the YAML. A chapter (or a given day) may have none —
+  /// the round then skips straight to cards.
+  final List<Lesson> lessons;
+
+  /// Lessons for a specific 1-based day of this chapter, in declaration
+  /// order.
+  List<Lesson> lessonsForDay(int day) =>
+      [for (final l in lessons) if (l.day == day) l];
+}
+
+/// A single readable lesson page — the teach step that precedes recall.
+/// Shown in the daily round's briefing phase and re-readable from the
+/// chapter sheet once encountered.
+class Lesson {
+  const Lesson({
+    required this.id,
+    required this.day,
+    required this.title,
+    required this.body,
+    this.relatedCardIds = const [],
+    this.source,
+  });
+
+  final String id;
+
+  /// 1-based day within the owning chapter this lesson briefs.
+  final int day;
+  final String title;
+
+  /// 2–4 sentences of neutral, sourced prose. Folded YAML scalar, trimmed.
+  final String body;
+
+  /// Cards the round should prefer drilling right after this briefing.
+  final List<String> relatedCardIds;
+
+  /// Citation URL (official source) backing the lesson's claims.
+  final String? source;
 }
 
 /// A top-level taxonomy bucket. Mirrors the map's existing branch structure

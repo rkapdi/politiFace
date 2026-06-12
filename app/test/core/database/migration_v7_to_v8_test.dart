@@ -1,4 +1,4 @@
-// Migration test: v7 → v8.
+// Migration test: v7 → current (v8 rename/drop, v9 concept-card columns).
 //
 // v8 does two things:
 //   1. Renames sync_meta → app_meta (the app's key-value store: streak, XP,
@@ -179,7 +179,15 @@ void main() {
     final version = (await db.customSelect('PRAGMA user_version').get())
         .single
         .read<int>('user_version');
-    expect(version, 8);
+    expect(version, 9);
+
+    // v9 concept-card columns exist with safe defaults on migrated rows.
+    final cardCols = (await db
+            .customSelect('PRAGMA table_info(local_cards)')
+            .get())
+        .map((r) => r.read<String>('name'))
+        .toSet();
+    expect(cardCols, containsAll(['card_type', 'body', 'recall_prompt']));
   });
 
   test('fresh install (onCreate) gets the v8 schema directly', () async {

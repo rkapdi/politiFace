@@ -162,7 +162,7 @@ final atlasViewProvider = FutureProvider<AtlasView>((ref) async {
 
   // Pull every input in parallel.
   final results = await Future.wait<dynamic>([
-    db.cardsDao.allActiveCards(),
+    db.cardsDao.allActiveFaceCards(),
     db.decksDao.allDecks(),
     db.governmentDao.nodes(),
     db.select(db.cardMemoryStates).get(),

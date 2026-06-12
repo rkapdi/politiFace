@@ -2180,6 +2180,25 @@ class $LocalCardsTable extends LocalCards
   late final GeneratedColumn<String> gender = GeneratedColumn<String>(
       'gender', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _cardTypeMeta =
+      const VerificationMeta('cardType');
+  @override
+  late final GeneratedColumn<String> cardType = GeneratedColumn<String>(
+      'card_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('face'));
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+      'body', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recallPromptMeta =
+      const VerificationMeta('recallPrompt');
+  @override
+  late final GeneratedColumn<String> recallPrompt = GeneratedColumn<String>(
+      'recall_prompt', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
   @override
   late final GeneratedColumn<String> tags = GeneratedColumn<String>(
@@ -2225,6 +2244,9 @@ class $LocalCardsTable extends LocalCards
         oneLiner,
         sourceUrl,
         gender,
+        cardType,
+        body,
+        recallPrompt,
         tags,
         isActive,
         sortOrder,
@@ -2307,6 +2329,20 @@ class $LocalCardsTable extends LocalCards
       context.handle(_genderMeta,
           gender.isAcceptableOrUnknown(data['gender']!, _genderMeta));
     }
+    if (data.containsKey('card_type')) {
+      context.handle(_cardTypeMeta,
+          cardType.isAcceptableOrUnknown(data['card_type']!, _cardTypeMeta));
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+          _bodyMeta, body.isAcceptableOrUnknown(data['body']!, _bodyMeta));
+    }
+    if (data.containsKey('recall_prompt')) {
+      context.handle(
+          _recallPromptMeta,
+          recallPrompt.isAcceptableOrUnknown(
+              data['recall_prompt']!, _recallPromptMeta));
+    }
     if (data.containsKey('tags')) {
       context.handle(
           _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
@@ -2358,6 +2394,12 @@ class $LocalCardsTable extends LocalCards
           .read(DriftSqlType.string, data['${effectivePrefix}source_url'])!,
       gender: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}gender']),
+      cardType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_type'])!,
+      body: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}body']),
+      recallPrompt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}recall_prompt']),
       tags: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
       isActive: attachedDatabase.typeMapping
@@ -2388,6 +2430,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
   final String? oneLiner;
   final String sourceUrl;
   final String? gender;
+  final String cardType;
+  final String? body;
+  final String? recallPrompt;
   final String tags;
   final bool isActive;
   final int sortOrder;
@@ -2405,6 +2450,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       this.oneLiner,
       required this.sourceUrl,
       this.gender,
+      required this.cardType,
+      this.body,
+      this.recallPrompt,
       required this.tags,
       required this.isActive,
       required this.sortOrder,
@@ -2435,6 +2483,13 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
     map['source_url'] = Variable<String>(sourceUrl);
     if (!nullToAbsent || gender != null) {
       map['gender'] = Variable<String>(gender);
+    }
+    map['card_type'] = Variable<String>(cardType);
+    if (!nullToAbsent || body != null) {
+      map['body'] = Variable<String>(body);
+    }
+    if (!nullToAbsent || recallPrompt != null) {
+      map['recall_prompt'] = Variable<String>(recallPrompt);
     }
     map['tags'] = Variable<String>(tags);
     map['is_active'] = Variable<bool>(isActive);
@@ -2467,6 +2522,11 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       sourceUrl: Value(sourceUrl),
       gender:
           gender == null && nullToAbsent ? const Value.absent() : Value(gender),
+      cardType: Value(cardType),
+      body: body == null && nullToAbsent ? const Value.absent() : Value(body),
+      recallPrompt: recallPrompt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recallPrompt),
       tags: Value(tags),
       isActive: Value(isActive),
       sortOrder: Value(sortOrder),
@@ -2490,6 +2550,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       oneLiner: serializer.fromJson<String?>(json['oneLiner']),
       sourceUrl: serializer.fromJson<String>(json['sourceUrl']),
       gender: serializer.fromJson<String?>(json['gender']),
+      cardType: serializer.fromJson<String>(json['cardType']),
+      body: serializer.fromJson<String?>(json['body']),
+      recallPrompt: serializer.fromJson<String?>(json['recallPrompt']),
       tags: serializer.fromJson<String>(json['tags']),
       isActive: serializer.fromJson<bool>(json['isActive']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
@@ -2512,6 +2575,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       'oneLiner': serializer.toJson<String?>(oneLiner),
       'sourceUrl': serializer.toJson<String>(sourceUrl),
       'gender': serializer.toJson<String?>(gender),
+      'cardType': serializer.toJson<String>(cardType),
+      'body': serializer.toJson<String?>(body),
+      'recallPrompt': serializer.toJson<String?>(recallPrompt),
       'tags': serializer.toJson<String>(tags),
       'isActive': serializer.toJson<bool>(isActive),
       'sortOrder': serializer.toJson<int>(sortOrder),
@@ -2532,6 +2598,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           Value<String?> oneLiner = const Value.absent(),
           String? sourceUrl,
           Value<String?> gender = const Value.absent(),
+          String? cardType,
+          Value<String?> body = const Value.absent(),
+          Value<String?> recallPrompt = const Value.absent(),
           String? tags,
           bool? isActive,
           int? sortOrder,
@@ -2550,6 +2619,10 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
         oneLiner: oneLiner.present ? oneLiner.value : this.oneLiner,
         sourceUrl: sourceUrl ?? this.sourceUrl,
         gender: gender.present ? gender.value : this.gender,
+        cardType: cardType ?? this.cardType,
+        body: body.present ? body.value : this.body,
+        recallPrompt:
+            recallPrompt.present ? recallPrompt.value : this.recallPrompt,
         tags: tags ?? this.tags,
         isActive: isActive ?? this.isActive,
         sortOrder: sortOrder ?? this.sortOrder,
@@ -2575,6 +2648,11 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       oneLiner: data.oneLiner.present ? data.oneLiner.value : this.oneLiner,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
       gender: data.gender.present ? data.gender.value : this.gender,
+      cardType: data.cardType.present ? data.cardType.value : this.cardType,
+      body: data.body.present ? data.body.value : this.body,
+      recallPrompt: data.recallPrompt.present
+          ? data.recallPrompt.value
+          : this.recallPrompt,
       tags: data.tags.present ? data.tags.value : this.tags,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
@@ -2597,6 +2675,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           ..write('oneLiner: $oneLiner, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('gender: $gender, ')
+          ..write('cardType: $cardType, ')
+          ..write('body: $body, ')
+          ..write('recallPrompt: $recallPrompt, ')
           ..write('tags: $tags, ')
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
@@ -2619,6 +2700,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       oneLiner,
       sourceUrl,
       gender,
+      cardType,
+      body,
+      recallPrompt,
       tags,
       isActive,
       sortOrder,
@@ -2639,6 +2723,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           other.oneLiner == this.oneLiner &&
           other.sourceUrl == this.sourceUrl &&
           other.gender == this.gender &&
+          other.cardType == this.cardType &&
+          other.body == this.body &&
+          other.recallPrompt == this.recallPrompt &&
           other.tags == this.tags &&
           other.isActive == this.isActive &&
           other.sortOrder == this.sortOrder &&
@@ -2658,6 +2745,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
   final Value<String?> oneLiner;
   final Value<String> sourceUrl;
   final Value<String?> gender;
+  final Value<String> cardType;
+  final Value<String?> body;
+  final Value<String?> recallPrompt;
   final Value<String> tags;
   final Value<bool> isActive;
   final Value<int> sortOrder;
@@ -2676,6 +2766,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     this.oneLiner = const Value.absent(),
     this.sourceUrl = const Value.absent(),
     this.gender = const Value.absent(),
+    this.cardType = const Value.absent(),
+    this.body = const Value.absent(),
+    this.recallPrompt = const Value.absent(),
     this.tags = const Value.absent(),
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -2695,6 +2788,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     this.oneLiner = const Value.absent(),
     required String sourceUrl,
     this.gender = const Value.absent(),
+    this.cardType = const Value.absent(),
+    this.body = const Value.absent(),
+    this.recallPrompt = const Value.absent(),
     this.tags = const Value.absent(),
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -2720,6 +2816,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     Expression<String>? oneLiner,
     Expression<String>? sourceUrl,
     Expression<String>? gender,
+    Expression<String>? cardType,
+    Expression<String>? body,
+    Expression<String>? recallPrompt,
     Expression<String>? tags,
     Expression<bool>? isActive,
     Expression<int>? sortOrder,
@@ -2739,6 +2838,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       if (oneLiner != null) 'one_liner': oneLiner,
       if (sourceUrl != null) 'source_url': sourceUrl,
       if (gender != null) 'gender': gender,
+      if (cardType != null) 'card_type': cardType,
+      if (body != null) 'body': body,
+      if (recallPrompt != null) 'recall_prompt': recallPrompt,
       if (tags != null) 'tags': tags,
       if (isActive != null) 'is_active': isActive,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -2760,6 +2862,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       Value<String?>? oneLiner,
       Value<String>? sourceUrl,
       Value<String?>? gender,
+      Value<String>? cardType,
+      Value<String?>? body,
+      Value<String?>? recallPrompt,
       Value<String>? tags,
       Value<bool>? isActive,
       Value<int>? sortOrder,
@@ -2778,6 +2883,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       oneLiner: oneLiner ?? this.oneLiner,
       sourceUrl: sourceUrl ?? this.sourceUrl,
       gender: gender ?? this.gender,
+      cardType: cardType ?? this.cardType,
+      body: body ?? this.body,
+      recallPrompt: recallPrompt ?? this.recallPrompt,
       tags: tags ?? this.tags,
       isActive: isActive ?? this.isActive,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -2825,6 +2933,15 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     if (gender.present) {
       map['gender'] = Variable<String>(gender.value);
     }
+    if (cardType.present) {
+      map['card_type'] = Variable<String>(cardType.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (recallPrompt.present) {
+      map['recall_prompt'] = Variable<String>(recallPrompt.value);
+    }
     if (tags.present) {
       map['tags'] = Variable<String>(tags.value);
     }
@@ -2858,6 +2975,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
           ..write('oneLiner: $oneLiner, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('gender: $gender, ')
+          ..write('cardType: $cardType, ')
+          ..write('body: $body, ')
+          ..write('recallPrompt: $recallPrompt, ')
           ..write('tags: $tags, ')
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
@@ -2893,7 +3013,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
       'difficulty', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(5.0));
+      defaultValue: const Constant(5));
   static const VerificationMeta _stabilityMeta =
       const VerificationMeta('stability');
   @override
@@ -2901,7 +3021,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
       'stability', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(1.0));
+      defaultValue: const Constant(1));
   static const VerificationMeta _retrievabilityMeta =
       const VerificationMeta('retrievability');
   @override
@@ -2909,7 +3029,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
       'retrievability', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(1.0));
+      defaultValue: const Constant(1));
   static const VerificationMeta _lastReviewedAtMeta =
       const VerificationMeta('lastReviewedAt');
   @override
@@ -7629,6 +7749,9 @@ typedef $$LocalCardsTableCreateCompanionBuilder = LocalCardsCompanion Function({
   Value<String?> oneLiner,
   required String sourceUrl,
   Value<String?> gender,
+  Value<String> cardType,
+  Value<String?> body,
+  Value<String?> recallPrompt,
   Value<String> tags,
   Value<bool> isActive,
   Value<int> sortOrder,
@@ -7648,6 +7771,9 @@ typedef $$LocalCardsTableUpdateCompanionBuilder = LocalCardsCompanion Function({
   Value<String?> oneLiner,
   Value<String> sourceUrl,
   Value<String?> gender,
+  Value<String> cardType,
+  Value<String?> body,
+  Value<String?> recallPrompt,
   Value<String> tags,
   Value<bool> isActive,
   Value<int> sortOrder,
@@ -7700,6 +7826,15 @@ class $$LocalCardsTableFilterComposer
 
   ColumnFilters<String> get gender => $composableBuilder(
       column: $table.gender, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cardType => $composableBuilder(
+      column: $table.cardType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get body => $composableBuilder(
+      column: $table.body, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recallPrompt => $composableBuilder(
+      column: $table.recallPrompt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnFilters(column));
@@ -7761,6 +7896,16 @@ class $$LocalCardsTableOrderingComposer
   ColumnOrderings<String> get gender => $composableBuilder(
       column: $table.gender, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get cardType => $composableBuilder(
+      column: $table.cardType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get body => $composableBuilder(
+      column: $table.body, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recallPrompt => $composableBuilder(
+      column: $table.recallPrompt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnOrderings(column));
 
@@ -7819,6 +7964,15 @@ class $$LocalCardsTableAnnotationComposer
   GeneratedColumn<String> get gender =>
       $composableBuilder(column: $table.gender, builder: (column) => column);
 
+  GeneratedColumn<String> get cardType =>
+      $composableBuilder(column: $table.cardType, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<String> get recallPrompt => $composableBuilder(
+      column: $table.recallPrompt, builder: (column) => column);
+
   GeneratedColumn<String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
 
@@ -7867,6 +8021,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             Value<String?> oneLiner = const Value.absent(),
             Value<String> sourceUrl = const Value.absent(),
             Value<String?> gender = const Value.absent(),
+            Value<String> cardType = const Value.absent(),
+            Value<String?> body = const Value.absent(),
+            Value<String?> recallPrompt = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -7886,6 +8043,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             oneLiner: oneLiner,
             sourceUrl: sourceUrl,
             gender: gender,
+            cardType: cardType,
+            body: body,
+            recallPrompt: recallPrompt,
             tags: tags,
             isActive: isActive,
             sortOrder: sortOrder,
@@ -7905,6 +8065,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             Value<String?> oneLiner = const Value.absent(),
             required String sourceUrl,
             Value<String?> gender = const Value.absent(),
+            Value<String> cardType = const Value.absent(),
+            Value<String?> body = const Value.absent(),
+            Value<String?> recallPrompt = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -7924,6 +8087,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             oneLiner: oneLiner,
             sourceUrl: sourceUrl,
             gender: gender,
+            cardType: cardType,
+            body: body,
+            recallPrompt: recallPrompt,
             tags: tags,
             isActive: isActive,
             sortOrder: sortOrder,

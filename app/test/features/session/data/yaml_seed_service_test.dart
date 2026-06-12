@@ -10,6 +10,7 @@ import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/core/database/drift/app_database.dart';
+import 'package:politiface/features/curriculum/data/content_linker.dart';
 import 'package:politiface/features/session/data/yaml_seed_service.dart';
 
 import '../../../helpers/fake_asset_bundle.dart';
@@ -142,5 +143,48 @@ void main() {
     await seedWith(_deckV1);
     expect(await db.metaDao.get('yaml_seed_v3_done'), isNull);
     expect(await db.metaDao.get('seed.decks_hash'), isNotNull);
+  });
+
+  test('concept cards seed with type/body/prompt; linker resolves by id',
+      () async {
+    const conceptDeck = '''
+meta:
+  id: concepts
+  name: "Concepts"
+cards:
+  - id: decl.purpose
+    type: concept
+    name: "The Declaration"
+    title: "Founding document"
+    body: >
+      Teaching prose here.
+    prompt: "What did it do?"
+    source: "https://www.archives.gov/founding-docs/declaration"
+''';
+    await seedWith(conceptDeck);
+
+    final card = (await db.select(db.localCards).get()).single;
+    expect(card.cardType, 'concept');
+    expect(card.body, 'Teaching prose here.');
+    expect(card.recallPrompt, 'What did it do?');
+
+    // ContentLinker convention: card id == curriculum item id.
+    final resolved = await ContentLinker(db).cardForId('decl.purpose');
+    expect(resolved, isNotNull);
+    expect(resolved!.cardType, 'concept');
+
+    // Face-only pools exclude concept cards (no photo, not a politician).
+    expect(await db.cardsDao.allActiveFaceCards(), isEmpty);
+    expect(await db.cardsDao.allActiveCards(), hasLength(1));
+  });
+
+  test('face cards default to cardType face with null concept fields',
+      () async {
+    await seedWith(_deckV1);
+    final card = (await db.select(db.localCards).get()).single;
+    expect(card.cardType, 'face');
+    expect(card.body, isNull);
+    expect(card.recallPrompt, isNull);
+    expect(await db.cardsDao.allActiveFaceCards(), hasLength(1));
   });
 }

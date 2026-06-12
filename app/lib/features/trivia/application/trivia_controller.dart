@@ -59,7 +59,7 @@ class TriviaController extends AsyncNotifier<TriviaState> {
   @override
   Future<TriviaState> build() async {
     final db = ref.read(databaseProvider);
-    final cards = await db.cardsDao.allActiveCards();
+    final cards = await db.cardsDao.allActiveFaceCards();
     final questions = const TriviaGenerator()
         .generate(date: DateTime.now(), cards: cards);
     return TriviaState(

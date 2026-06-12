@@ -114,4 +114,31 @@ void main() {
           reason: 'item ${item.id} has no source attribution',);
     }
   });
+
+  // ── Lesson layer (Phase 6) ────────────────────────────────────────────
+
+  test('chapter 1 carries lessons for both days with valid related cards',
+      () async {
+    final curriculum = await CurriculumLoader().load();
+    final ch1 = curriculum.chapters.first;
+    expect(ch1.lessons, isNotEmpty);
+    expect(ch1.lessonsForDay(1), hasLength(3));
+    expect(ch1.lessonsForDay(2), hasLength(3));
+    for (final lesson in ch1.lessons) {
+      expect(lesson.body, isNotEmpty);
+      expect(lesson.body, isNot(endsWith('\n')));
+      // Every related card id must be a curriculum item of this chapter —
+      // that is the linker convention (card id == item id).
+      for (final cardId in lesson.relatedCardIds) {
+        expect(ch1.itemIds, contains(cardId),
+            reason: 'lesson ${lesson.id} references $cardId',);
+      }
+    }
+  });
+
+  test('chapters without lessons parse fine (lessons optional)', () async {
+    final curriculum = await CurriculumLoader().load();
+    // Not all chapters are authored yet — that must never break parsing.
+    expect(curriculum.chapters, hasLength(6));
+  });
 }

@@ -98,6 +98,11 @@ class LocalCards extends Table {
   // gender-aware distractor selection in TriviaGenerator + EndlessEngine so
   // "identify the male senator" doesn't get women as wrong-option foils.
   TextColumn get gender          => text().nullable()();
+  // 'face' (politician recognition) or 'concept' (civics fact). Concept
+  // cards teach on first encounter (body) and recall afterward (recallPrompt).
+  TextColumn get cardType        => text().withDefault(const Constant('face'))();
+  TextColumn get body            => text().nullable()();   // teach-first prose
+  TextColumn get recallPrompt    => text().nullable()();   // later-encounter question
   TextColumn get tags            => text().withDefault(const Constant('[]'))(); // JSON array
   BoolColumn get isActive        => boolean().withDefault(const Constant(true))();
   IntColumn  get sortOrder       => integer().withDefault(const Constant(0))();
@@ -298,7 +303,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -369,6 +374,13 @@ class AppDatabase extends _$AppDatabase {
         // card_memory_states and are untouched; only the removed feature's
         // own rows go. Shipped TestFlight builds may have rows here.
         await customStatement('DROP TABLE IF EXISTS daily_challenge_caches');
+      }
+      if (from < 9) {
+        // v8 → v9: concept-card columns on LocalCards for the lesson layer.
+        // All additive with defaults — face cards and user data untouched.
+        await m.addColumn(localCards, localCards.cardType);
+        await m.addColumn(localCards, localCards.body);
+        await m.addColumn(localCards, localCards.recallPrompt);
       }
     },
   );

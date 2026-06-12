@@ -60,6 +60,72 @@ chapters:
       - const.we-the-people
       - const.convention-1787
       - const.articles-of-confederation
+    lessons:
+      - id: les-ch1-declaration
+        day: 1
+        title: "Why a Declaration?"
+        body: >
+          On July 4, 1776, the Continental Congress adopted the Declaration
+          of Independence, announcing the thirteen colonies' separation from
+          Great Britain. Thomas Jefferson was its principal author. It lists
+          grievances against King George III and explains why the colonies
+          were breaking away.
+        related_cards: [decl.purpose]
+        source: "https://www.archives.gov/founding-docs/declaration"
+      - id: les-ch1-rights
+        day: 1
+        title: "Life, Liberty, and the Pursuit of Happiness"
+        body: >
+          The Declaration rests on a claim about rights: all people are
+          created equal and hold unalienable rights — among them life,
+          liberty, and the pursuit of happiness. Governments exist to secure
+          those rights and derive their just powers from the consent of the
+          governed.
+        related_cards: [decl.unalienable-rights]
+        source: "https://www.archives.gov/founding-docs/declaration-transcript"
+      - id: les-ch1-founders
+        day: 1
+        title: "The People Who Built It"
+        body: >
+          George Washington commanded the Continental Army and later became
+          the first President. Thomas Jefferson drafted the Declaration.
+          James Madison earned the name Father of the Constitution. Benjamin
+          Franklin was the Convention's elder statesman; Alexander Hamilton
+          co-wrote the Federalist Papers that argued for ratification.
+        related_cards: [founders.washington, founders.jefferson-madison-franklin-hamilton]
+        source: "https://www.archives.gov/founding-docs/founding-fathers"
+      - id: les-ch1-articles
+        day: 2
+        title: "The First Try Failed"
+        body: >
+          America's first framework, the Articles of Confederation, made the
+          central government deliberately weak: Congress could not tax, there
+          was no executive, and amending anything required unanimous consent.
+          Economic disarray and Shays' Rebellion exposed the weaknesses and
+          pushed leaders toward a new design.
+        related_cards: [const.articles-of-confederation]
+        source: "https://www.archives.gov/milestone-documents/articles-of-confederation"
+      - id: les-ch1-convention
+        day: 2
+        title: "Philadelphia, 1787"
+        body: >
+          Delegates met in Philadelphia to revise the Articles — and instead
+          wrote a new Constitution. Washington presided over the Convention.
+          The finished document was signed on September 17, 1787, and sent to
+          the states, where the ratification debate played out partly through
+          the Federalist Papers.
+        related_cards: [const.convention-1787]
+        source: "https://www.archives.gov/milestone-documents/constitution"
+      - id: les-ch1-preamble
+        day: 2
+        title: "We the People"
+        body: >
+          The Constitution opens by naming its source of authority — the
+          people. The Preamble then states six purposes: a more perfect
+          union, justice, domestic tranquility, common defense, the general
+          welfare, and the blessings of liberty for ourselves and posterity.
+        related_cards: [const.we-the-people]
+        source: "https://www.archives.gov/founding-docs/constitution-transcript"
 
   - id: ch2.the-architecture
     order: 2

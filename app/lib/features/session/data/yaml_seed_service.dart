@@ -98,6 +98,11 @@ class YamlSeedService {
         oneLiner: Value(raw['one_liner'] as String?),
         photoUrl: Value(raw['photo_url'] as String?),
         gender: Value(raw['gender'] as String?),
+        // Concept cards: teach-first body + later-encounter recall prompt.
+        // Absent type defaults to 'face' so existing decks are untouched.
+        cardType: Value(raw['type'] as String? ?? 'face'),
+        body: Value((raw['body'] as String?)?.trim()),
+        recallPrompt: Value((raw['prompt'] as String?)?.trim()),
         sourceUrl: raw['source'] as String? ?? '',
         sortOrder: Value(i),
         updatedAt: nowSeconds,

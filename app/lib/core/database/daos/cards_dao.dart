@@ -13,6 +13,14 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
           ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
         .get();
 
+  /// Active face (politician) cards only. The Atlas grid, trivia/endless
+  /// MCQ pools, and round fallback sampling must never mix concept cards
+  /// into politician name/photo questions or listings.
+  Future<List<LocalCard>> allActiveFaceCards() => (select(localCards)
+          ..where((c) => c.isActive.equals(true) & c.cardType.equals('face'))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .get();
+
   /// Cheap count of active cards — used as the denominator of the
   /// Memory tab's brain-strength score.
   Future<int> activeCardCount() async {
