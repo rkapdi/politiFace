@@ -150,8 +150,20 @@ Goal: the repo tells the truth about itself before any code changes.
   is broken; builds work with Homebrew's pod via
   `PATH="/opt/homebrew/bin:$PATH"`.)
 
-## Phase 5 — Proposals (pending)
+## Phase 5 — Proposals ✅ (2026-06-11)
 
-Top-5 highest-leverage pre-launch improvements with effort estimates, incl. concept
-cards, content expansion past 46 cards, Flutter 3.22 upgrade path, government map
-revival.
+Written to [PROPOSALS.md](PROPOSALS.md), restructured around two founder
+inputs: (a) the core content gap — the app drills recall but never teaches;
+(b) the strategy frame — federal MVP only, federal core free forever,
+monetize depth/test-prep/citizenship later via subscription + one-time owned
+packs. Ranked outcome: #1 lesson layer (→ Phase 6, pre-launch), #2 content-
+pack monetization rails (design-only now, zero build), #3 card curation pass
+(not expansion), #4 government map revival (post-launch skill tree),
+#5 Flutter upgrade (post-launch). Sequencing recommendation included.
+
+## Phase 6 — Lesson layer (NEXT, awaiting approval)
+
+Briefing phase in the daily round; teach-first concept cards; lesson titles
+in the chapter sheet. Requires a curriculum-YAML schema extension (shape
+needs explicit founder approval per standing constraint). Engineering
+2–3 days; content authoring 2–4 days, parallelizable.
