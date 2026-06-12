@@ -35,12 +35,14 @@ class ChapterContentSampler {
     required int count,
     required String dateIso,
     bool allowFallback = true,
+    List<String> preferItemIds = const [],
   }) async => _sample(
       chapter: chapter,
       count: count,
       dateIso: dateIso,
       saltSuffix: 'cards',
       allowFallback: allowFallback,
+      preferItemIds: preferItemIds,
     );
 
   /// Samples [count] cards to seed trivia questions from. Same shape as
@@ -66,15 +68,31 @@ class ChapterContentSampler {
     required String dateIso,
     required String saltSuffix,
     required bool allowFallback,
+    List<String> preferItemIds = const [],
   }) async {
     final seed = _seedFor(dateIso, chapter.id, saltSuffix);
     final rng = Random(seed);
 
-    // Resolve every chapter item against the card database; collect the
-    // hits and remember the misses for diagnostics.
+    // Today's briefing lessons name the cards they introduce — those go
+    // to the front of the round, in lesson order, so the user drills what
+    // they just read.
+    final picked = <_ResolvedItem>[];
+    final preferred = <String>{};
+    for (final itemId in preferItemIds) {
+      if (picked.length >= count) break;
+      if (!preferred.add(itemId)) continue;
+      final card = await _resolveItemId(itemId);
+      if (card != null) {
+        picked.add(_ResolvedItem(itemId: itemId, card: card));
+      }
+    }
+
+    // Resolve every remaining chapter item against the card database;
+    // collect the hits and remember the misses for diagnostics.
     final resolved = <_ResolvedItem>[];
     final missingItemIds = <String>[];
     for (final itemId in chapter.itemIds) {
+      if (preferred.contains(itemId)) continue;
       final card = await _resolveItemId(itemId);
       if (card != null) {
         resolved.add(_ResolvedItem(itemId: itemId, card: card));
@@ -83,9 +101,9 @@ class ChapterContentSampler {
       }
     }
 
-    // Deterministic shuffle, then take the front.
+    // Deterministic shuffle, then top up to the requested count.
     resolved.shuffle(rng);
-    final picked = resolved.take(count).toList();
+    picked.addAll(resolved.take(count - picked.length));
 
     // If the chapter resolved fewer cards than asked for and we're allowed
     // to fall back, top up from any active card not already picked. This

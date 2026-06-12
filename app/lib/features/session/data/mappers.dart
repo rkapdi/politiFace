@@ -48,6 +48,9 @@ SessionCard sessionCardFromRows({
     photoUrl: card.photoUrl,
     lqipBase64: card.lqipBase64,
     oneLiner: card.oneLiner,
+    cardType: card.cardType,
+    body: card.body,
+    recallPrompt: card.recallPrompt,
     phase: phase,
     stability: stability,
     // Effort signal for the mastery bar is FSRS reviews plus practice taps.

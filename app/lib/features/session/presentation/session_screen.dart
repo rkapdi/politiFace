@@ -113,6 +113,59 @@ class _CardViewState extends ConsumerState<_CardView> {
         : widget.state.completed / widget.state.totalPlanned;
     final revealed = ref.watch(cardRevealedProvider);
 
+    if (card.teachFirst) {
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              LinearProgressIndicator(value: progress.clamp(0.0, 1.0)),
+              const SizedBox(height: 8),
+              Text(
+                '${widget.state.completed} / ${widget.state.totalPlanned}'
+                '  •  NEW CONCEPT',
+                style: theme.textTheme.labelMedium,
+              ),
+              const SizedBox(height: 24),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        card.politicianName,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          height: 1.15,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        card.body ?? card.title,
+                        style:
+                            theme.textTheme.bodyLarge?.copyWith(height: 1.55),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () =>
+                    _triggerGrade(FSRSGrade.good, Colors.green.shade300),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('GOT IT'),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      );
+    }
+
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -281,6 +334,31 @@ class _Question extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    if (card.isConcept) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              card.recallPrompt ?? card.politicianName,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                height: 1.25,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Tap to reveal',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.outline,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -318,6 +396,32 @@ class _Answer extends StatelessWidget {
       stability: card.stability,
       reviewCount: card.reviewCount,
     );
+    if (card.isConcept) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              card.politicianName,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w700,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              card.body ?? card.title,
+              style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            MasteryStars(fillFraction: fill, size: 22, showLabel: true),
+          ],
+        ),
+      );
+    }
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [

@@ -45,10 +45,64 @@ void main() {
     }
   }
 
-  test('build creates a new round for today in cards phase', () async {
+
+  /// Builds today's round and walks through the briefing phase (chapter 1
+  /// day 1 has authored lessons, so new rounds open on briefing).
+  Future<DailyRoundState> buildPastBriefing(ProviderContainer c) async {
+    var state = await c.read(dailyRoundControllerProvider.future);
+    if (state.phase == RoundPhase.briefing) {
+      await c.read(dailyRoundControllerProvider.notifier).completeBriefing();
+      state = c.read(dailyRoundControllerProvider).value!;
+    }
+    return state;
+  }
+
+  test('new round opens in briefing with the day-1 lessons', () async {
     await seedDeck(20);
     final state =
         await container.read(dailyRoundControllerProvider.future);
+    expect(state.phase, RoundPhase.briefing);
+    expect(state.lessons, isNotEmpty,
+        reason: 'chapter 1 day 1 has authored lessons',);
+    expect(state.lessons.every((l) => l.day == 1), isTrue);
+  });
+
+  test('completeBriefing flips briefing to cards and persists', () async {
+    await seedDeck(20);
+    await container.read(dailyRoundControllerProvider.future);
+    await container
+        .read(dailyRoundControllerProvider.notifier)
+        .completeBriefing();
+    expect(container.read(dailyRoundControllerProvider).value!.phase,
+        RoundPhase.cards,);
+
+    // Resume in a fresh container: phase survives as cards (briefing done).
+    final container2 = ProviderContainer(overrides: [
+      databaseProvider.overrideWithValue(db),
+    ],);
+    addTearDown(container2.dispose);
+    final hydrated =
+        await container2.read(dailyRoundControllerProvider.future);
+    expect(hydrated.phase, RoundPhase.cards);
+    expect(hydrated.lessons, isNotEmpty,
+        reason: 'lessons re-derive from curriculum on resume',);
+  });
+
+  test('resume mid-briefing stays in briefing', () async {
+    await seedDeck(20);
+    await container.read(dailyRoundControllerProvider.future);
+    final container2 = ProviderContainer(overrides: [
+      databaseProvider.overrideWithValue(db),
+    ],);
+    addTearDown(container2.dispose);
+    final hydrated =
+        await container2.read(dailyRoundControllerProvider.future);
+    expect(hydrated.phase, RoundPhase.briefing);
+  });
+
+  test('build creates a new round for today reaching cards phase', () async {
+    await seedDeck(20);
+    final state = await buildPastBriefing(container);
     expect(state.phase, RoundPhase.cards);
     expect(state.cards.length, 5);
     expect(state.trivia.length, 10);
@@ -61,7 +115,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    await container.read(dailyRoundControllerProvider.future);
+    await buildPastBriefing(container);
 
     // Grade two cards, then dispose and rebuild a fresh container that
     // shares the same database — the persisted round should hydrate with
@@ -86,8 +140,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    final initial =
-        await container.read(dailyRoundControllerProvider.future);
+    final initial = await buildPastBriefing(container);
 
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
@@ -101,8 +154,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    final initial =
-        await container.read(dailyRoundControllerProvider.future);
+    final initial = await buildPastBriefing(container);
 
     // Burn through the cards phase to reach trivia.
     for (var i = 0; i < initial.cards.length; i++) {
@@ -124,8 +176,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    final initial =
-        await container.read(dailyRoundControllerProvider.future);
+    final initial = await buildPastBriefing(container);
 
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
@@ -151,8 +202,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    final initial =
-        await container.read(dailyRoundControllerProvider.future);
+    final initial = await buildPastBriefing(container);
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
     }
@@ -167,7 +217,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    await container.read(dailyRoundControllerProvider.future);
+    await buildPastBriefing(container);
 
     await notifier.answerTrivia(0, 1, TriviaConfidence.certain);
     final after = container.read(dailyRoundControllerProvider).value!;
@@ -186,7 +236,7 @@ void main() {
 
   test('reload on same date returns the same persisted round', () async {
     await seedDeck(20);
-    await container.read(dailyRoundControllerProvider.future);
+    await buildPastBriefing(container);
 
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
@@ -203,8 +253,7 @@ void main() {
     await seedDeck(20);
     final notifier =
         container.read(dailyRoundControllerProvider.notifier);
-    final initial =
-        await container.read(dailyRoundControllerProvider.future);
+    final initial = await buildPastBriefing(container);
     final firstCardId = initial.cards.first.cardId;
 
     // Profile starts empty (no XP, streak 0).

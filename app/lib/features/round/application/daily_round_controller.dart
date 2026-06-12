@@ -74,10 +74,14 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       );
     }
 
+    final lessons = chapter.lessonsForDay(progress.dayInChapter);
     final cardSample = await _sampler.sampleCards(
       chapter: chapter,
       count: cardsPerRound,
       dateIso: dateIso,
+      preferItemIds: [
+        for (final l in lessons) ...l.relatedCardIds,
+      ],
     );
     final triviaSample = await _sampler.sampleTrivia(
       chapter: chapter,
@@ -89,15 +93,30 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       throw const _NoContent();
     }
 
-    final cards = cardSample.cards
-        .map((c) => RoundCard(
-              cardId: c.id,
-              prompt: '${c.politicianName} · ${c.title}',
-              answer: c.oneLiner ?? c.title,
-              politicianName: c.politicianName,
-              photoUrl: c.photoUrl,
-            ),)
-        .toList();
+    final cards = <RoundCard>[];
+    for (final c in cardSample.cards) {
+      if (c.cardType == 'concept') {
+        // Teach-first: a never-reviewed concept renders as a lesson with
+        // "Got it"; afterwards the recall prompt fronts the flip card.
+        final memory = await _db.reviewsDao.stateFor(c.id);
+        cards.add(RoundCard(
+          cardId: c.id,
+          prompt: c.recallPrompt ?? c.politicianName,
+          answer: c.body ?? c.title,
+          cardType: 'concept',
+          body: c.body,
+          teachFirst: memory?.isNew ?? true,
+        ),);
+      } else {
+        cards.add(RoundCard(
+          cardId: c.id,
+          prompt: '${c.politicianName} · ${c.title}',
+          answer: c.oneLiner ?? c.title,
+          politicianName: c.politicianName,
+          photoUrl: c.photoUrl,
+        ),);
+      }
+    }
     final triviaQuestions = const TriviaGenerator()
         .generate(date: DateTime.now(), cards: triviaSample.cards);
     final trivia =
@@ -111,13 +130,26 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       chapterSubtitle: chapter.subtitle,
       dayInChapter: progress.dayInChapter,
       daysInChapter: chapter.days,
-      phase: RoundPhase.cards,
+      // Days with authored lessons open on the briefing; others go
+      // straight to cards (content not authored yet — back-compat).
+      phase: lessons.isEmpty ? RoundPhase.cards : RoundPhase.briefing,
       cards: cards,
       trivia: trivia,
+      lessons: lessons,
     );
 
     await _persist(initial, startedAt: now);
     return initial;
+  }
+
+  /// Advance briefing → cards once the user has read today's lessons.
+  /// No-op outside the briefing phase.
+  Future<void> completeBriefing() async {
+    final s = state.value;
+    if (s == null || s.phase != RoundPhase.briefing) return;
+    final next = s.copyWith(phase: RoundPhase.cards);
+    state = AsyncData(next);
+    await _persist(next);
   }
 
   /// Grade the card at [index] with [grade] (0..3). Routes the grade
@@ -311,6 +343,10 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         politicianName: m['politicianName'] as String?,
         photoUrl: m['photoUrl'] as String?,
         grade: i < grades.length ? grades[i] as int? : null,
+        // Pre-v9 rows lack these keys — default to face-card behavior.
+        cardType: (m['cardType'] as String?) ?? 'face',
+        body: m['body'] as String?,
+        teachFirst: (m['teachFirst'] as bool?) ?? false,
       ),);
     }
     final triviaData =
@@ -348,6 +384,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       phase: phase,
       cards: cards,
       trivia: trivia,
+      lessons: chapter.lessonsForDay(row.dayInChapter),
       result: result,
     );
   }
@@ -360,6 +397,9 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
           'answer': c.answer,
           'politicianName': c.politicianName,
           'photoUrl': c.photoUrl,
+          'cardType': c.cardType,
+          'body': c.body,
+          'teachFirst': c.teachFirst,
         },
     ];
 

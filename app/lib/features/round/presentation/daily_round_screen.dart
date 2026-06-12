@@ -8,6 +8,7 @@ import '../../../app/providers.dart';
 import '../../shared/widgets/state_views.dart';
 import '../application/daily_round_controller.dart';
 import '../domain/round_state.dart';
+import 'round_briefing_phase.dart';
 import 'round_cards_phase.dart';
 import 'round_reveal_phase.dart';
 import 'round_trivia_phase.dart';
@@ -80,6 +81,16 @@ class _RoundBody extends ConsumerWidget {
 
   Widget _phaseBody(BuildContext context, WidgetRef ref) {
     switch (state.phase) {
+      case RoundPhase.briefing:
+        if (state.lessons.isEmpty) {
+          // Defensive — the controller only opens on briefing when lessons
+          // exist, but a stale persisted phase must never strand the user.
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(dailyRoundControllerProvider.notifier).completeBriefing();
+          });
+          return const SizedBox.shrink();
+        }
+        return RoundBriefingPhase(state: state);
       case RoundPhase.cards:
         if (state.cards.isEmpty) {
           // Sparse chapter content + no fallback — should not happen with
@@ -126,10 +137,12 @@ class _ChapterHeader extends StatelessWidget {
 
   String get _phaseLabel {
     switch (state.phase) {
+      case RoundPhase.briefing:
+        return 'BRIEFING';
       case RoundPhase.cards:
-        return 'CARDS · 1 OF 2';
+        return 'CARDS';
       case RoundPhase.trivia:
-        return 'TRIVIA · 2 OF 2';
+        return 'TRIVIA';
       case RoundPhase.reveal:
         return 'REVEAL';
       case RoundPhase.done:

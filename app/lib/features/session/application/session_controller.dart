@@ -92,6 +92,9 @@ class SessionController extends AsyncNotifier<SessionState> {
         dueCards: candidates.due,
         newCards: candidates.fresh,
         targetSize: cardIds?.length ?? 20,
+        // Explicit card lists must surface every card, including new ones —
+        // no every-Nth interleave cap.
+        includeAllNew: cardIds != null,
       );
     final first = queue.next();
     final planned = candidates.due.length + candidates.fresh.length;

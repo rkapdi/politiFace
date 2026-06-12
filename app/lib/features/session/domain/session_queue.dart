@@ -23,6 +23,11 @@ class SessionCard implements Comparable<SessionCard> {
   final String? photoUrl;
   final String? lqipBase64;
   final String? oneLiner;
+  // 'face' or 'concept'. Concept cards teach on first encounter (body)
+  // and recall via recallPrompt afterward.
+  final String cardType;
+  final String? body;
+  final String? recallPrompt;
   final CardPhase phase;
   final double stability;    // FSRS S — lower = more at risk
   final int reviewCount;     // FSRS review count for this card
@@ -36,8 +41,16 @@ class SessionCard implements Comparable<SessionCard> {
     required this.phase, required this.stability, required this.priority, this.photoUrl,
     this.lqipBase64,
     this.oneLiner,
+    this.cardType = 'face',
+    this.body,
+    this.recallPrompt,
     this.reviewCount = 0,
   });
+
+  bool get isConcept => cardType == 'concept';
+
+  /// First encounter with a concept: render the lesson, not the quiz.
+  bool get teachFirst => isConcept && phase == CardPhase.newCard;
 
   @override
   int compareTo(SessionCard other) => priority.compareTo(other.priority);
@@ -57,6 +70,9 @@ class SessionQueue {
     required List<SessionCard> dueCards,
     required List<SessionCard> newCards,
     required int targetSize,
+    // Explicit card lists (chapter replay, teach-first round content) want
+    // every requested card, not the every-Nth interleave ratio.
+    bool includeAllNew = false,
   }) {
     _heap.clear();
     _recentlyShown.clear();
@@ -73,6 +89,9 @@ class SessionQueue {
         photoUrl: card.photoUrl,
         lqipBase64: card.lqipBase64,
         oneLiner: card.oneLiner,
+        cardType: card.cardType,
+        body: card.body,
+        recallPrompt: card.recallPrompt,
         phase: CardPhase.dueReview,
         stability: card.stability,
         reviewCount: card.reviewCount,
@@ -82,7 +101,9 @@ class SessionQueue {
 
     // New cards always follow due cards. The big offset keeps them strictly
     // above any plausible due stability.
-    final newCardSlots = (targetSize / _newCardEvery).floor();
+    final newCardSlots = includeAllNew
+        ? newCards.length
+        : (targetSize / _newCardEvery).floor();
     final selectedNew = newCards.take(min(newCardSlots, newCards.length)).toList();
 
     for (var i = 0; i < selectedNew.length; i++) {
@@ -95,6 +116,9 @@ class SessionQueue {
         photoUrl: card.photoUrl,
         lqipBase64: card.lqipBase64,
         oneLiner: card.oneLiner,
+        cardType: card.cardType,
+        body: card.body,
+        recallPrompt: card.recallPrompt,
         phase: CardPhase.newCard,
         stability: 0,
         reviewCount: card.reviewCount,
@@ -130,6 +154,9 @@ class SessionQueue {
           photoUrl: candidate.photoUrl,
           lqipBase64: candidate.lqipBase64,
           oneLiner: candidate.oneLiner,
+          cardType: candidate.cardType,
+          body: candidate.body,
+          recallPrompt: candidate.recallPrompt,
           phase: candidate.phase,
           stability: candidate.stability,
           reviewCount: candidate.reviewCount,
@@ -156,6 +183,9 @@ class SessionQueue {
       photoUrl: card.photoUrl,
       lqipBase64: card.lqipBase64,
       oneLiner: card.oneLiner,
+      cardType: card.cardType,
+      body: card.body,
+      recallPrompt: card.recallPrompt,
       phase: card.phase,
       stability: card.stability,
       reviewCount: card.reviewCount,
