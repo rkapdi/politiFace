@@ -161,9 +161,41 @@ pack monetization rails (design-only now, zero build), #3 card curation pass
 (not expansion), #4 government map revival (post-launch skill tree),
 #5 Flutter upgrade (post-launch). Sequencing recommendation included.
 
-## Phase 6 — Lesson layer (NEXT, awaiting approval)
+## Phase 6 — Lesson layer + guided experience ✅ engineering / ⏳ content review (2026-06-12)
 
-Briefing phase in the daily round; teach-first concept cards; lesson titles
-in the chapter sheet. Requires a curriculum-YAML schema extension (shape
-needs explicit founder approval per standing constraint). Engineering
-2–3 days; content authoring 2–4 days, parallelizable.
+The teach step now exists. Founder decisions folded in: per-card retention
+curve + survey benchmarks deferred to Phase 7; "guided experience" = lesson
+layer + a first-run tour.
+
+- **Schema v9** (additive): LocalCards gains cardType/body/recallPrompt;
+  migration chain v7→v9 tested. Curriculum YAML gains per-day `lessons:`
+  blocks (id, day, title, body, related_cards, source) with loader
+  validation (founder-approved shape).
+- **Briefing phase**: rounds walk briefing → cards → trivia → reveal.
+  Swipeable lesson pages; resume-safe; days without lessons skip (tested).
+  The sampler drills lesson-related cards first — read, then practice.
+- **Teach-first concept cards** on both play surfaces: first encounter =
+  lesson + GOT IT (grade good through the unchanged FSRS pipeline);
+  afterwards recall via prompt. Face-only filters keep concept titles out
+  of Atlas and politician-name MCQ distractors. Two latent SessionQueue
+  bugs found and fixed (new-card ratio cap emptying explicit lists; field
+  loss at SessionCard reconstruction sites).
+- **Legible progression**: chapter sheet lists lesson titles with day
+  chips, check marks once played, tap-to-reread after. First-run tour:
+  one-time 3-step orientation, skippable, flag in app_meta.
+- **Content authored (FOUNDER EDITORIAL REVIEW PENDING)**: chapters 1–3
+  fully lessoned — 18 lessons + 23 concept cards, all sourced to official
+  sites (archives.gov, constitution.congress.gov, senate.gov, house.gov,
+  whitehouse.gov, supremecourt.gov, loc.gov). Concept-card ids equal
+  curriculum item ids so the linker resolves them (chapter rounds stop
+  falling back to random face cards). Chapters 4–6 are the next authoring
+  tranche after review.
+- Verification: 190 tests passed + 4 skipped, analyzer clean, iOS build
+  succeeds (75.5MB).
+
+## Phase 7 — Per-card retention curve + survey benchmarks (NEXT, approved plan)
+
+ReviewsDao.logsFor + retention-curve detail sheet from the Memory orbs
+(CustomPainter, FSRS forgetting-curve math read-only); cited civics-survey
+benchmark lines in the trivia review slot (content-only, no telemetry).
+~1–1.5 days.
