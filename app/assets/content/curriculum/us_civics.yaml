@@ -148,6 +148,70 @@ chapters:
       - fed.10-factions
       - fed.51-separation
 
+    lessons:
+      - id: les-ch2-supreme-law
+        day: 1
+        title: "The Supreme Law of the Land"
+        body: >
+          Article VI makes the Constitution supreme: every federal and state
+          law, and every officer of government, is bound by it. When a law
+          conflicts with the Constitution, the Constitution wins. Everything
+          else in this chapter flows from that rule.
+        related_cards: [const.supreme-law]
+        source: "https://constitution.congress.gov/constitution/article-6/"
+      - id: les-ch2-separation
+        day: 1
+        title: "Three Branches, Three Jobs"
+        body: >
+          The Constitution splits power so no one holds it all: Congress
+          makes laws, the President enforces them, the courts interpret
+          them. Then it arms each branch against the others — vetoes,
+          overrides, confirmations, judicial review, impeachment. Power
+          checks power.
+        related_cards: [prin.separation-of-powers, prin.checks-and-balances]
+        source: "https://constitution.congress.gov/browse/"
+      - id: les-ch2-federalism
+        day: 2
+        title: "Two Levels of Government"
+        body: >
+          Federalism divides power between the nation and the states. The
+          federal government holds the powers the Constitution grants it;
+          the Tenth Amendment reserves the rest to the states or the
+          people. Some powers, like taxing, are shared by both levels.
+        related_cards: [prin.federalism]
+        source: "https://constitution.congress.gov/constitution/amendment-10/"
+      - id: les-ch2-amendments
+        day: 2
+        title: "A Constitution That Can Change"
+        body: >
+          Article V lets the Constitution be amended — but deliberately
+          makes it hard: two-thirds of both chambers to propose, three-
+          fourths of the states to ratify. In over two centuries, only 27
+          amendments have cleared that bar.
+        related_cards: [const.amendment-process]
+        source: "https://constitution.congress.gov/constitution/article-5/"
+      - id: les-ch2-bill-of-rights
+        day: 3
+        title: "The Bill of Rights"
+        body: >
+          Several states would only ratify the Constitution with a promise:
+          explicit protections for individual liberty. The first ten
+          amendments, ratified in 1791, deliver it — starting with the
+          First Amendment's five freedoms: religion, speech, press,
+          assembly, and petition.
+        related_cards: [bor.what-and-why, bor.first-amendment]
+        source: "https://www.archives.gov/founding-docs/bill-of-rights"
+      - id: les-ch2-federalist
+        day: 3
+        title: "Selling the Constitution"
+        body: >
+          Ratification was a fight. Hamilton, Madison, and Jay wrote 85
+          essays as "Publius" — the Federalist Papers — arguing the new
+          design would control factions (No. 10) and make ambition counter
+          ambition (No. 51). Courts still cite them today.
+        related_cards: [fed.papers-overview]
+        source: "https://guides.loc.gov/federalist-papers"
+
   - id: ch3.three-branches
     order: 3
     title: Three Branches
@@ -167,6 +231,72 @@ chapters:
       - jud.lifetime-tenure
       - fed.70-executive
       - fed.78-judiciary
+
+    lessons:
+      - id: les-ch3-congress
+        day: 1
+        title: "Congress: Two Chambers"
+        body: >
+          Article I gives all federal lawmaking power to a bicameral
+          Congress. The House — 435 seats divided by population, elected
+          every two years — is built for responsiveness. The Senate — two
+          per state for six-year terms — is built for deliberation. Both
+          must pass identical text before a bill reaches the President.
+        related_cards: [leg.bicameral, leg.house-basics]
+        source: "https://www.congress.gov/about"
+      - id: les-ch3-senate
+        day: 1
+        title: "Why Two Senators Per State?"
+        body: >
+          The Connecticut Compromise of 1787 settled the fight between
+          large and small states: the House uses proportional
+          representation, the Senate gives every state two votes. Wyoming
+          has the same Senate power as California. The Senate alone
+          confirms appointments, ratifies treaties, and tries impeachments.
+        related_cards: [leg.senate-basics]
+        source: "https://www.senate.gov/about/origins-foundations/senate-and-constitution.htm"
+      - id: les-ch3-president
+        day: 2
+        title: "The Presidency"
+        body: >
+          Head of state and head of government, elected every four years,
+          capped at two terms. The President commands the military, signs
+          or vetoes every bill, issues executive orders, grants federal
+          pardons, and conducts foreign policy — but cannot declare war.
+          That power belongs to Congress.
+        related_cards: [exec.president-basics]
+        source: "https://constitution.congress.gov/constitution/article-2/"
+      - id: les-ch3-cabinet
+        day: 2
+        title: "The Cabinet and the Line of Succession"
+        body: >
+          Fifteen department secretaries advise the President and run the
+          federal agencies — appointed by the President, confirmed by the
+          Senate. If the President cannot serve, the 25th Amendment sends
+          power to the Vice President; the Speaker of the House is next.
+        related_cards: [exec.cabinet, exec.vp-succession]
+        source: "https://www.whitehouse.gov/administration/cabinet/"
+      - id: les-ch3-scotus
+        day: 3
+        title: "The Supreme Court"
+        body: >
+          Nine justices, nominated by the President, confirmed by the
+          Senate, serving for life. The Court's biggest power — striking
+          down laws as unconstitutional — appears nowhere in the
+          Constitution. It comes from Marbury v. Madison (1803), and it
+          made the judiciary a co-equal branch.
+        related_cards: [jud.scotus-basics, jud.lifetime-tenure]
+        source: "https://www.supremecourt.gov/about/about.aspx"
+      - id: les-ch3-filibuster
+        day: 3
+        title: "The Filibuster"
+        body: >
+          In the Senate, any senator can delay a vote by refusing to yield
+          the floor. Ending debate — cloture — takes 60 votes, which gives
+          the minority real blocking power. Budget bills move under
+          reconciliation rules and need only a simple majority.
+        related_cards: [leg.senate-basics]
+        source: "https://www.senate.gov/about/powers-procedures/filibusters-cloture.htm"
 
   - id: ch4.machine-in-motion
     order: 4
