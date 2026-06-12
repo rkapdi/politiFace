@@ -116,11 +116,39 @@ Goal: the repo tells the truth about itself before any code changes.
   (`activeSessionCardIdsProvider`). Non-due cards load by design; the FSRS
   practice path makes replays safe for the memory model. 3 new tests.
 
-## Phase 4 — iOS launch readiness (pending)
+## Phase 4 — iOS launch readiness ✅ (2026-06-11)
 
-Error-handling audit (Wikipedia fetch, offline, notification denial); release path
-verification (build, Codemagic, App Store metadata vs. truth-reconciled features);
-lint cleanup or documented waiver.
+- **Error-handling audit.** Findings: the Wikipedia/Wikidata client had no
+  network timeouts (hung socket = spinner forever, no retry) — fixed with a
+  10s connect + 15s per-request deadline; timeouts now surface as lastError
+  rows so the next screen open retries. Everything else already handled:
+  per-card fetch failures render a reason in the detail screen, notification
+  permission denial shows guidance and main.dart re-syncs the toggle with OS
+  state on launch, portraits are bundled (offline-safe), and every game mode
+  is fully local. connectivity_plus removed — its only consumer was the
+  Phase-2-deleted SyncEngine.
+- **Lint debt: 573 → 0; `flutter analyze` exits clean.** dart fix --apply
+  (509 fixes) + hand fixes (including a real BuildContext-across-async-gap).
+  Two rules deliberately disabled with documented reasons in
+  analysis_options.yaml: avoid_catches_without_on_clauses (bare catch is the
+  intended best-effort contract), avoid_dynamic_calls (YAML/JSON boundaries).
+- **CI/CD fixes:** Codemagic pr-tests never ran (its branch pattern excluded
+  PRs targeting main) — now triggers on every PR, and its bare
+  `flutter analyze` step works since the lint sweep. ios-release workflow
+  audited: still consistent with the post-cleanup repo (build_runner, tests,
+  SENTRY_DSN dart-define, TestFlight publish).
+- **Store docs truth pass:** privacy policy now documents opt-in/off-by-default
+  crash reporting (it claimed crashes couldn't be disabled and referenced the
+  removed analytics toggle), corrects portraits to bundled-not-fetched, and
+  aligns the age rating (9+). App Store metadata privacy questionnaire:
+  Usage data honestly "No", Diagnostics "Yes, opt-in only"; review notes and
+  TestFlight notes updated (incl. chapter replay). support.md checked — fine.
+- **Release path verified end-to-end:** full test suite green, analyzer
+  clean, and `flutter build ipa --release` produces a signed 43.1MB App
+  Store IPA on the dev machine — the exact artifact of the manual
+  Transporter submission flow. (Machine note: the rbenv CocoaPods install
+  is broken; builds work with Homebrew's pod via
+  `PATH="/opt/homebrew/bin:$PATH"`.)
 
 ## Phase 5 — Proposals (pending)
 
