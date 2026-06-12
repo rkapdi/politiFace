@@ -23,6 +23,10 @@ class WikipediaBioService {
       : _bundle = bundle ?? rootBundle,
         _http = httpClient ?? HttpClient() {
     _http.userAgent = 'Politiface/1.0 (politiface.app; civic literacy app)';
+    // Without a timeout a hung socket wedges ensureBio forever (it's
+    // fire-and-forget, but the row would stay forever-pending with no
+    // lastError, so the UI spinner never resolves and no retry happens).
+    _http.connectionTimeout = const Duration(seconds: 10);
   }
 
   final AppDatabase _db;
@@ -91,7 +95,7 @@ class WikipediaBioService {
         cardId: Value(cardId),
         lastError: Value(now),
         lastErrorMessage: const Value('No Wikidata QID in manifest'),
-      ));
+      ),);
       return _db.politicianBiosDao.get(cardId);
     }
 
@@ -106,12 +110,12 @@ class WikipediaBioService {
         cardId: Value(cardId),
         wikidataQid: Value(qid),
         wikipediaTitle: Value(title),
-        wikipediaUrl: Value(summary['url'] as String?),
-        bioExtract: Value(summary['extract'] as String?),
+        wikipediaUrl: Value(summary['url']),
+        bioExtract: Value(summary['extract']),
         fetchedAt: Value(now),
         lastError: const Value(null),
         lastErrorMessage: const Value(null),
-      ));
+      ),);
     } on Object catch (e) {
       final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
       await _db.politicianBiosDao.upsert(PoliticianBiosCompanion(
@@ -119,7 +123,7 @@ class WikipediaBioService {
         wikidataQid: Value(qid),
         lastError: Value(now),
         lastErrorMessage: Value(e.toString()),
-      ));
+      ),);
       if (kDebugMode) {
         debugPrint('[wiki-bio] $cardId ($qid) failed: $e');
       }
@@ -171,13 +175,19 @@ class WikipediaBioService {
     final body = await _getJson(uri);
     return {
       'extract': body['extract'] as String?,
-      'url': (body['content_urls']?['desktop']?['page']) as String?,
+      'url': body['content_urls']?['desktop']?['page'] as String?,
     };
   }
 
   // ── HTTP helper ─────────────────────────────────────────────────────
 
-  Future<Map<String, dynamic>> _getJson(Uri uri) async {
+  // End-to-end deadline per request: connect + headers + body. A timeout
+  // surfaces as an error row (lastError) like any other failure, so the
+  // next screen open retries.
+  Future<Map<String, dynamic>> _getJson(Uri uri) =>
+      _getJsonInner(uri).timeout(const Duration(seconds: 15));
+
+  Future<Map<String, dynamic>> _getJsonInner(Uri uri) async {
     final req = await _http.getUrl(uri);
     req.headers.add('Accept', 'application/json');
     final res = await req.close();
@@ -194,7 +204,7 @@ class WikipediaBioService {
     // Lower + collapse to alphanumerics. Matches the wire_portraits.py
     // normalize() so the manifest lookups line up.
     final lower = s.toLowerCase();
-    final stripped = lower.replaceAll(RegExp(r'[^a-z0-9]+'), ' ').trim();
+    final stripped = lower.replaceAll(RegExp('[^a-z0-9]+'), ' ').trim();
     return stripped;
   }
 }

@@ -28,9 +28,6 @@ dependencies:
   # ── Images ───────────────────────────────────────────────────────────────
   cached_network_image: ^3.3.1
 
-  # ── Connectivity ─────────────────────────────────────────────────────────
-  connectivity_plus: ^6.0.3
-
   # ── Notifications (local daily reminder only) ────────────────────────────
   flutter_local_notifications: ^17.2.2
   timezone: ^0.9.4
