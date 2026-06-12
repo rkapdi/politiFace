@@ -5,7 +5,7 @@ permalink: /privacy-policy/
 
 # Politiface — Privacy Policy
 
-_Last updated: June 10, 2026_
+_Last updated: June 11, 2026_
 
 Politiface is built local-first. Your gameplay, mastery progress, streak,
 and review history live on your device only. We don't run an account
@@ -27,31 +27,39 @@ database (Drift):
   difficulty, retrievability).
 - Trivia answers, daily round grades, and endless run history.
 - Your streak, XP, and chapter progress.
-- App preferences (theme mode, notification toggle, analytics toggle).
+- App preferences (theme mode, notification toggle, crash-report consent).
 
 If you uninstall the app, all of this is deleted.
 
 ## What is sent to third parties
 
-### Sentry (error reporting)
+### Sentry (crash reporting — opt-in, off by default)
 
-When the app crashes or hits an unexpected error, a stack trace is sent
-to [Sentry](https://sentry.io) so we can fix bugs. We have explicitly
-configured Sentry to **never attach personal information** (`sendDefaultPii: false`).
-The report contains the error message, the source line, and the
-software stack — not who you are.
+Crash reporting is **off until you turn it on** in
+**Settings → Privacy → Crash reports**. If you never touch the toggle,
+the Sentry SDK is never even initialized and nothing is sent, ever.
 
-You can disable error reporting indirectly by uninstalling, since we do
-not have a separate opt-out toggle for crashes. Anonymous **usage
-analytics** are gated by the in-app toggle in **Settings → Privacy →
-Anonymous usage analytics** and default to off.
+If you opt in, then when the app crashes or hits an unexpected error a
+stack trace is sent to [Sentry](https://sentry.io) so we can fix bugs.
+We have explicitly configured Sentry to **never attach personal
+information** (`sendDefaultPii: false`). The report contains the error
+message, the source line, and the software stack — not who you are.
+You can opt back out at any time with the same toggle (takes effect on
+the next launch).
+
+The app has **no usage analytics of any kind** — no events, no
+identifiers, no analytics SDK. See
+[VERIFIED.md](https://github.com/rkapdi/politiFace/blob/main/VERIFIED.md)
+for the verifiable, code-level description.
 
 ### Wikimedia (Wikidata + Wikipedia)
 
-On first launch we may fetch politician portrait images from Wikimedia
-Commons and short biographical summaries from Wikipedia. These requests
-contain the politician's identifier — never anything about you. They
-follow Wikimedia's own privacy policy.
+Politician portraits ship inside the app — they are not downloaded.
+When you open a politician's detail screen, the app fetches a short
+biographical summary from Wikipedia (cached on your device afterward).
+These requests contain the politician's identifier — never anything
+about you. They follow Wikimedia's own privacy policy, and the app
+works fully offline without them.
 
 ### Apple (App Store + iOS)
 
@@ -69,7 +77,7 @@ identifiers from Apple beyond what every iOS app receives by default.
 
 ## Children
 
-Politiface is rated 12+ on the App Store. We don't knowingly collect
+Politiface is rated 9+ on the App Store. We don't knowingly collect
 information from children under 13. If you believe a child has provided
 personal information to us, contact us and we'll delete it — though
 practically there's nothing to delete because we have no account
@@ -77,8 +85,8 @@ system.
 
 ## Your choices
 
-- **Anonymous analytics**: opt in or out at any time via
-  Settings → Privacy → Anonymous usage analytics.
+- **Crash reports**: opt in or out at any time via
+  Settings → Privacy → Crash reports (off by default).
 - **Notification reminders**: opt in or out via
   Settings → Notifications → Daily review reminder, or in
   iOS Settings → Notifications → Politiface.

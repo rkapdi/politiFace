@@ -110,10 +110,10 @@ nearly everything. Specifically:
 | Search history | **No** | — |
 | Identifiers (device ID, user ID) | **No** | We don't track between sessions. |
 | Purchases | **No** | No IAP in v1. |
-| Usage data (app interactions, product interactions, crash data) | **Yes — crash data + diagnostics (Sentry), opt-in usage analytics** | Not linked to user, not used for tracking. |
-| Diagnostics | **Yes — performance + crash logs** | Not linked to user. |
+| Usage data (app interactions, product interactions) | **No** | The app has no analytics — no events, no identifiers. |
+| Diagnostics (crash data, performance) | **Yes — opt-in only** | Sentry; OFF by default, user enables in Settings → Privacy. Not linked to user. |
 
-For the two "Yes" rows, mark:
+For the "Yes" row, mark:
 - **Linked to user?** **No** — we have no user identity to link to.
 - **Used for tracking?** **No** — we don't follow users across apps or
   sites.
@@ -148,7 +148,7 @@ theme.)
 ## App Review notes (free-text field for the reviewer)
 
 ```
-Politiface is a civics learning app. There is no login, no in-app purchase, and no political position taken by the app. All gameplay data is local to the device. Crash reports are sent anonymously to Sentry with personal info stripped (`sendDefaultPii: false`).
+Politiface is a civics learning app. There is no login, no in-app purchase, and no political position taken by the app. All gameplay data is local to the device. Crash reporting is OFF by default; if the user opts in (Settings → Privacy → Crash reports) anonymous reports go to Sentry with personal info stripped (`sendDefaultPii: false`). The app has no usage analytics.
 
 Suggested test path:
 1. Tap "Play Today's Round" on Home → grade 5 cards → answer 10 trivia questions → see archetype reveal.
@@ -172,6 +172,8 @@ v1.1 ships:
 - Tap any politician portrait to zoom
 - Endless mode share + End Run flow with a printable streak card
 - Clickable chapter rows on the Home tab open a chapter info sheet
+- Completed chapters can be replayed from their info sheet (REPLAY THIS CHAPTER)
+- Crash reporting is now opt-in: Settings → Privacy → Crash reports (off by default)
 
 Please try every flow at least once. Watch for crashes, dark-mode contrast issues, and any place where text wraps or clips weirdly. Replies on the TestFlight feedback button land in App Store Connect → TestFlight → Feedback.
 ```
