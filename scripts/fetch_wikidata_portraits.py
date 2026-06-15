@@ -52,7 +52,7 @@ WIKIDATA_SPARQL = "https://query.wikidata.org/sparql"
 WIKIDATA_API = "https://www.wikidata.org/w/api.php"
 USER_AGENT = (
     "PolitiFace-PortraitFetcher/0.1 "
-    "(https://github.com/politiface; contact: thedeclanmercer@gmail.com) "
+    "(https://github.com/politiface; contact: rkapdi4@gmail.com) "
     "Python-urllib"
 )
 DEFAULT_THROTTLE_SEC = 1.0  # be polite to the public endpoint
