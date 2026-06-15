@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Politiface</title>
+<meta name="description" content="Politiface is built local-first. Your gameplay stays on your device. No account, no personal data collected, no data sold.">
+<meta name="theme-color" content="#1A1A2E">
+<link rel="icon" type="image/png" href="../assets/icon.png">
+<link rel="apple-touch-icon" href="../assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../"><img src="../assets/icon.png" alt="Politiface logo"><b>Politiface</b></a>
+    <nav class="nav-links">
+      <a href="../#features">Features</a>
+      <a href="../#showcase">Screens</a>
+      <a href="../privacy-policy/">Privacy</a>
+      <a href="../support/">Support</a>
+      <a class="nav-cta" href="https://github.com/rkapdi/politiFace">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+  <div class="wrap doc-inner">
+    <a class="doc-back" href="../">&larr; Back to Politiface</a>
+    <div class="doc-head">
+      <span class="eyebrow">Legal</span>
+      <h1>Privacy Policy</h1>
+      <p class="doc-updated">Last updated June 10, 2026</p>
+    </div>
+    <hr class="doc-rule">
+
+    <article class="prose">
+      <p>Politiface is built local-first. Your gameplay, mastery progress, streak, and review history live on your device only. We don't run an account system, we don't collect personal information, and we don't sell data.</p>
+      <p>This document explains what stays on your phone, what is sent to third parties, and the choices you control.</p>
+
+      <h2>What we collect</h2>
+      <p><strong>Nothing identifies you to us.</strong> Politiface does not ask for an email, phone number, name, or any account. We have no server that holds your gameplay.</p>
+      <p>The app stores the following <strong>on your device only</strong>, in a local SQLite database (Drift):</p>
+      <ul>
+        <li>Cards you've reviewed and their FSRS memory state (stability, difficulty, retrievability).</li>
+        <li>Trivia answers, daily round grades, and endless run history.</li>
+        <li>Your streak, XP, and chapter progress.</li>
+        <li>App preferences (theme mode, notification toggle, analytics toggle).</li>
+      </ul>
+      <p>If you uninstall the app, all of this is deleted.</p>
+
+      <h2>What is sent to third parties</h2>
+      <h3>Sentry (error reporting)</h3>
+      <p>When the app crashes or hits an unexpected error, a stack trace is sent to <a href="https://sentry.io">Sentry</a> so we can fix bugs. We have explicitly configured Sentry to <strong>never attach personal information</strong> (<code>sendDefaultPii: false</code>). The report contains the error message, the source line, and the software stack — not who you are.</p>
+      <p>Anonymous <strong>usage analytics</strong> are gated by the in-app toggle in <strong>Settings &rarr; Privacy &rarr; Anonymous usage analytics</strong> and default to off.</p>
+      <h3>Wikimedia (Wikidata + Wikipedia)</h3>
+      <p>On first launch we may fetch politician portrait images from Wikimedia Commons and short biographical summaries from Wikipedia. These requests contain the politician's identifier — never anything about you. They follow Wikimedia's own privacy policy.</p>
+      <h3>Apple (App Store + iOS)</h3>
+      <p>Apple operates TestFlight, the App Store, and iOS. When you install or update Politiface, Apple sees that. We don't get device-specific identifiers from Apple beyond what every iOS app receives by default.</p>
+
+      <h2>What is NOT collected</h2>
+      <ul class="nope">
+        <li>Your name, email, phone number, address</li>
+        <li>Your political affiliation, voting history, or party</li>
+        <li>Your contact list, photos, microphone, camera, or location</li>
+        <li>Browsing history outside the app</li>
+        <li>Cross-app tracking identifiers (we don't use IDFA)</li>
+      </ul>
+
+      <h2>Children</h2>
+      <p>We don't knowingly collect information from children under 13. If you believe a child has provided personal information to us, contact us and we'll delete it — though practically there's nothing to delete because we have no account system.</p>
+
+      <h2>Your choices</h2>
+      <ul>
+        <li><strong>Anonymous analytics:</strong> opt in or out at any time via Settings &rarr; Privacy &rarr; Anonymous usage analytics.</li>
+        <li><strong>Notification reminders:</strong> opt in or out via Settings &rarr; Notifications &rarr; Daily review reminder, or in iOS Settings &rarr; Notifications &rarr; Politiface.</li>
+        <li><strong>Reset progress:</strong> wipes all local data via Settings &rarr; Danger zone &rarr; Reset progress.</li>
+        <li><strong>Uninstall:</strong> removes all local data.</li>
+      </ul>
+
+      <h2>Open source</h2>
+      <p>Politiface is open source under the MIT license. You can audit exactly what the app does at <a href="https://github.com/rkapdi/politiFace">github.com/rkapdi/politiFace</a>.</p>
+
+      <h2>Changes to this policy</h2>
+      <p>If we change what we collect — for example, when we eventually add user accounts for cross-device sync — we'll update this page, bump the "Last updated" date, and notify users via the app before the change takes effect.</p>
+
+      <div class="doc-contact">
+        <h2>Contact</h2>
+        <p>Questions about privacy? Email <a href="mailto:thedeclanmercer@gmail.com">thedeclanmercer@gmail.com</a>.</p>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="../"><img src="../assets/icon.png" alt=""><b>Politiface</b></a>
+        <p>A local-first civics learning app. Learn the names, roles, and structure of the U.S. government — by face.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="../#features">Features</a>
+        <a href="../#showcase">Screens</a>
+        <a href="../#score">Confidence score</a>
+      </div>
+      <div class="foot-col">
+        <h5>Support</h5>
+        <a href="../privacy-policy/">Privacy Policy</a>
+        <a href="../support/">Support</a>
+      </div>
+      <div class="foot-col">
+        <h5>Code</h5>
+        <a href="https://github.com/rkapdi/politiFace">Source on GitHub</a>
+        <a href="https://github.com/rkapdi/politiFace/blob/main/LICENSE">License (MIT)</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 Rissalat Kapdi</span>
+      <span>Built local-first &middot; Hosted on GitHub Pages</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

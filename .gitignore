@@ -102,3 +102,4 @@ coverage/
 
 # Claude Code per-machine permission overrides
 .claude/settings.local.json
+.gstack/
