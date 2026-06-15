@@ -57,9 +57,9 @@ void main() {
     });
 
     test('returns null for a chapter with no benchmark', () {
-      // ch4 has no benchmark authored yet — must degrade to null, not throw.
+      // An unknown chapter must degrade to null, not throw.
       final b = benchmarks.forChapter(
-        'ch4.machine-in-motion',
+        'ch99.nonexistent',
         dateIso: '2026-06-14',
       );
       expect(b, isNull);

@@ -141,4 +141,26 @@ void main() {
     // Not all chapters are authored yet — that must never break parsing.
     expect(curriculum.chapters, hasLength(6));
   });
+
+  test('every chapter carries lessons, each within range and self-referential',
+      () async {
+    final curriculum = await CurriculumLoader().load();
+    for (final ch in curriculum.chapters) {
+      expect(ch.lessons, isNotEmpty, reason: '${ch.id} has no lessons');
+      for (final lesson in ch.lessons) {
+        expect(lesson.body, isNotEmpty);
+        expect(lesson.body, isNot(endsWith('\n')));
+        expect(lesson.day, inInclusiveRange(1, ch.days),
+            reason: '${lesson.id} day ${lesson.day} outside ${ch.id}',);
+        // related_cards must name items belonging to this chapter (the
+        // briefing drills what it just taught).
+        for (final cardId in lesson.relatedCardIds) {
+          expect(ch.itemIds, contains(cardId),
+              reason: 'lesson ${lesson.id} references $cardId not in ${ch.id}',);
+        }
+        // Every lesson cites a source.
+        expect(lesson.source, isNotNull, reason: '${lesson.id} has no source');
+      }
+    }
+  });
 }

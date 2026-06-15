@@ -193,9 +193,36 @@ layer + a first-run tour.
 - Verification: 190 tests passed + 4 skipped, analyzer clean, iOS build
   succeeds (75.5MB).
 
-## Phase 7 — Per-card retention curve + survey benchmarks (NEXT, approved plan)
+## Phase 7 — Retention curve, linker fix, benchmarks, ch4–6 lessons ✅ (2026-06-14)
 
-ReviewsDao.logsFor + retention-curve detail sheet from the Memory orbs
-(CustomPainter, FSRS forgetting-curve math read-only); cited civics-survey
-benchmark lines in the trivia review slot (content-only, no telemetry).
-~1–1.5 days.
+Four changes, each its own commit. Tests green + analyzer clean at each.
+
+- **Per-card retention curve.** Tap a card in Memory (orbital field or
+  strongest-cards list) → a detail screen plotting the FSRS forgetting curve
+  across the full review history (sawtooth), with today/next-due markers,
+  grade-colored review dots, and plain-language stats (no FSRS jargon shown).
+  `ReviewsDao.logsForCard`, `FSRS.retrievabilityCurve` (fractional days),
+  `TopCardEntry.id`, `MemoryField.onCardTap`, route `/memory/card/:id`.
+- **ContentLinker fix.** `face_card` items resolved to null, so the sampler
+  topped rounds up with *random* faces — the guided drill didn't match the
+  lesson. Added `card_ids` to curriculum items; linker resolves externalId
+  first (existing concept cards win), then the first active card in
+  `card_ids`. Mapped the 9 face_card items to their intended faces. Broad
+  fallback preserved for genuine gaps.
+- **Survey benchmarks.** End-of-round "Did you know" stat keyed to the
+  chapter played, also embedded in the share PNG. Every figure is a real,
+  sourced survey number (Annenberg 2024/2025; Citizens & Scholars 2018; Pew
+  2025) — chapter-keyed because surveys are topic-level and there is no
+  player-data backend. New `benchmarks.yaml` + loader + provider; share-card
+  line is optional so existing goldens are unchanged.
+- **Chapters 4–6 lessons.** 10 briefing lessons authored (ch4 How Laws Get
+  Made ×3, ch5 Your Rights ×3, ch6 Voting & You ×4), each sourced to a
+  stable .gov page (constitution.congress.gov, congress.gov, archives.gov
+  milestone documents, uscourts.gov case summaries, usa.gov, fec.gov,
+  uscis.gov). The guided teach layer now spans all six chapters.
+
+**Remaining content tranche (founder editorial review + per-card source
+verification):** concept-card decks for chapters 4–6 (~29 cards: ch4
+lawmaking powers, ch5 landmark cases, ch6 voting/parties/symbols). Until
+authored, ch4–6 card phases fall back to face cards while the briefing
+lessons teach. ch1–3 concept cards remain pending editorial review.

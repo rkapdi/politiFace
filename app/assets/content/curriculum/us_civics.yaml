@@ -319,6 +319,40 @@ chapters:
       - exec.appointments
       - exec.bureaucracy-basics
       - jud.judicial-review
+    lessons:
+      - id: les-ch4-powers
+        day: 1
+        title: "What Congress Can Do"
+        body: >
+          Article I lists Congress's enumerated powers — among them taxing,
+          spending, regulating interstate commerce, and declaring war. The
+          "necessary and proper" (elastic) clause lets Congress pass laws to
+          carry those powers out, and its control of federal spending — the
+          power of the purse — is one of its strongest tools.
+        related_cards: [leg.enumerated-powers, leg.elastic-clause, leg.power-of-purse]
+        source: "https://constitution.congress.gov/constitution/article-1/"
+      - id: les-ch4-bill-to-law
+        day: 2
+        title: "How a Bill Becomes Law"
+        body: >
+          A bill is introduced, studied in committee, then debated and voted
+          on in both the House and the Senate. If both chambers pass the same
+          version, it goes to the President. Most bills never make it out of
+          committee — where much of the detailed work and the gatekeeping
+          happens.
+        related_cards: [leg.bill-to-law, leg.committees]
+        source: "https://www.congress.gov/legislative-process"
+      - id: les-ch4-checks
+        day: 3
+        title: "Checks on Power"
+        body: >
+          The President can veto a bill, but Congress can override a veto with
+          a two-thirds vote of both chambers. Congress also oversees the
+          executive branch and can impeach and remove officials, while the
+          courts can strike down laws they find unconstitutional — the power
+          of judicial review.
+        related_cards: [exec.veto, leg.oversight, leg.impeachment, jud.judicial-review]
+        source: "https://www.archives.gov/founding-docs/constitution-transcript"
 
   - id: ch5.rights-and-the-court
     order: 5
@@ -340,6 +374,40 @@ chapters:
       - case.citizens-united
       - doc.incorporation
       - cr.movement
+    lessons:
+      - id: les-ch5-judicial-review
+        day: 1
+        title: "The Court's Power"
+        body: >
+          In Marbury v. Madison (1803), the Supreme Court established judicial
+          review — its authority to strike down laws that violate the
+          Constitution. In McCulloch v. Maryland (1819), the Court upheld
+          implied federal powers and held that states cannot tax the federal
+          government, reinforcing national supremacy.
+        related_cards: [case.marbury, case.mcculloch]
+        source: "https://www.archives.gov/milestone-documents/marbury-v-madison"
+      - id: les-ch5-equal-protection
+        day: 2
+        title: "Toward Equal Protection"
+        body: >
+          In Plessy v. Ferguson (1896), the Court allowed "separate but equal"
+          segregation. More than fifty years later, Brown v. Board of
+          Education (1954) overturned it, ruling that segregated public schools
+          are inherently unequal — a legal cornerstone of the civil rights
+          movement.
+        related_cards: [case.plessy, case.brown, cr.movement]
+        source: "https://www.archives.gov/milestone-documents/brown-v-board-of-education"
+      - id: les-ch5-everyday-rights
+        day: 3
+        title: "Rights in Everyday Life"
+        body: >
+          Gideon v. Wainwright (1963) guaranteed a lawyer to defendants who
+          cannot afford one. Tinker v. Des Moines (1969) affirmed that
+          students keep their free-speech rights at school. Through a process
+          called incorporation, most Bill of Rights protections apply against
+          the states too, not just the federal government.
+        related_cards: [case.gideon, case.tinker, doc.incorporation]
+        source: "https://www.uscourts.gov/about-federal-courts/educational-resources/educational-activities/first-amendment-activities/tinker-v-des-moines/facts-and-case-summary-tinker-v-des-moines"
 
   - id: ch6.we-the-people
     order: 6
@@ -367,6 +435,49 @@ chapters:
       - sym.anthem
       - geo.essentials
       - leg.gerrymandering
+    lessons:
+      - id: les-ch6-federalism
+        day: 1
+        title: "Who Governs What"
+        body: >
+          Power in the United States is shared between the national government
+          and the states — a system called federalism. States run their own
+          governments under elected governors and legislatures, and they
+          create the local governments — counties, cities, school boards —
+          that handle most day-to-day services.
+        related_cards: [sl.governor, sl.state-powers, sl.federalism-practice, sl.local-structures]
+        source: "https://www.usa.gov/state-governments"
+      - id: les-ch6-elections
+        day: 2
+        title: "How Elections Work"
+        body: >
+          Most U.S. citizens 18 and older can vote, but they usually must
+          register first. Presidential elections happen every four years, and
+          the winner is chosen not by the national popular vote directly but
+          through the Electoral College, where each state casts electoral
+          votes.
+        related_cards: [vote.eligibility, vote.registration-turnout, vote.presidential-cycle]
+        source: "https://www.archives.gov/electoral-college"
+      - id: les-ch6-parties-money
+        day: 3
+        title: "Parties, Campaigns, and Money"
+        body: >
+          The United States has two major parties, with smaller third parties
+          competing for influence. Campaigns run on donations that federal law
+          regulates and requires to be disclosed, and interest groups and the
+          news media help shape which issues voters hear about.
+        related_cards: [part.two-parties, camp.finance, camp.interest-groups, media.role]
+        source: "https://www.fec.gov/introduction-campaign-finance/"
+      - id: les-ch6-citizenship
+        day: 4
+        title: "Being a Citizen"
+        body: >
+          Citizenship carries both rights — like voting and serving on a jury
+          — and responsibilities, such as obeying the law and paying taxes.
+          Landmark laws including the Civil Rights Act and the Voting Rights
+          Act expanded those rights to more Americans.
+        related_cards: [civ.duties, civ.citizen-rights, cr.landmark-legislation]
+        source: "https://www.uscis.gov/citizenship"
 
 # ── Map structure ──────────────────────────────────────────────────────────
 # Top-level branches mirror the existing learn-tab map. `Foundations` is

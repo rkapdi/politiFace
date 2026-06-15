@@ -30,12 +30,21 @@ benchmarks:
 
   # ── Chapter 2 · The Constitution / Chapter 3 · Three Branches ─────────
   - id: three-branches
-    chapter_ids: [ch2.the-architecture, ch3.three-branches]
+    chapter_ids: [ch2.the-architecture, ch3.three-branches, ch4.machine-in-motion]
     stat: "Nearly 1 in 3 Americans can't name all three branches of government."
     you_line: "You're learning what most people can't."
     source: "Annenberg Constitution Day Civics Survey"
     year: 2025
     url: "https://www.annenbergpublicpolicycenter.org/political-communication/civics-knowledge-survey/"
+
+  # ── Chapter 6 · Voting & You ──────────────────────────────────────────
+  - id: voter-turnout-2024
+    chapter_ids: [ch6.we-the-people]
+    stat: "About 64% of eligible Americans voted in 2024 — meaning roughly 1 in 3 sat the election out."
+    you_line: "Knowing how it works is the first step to showing up."
+    source: "Pew Research Center analysis of voter turnout"
+    year: 2025
+    url: "https://www.pewresearch.org/politics/2025/06/26/voter-turnout-2020-2024/"
 
   # ── Chapter 5 · Your Rights (First Amendment) ─────────────────────────
   - id: first-amendment-religion
