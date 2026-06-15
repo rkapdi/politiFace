@@ -31,4 +31,11 @@ class ReviewsDao extends DatabaseAccessor<AppDatabase> with _$ReviewsDaoMixin {
           ..orderBy([(l) => OrderingTerm.asc(l.reviewedAt)])
           ..limit(limit))
         .get();
+
+  /// Full review history for a single card, oldest first. Powers the
+  /// per-card retention curve in the Memory section.
+  Future<List<ReviewLog>> logsForCard(String cardId) => (select(reviewLogs)
+          ..where((l) => l.cardId.equals(cardId))
+          ..orderBy([(l) => OrderingTerm.asc(l.reviewedAt)]))
+        .get();
 }

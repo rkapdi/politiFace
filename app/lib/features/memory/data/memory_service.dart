@@ -100,6 +100,7 @@ enum BrainStage {
 
 class TopCardEntry {
   const TopCardEntry({
+    required this.id,
     required this.politicianName,
     required this.title,
     required this.photoUrl,
@@ -107,6 +108,8 @@ class TopCardEntry {
     required this.level,
   });
 
+  /// Card id — lets the tile navigate to that card's retention detail.
+  final String id;
   final String politicianName;
   final String title;
   final String? photoUrl;
@@ -143,6 +146,7 @@ class MemoryService {
       for (final s in slice)
         if (byId[s.cardId] != null)
           TopCardEntry(
+            id: s.cardId,
             politicianName: byId[s.cardId]!.politicianName,
             title: byId[s.cardId]!.title,
             photoUrl: byId[s.cardId]!.photoUrl,
@@ -196,6 +200,7 @@ class MemoryService {
       final c = byId[s.cardId];
       if (c == null) continue;
       topCards.add(TopCardEntry(
+        id: s.cardId,
         politicianName: c.politicianName,
         title: c.title,
         photoUrl: c.photoUrl,

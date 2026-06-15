@@ -256,6 +256,29 @@ void main() {
       final highStability = fsrs.retrievability(30, 60);
       expect(highStability, greaterThan(lowStability));
     });
+
+    test('retrievabilityCurve matches the integer version at whole days', () {
+      for (final day in [0, 1, 5, 30]) {
+        expect(
+          fsrs.retrievabilityCurve(day.toDouble(), 20),
+          closeTo(fsrs.retrievability(day, 20), 1e-9),
+        );
+      }
+    });
+
+    test('retrievabilityCurve is monotonic across fractional days', () {
+      final r05 = fsrs.retrievabilityCurve(0.5, 10);
+      final r15 = fsrs.retrievabilityCurve(1.5, 10);
+      final r25 = fsrs.retrievabilityCurve(2.5, 10);
+      expect(r05, greaterThan(r15));
+      expect(r15, greaterThan(r25));
+      expect(r05, lessThan(1.0));
+    });
+
+    test('retrievabilityCurve crosses ~0.9 near one stability interval', () {
+      // By construction, R reaches the 0.9 review target at t ≈ S.
+      expect(fsrs.retrievabilityCurve(10, 10), closeTo(0.9, 0.01));
+    });
   });
 
   group('FSRS Personalized Weights', () {

@@ -73,7 +73,10 @@ class _MemoryView extends StatelessWidget {
         const _SectionTitle('Memory field'),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: MemoryField(orbits: stats.orbits),
+          child: MemoryField(
+            orbits: stats.orbits,
+            onCardTap: (id) => context.push('/memory/card/$id'),
+          ),
         ),
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
@@ -99,7 +102,7 @@ class _FieldLegend extends StatelessWidget {
     final theme = Theme.of(context);
     return Text(
       "Each dot is a card you've reviewed. Closer to the core = sooner to "
-      'forget. The field rotates as time passes; dots pulse on their own rhythm.',
+      'forget. Tap a dot to see its memory curve; long-press to peek.',
       style: theme.textTheme.bodySmall?.copyWith(
         color: theme.colorScheme.onSurfaceVariant,
         height: 1.35,
@@ -670,6 +673,7 @@ class _TopCardTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        onTap: () => context.push('/memory/card/${entry.id}'),
         leading: CardAvatar(
           name: entry.politicianName,
           radius: 22,

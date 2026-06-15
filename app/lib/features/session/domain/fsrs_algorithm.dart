@@ -170,6 +170,12 @@ class FSRS {
   /// Use for display purposes (e.g., showing memory strength).
   double retrievability(int elapsedDays, double stability) => _forgettingCurve(elapsedDays.toDouble(), stability);
 
+  /// Retrievability at a fractional elapsed-day offset. Same forgetting curve
+  /// as [retrievability] but accepts sub-day resolution so callers can plot a
+  /// smooth decay line (e.g. the per-card retention chart).
+  double retrievabilityCurve(double elapsedDays, double stability) =>
+      _forgettingCurve(elapsedDays, stability);
+
   // ── Private: FSRS-4.5 equations ────────────────────────────────────────────
 
   // Ebbinghaus forgetting curve: R(t,S) = (1 + t/(9*S))^-1

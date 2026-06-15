@@ -17,8 +17,13 @@ import '../data/memory_service.dart';
 ///  - Tier rings labeled ★1..★5 for orientation
 ///  - Long-press an orb to freeze the field and inspect that card
 class MemoryField extends StatefulWidget {
-  const MemoryField({required this.orbits, super.key});
+  const MemoryField({required this.orbits, this.onCardTap, super.key});
   final List<OrbitalCard> orbits;
+
+  /// Called when a card orb is tapped. Tapping opens that card's retention
+  /// detail; long-press still shows the quick-peek popover. Kept as a
+  /// callback so this widget stays free of routing dependencies.
+  final void Function(String cardId)? onCardTap;
 
   @override
   State<MemoryField> createState() => _MemoryFieldState();
@@ -124,6 +129,17 @@ class _MemoryFieldState extends State<MemoryField>
     _sweep.stop(canceled: false);
   }
 
+  void _handleTap(TapUpDetails details, Size size) {
+    // A peek popover is showing — first tap just dismisses it.
+    if (_selected != null) {
+      _dismiss();
+      return;
+    }
+    final hit = _hitTest(details.localPosition, size);
+    if (hit == null) return;
+    widget.onCardTap?.call(hit.card.id);
+  }
+
   void _dismiss() {
     if (_selected == null) return;
     setState(() {
@@ -166,7 +182,7 @@ class _MemoryFieldState extends State<MemoryField>
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onLongPressStart: (d) => _handleLongPress(d, size),
-                  onTap: _selected != null ? _dismiss : null,
+                  onTapUp: (d) => _handleTap(d, size),
                 ),
               ),
               if (_selected != null && _selectedPos != null)
