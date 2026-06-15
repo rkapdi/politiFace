@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../core/database/drift/app_database.dart';
 import '../features/atlas/data/branch_info_loader.dart';
 import '../features/atlas/data/wikipedia_bio_service.dart';
+import '../features/benchmark/data/benchmark_loader.dart';
+import '../features/benchmark/domain/benchmark.dart';
 import '../features/curriculum/data/chapter_progress_service.dart';
 import '../features/curriculum/data/content_linker.dart';
 import '../features/curriculum/data/curriculum_loader.dart';
@@ -116,6 +118,14 @@ final curriculumLoaderProvider = Provider<CurriculumLoader>((_) => CurriculumLoa
 /// Parsed `us_civics.yaml`. Loaded once per app launch; cached for the
 /// lifetime of the Riverpod scope.
 final curriculumProvider = FutureProvider<Curriculum>((ref) async => ref.watch(curriculumLoaderProvider).load());
+
+/// Parsed national civics-knowledge benchmarks shown at round end.
+final benchmarkLoaderProvider =
+    Provider<BenchmarkLoader>((_) => BenchmarkLoader());
+
+final benchmarksProvider = FutureProvider<Benchmarks>(
+  (ref) async => ref.watch(benchmarkLoaderProvider).load(),
+);
 
 final chapterProgressServiceProvider =
     Provider<ChapterProgressService>((ref) => ChapterProgressService(ref.watch(databaseProvider)));

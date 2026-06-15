@@ -12,6 +12,7 @@ class TriviaShareCard extends StatelessWidget {
   const TriviaShareCard({
     required this.result,
     required this.dateLabel,
+    this.benchmark,
     super.key,
   });
 
@@ -19,6 +20,11 @@ class TriviaShareCard extends StatelessWidget {
 
   /// Pre-formatted "May 26" string. Pass the trivia date, not DateTime.now().
   final String dateLabel;
+
+  /// Optional national-stat line ("Only 11% of Americans can name…") rendered
+  /// above the footer. Null on the standalone trivia card (and in golden
+  /// tests), so the card's existing layout is unchanged when absent.
+  final String? benchmark;
 
   static const double canvasWidth = 360;
   static const double canvasHeight = 640;
@@ -177,6 +183,25 @@ class TriviaShareCard extends StatelessWidget {
               ),
             ),
           ),
+
+          // ── Benchmark line (only when provided) ────────────────────────
+          if (benchmark != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
+              child: Text(
+                benchmark!,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.fade,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontStyle: FontStyle.italic,
+                  color: EditorialPalette.inkSubdued,
+                  height: 1.25,
+                ),
+              ),
+            ),
 
           // ── URL footer (~15% of height) ────────────────────────────────
           Container(

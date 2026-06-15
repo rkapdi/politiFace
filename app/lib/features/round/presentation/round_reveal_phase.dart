@@ -9,6 +9,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../app/editorial_theme.dart';
+import '../../../app/providers.dart';
+import '../../benchmark/domain/benchmark.dart';
 import '../../trivia/domain/trivia_scoring.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
 import '../../trivia/presentation/trivia_share_card.dart';
@@ -122,6 +124,15 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
     }
     final theme = Theme.of(context);
     final color = _archetypeColor(result.archetype);
+    // A national stat keyed to the chapter just played — shown only when the
+    // player got at least one question right, so it reads as encouragement.
+    final benchmarks = ref.watch(benchmarksProvider).valueOrNull;
+    final benchmark = (benchmarks != null && result.correctCount > 0)
+        ? benchmarks.forChapter(
+            widget.state.chapterId,
+            dateIso: widget.state.dateIso,
+          )
+        : null;
     final scoreColor = result.totalScore < 0
         ? EditorialPalette.actionRed
         : (result.totalScore >= 100
@@ -145,6 +156,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
                   child: TriviaShareCard(
                     result: result,
                     dateLabel: formatShareCardDate(_todayIso),
+                    benchmark: benchmark?.stat,
                   ),
                 ),
               ),
@@ -225,6 +237,12 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
                   textAlign: TextAlign.center,
                 ),
               ).animate().fade(delay: 940.ms, duration: 380.ms),
+              if (benchmark != null) ...[
+                const SizedBox(height: 20),
+                _BenchmarkCallout(benchmark: benchmark)
+                    .animate()
+                    .fade(delay: 1060.ms, duration: 420.ms),
+              ],
               const Spacer(),
               SizedBox(
                 width: double.infinity,
@@ -309,6 +327,65 @@ class _ChapterCompletionStrip extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
       ],
+    );
+  }
+}
+
+/// "Did you know" stat block on the reveal — a national survey figure for
+/// the chapter just played, plus a short encouragement and the attribution.
+class _BenchmarkCallout extends StatelessWidget {
+  const _BenchmarkCallout({required this.benchmark});
+  final Benchmark benchmark;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: EditorialPalette.ochre.withOpacity(0.10),
+        border: Border.all(color: EditorialPalette.ochre.withOpacity(0.5)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'DID YOU KNOW',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: EditorialPalette.ochre,
+              letterSpacing: 1.8,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            benchmark.stat,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              height: 1.35,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            benchmark.youLine,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            benchmark.attribution,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 9,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

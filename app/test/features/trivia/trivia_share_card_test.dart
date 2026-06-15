@@ -137,6 +137,35 @@ void main() {
         tags: ['golden'],
       );
     }
+
+    testWidgets('renders the benchmark line without overflow when provided',
+        (tester) async {
+      const stat = 'Only 11% of Americans can name the right to petition '
+          'the government.';
+      await tester.pumpWidget(
+        _wrap(
+          TriviaShareCard(
+            result: _fixtures[TriviaArchetype.civicScholar]!,
+            dateLabel: 'May 26',
+            benchmark: stat,
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text(stat), findsOneWidget);
+    });
+
+    testWidgets('omits the benchmark line when absent', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          TriviaShareCard(
+            result: _fixtures[TriviaArchetype.civicScholar]!,
+            dateLabel: 'May 26',
+          ),
+        ),
+      );
+      expect(find.textContaining('Americans'), findsNothing);
+    });
   });
 
   group('formatShareCardDate', () {

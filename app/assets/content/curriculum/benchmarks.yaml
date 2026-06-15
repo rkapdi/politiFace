@@ -1,0 +1,68 @@
+# National civics-knowledge benchmarks shown at the end of a daily round.
+#
+# Every `stat` is a real, published finding from a named national survey —
+# NEVER an invented or estimated number. This is the whole credibility
+# premise of the app; a fabricated percentage here would poison it. If you
+# add a benchmark, cite the exact survey, year, and a working source URL,
+# and quote the figure as the source reports it.
+#
+# Surfacing: one benchmark is shown on the reveal screen (and embedded in the
+# share card) when the player got at least one question right in the round,
+# framed as a "you're learning what most people don't" moment. Selection is
+# keyed to the chapter just played and is deterministic per day.
+version: 1
+benchmarks:
+  # ── Chapter 1 · The Founding ──────────────────────────────────────────
+  - id: citizenship-test-pass
+    chapter_ids: [ch1.first-principles]
+    stat: "Only about 1 in 3 Americans could pass the U.S. citizenship test."
+    you_line: "You're studying the real thing."
+    source: "Institute for Citizens & Scholars (Woodrow Wilson Foundation) national survey"
+    year: 2018
+    url: "https://citizensandscholars.org/resource/national-survey-finds-just-1-in-3-americans-would-pass-citizenship-test/"
+  - id: constitution-ratified-year
+    chapter_ids: [ch1.first-principles, ch2.the-architecture]
+    stat: "Just 13% of Americans know when the Constitution was ratified — most wrongly say 1776."
+    you_line: "Now you know better."
+    source: "Institute for Citizens & Scholars national survey"
+    year: 2018
+    url: "https://citizensandscholars.org/resource/national-survey-finds-just-1-in-3-americans-would-pass-citizenship-test/"
+
+  # ── Chapter 2 · The Constitution / Chapter 3 · Three Branches ─────────
+  - id: three-branches
+    chapter_ids: [ch2.the-architecture, ch3.three-branches]
+    stat: "Nearly 1 in 3 Americans can't name all three branches of government."
+    you_line: "You're learning what most people can't."
+    source: "Annenberg Constitution Day Civics Survey"
+    year: 2025
+    url: "https://www.annenbergpublicpolicycenter.org/political-communication/civics-knowledge-survey/"
+
+  # ── Chapter 5 · Your Rights (First Amendment) ─────────────────────────
+  - id: first-amendment-religion
+    chapter_ids: [ch2.the-architecture, ch5.rights-and-the-court]
+    stat: "Fewer than half of Americans (48%) can name freedom of religion as a First Amendment right."
+    you_line: "You're in the half that can."
+    source: "Annenberg Constitution Day Civics Survey"
+    year: 2025
+    url: "https://www.annenbergpublicpolicycenter.org/political-communication/civics-knowledge-survey/"
+  - id: first-amendment-press
+    chapter_ids: [ch5.rights-and-the-court]
+    stat: "Only 29% of Americans can name freedom of the press as a First Amendment right."
+    you_line: "You're in the knowing minority."
+    source: "Annenberg Constitution Day Civics Survey"
+    year: 2024
+    url: "https://www.annenbergpublicpolicycenter.org/most-americans-cant-recall-most-first-amendment-rights/"
+  - id: first-amendment-petition
+    chapter_ids: [ch5.rights-and-the-court]
+    stat: "Just 11% of Americans can name the right to petition the government."
+    you_line: "Most people never learn this one."
+    source: "Annenberg Constitution Day Civics Survey"
+    year: 2024
+    url: "https://www.annenbergpublicpolicycenter.org/most-americans-cant-recall-most-first-amendment-rights/"
+  - id: first-amendment-all-five
+    chapter_ids: [ch5.rights-and-the-court]
+    stat: "Only 7% of Americans can name all five First Amendment freedoms."
+    you_line: "Keep going — you're nearly there."
+    source: "Annenberg Constitution Day Civics Survey"
+    year: 2024
+    url: "https://www.annenbergpublicpolicycenter.org/most-americans-cant-recall-most-first-amendment-rights/"
