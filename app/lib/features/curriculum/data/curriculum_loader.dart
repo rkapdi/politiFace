@@ -194,6 +194,8 @@ class CurriculumLoader {
       coverage: _parseCoverage(raw['coverage'], itemId: id),
       crossLinks: _stringList(raw['cross_links'], 'item[$id].cross_links',
           allowMissing: true,),
+      cardIds: _stringList(raw['card_ids'], 'item[$id].card_ids',
+          allowMissing: true,),
     );
   }
 

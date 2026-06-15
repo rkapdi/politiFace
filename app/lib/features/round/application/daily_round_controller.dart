@@ -79,6 +79,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       chapter: chapter,
       count: cardsPerRound,
       dateIso: dateIso,
+      curriculum: curriculum,
       preferItemIds: [
         for (final l in lessons) ...l.relatedCardIds,
       ],
@@ -87,6 +88,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       chapter: chapter,
       count: triviaPerRound,
       dateIso: dateIso,
+      curriculum: curriculum,
     );
 
     if (cardSample.isEmpty && triviaSample.isEmpty) {

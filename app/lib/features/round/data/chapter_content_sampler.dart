@@ -34,16 +34,19 @@ class ChapterContentSampler {
     required Chapter chapter,
     required int count,
     required String dateIso,
+    Curriculum? curriculum,
     bool allowFallback = true,
     List<String> preferItemIds = const [],
-  }) async => _sample(
-      chapter: chapter,
-      count: count,
-      dateIso: dateIso,
-      saltSuffix: 'cards',
-      allowFallback: allowFallback,
-      preferItemIds: preferItemIds,
-    );
+  }) async =>
+      _sample(
+        chapter: chapter,
+        count: count,
+        dateIso: dateIso,
+        saltSuffix: 'cards',
+        curriculum: curriculum,
+        allowFallback: allowFallback,
+        preferItemIds: preferItemIds,
+      );
 
   /// Samples [count] cards to seed trivia questions from. Same shape as
   /// [sampleCards] but with a different deterministic seed so a single
@@ -53,14 +56,17 @@ class ChapterContentSampler {
     required Chapter chapter,
     required int count,
     required String dateIso,
+    Curriculum? curriculum,
     bool allowFallback = true,
-  }) async => _sample(
-      chapter: chapter,
-      count: count,
-      dateIso: dateIso,
-      saltSuffix: 'trivia',
-      allowFallback: allowFallback,
-    );
+  }) async =>
+      _sample(
+        chapter: chapter,
+        count: count,
+        dateIso: dateIso,
+        saltSuffix: 'trivia',
+        curriculum: curriculum,
+        allowFallback: allowFallback,
+      );
 
   Future<SampledContent> _sample({
     required Chapter chapter,
@@ -68,6 +74,7 @@ class ChapterContentSampler {
     required String dateIso,
     required String saltSuffix,
     required bool allowFallback,
+    Curriculum? curriculum,
     List<String> preferItemIds = const [],
   }) async {
     final seed = _seedFor(dateIso, chapter.id, saltSuffix);
@@ -81,7 +88,7 @@ class ChapterContentSampler {
     for (final itemId in preferItemIds) {
       if (picked.length >= count) break;
       if (!preferred.add(itemId)) continue;
-      final card = await _resolveItemId(itemId);
+      final card = await _resolveItemId(itemId, curriculum);
       if (card != null) {
         picked.add(_ResolvedItem(itemId: itemId, card: card));
       }
@@ -93,7 +100,7 @@ class ChapterContentSampler {
     final missingItemIds = <String>[];
     for (final itemId in chapter.itemIds) {
       if (preferred.contains(itemId)) continue;
-      final card = await _resolveItemId(itemId);
+      final card = await _resolveItemId(itemId, curriculum);
       if (card != null) {
         resolved.add(_ResolvedItem(itemId: itemId, card: card));
       } else {
@@ -126,8 +133,16 @@ class ChapterContentSampler {
     );
   }
 
-  Future<LocalCard?> _resolveItemId(String itemId) =>
-      _linker.cardForId(itemId);
+  /// Resolves an item id to a card. With a [curriculum] in hand we can read
+  /// the item's `card_ids` (so `face_card` items drill their intended face);
+  /// without it we fall back to externalId-only resolution.
+  Future<LocalCard?> _resolveItemId(String itemId, Curriculum? curriculum) {
+    if (curriculum != null) {
+      final item = curriculum.itemById(itemId);
+      if (item != null) return _linker.cardFor(item);
+    }
+    return _linker.cardForId(itemId);
+  }
 
   /// Deterministic seed: same date + chapter + phase → same shuffle.
   int _seedFor(String dateIso, String chapterId, String saltSuffix) {

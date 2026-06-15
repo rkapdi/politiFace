@@ -5,42 +5,49 @@ import '../domain/curriculum.dart';
 /// in the spaced-repetition layer. Returns null when the card hasn't been
 /// authored yet (the Phase 0 concept-deck backlog).
 ///
-/// **Phase 1 status**: stub. Returns null for every item. The YAML today
-/// only tags coverage type (`face_card` vs `concept`) but doesn't name
-/// the specific deck or card that covers a `face_card` item. Phase 1.5
-/// or Phase 2 should extend the curriculum YAML schema with explicit
-/// `face_card_deck` / `face_card_ids` fields on each face-card item, then
-/// flesh out [cardFor] to actually look them up.
+/// Resolution rules, in order:
+///   1. A concept card whose `externalId` equals the item id (concept decks
+///      adopt the `id == curriculum_item_id` convention and light up
+///      automatically).
+///   2. The item's explicit `card_ids` list — the first active card wins,
+///      in listed priority order. This is how a `face_card` item names the
+///      exact face the round should drill.
 ///
-/// The interface is locked in now so Phase 2 ([DailyRoundController]) can
-/// consume it. Sampling logic in Phase 2 will skip items whose card lookup
-/// returns null — they're invisible to the round generator until authored.
+/// Returns null when nothing matches (the item's concept card hasn't been
+/// authored and it lists no backing face cards). Callers — the
+/// [ChapterContentSampler] — then fall back to the broad face-card pool so
+/// the round stays playable, and record the miss for diagnostics.
 class ContentLinker {
   ContentLinker(this._db);
 
   final AppDatabase _db;
 
-  /// Returns the card backing this curriculum item, or null if not yet
-  /// authored / wired up.
-  Future<LocalCard?> cardFor(CurriculumItem item) => cardForId(item.id);
-
-  /// String-id variant. Useful for samplers that already have raw item
-  /// ids and don't want to round-trip through [Curriculum.itemById].
-  /// Same resolution rules as [cardFor].
-  Future<LocalCard?> cardForId(String itemId) async {
-    // First pass: exact match on LocalCards.externalId. Currently no
-    // existing card uses curriculum_item_id as its external id; this is
-    // here so that future concept decks can adopt the convention and
-    // light up automatically when they ship.
-    final byExternalId = await (_db.select(_db.localCards)
-          ..where((c) => c.externalId.equals(itemId)))
-        .getSingleOrNull();
+  /// Returns the card backing this curriculum item, or null if neither a
+  /// matching concept card nor any of its [CurriculumItem.cardIds] exist.
+  Future<LocalCard?> cardFor(CurriculumItem item) async {
+    final byExternalId = await _byExternalId(item.id);
     if (byExternalId != null) return byExternalId;
 
-    // Second pass (future): explicit face_card_ids field on the
-    // curriculum item. Not parsed yet.
+    // Explicit card_ids — first active match in priority order. id is the
+    // primary key, so the per-id lookup is unique; we filter inactive in Dart
+    // to avoid pulling drift's boolean-expression operators in here.
+    for (final cardId in item.cardIds) {
+      final card = await (_db.select(_db.localCards)
+            ..where((c) => c.id.equals(cardId)))
+          .getSingleOrNull();
+      if (card != null && card.isActive) return card;
+    }
     return null;
   }
+
+  /// String-id variant for callers that only have a raw item id (and so
+  /// can't see its `card_ids`). Resolves by externalId only — prefer
+  /// [cardFor] when you have the [CurriculumItem].
+  Future<LocalCard?> cardForId(String itemId) => _byExternalId(itemId);
+
+  Future<LocalCard?> _byExternalId(String itemId) =>
+      (_db.select(_db.localCards)..where((c) => c.externalId.equals(itemId)))
+          .getSingleOrNull();
 
   /// Bulk variant. Returns a map keyed by curriculum item id; missing
   /// entries mean "no card authored yet."

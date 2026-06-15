@@ -264,6 +264,7 @@ class CurriculumItem {
     required this.sources,
     required this.coverage,
     this.crossLinks = const [],
+    this.cardIds = const [],
   });
 
   final String id;
@@ -289,6 +290,13 @@ class CurriculumItem {
   /// Used by the map to draw cross-links between related concepts (e.g.,
   /// Federalism in Foundations + State-and-Local).
   final List<String> crossLinks;
+
+  /// Explicit [LocalCard] ids that back this item, in priority order. Lets a
+  /// `face_card` item name the exact card(s) the round should drill instead
+  /// of falling back to a random face. Concept items still resolve by
+  /// id==externalId and usually leave this empty. The content linker returns
+  /// the first active card in this list when the externalId match misses.
+  final List<String> cardIds;
 }
 
 /// Curriculum-source priority tier.

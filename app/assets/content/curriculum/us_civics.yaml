@@ -538,21 +538,25 @@ branches:
             tier: core
             sources: [U, F, A, N, I]
             coverage: face_card  # us-legislative-congress.yaml
+            card_ids: [us-congress-speaker, us-congress-senate-majority-leader]
           - id: leg.senate-basics
             prompt: 100 Senators (2 per state), 6-year terms
             tier: core
             sources: [U, I]
             coverage: face_card  # us-legislative-senate.yaml
+            card_ids: [us-congress-senate-majority-leader, us-senate-pres-pro-tem]
           - id: leg.house-basics
             prompt: 435 House members, 2-year terms, apportioned by state population
             tier: core
             sources: [U, F, I]
             coverage: face_card  # us-legislative-house.yaml
+            card_ids: [us-congress-house-majority-leader, us-congress-speaker]
           - id: leg.speaker
             prompt: Speaker of the House — role and current officeholder
             tier: core
             sources: [U, I]
             coverage: face_card
+            card_ids: [us-congress-speaker]
 
       - id: legislative.powers
         title: Powers of Congress
@@ -622,21 +626,25 @@ branches:
             tier: core
             sources: [U, F, I]
             coverage: face_card
+            card_ids: [us-exec-president]
           - id: exec.vp-succession
             prompt: Vice President and presidential succession (Speaker, President pro tempore, etc.)
             tier: core
             sources: [U, I]
             coverage: face_card
+            card_ids: [us-exec-vice-president]
           - id: exec.cabinet
             prompt: Cabinet — purpose, 15 executive departments
             tier: core
             sources: [U, F, I]
             coverage: face_card  # us-executive-cabinet.yaml
+            card_ids: [us-exec-sec-state, us-cabinet-treasury]
           - id: exec.eop
             prompt: Executive Office of the President — White House staff, OMB, NSC
             tier: standard
             sources: [A, I]
             coverage: face_card  # us-executive-eop.yaml
+            card_ids: [us-eop-chief-of-staff]
 
       - id: executive.powers
         title: Executive Powers
@@ -690,6 +698,7 @@ branches:
             tier: core
             sources: [U, F, I]
             coverage: face_card  # us-judicial-scotus.yaml
+            card_ids: [us-scotus-roberts]
           - id: jud.court-hierarchy
             prompt: Federal court hierarchy — District Courts → Circuit Courts of Appeals → Supreme Court
             tier: standard
