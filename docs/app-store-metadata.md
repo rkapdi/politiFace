@@ -137,7 +137,7 @@ theme.)
 
 ## Privacy policy URL
 
-`https://rkapdi.github.io/politiFace/privacy`
+`https://rkapdi.github.io/politiFace/privacy-policy/`
 
 (Same GitHub Pages setup, sourced from `docs/privacy-policy.md`.)
 
@@ -225,7 +225,7 @@ Distribution → 6.9" Display tab.
 - [ ] 1024×1024 app icon uploaded (no transparency, no rounded corners)
 - [ ] Privacy Policy URL resolves (test in incognito)
 - [ ] Support URL resolves (test in incognito)
-- [ ] Build 1.1.0 (2) attached to this version
+- [ ] Build 1.1.0 (3) attached to this version
 - [ ] App Privacy questionnaire complete
 - [ ] Age rating set to 9+ (or whatever the questionnaire lands you at)
 - [ ] Export Compliance answered (uses standard iOS encryption — exempt)
