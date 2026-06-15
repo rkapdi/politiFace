@@ -12,7 +12,7 @@ import '../data/settings_service.dart';
 const _githubUrl = 'https://github.com/rkapdi/politiFace';
 const _licenseUrl =
     'https://github.com/rkapdi/politiFace/blob/main/LICENSE';
-const _privacyUrl = 'https://rkapdi.github.io/politiFace/privacy';
+const _privacyUrl = 'https://rkapdi.github.io/politiFace/privacy-policy/';
 
 /// Runtime app version string, read once at first access. Format: "1.1.0 (2)".
 final appVersionProvider = FutureProvider<String>((ref) async {
