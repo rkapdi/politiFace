@@ -230,3 +230,15 @@ final todayRoundPlayedProvider = FutureProvider<bool>((ref) async {
   );
   return row?.completedAt != null;
 });
+
+/// Id of the most recent completed daily-round run, used by "Review today"
+/// on the home card to deep-link into that run's review. Null when no round
+/// has been completed (in which case home shows "Play", not "Review").
+/// Most-recent `round` run is today's whenever [todayRoundPlayedProvider] is
+/// true, so this resolves to today's run wherever the Review button shows.
+final todayRoundRunIdProvider = FutureProvider<String?>((ref) async {
+  ref.watch(sessionTickProvider);
+  final db = ref.watch(databaseProvider);
+  final runs = await db.completedRunsDao.recent(mode: 'round', limit: 1);
+  return runs.isEmpty ? null : runs.first.id;
+});
