@@ -35,6 +35,60 @@ Future<List<LocalCard>> _seedPool(AppDatabase db, int count) async {
   return db.cardsDao.allActiveCards();
 }
 
+/// Pool that reproduces the Associate-Justice ambiguity: many cards share a
+/// single title, so "Who holds the role of Associate Justice?" has several
+/// valid answers unless the generator excludes same-title distractors.
+Future<List<LocalCard>> _seedSharedTitlePool(AppDatabase db) async {
+  await db.decksDao.upsertDeck(LocalDecksCompanion.insert(
+    id: 'scotus',
+    externalId: 'scotus',
+    name: 'SCOTUS',
+    updatedAt: 0,
+  ));
+  await db.decksDao.upsertDeck(LocalDecksCompanion.insert(
+    id: 'other',
+    externalId: 'other',
+    name: 'Other',
+    updatedAt: 0,
+  ));
+  final justices = <String, String>{
+    'card-cj': 'Chief Justice of the United States',
+    for (var i = 0; i < 8; i++)
+      'card-aj$i': 'Associate Justice of the Supreme Court',
+  };
+  var sort = 0;
+  for (final e in justices.entries) {
+    await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
+      id: e.key,
+      deckId: 'scotus',
+      externalId: e.key,
+      politicianName: 'Justice ${e.key}',
+      title: e.value,
+      gender: const Value('male'),
+      photoUrl: Value('https://example.com/${e.key}.jpg'),
+      sourceUrl: 'about:blank',
+      sortOrder: Value(sort++),
+      updatedAt: 0,
+    ));
+  }
+  // Distinct-title filler so there are always >= 3 unambiguous distractors.
+  for (var i = 0; i < 10; i++) {
+    await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
+      id: 'other-$i',
+      deckId: 'other',
+      externalId: 'other-$i',
+      politicianName: 'Official $i',
+      title: 'Distinct Role $i',
+      gender: const Value('male'),
+      photoUrl: Value('https://example.com/o$i.jpg'),
+      sourceUrl: 'about:blank',
+      sortOrder: Value(i),
+      updatedAt: 0,
+    ));
+  }
+  return db.cardsDao.allActiveCards();
+}
+
 void main() {
   late AppDatabase db;
 
@@ -105,5 +159,31 @@ void main() {
     final qs = gen.generate(date: DateTime(2026, 5, 23), cards: pool);
     final ids = qs.map((q) => q.cardId).toList();
     expect(ids.toSet().length, ids.length, reason: 'each card once per run');
+  });
+
+  test('"who holds role X" never offers two people with that same role',
+      () async {
+    final pool = await _seedSharedTitlePool(db);
+    final byName = {for (final c in pool) c.politicianName: c};
+    final byId = {for (final c in pool) c.id: c};
+    const gen = TriviaGenerator();
+    var exercisedSharedTitle = 0;
+    // Sweep many dates so we hit Associate-Justice titleToName questions.
+    for (var d = 1; d <= 60; d++) {
+      final qs = gen.generate(date: DateTime(2026, 1, d), cards: pool);
+      for (final q in qs) {
+        if (q.format != TriviaFormat.titleToName) continue;
+        final asked = byId[q.cardId]!;
+        final matching = q.options
+            .where((name) => byName[name]?.title == asked.title)
+            .length;
+        expect(matching, 1,
+            reason: 'only the correct holder of "${asked.title}" '
+                'should be an option, got $matching');
+        if (asked.title.contains('Associate Justice')) exercisedSharedTitle++;
+      }
+    }
+    expect(exercisedSharedTitle, greaterThan(0),
+        reason: 'guard must actually exercise the shared-title (ambiguous) case');
   });
 }
