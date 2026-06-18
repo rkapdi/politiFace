@@ -84,14 +84,18 @@ class PhotoZoomModal extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    name,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                  ),
+                  // Caption is suppressed when empty so trivia can zoom the
+                  // portrait without revealing the answer (name/role).
+                  if (name.isNotEmpty) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                    ),
+                  ],
                 ],
               ),
             ),

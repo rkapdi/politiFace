@@ -139,7 +139,8 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
             Center(
               child: _ZoomablePromptAvatar(
                 heroTag: 'round-trivia-${q.cardId}',
-                name: q.options[q.correctIndex],
+                // Empty caption: zooming must not reveal the answer pre-pick.
+                name: '',
                 photoUrl: q.photoUrl,
               ),
             ),

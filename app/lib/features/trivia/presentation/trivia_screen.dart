@@ -144,7 +144,9 @@ class _QuestionViewState extends ConsumerState<_QuestionView> {
               Center(
                 child: _ZoomablePromptAvatar(
                   heroTag: 'trivia-${q.cardId}',
-                  name: q.options[q.correctIndex],
+                  // Empty caption: zooming the portrait must not reveal the
+                  // answer (the correct option) before the user picks.
+                  name: '',
                   photoUrl: q.photoUrl,
                 ),
               ),
