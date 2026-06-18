@@ -38,22 +38,35 @@ class EndlessEngine {
       _recent.removeAt(0);
     }
 
-    // Build 3 distractors. When the correct card has a known gender, prefer
-    // gender-matched cards so "identify the male senator" doesn't get women
-    // as wrong-option foils. Fall through to the unfiltered pool if the
-    // gendered subset is too small to fill three options.
+    // Decide the format up front so title-answer questions can exclude
+    // same-title distractors. Every Associate Justice shares one title, so
+    // otherwise two options would both correctly answer "who holds the role
+    // of Associate Justice?" and a genuinely-right pick gets marked wrong.
+    final mode = forceMode ??
+        QuestionMode.values[_random.nextInt(QuestionMode.values.length)];
+    final titleIsAnswer =
+        mode == QuestionMode.titleToWho || mode == QuestionMode.photoToTitle;
+    bool eligibleDistractor(LocalCard c) =>
+        c.id != correct.id && (!titleIsAnswer || c.title != correct.title);
+
+    // Build 3 distractors. Prefer gender-matched cards (so "identify the male
+    // senator" doesn't foil with women), then any title-safe card, then —
+    // only if a shared-title pool can't fill three — any card, so we never
+    // emit fewer than 4 options.
     final answerGender = correct.gender;
     final genderMatched = answerGender == null || answerGender == 'nonbinary'
         ? const <LocalCard>[]
-        : pool
-            .where((c) => c.id != correct.id && c.gender == answerGender)
+        : (pool
+            .where((c) => eligibleDistractor(c) && c.gender == answerGender)
             .toList()
+          ..shuffle(_random));
+    final titleSafe = pool.where(eligibleDistractor).toList()
       ..shuffle(_random);
-    final unfiltered = pool.where((c) => c.id != correct.id).toList()
+    final anyCard = pool.where((c) => c.id != correct.id).toList()
       ..shuffle(_random);
     final distractors = <LocalCard>[];
     final seen = <String>{};
-    for (final source in [genderMatched, unfiltered]) {
+    for (final source in [genderMatched, titleSafe, anyCard]) {
       for (final c in source) {
         if (distractors.length == 3) break;
         if (seen.add(c.id)) distractors.add(c);
@@ -62,9 +75,6 @@ class EndlessEngine {
     }
     final options = [correct, ...distractors]..shuffle(_random);
     final correctIndex = options.indexWhere((c) => c.id == correct.id);
-
-    final mode = forceMode ??
-        QuestionMode.values[_random.nextInt(QuestionMode.values.length)];
 
     return EndlessQuestion(
       mode: mode,
