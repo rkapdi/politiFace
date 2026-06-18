@@ -93,6 +93,9 @@ class ChapterInfoSheet extends ConsumerWidget {
     }
 
     final accent = _statusColor(theme);
+    final playedToday =
+        ref.watch(todayRoundPlayedProvider).valueOrNull ?? false;
+    final reviewRunId = ref.watch(todayRoundRunIdProvider).valueOrNull;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -200,10 +203,22 @@ class ChapterInfoSheet extends ConsumerWidget {
                   isCompleted: _isCompleted,
                   isCurrent: _isCurrent,
                   isLocked: _isLocked,
+                  playedToday: playedToday,
                   onContinue: () {
                     Navigator.of(context).pop();
                     HapticFeedback.lightImpact();
                     context.go('/round');
+                  },
+                  // Today's round is already done — open its review instead of
+                  // /round, which would see phase==done and bounce home.
+                  onReview: () {
+                    Navigator.of(context).pop();
+                    HapticFeedback.lightImpact();
+                    context.push(
+                      reviewRunId != null
+                          ? '/round/review?runId=$reviewRunId'
+                          : '/round/review',
+                    );
                   },
                 ),
                 const SizedBox(height: 12),
@@ -337,12 +352,16 @@ class _ChapterCta extends StatelessWidget {
     required this.isCompleted,
     required this.isCurrent,
     required this.isLocked,
+    required this.playedToday,
     required this.onContinue,
+    required this.onReview,
   });
   final bool isCompleted;
   final bool isCurrent;
   final bool isLocked;
+  final bool playedToday;
   final VoidCallback onContinue;
+  final VoidCallback onReview;
 
   @override
   Widget build(BuildContext context) {
@@ -400,21 +419,26 @@ class _ChapterCta extends StatelessWidget {
         ),
       );
     }
-    // Current chapter — primary CTA into today's round.
+    // Current chapter — review today's round if it's already done, otherwise
+    // continue/play it. (Routing to /round when done bounces home.)
     return SizedBox(
       width: double.infinity,
       child: FilledButton.icon(
-        onPressed: onContinue,
+        onPressed: playedToday ? onReview : onContinue,
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(6)),
           ),
         ),
-        icon: const Icon(Icons.play_arrow_rounded),
-        label: const Text(
-          "CONTINUE TODAY'S ROUND",
-          style: TextStyle(
+        icon: Icon(
+          playedToday
+              ? Icons.fact_check_outlined
+              : Icons.play_arrow_rounded,
+        ),
+        label: Text(
+          playedToday ? "REVIEW TODAY'S ROUND" : "CONTINUE TODAY'S ROUND",
+          style: const TextStyle(
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,
           ),
