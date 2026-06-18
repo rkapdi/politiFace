@@ -129,21 +129,33 @@ class TriviaGenerator {
       return c.gender == answerGender;
     }
 
+    // For the "Who holds the role of X?" format the answer is a name, so any
+    // OTHER card sharing the correct card's title is *also* a correct answer
+    // (every Associate Justice shares one title). Letting those in makes the
+    // question ambiguous and marks a genuinely correct pick wrong. Exclude
+    // same-title cards from the distractor pool so the answer stays unique.
+    bool roleUnambiguous(LocalCard c) =>
+        format != TriviaFormat.titleToName || c.title != card.title;
+
     final sameDeckGendered = <String>{
       for (final c in pool)
-        if (c.id != card.id && c.deckId == card.deckId && genderMatches(c))
+        if (c.id != card.id &&
+            c.deckId == card.deckId &&
+            genderMatches(c) &&
+            roleUnambiguous(c))
           fieldFor(c),
     }.toList();
     final widePoolGendered = <String>{
       for (final c in pool)
-        if (c.id != card.id && genderMatches(c)) fieldFor(c),
+        if (c.id != card.id && genderMatches(c) && roleUnambiguous(c))
+          fieldFor(c),
     }.toList();
     // Unfiltered backup — used only if gendered pools come up short. Keeps
     // the question generator robust on tiny decks (a single woman in SCOTUS,
     // etc.).
     final widePoolAll = <String>{
       for (final c in pool)
-        if (c.id != card.id) fieldFor(c),
+        if (c.id != card.id && roleUnambiguous(c)) fieldFor(c),
     }.toList();
 
     for (final list in [sameDeckGendered, widePoolGendered, widePoolAll]) {

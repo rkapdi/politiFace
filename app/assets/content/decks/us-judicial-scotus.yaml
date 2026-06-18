@@ -17,10 +17,10 @@ cards:
     name: "John Roberts"
     title: "Chief Justice of the United States"
     jurisdiction: "US Federal"
-    photo_url: "assets/portraits/wikidata_Q320178_john-roberts.jpg"
+    photo_url: "assets/portraits/wikidata_Q11153_john-roberts.jpg"
     gender: male
     source: "https://www.supremecourt.gov/about/biographies.aspx"
-    last_verified: "2026-05-22"
+    last_verified: "2026-06-18"
     one_liner: "Presides over the Supreme Court since 2005; nominated by George W. Bush."
 
   - id: us-scotus-thomas
