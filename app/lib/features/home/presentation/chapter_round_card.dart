@@ -60,6 +60,7 @@ class ChapterRoundCard extends ConsumerWidget {
       chapter: chapter,
       dayInChapter: progress.dayInChapter,
       playedToday: played,
+      reviewRunId: ref.watch(todayRoundRunIdProvider).value,
       totalChapters: curriculum.season.totalChapters,
     );
   }
@@ -72,12 +73,14 @@ class _ActiveChapterCard extends StatelessWidget {
     required this.chapter,
     required this.dayInChapter,
     required this.playedToday,
+    required this.reviewRunId,
     required this.totalChapters,
   });
 
   final Chapter chapter;
   final int dayInChapter;
   final bool playedToday;
+  final String? reviewRunId;
   final int totalChapters;
 
   @override
@@ -191,7 +194,16 @@ class _ActiveChapterCard extends StatelessWidget {
                       ? OutlinedButton(
                           onPressed: () {
                             HapticFeedback.lightImpact();
-                            context.go('/round');
+                            // Open the review of today's completed run — NOT
+                            // /round, which sees phase==done and bounces
+                            // straight back home (the "nothing happens" loop).
+                            // push (not go) so Back returns to home.
+                            final id = reviewRunId;
+                            context.push(
+                              id != null
+                                  ? '/round/review?runId=$id'
+                                  : '/round/review',
+                            );
                           },
                           child: const Text('REVIEW TODAY'),
                         )
