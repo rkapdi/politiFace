@@ -366,7 +366,7 @@ class _Prompt extends StatelessWidget {
         label = 'Who is this?';
         body = _ZoomablePromptAvatar(
           heroTag: 'endless-prompt-${question.correct.id}',
-          name: question.correct.politicianName,
+          name: '', // empty caption: zooming must not reveal the answer
           photoUrl: question.correct.photoUrl,
         );
       case QuestionMode.nameToPhoto:
@@ -379,7 +379,7 @@ class _Prompt extends StatelessWidget {
         label = 'What is their role?';
         body = _ZoomablePromptAvatar(
           heroTag: 'endless-prompt-${question.correct.id}',
-          name: question.correct.politicianName,
+          name: '', // empty caption: zooming must not reveal the answer
           photoUrl: question.correct.photoUrl,
         );
     }
