@@ -1,53 +1,74 @@
-# Politiface V2 — Monetization Model (decision doc)
+# Politiface V2 — Monetization & Business Model (decision doc)
 
-*Draft, 2026-06-25. Grounded in a deep-research pass (RevenueCat State-of-Subscription-Apps 2024/25/26, Apple App Store Review Guidelines, Epic v. Apple 9th Cir. ruling, Duolingo primary). Numbers marked "(rec)" are our recommendation, not a cited benchmark.*
+*Rev 2, 2026-06-26. Grounded in two deep-research passes (RevenueCat State-of-Subscription-Apps 2024/25, Apple Review Guidelines, Epic v. Apple 9th Cir., Duolingo, Top Hat, Ground News, Florida BOG civic-literacy guidance, F.S. 1007.25, Knight/Carnegie/iCivics). Numbers marked "(rec)" are our recommendation; cited numbers carry a source.*
 
-## Mission anchor
-Politiface = a game to promote **political literacy worldwide**. US-first; Florida FCLE is the launch **beachhead**, not the product. Monetization must serve the *general* learner, not just exam-takers. Core civic learning stays free forever — we monetize **depth, volume, study-tools, and exam-prep apparatus**, never the basic ability to learn.
+## Mission anchor & the repositioning
+Politiface = a game to promote **political literacy worldwide**. The v2 monetization thesis has moved **from "FCLE exam prep" to "civic empowerment / agency"** — *"learn how the machine of power actually works, realize that as a citizen you have power, take back control,"* aimed at a polarized, politically-anxious **mass** audience. **Nonpartisan trust is the brand, the moat, AND the business model** (see Ethics, below). FCLE + the faculty channel are the **wedge and the proof-of-efficacy** ("it literally helps students pass a state exam"), not the revenue engine.
 
-## What the research validated
-- **Hybrid is mainstream, not novel.** ~90% of subscription-app users never convert; hybrid buyers are only ~7% of buyers but drive **~25% of revenue**; 35% of subscription apps now blend subscriptions with consumables/lifetime purchases. *(RevenueCat)*
-- **Duolingo already retreated from "Hearts" to "Energy"** to soften backlash. Super ($6.99/mo) = unlimited energy + no ads + personalized review; Max ($14/mo) = +AI. *(Duolingo primary)* Lesson: even the category leader treats a punitive lives system as a liability to manage.
-- **Education pricing:** median **$9.99/mo, $44.99/yr** (highest annual median of any category), $4.99/wk. Annual plans dominate (59–66% adoption). Trials skew long (80%+ at 5–9+ days). *(RevenueCat 2026 Education)*
-- **Freemium converts ~5× worse than a hard paywall** (D35 download-to-paid ~2.2% freemium vs ~12% hard paywall). A free game trades conversion rate for reach — so **the Pass attach-rate and trial/paywall design carry disproportionate weight**.
+## Demand reality — why we do NOT lead with exam-prep revenue
+- Florida schools blanket students with **free** FCLE prep (free Canvas courses, library LibGuides at nearly every college, free practice tests). *(easternflorida.edu LibGuide)*
+- The requirement is satisfiable by **a course** (POS 2041 / US History) **or** AP/CLEP — the standalone exam is a minority path. F.S. 1007.25 requires **both a course and an assessment**; it carries **no funding/appropriation** a vendor could tap. *(leg.state.fl.us 1007.25; flbog.edu 2025 guidance)*
+- **The official FCLE is locked to state vendor Cambium Learning** — proctored, cannot be imported to an LMS. **Politiface can only ever be prep/practice, never the official exam.** *(flbog.edu 2025 guidance)*
+- Adjacent USCIS citizenship prep: official app is **free**; paid apps monetize on ad-removal/small features (low-ARPU freemium).
+→ Individual willingness-to-pay for exam prep is **low**. FCLE is strictly top-of-funnel.
 
-## The model
+## The honest math: pure B2C will NOT reach $1M alone
+RevenueCat benchmarks: global download-to-paid is **1.7%** in 30 days (NA ceiling ~9.4% Health&Fitness / 9.8% Business); **only ~17%** of subscription apps reach **$1k/month**; **only 4.6%** of new apps reach **$10k/month ($120k ARR) within 2 years**; median app makes **<$50/month**. Annual plans retain **30%** at year 1 vs **11.4%** monthly. *(RevenueCat 2024/25)*
+**Conclusion: $1M ARR requires stacking multiple rails, not a single B2C subscription.**
 
-### One entitlement layer (payment-agnostic)
-Capability flags on the user record — e.g. `unlimited_energy`, `fcle_prep`, `plus`. Granted by *any* source (consumable / non-consumable / subscription / promo code) with an expiry. **The app checks capability only, never how it was granted.** Use **RevenueCat** over hand-rolled StoreKit — it manages the IAP↔entitlement mapping, restore, and cross-device sync (which Apple requires for subscriptions anyway).
+## The revenue mix (layered, with real anchors)
 
-### Tier 1 — FREE forever (the engine)
-The full core civics game for your region (US federal): faces, daily trivia, **structured daily learning + FSRS reviews**, streaks, school leaderboards. Plus **one free full FCLE Mock** as the exam-prep taste. This is the acquisition / virality / retention layer — it's the v1 you already shipped.
+### Rail 1 — Institutional licensing (the most reliable $1M path)
+Sell the tool to departments/colleges; the **institution pays so students see no paywall** — which is exactly the no-paywall classroom experience we want, funded by the buyer. This is bottoms-up edtech (faculty pilot → dept/dean → license).
+- **Anchors:** Top Hat institutional **$10/student/semester** (negotiated, vs $33 retail; dept/institution = custom pricing). *(tophat.com; uiowa.edu)* Ground News group seats **$50–100/user/year** (bulk $4.16/mo = $50/yr at 10+ seats). *(ground.news/group-subscriptions)*
+- **(rec)** Politiface institutional target **~$3–8/student/year** (civic prep is lighter than courseware). A college with ~5,000 affected students × $5 = **~$25k/deal**; ~40 Florida public institutions → a **$0.5–1M** ceiling in FL alone.
+- **Distribution rail that exists:** "inclusive access" / Barnes & Noble "First Day" auto-bills digital materials as a per-course charge to the student account. *(ucf.edu First Day)* A path in, though it's student-paid via course fee.
+- The free **synchronous Live Class Game** is the demo that closes these.
 
-### The energy mechanic (handle with care — see Risk #1)
-**Gate volume/grind, never core learning.** Energy applies only to high-volume *grind* modes (Endless), **not** to the daily structured lesson + reviews. So a free user can always do their real civic learning every day; energy only bites when someone is power-grinding the game loop.
-- (rec) Cap **5**, regen **+1 per 30 min** (full ~2.5 h); a wrong answer in Endless costs 1; daily lessons/reviews exempt.
-- Refill paths: Plus (unlimited), optional rewarded ad (+1), or gems. Purchased energy/gems **must not expire** (Apple 3.1.1).
+### Rail 2 — B2C "Civic Agency" Plus (subscription; scales with the repositioning)
+The empowerment framing **expands the TAM from "FL exam-takers" to "every politically-anxious citizen"** — which is what makes B2C worth it despite low conversion %, because the free-user denominator becomes huge. **Ground News is live proof a nonpartisan "see through the spin" subscription works B2C** (3 tiers, ~$40/yr Premium). *(ground.news/subscribe)*
+- **(rec)** Plus **$9.99/mo · ~$39.99–49.99/yr**, push annual (retention 30% vs 11%). Common points are $9.99/mo & $29.99+/yr (avg $32.53/yr). *(RevenueCat 2024)*
+- Plus is branded as **"your civic power"** (depth, the IMDb-of-power, mastery/identity, "you vs. the average citizen"), not "exam tools." Bundles all exam Passes.
 
-### Tier 2 — Politiface Plus (auto-renewable subscription)
-**(rec) $9.99/mo · $44.99/yr · 7-day free trial.** All-access for the committed general learner:
-unlimited energy + no ads, all depth content, **all exam packs included** (FCLE + future), advanced study tools (retention analytics, weak-area, unlimited mocks), and future-country content as it ships. The "continually updated content" is what makes it Apple-compliant as a subscription (3.1.2a) and what justifies *recurring* payment.
+### Rail 3 — Foundation / philanthropic grants (non-dilutive; funds the content long-pole)
+Civic literacy is **heavily funded**: Knight Foundation (civic tech — $4M+ rounds, $32M news challenges), Carnegie (civic engagement), iCivics (foundation-funded nonprofit civic ed), and a **federal $150M+ civics line (2025)**. *(knightfoundation.org; carnegie.org; icivics.org; npr.org)* For a nonpartisan civic mission, grants can **fund content production** (our real cost) without requiring profit.
+- **Structural caveat / open decision:** most civic grants favor nonprofits or fiscal-sponsored / public-benefit structures. Eligibility may require a **nonprofit arm, fiscal sponsor, or PBC** — decide the corporate structure early if we want this money.
 
-### Tier 3 — Exam Passes (non-consumable, one-time)
-**FCLE Pass (rec) $29.99 one-time** — deliberately **below the Plus annual ($44.99)** so intent self-segments: *"just need to pass once → buy the Pass, cheaper than a year of Plus; want everything ongoing → Plus is better value."* Unlocks full FCLE prep (unlimited mocks, all 4 domains, readiness, weak-area, explanations+sources). **Plus includes every Pass**, so a subscriber is never double-charged. USCIS citizenship is the obvious second Pass; the same packaging generalizes to other exams/countries.
+### Rail 4 — Exam Passes (de-emphasized → impulse or folded into Plus)
+Given low individual WTP + Cambium lock, the FCLE "Pass" is **not** a profit center. **(rec)** Fold FCLE prep into Plus, or price a cheap **~$4.99–9.99** impulse. Transactional upside, not the engine. USCIS/other-state passes later, same logic.
 
-## Apple compliance checklist (what gets you rejected)
-- All three tiers **must** use IAP — energy = **consumable**, Pass = **non-consumable**, Plus = **auto-renewable subscription**. No license keys / QR / private unlock mechanisms (3.1.1).
-- Purchased currency/energy **may not expire**; provide a **Restore Purchases** path for the Pass.
-- Subscription must last ≥7 days, deliver **ongoing/updated value**, and **sync across devices**; include a manage-subscription link.
-- **Account & data deletion** flow required (already Epic 0.4).
-- Register for the **Small Business Program** → 15% commission (under $1M/yr) instead of 30%.
-- **Do NOT rely on the US external-purchase-link carve-out at launch.** It exists post Epic v. Apple (9th Cir. affirmed the anti-steering injunction Dec 11 2025) but is actively litigated/possibly paused into 2026. Ship standard IAP; treat web-pay as a later margin optimization, not a launch dependency.
+### Rail 5 — Sponsorship / B2B2C (secondary)
+Nonpartisan civic orgs, libraries, museums; "informed-citizen" bundles. Opportunistic.
 
-## Top risks
-1. **Energy on an education app = mission risk.** Paywalling civic *learning* would betray the mission and invite Duolingo-style backlash (which pushed even Duolingo to rebrand Hearts→Energy). Mitigation: energy gates grind/volume only; daily learning is always free.
-2. **Pass↔Plus cannibalization.** Mitigation: Pass priced below Plus annual; segment on intent (one goal vs all-access); Plus bundles all Passes.
-3. **Freemium's low conversion (~2%).** A free game wins on reach, not conversion rate — so the free-mock→Pass funnel and the Plus trial must be strong, and Pass attach matters as much as subscriptions.
+## One entitlement layer (unchanged, load-bearing)
+Capability flags on the user record (`unlimited_energy`, `fcle_prep`, `plus`, `civic_agency`), granted by ANY source — consumable / non-consumable / subscription / **institutional or grant-funded redemption code** — with expiry. **App checks capability only.** Use **RevenueCat**. The same redemption-code rail that comps the professor's class is what an institution or a grant buys at scale. **No-paywall-for-students = the institution/grant is the payer.**
 
-## Highest-leverage decisions still open
-1. **Energy: in or out for v2 launch?** Real fork — ship the (carefully-scoped) energy mechanic now, or launch with depth/tools/Passes monetization only and add energy later once retention data exists. Energy is the riskiest piece for an education brand.
-2. **Exact price points** — confirm Plus $9.99/$44.99 and FCLE Pass $29.99 (need comparable exam-prep app pricing — UWorld/Magoosh — to anchor the Pass; research didn't surface exact figures).
-3. **Free FCLE taste** — one full mock vs. one mock + one domain. Bigger taste = more goodwill + funnel, but risks giving away enough that motivated students don't convert.
+## The energy mechanic (still open: in or out for launch — see Risk)
+If used: **gate volume/grind only (Endless), never the daily structured learning + reviews** — a free user can always do their real civic learning. (rec) cap 5, regen +1/30min; refills via Plus / rewarded ad / gems; purchased currency **cannot expire** (Apple 3.1.1). The classroom/faculty optics argue for **launching the cohort with no energy/paywall at all** and adding energy later if retention data justifies it. Duolingo itself rebranded "Hearts"→"Energy" to soften backlash.
+
+## Apple compliance (what gets you rejected)
+All paid tiers use IAP: energy = **consumable**, Pass = **non-consumable**, Plus = **auto-renewable subscription** (≥7 days, ongoing/updated value, cross-device). No license-key/QR unlocks. Restore Purchases required. Purchased currency can't expire. **Account & data deletion** required. Register for the **Small Business Program** (15% vs 30%). **Do NOT rely on the US external-purchase-link carve-out at launch** — real post-Epic, but actively litigated/possibly paused into 2026.
+
+## Ethics = the business model (the "Bernays" question, resolved)
+Selling a *feeling* (agency, control, identity) is legitimate and powerful — Calm sells calm, Strava sells the athlete-identity, Ground News sells "I see through the spin." But for a civics brand, **the persuasion engine and the moat are the same thing: nonpartisan trust.** Point the desire-engineering at *civic agency and clarity*, **never at a partisan outcome.** Partisanship would destroy the trust asset, institutional sales, AND grant eligibility simultaneously. So nonpartisan rigor isn't a constraint on the model — it *is* the model. Ground News + AllSides prove nonpartisan trust is directly monetizable.
+
+## The 3 highest-leverage bets
+1. **Institutional licensing in Florida** (faculty → dept → college), using the free Live Class Game as the demo. The reliable $1M path; the payer is the institution, so students never see a paywall.
+2. **The empowerment repositioning** → unlock the mass B2C TAM + a Ground-News-style nonpartisan-trust "Civic Agency" subscription.
+3. **Pursue civic-ed grant money** to finance content production (the long pole) — contingent on the corporate-structure decision.
+
+## Biggest risks
+1. **Pure B2C can't hit $1M** (benchmarks) → must stack rails.
+2. **Cambium lock** → Politiface is prep-only, never the official exam; caps FCLE centrality.
+3. **Grant eligibility** may force a nonprofit/PBC/fiscal-sponsor structure → decide early.
+4. **Nonpartisan trust is fragile** — one partisan misstep kills the moat + grants + institutional deals.
+5. **Content production is the cost and the long pole**; grants are the mitigation.
+
+## Open decisions
+1. **Corporate structure** for grant eligibility (for-profit vs nonprofit arm vs PBC/fiscal sponsor).
+2. **Institutional price point** (anchor: Top Hat $10/student/sem, Ground News ~$50–100/user/yr; need 1–2 real civic-tool quotes).
+3. **B2C Plus** price + the "Civic Agency" branding vs "exam tools."
+4. **Energy mechanic** in or out for the v2 launch (leaning: out for the faculty cohort).
 
 ## Caveats on the evidence
-Nearly all quantitative benchmarks come from RevenueCat (the de-facto industry source — 115k+ apps — but a vendor with a pro-subscription interest, and figures are cross-category, not civic-game-specific). Pricing shifted between the 2024 ($59.99 annual) and 2026 ($44.99) reports — cite latest. The Apple external-link situation is time-sensitive. Civic/trivia-game-specific conversion + Duolingo's actual disclosed conversion rate were *not* found and remain open.
+Quantitative benchmarks lean heavily on one vendor (RevenueCat — de-facto industry source but pro-subscription, cross-category). The 2nd research pass was **partial**: it hit a session rate-limit, so the auto-synthesis and several Ground News/AllSides positioning claims were cut (Ground News *pricing* and core-product claims did verify; positioning is well-established from public pages). Apple external-link status is time-sensitive. Grant *amounts available to a for-profit* specifically were not quantified — verify eligibility before counting on it. Institutional per-student civic-tool pricing is inferred from adjacent tools (Top Hat courseware, Ground News media-literacy), not a direct civic-prep comp — get real quotes.
