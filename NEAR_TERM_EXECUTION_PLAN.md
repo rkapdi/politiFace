@@ -19,7 +19,8 @@ Convert Professor Purcell's enthusiasm into a signed institutional license by pr
 
 ## The plan, sequenced by leverage
 
-### Phase 0 - Foundations (cheap, now, under everything)
+### Phase 0 - Foundations (now, under everything; includes standing up the backend)
+- **Stand up the backend (greenfield).** Confirmed 2026-07-02: no backend exists yet (v1 is local-only Flutter/Drift; only the dormant `supabase/` schema is in-repo). Phase 0 builds Supabase (auth + Postgres) + Django API + Redis, on Railway. This is the heaviest single item in the near term. Decide up front: auth model (pseudonymous), the split between content tables (canonical from YAML), progress tables, and append-only efficacy-event tables, and the YAML -> Postgres content pipeline.
 - **Data-minimal schema + privacy posture.** Lock the pseudonymous-account model; never store political affiliation or voting history; lean progress data. This constrains every later table.
 - **Efficacy plumbing designed up front.** You cannot measure a lift you never baselined. Define the metric set now (baseline diagnostic mock, engagement, per-domain readiness, final mock) and instrument from day one. Output target: an **exportable one-pager** for Purcell.
 - **Accounts (Epic 1), minimal.** Supabase Auth, pseudonymous, progress persistence. Unblocks efficacy, leaderboards, monetization. Keep it data-light.
@@ -29,7 +30,10 @@ Convert Professor Purcell's enthusiasm into a signed institutional license by pr
 
 ### Phase 1 - FCLE Prep System (Purcell ask #1; the student need; the efficacy instrument)
 - **Build the four-domain taxonomy ONCE** (American Democracy, US Constitution, Founding Documents, Landmark Impact). Atlas and the quiz both hang off it.
-- **Tagged question bank** (domain + objective + difficulty + required citation + review status). This is the **long pole**: AI-drafted + human-reviewed, nonpartisan, sourced. Reuse existing decks + phase7 content as seed.
+- **Tagged question bank** (domain + objective + difficulty + required citation + review status).
+  - **Sourcing (important, has a legal/brand trap):** "freely available" online FCLE sample exams are mostly **copyrighted**, so they cannot be copied into an MIT-open-source, citation-backed app. Use them only as a **model for style, difficulty, and coverage**, then author **original** questions grounded in **primary public sources** (the Constitution, founding documents, Federal Register EOs, official FLDOE competencies/study guide, government sites), AI-drafted + human-reviewed, each with a working citation. This satisfies the nonpartisan-cited + open-source + HECVAT-AI-governance constraints at once.
+  - **Instructor-authored questions (fast-follow):** let Purcell and other profs add their own questions via a draft -> review -> publish pipeline with provenance. Deepens institutional stickiness; not required for the first pilot.
+  - Reuse existing decks + the phase7 branch content as seed.
 - **Mock FCLE** (80Q, 4x20, 60% pass, no in-session repeats). This doubles as the **efficacy baseline/retest instrument**, so build it early.
 - **Readiness indicator + weak-area practice** (per-domain), computed from recent accuracy.
 - **Positioning in copy:** "supplemental practice students choose," never "official prep."
@@ -63,8 +67,11 @@ Cheap, foundational, reversible work now (data minimization, accessibility, effi
 3. Define the four-domain taxonomy + entity schema (build once), then audit existing content/decks + the phase7 branch against it to size the question-bank gap.
 4. Start the compliance docs track in parallel (privacy policy, DPA template, HECVAT 4.1.5, AI-usage note, VPAT scaffold).
 
-## Open questions for the founders
-- Backend reality: is the Supabase/Django/Redis/Railway stack stood up, or is Phase 0 also standing up the backend? (Sizes Phase 0.)
-- Is there a target exam window to time the saturation launch against (peak attention)?
-- Can Purcell commit to a baseline diagnostic at cohort start (required for a clean lift measurement)?
-- Who owns content authoring/review throughput for the question bank (the long pole)?
+## Resolved 2026-07-02
+- **Backend:** not stood up; Phase 0 builds it greenfield (Supabase + Django + Redis on Railway).
+- **Purcell data:** he will provide whatever data we need. Governance note: even so, prefer to ingest the exam outcome as **cohort aggregate** (or via pseudonymous keys), not identified student education records, to stay out of FERPA/DPA territory and keep the HECVAT light.
+- **Question source:** start from freely available online FCLE sample/practice exams as a **coverage/style model only**, authoring original cited questions from primary public sources (copyright + open-source + citation constraints). Later, profs add their own questions via the authoring pipeline.
+
+## Still open
+- **Target exam window** = the calendar point when Purcell's cohort actually sits the FCLE. It anchors the whole pilot timeline: baseline diagnostic at cohort start -> usage period -> final mock -> real exam -> outcome data. Need the term/date to schedule the saturation launch and the baseline.
+- Content authoring/review **throughput owner** for the original question bank (the long pole).
