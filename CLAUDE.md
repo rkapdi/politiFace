@@ -25,12 +25,11 @@ Politiface is a live civic-education iOS app pivoting from a broad "global polit
 
 ## Tech stack
 
-- Frontend: Flutter
-- Backend / data: Supabase (auth + Postgres), Django, Redis
-- Hosting: Railway
+- Frontend: Flutter (iOS now; Android and a web app/faculty portal later)
+- Backend / data: **Supabase-centric** (Auth + Postgres + RLS + Edge Functions + pg_cron + Realtime). **Django/Redis/Railway dropped for now** (revised 2026-07-02): not needed at this scale and they add cost/ops/failure surface. Add a dedicated API service and/or Redis only when a measured need appears. See `ARCHITECTURE.md`.
 - IAP / entitlements: RevenueCat (payment-agnostic entitlement layer; do not hand-roll StoreKit)
 - Learning engine: FSRS-4.5 spaced repetition
-- Content model: government-as-node-graph; YAML files as canonical source of truth
+- Content model: government-as-node-graph; YAML files as canonical source of truth (ingested to Postgres via CI). **Append-only event log is the spine**: progress, streaks, leaderboard, readiness, and efficacy are all derived from it.
 
 ## Architecture: the six V2 epics
 
