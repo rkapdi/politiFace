@@ -31,16 +31,17 @@ Politiface is a live civic-education iOS app pivoting from a broad "global polit
 - Learning engine: FSRS-4.5 spaced repetition
 - Content model: government-as-node-graph; YAML files as canonical source of truth (ingested to Postgres via CI). **Append-only event log is the spine**: progress, streaks, leaderboard, readiness, and efficacy are all derived from it.
 
-## Architecture: the six V2 epics
+## Architecture: the seven V2 epics
 
 Organized around the FCLE structure (80 questions, four domains, 60% to pass) as the shared spine. Prioritized with WSJF.
 
-1. Identity and Accounts (the unblocker): Supabase Auth, profiles, progress persistence. Unblocks epics 3, 4, 6.
+1. Identity and Accounts (the unblocker): Supabase Auth, profiles, progress persistence. Unblocks epics 3, 4, 6, 7.
 2. Atlas Reference Engine: entity schema, executive orders (via Federal Register API), vocabulary, cabinet, structure, citations.
 3. FCLE Prep System: four-domain taxonomy, tagged question bank, Mock FCLE, readiness indicator, weak-area practice.
 4. Monetization and Entitlements: RevenueCat layer supporting three models held open.
 5. Competition: school-scoped leaderboards.
 6. Content Production Program: the pipeline feeding the app and the social channel.
+7. Educator Tools: (a) domain-level weakness feedback so professors see what their cohort gets wrong (which of the four FCLE domains is weakest, highest-miss objectives), derived from the same append-only event log that feeds efficacy; (b) custom question sets educators build and scope to their own cohorts via a draft -> review -> publish authoring pipeline. Both deepen institutional stickiness and give the professor first-class value beyond the student experience. Cohort-aggregate only (no education records) to stay FERPA-light. The lightweight version ships early; full instructor dashboards are the institutional-infrastructure epic (deferred until the deal firms).
 
 Load-bearing insight: Atlas and the quiz engine sit on one taxonomy. Build the taxonomy once.
 
@@ -55,6 +56,8 @@ The champion: Professor Purcell. Teaches many politics courses across several Mi
 The buyer: the department/program president. Motivated by recognition and clout. Architected so the president is the hero and the founders are near-invisible: he "champions an innovation" and gets credit upward. The asset that makes his clout real is efficacy data. "I brought in a tool that moved our FCLE pass rates" is the career story. This is why efficacy measurement is a first-class engineering priority.
 
 Amplifiers. Campus newspaper (front-page possible; angle is students/civic-education or faculty-innovating, not a startup profile; keep the commercial license lane separate; F-1 caution on naming Dawood). Paid priming (modest, student-native, mere-exposure before decision-maker meetings; do not overspend).
+
+Credibility partnerships. Endorsements and content collaborations with established nonpartisan civic organizations: the National Constitution Center, iCivics, public libraries, and immigrant-services / naturalization nonprofits. Two kinds of value. (1) Credibility that de-risks institutional adoption: the president approves a tool that recognized civic bodies already trust, and the co-sign reinforces (never dilutes) the nonpartisan-trust moat. (2) Distribution into an adjacent market: libraries and naturalization nonprofits reach USCIS citizenship-test prep audiences beyond the FCLE wedge, and iCivics also ties into civic-ed grant funding (see `V2_MONETIZATION.md` Rails 3 and 5). Pursue these as logos/endorsements/bundles, not revenue dependencies, and vet each partner for strict nonpartisanship before associating the brand.
 
 Goal. An institutional license covering the whole institution or multiple branches.
 
@@ -77,11 +80,12 @@ Engineering-critical, not legal footnotes.
 1. Data-minimal architecture. Foundational; do first, it constrains everything.
 2. Efficacy measurement plumbing. The spine of the sale. Baseline + first-attempt pass-rate lift for a cohort: usage, mock performance, domain readiness, engagement. Output an exportable one-pager Purcell can carry into the president's office.
 3. FCLE Prep System. Four-domain taxonomy, tagged question bank, Mock FCLE, readiness indicator, weak-area practice.
-4. Executive orders + richer Atlas. Cited civic reference (executive orders via Federal Register API, vocabulary, cabinet, structure, citations). Evergreen, multi-course, justifies a recurring license.
-5. Accessibility to WCAG 2.1 AA. Start early. Output a VPAT.
-6. Adoption and virality. School-scoped leaderboards (server-validated scoring), score-challenge share, no-signup-wall onboarding into "can you actually pass?".
-7. Institutional infrastructure (when the deal firms, not before). SSO, LMS/LTI (Canvas/Blackboard/D2L), rostering, instructor dashboards, multi-section/campus scaling.
-8. Monetization plumbing. RevenueCat entitlement layer supporting three models held open: institutional B2B2C (durable engine), one-time FCLE Pass (cram-pass-leave lifecycle), optional subscription (only if Atlas becomes a lasting habit).
+4. Educator tools (lightweight, Purcell-facing). Domain-level weakness feedback: a per-cohort view of which domains and objectives students miss most, derived from the same event log that feeds efficacy (cohort-aggregate, no education records). Plus custom question sets educators author and scope to their own cohorts (draft -> review -> publish with provenance). High stickiness, directly aligned to what Purcell asked for, light data footprint. Full instructor dashboards are item 8.
+5. Executive orders + richer Atlas. Cited civic reference (executive orders via Federal Register API, vocabulary, cabinet, structure, citations). Evergreen, multi-course, justifies a recurring license.
+6. Accessibility to WCAG 2.1 AA. Start early. Output a VPAT.
+7. Adoption and virality. School-scoped leaderboards (server-validated scoring), score-challenge share, no-signup-wall onboarding into "can you actually pass?".
+8. Institutional infrastructure (when the deal firms, not before). SSO, LMS/LTI (Canvas/Blackboard/D2L), rostering, full instructor dashboards (extending the item-4 domain-weakness feedback), multi-section/campus scaling.
+9. Monetization plumbing. RevenueCat entitlement layer supporting three models held open: institutional B2B2C (durable engine), one-time FCLE Pass (cram-pass-leave lifecycle), optional subscription (only if Atlas becomes a lasting habit).
 
 ## Reference: FCLE facts
 

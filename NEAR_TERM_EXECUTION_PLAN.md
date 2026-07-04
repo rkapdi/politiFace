@@ -20,22 +20,23 @@ Convert Professor Purcell's enthusiasm into a signed institutional license by pr
 ## The plan, sequenced by leverage
 
 ### Phase 0 - Foundations (now, under everything; includes standing up the backend)
-- **Stand up the backend (greenfield).** Confirmed 2026-07-02: no backend exists yet (v1 is local-only Flutter/Drift; only the dormant `supabase/` schema is in-repo). Phase 0 builds Supabase (auth + Postgres) + Django API + Redis, on Railway. This is the heaviest single item in the near term. Decide up front: auth model (pseudonymous), the split between content tables (canonical from YAML), progress tables, and append-only efficacy-event tables, and the YAML -> Postgres content pipeline.
+- **Stand up the backend (greenfield).** Confirmed 2026-07-02: no backend exists yet (v1 is local-only Flutter/Drift; only the dormant `supabase/` schema is in-repo). Phase 0 builds it **Supabase-centric** (Auth + Postgres + RLS + Edge Functions + pg_cron + Realtime); Django/Redis/Railway are dropped for now (revised 2026-07-02, see `ARCHITECTURE.md`) and added only if a measured need appears. This is the heaviest single item in the near term. Decide up front: auth model (pseudonymous), the split between content tables (canonical from YAML), progress tables, and append-only efficacy-event tables, and the YAML -> Postgres content pipeline.
 - **Data-minimal schema + privacy posture.** Lock the pseudonymous-account model; never store political affiliation or voting history; lean progress data. This constrains every later table.
 - **Efficacy plumbing designed up front.** You cannot measure a lift you never baselined. Define the metric set now (baseline diagnostic mock, engagement, per-domain readiness, final mock) and instrument from day one. Output target: an **exportable one-pager** for Purcell.
 - **Accounts (Epic 1), minimal.** Supabase Auth, pseudonymous, progress persistence. Unblocks efficacy, leaderboards, monetization. Keep it data-light.
 - **Accessibility baseline (WCAG 2.1 AA) from the first screen.** Semantics, contrast, focus order, dynamic type. Note: the game-vision ink/gold palette must be re-checked for AA contrast before adoption. Output later: a **VPAT**.
 - **Compliance docs track (non-eng, parallel, cheap):** privacy policy, **DPA template**, **HECVAT 4.1.5 self-assessment** draft, **AI-usage note** (document every LLM in the content pipeline), VPAT scaffold. These gate procurement and cost little now.
-- **Verify current state:** what the live app has (FSRS engine, executive/legislative/judicial decks, `us_civics.yaml`), what the `supabase/` schema already defines, and whether any Django/Redis/Railway backend exists yet (packet lists it; repo does not show it yet). Pull in the deferred `worktree-ownership-phase1` branch content (ch4-6 FCLE-domain lessons + benchmarks already authored) rather than re-writing it.
+- **Verify current state:** what the live app has (FSRS engine, executive/legislative/judicial decks, `us_civics.yaml`) and what the `supabase/` schema already defines (confirmed: no live backend yet, and the packet is now Supabase-centric with Django/Redis dropped). Pull in the deferred `worktree-ownership-phase1` branch content (ch4-6 FCLE-domain lessons + benchmarks already authored) rather than re-writing it.
 
 ### Phase 1 - FCLE Prep System (Purcell ask #1; the student need; the efficacy instrument)
 - **Build the four-domain taxonomy ONCE** (American Democracy, US Constitution, Founding Documents, Landmark Impact). Atlas and the quiz both hang off it.
 - **Tagged question bank** (domain + objective + difficulty + required citation + review status).
   - **Sourcing (important, has a legal/brand trap):** "freely available" online FCLE sample exams are mostly **copyrighted**, so they cannot be copied into an MIT-open-source, citation-backed app. Use them only as a **model for style, difficulty, and coverage**, then author **original** questions grounded in **primary public sources** (the Constitution, founding documents, Federal Register EOs, official FLDOE competencies/study guide, government sites), AI-drafted + human-reviewed, each with a working citation. This satisfies the nonpartisan-cited + open-source + HECVAT-AI-governance constraints at once.
-  - **Instructor-authored questions (fast-follow):** let Purcell and other profs add their own questions via a draft -> review -> publish pipeline with provenance. Deepens institutional stickiness; not required for the first pilot.
+  - **Educator custom question sets (fast-follow):** let Purcell and other profs author their own questions and bundle them into **custom sets scoped to their own cohorts**, via a draft -> review -> publish pipeline with provenance. More than one-off questions: a professor can align practice to what they actually taught. Deepens institutional stickiness; not required for the first pilot.
   - Reuse existing decks + the phase7 branch content as seed.
 - **Mock FCLE** (80Q, 4x20, 60% pass, no in-session repeats). This doubles as the **efficacy baseline/retest instrument**, so build it early.
 - **Readiness indicator + weak-area practice** (per-domain), computed from recent accuracy.
+- **Cohort domain-weakness feedback (professor-facing, lightweight):** a per-cohort view showing which of the four domains and which objectives students get wrong most, plus the highest-miss items, derived from mock/practice results via a class join code. **Cohort-aggregate only, no per-student education records**, so it stays FERPA-light and HECVAT-light while giving Purcell direct value ("here is where my class is weak"). Reuses the efficacy event log. Full instructor dashboards (per-student, assignable practice, gradebook) are deferred to Phase 5.
 - **Positioning in copy:** "supplemental practice students choose," never "official prep."
 
 ### Phase 2 - Executive Orders + richer Atlas (Purcell asks #2 and #3; justifies a recurring license)
@@ -58,6 +59,9 @@ SSO, LMS/LTI (Canvas/Blackboard/D2L to the gradebook), class rostering, instruct
 ### Cross-cutting - Monetization plumbing
 Stand up the **RevenueCat payment-agnostic entitlement layer** now (cheap, and it powers pilot comp/redemption codes so students see no paywall). Hold the three pricing models open; do not finalize prices until the deal shape is known.
 
+### Cross-cutting - Credibility partnerships
+Pursue endorsements and content collaborations with established nonpartisan civic organizations: the **National Constitution Center, iCivics, public libraries, and immigrant-services / naturalization nonprofits**. Two payoffs: (1) **credibility** that de-risks institutional adoption (the president approves a tool recognized civic bodies already trust) and reinforces the nonpartisan-trust moat; (2) **an adjacent distribution channel** into USCIS citizenship-test prep via libraries and naturalization nonprofits, beyond the FCLE wedge. iCivics also connects to civic-ed grant funding (see `V2_MONETIZATION.md` Rails 3 and 5). Treat these as logos/endorsements/bundles, not revenue dependencies; vet each partner for strict nonpartisanship before associating the brand. Cheap to start (outreach, not engineering); begin once there is a shippable demo to show.
+
 ## Sequencing principle
 Cheap, foundational, reversible work now (data minimization, accessibility, efficacy plumbing, privacy policy, DPA template, HECVAT draft, entitlement layer). Let the institution's own procurement review drive the heavy infrastructure. No SOC 2, no PCI DSS, no GLBA at this stage.
 
@@ -68,7 +72,7 @@ Cheap, foundational, reversible work now (data minimization, accessibility, effi
 4. Start the compliance docs track in parallel (privacy policy, DPA template, HECVAT 4.1.5, AI-usage note, VPAT scaffold).
 
 ## Resolved 2026-07-02
-- **Backend:** not stood up; Phase 0 builds it greenfield (Supabase + Django + Redis on Railway).
+- **Backend:** not stood up; Phase 0 builds it greenfield, Supabase-centric (Auth + Postgres + RLS + Edge Functions + pg_cron + Realtime). Django/Redis/Railway dropped for now (see `ARCHITECTURE.md`); add a dedicated API service or Redis only on a measured need.
 - **Purcell data:** he will provide whatever data we need. Governance note: even so, prefer to ingest the exam outcome as **cohort aggregate** (or via pseudonymous keys), not identified student education records, to stay out of FERPA/DPA territory and keep the HECVAT light.
 - **Question source:** start from freely available online FCLE sample/practice exams as a **coverage/style model only**, authoring original cited questions from primary public sources (copyright + open-source + citation constraints). Later, profs add their own questions via the authoring pipeline.
 

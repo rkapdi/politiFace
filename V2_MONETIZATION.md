@@ -37,8 +37,8 @@ Civic literacy is **heavily funded**: Knight Foundation (civic tech — $4M+ rou
 ### Rail 4 — Exam Passes (de-emphasized → impulse or folded into Plus)
 Given low individual WTP + Cambium lock, the FCLE "Pass" is **not** a profit center. **(rec)** Fold FCLE prep into Plus, or price a cheap **~$4.99–9.99** impulse. Transactional upside, not the engine. USCIS/other-state passes later, same logic.
 
-### Rail 5 — Sponsorship / B2B2C (secondary)
-Nonpartisan civic orgs, libraries, museums; "informed-citizen" bundles. Opportunistic.
+### Rail 5 — Credibility partnerships / sponsorship / B2B2C (secondary on revenue, strategic on trust)
+Endorsements, content collaborations, and "informed-citizen" bundles with established nonpartisan civic organizations: the **National Constitution Center, iCivics, public libraries, and immigrant-services / naturalization nonprofits**. Two distinct payoffs. (a) **Credibility:** a co-sign from a recognized civic body de-risks institutional adoption (the president approves a tool trusted names already back) and reinforces, never dilutes, the nonpartisan-trust moat that Rails 1-3 all depend on. (b) **Distribution into an adjacent market:** libraries and naturalization nonprofits reach **USCIS citizenship-test prep** audiences beyond the FCLE wedge, a natural second exam to fold into Plus/Passes. iCivics additionally ties into Rail 3 grant funding. Pursue as logos/endorsements/bundles, not revenue dependencies; vet each partner for strict nonpartisanship first. Opportunistic on money, deliberate on trust.
 
 ## One entitlement layer (unchanged, load-bearing)
 Capability flags on the user record (`unlimited_energy`, `fcle_prep`, `plus`, `civic_agency`), granted by ANY source — consumable / non-consumable / subscription / **institutional or grant-funded redemption code** — with expiry. **App checks capability only.** Use **RevenueCat**. The same redemption-code rail that comps the professor's class is what an institution or a grant buys at scale. **No-paywall-for-students = the institution/grant is the payer.**
