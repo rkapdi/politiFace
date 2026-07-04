@@ -14,7 +14,7 @@ import '../data/atlas_data_provider.dart';
 /// Renders nothing (zero height) until both the curriculum and the
 /// progress lookup complete — keeps the Atlas head from layout-jumping.
 class ChapterSpotlight extends ConsumerWidget {
-  const ChapterSpotlight({super.key, required this.onJumpToBranch});
+  const ChapterSpotlight({required this.onJumpToBranch, super.key});
 
   /// Called with the atlas branch id (e.g. `atlas-executive`) when the
   /// strip is tapped. Pass null-safe scrolling — silently no-op if the
@@ -162,13 +162,11 @@ class _Strip extends StatelessWidget {
 
 class _SeasonCompleteStrip extends StatelessWidget {
   @override
-  Widget build(BuildContext context) {
-    return const _Strip(
+  Widget build(BuildContext context) => const _Strip(
       title: 'YOU\'RE LEARNING',
       subtitle: 'Season complete',
       hint: "You've walked the season. New chapters coming.",
       enabled: false,
       onTap: null,
     );
-  }
 }

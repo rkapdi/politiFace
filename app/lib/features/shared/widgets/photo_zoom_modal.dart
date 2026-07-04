@@ -14,10 +14,7 @@ import 'card_avatar.dart';
 /// review screen pushed on top).
 class PhotoZoomModal extends StatelessWidget {
   const PhotoZoomModal({
-    super.key,
-    required this.heroTag,
-    required this.name,
-    required this.photoUrl,
+    required this.heroTag, required this.name, required this.photoUrl, super.key,
     this.lqipBase64,
   });
 
@@ -32,8 +29,7 @@ class PhotoZoomModal extends StatelessWidget {
     required String name,
     required String? photoUrl,
     String? lqipBase64,
-  }) {
-    return Navigator.of(context).push(
+  }) => Navigator.of(context).push(
       PageRouteBuilder<void>(
         opaque: false,
         barrierColor: Colors.black87,
@@ -48,7 +44,6 @@ class PhotoZoomModal extends StatelessWidget {
         ),
       ),
     );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +68,8 @@ class PhotoZoomModal extends StatelessWidget {
                   Hero(
                     tag: heroTag,
                     child: InteractiveViewer(
-                      minScale: 1.0,
-                      maxScale: 4.0,
+                      minScale: 1,
+                      maxScale: 4,
                       child: ClipOval(
                         child: SizedBox(
                           width: radius * 2,
@@ -119,7 +114,7 @@ class PhotoZoomModal extends StatelessWidget {
   Widget _image(BuildContext context) {
     final url = photoUrl;
     if (url == null || url.isEmpty) {
-      return CardAvatar(name: name, radius: 1, photoUrl: null);
+      return CardAvatar(name: name, radius: 1);
     }
     if (url.startsWith('assets/')) {
       return Image.asset(url, fit: BoxFit.cover);

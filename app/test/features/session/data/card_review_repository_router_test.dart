@@ -12,7 +12,7 @@ Future<void> _seedCard(AppDatabase db, String id) async {
     externalId: 'deck-$id',
     name: 'Deck $id',
     updatedAt: 0,
-  ));
+  ),);
   await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
     id: id,
     deckId: 'deck-$id',
@@ -21,7 +21,7 @@ Future<void> _seedCard(AppDatabase db, String id) async {
     title: 'Title $id',
     sourceUrl: 'about:blank',
     updatedAt: 0,
-  ));
+  ),);
   await db.reviewsDao.upsertState(
     CardMemoryStatesCompanion(cardId: Value(id), isNew: const Value(true)),
   );
@@ -70,7 +70,7 @@ void main() {
       final row = await db.reviewsDao.stateFor('c1');
       expect(row!.lapses, 1, reason: 'Again must propagate to FSRS');
       expect(row.practiceCountSinceReview, 0,
-          reason: 'real review resets practice counter');
+          reason: 'real review resets practice counter',);
     });
 
     test('not-due card with Good/Hard/Easy routes to practice', () async {
@@ -106,7 +106,7 @@ void main() {
       await repo.recordGrade(cardId: 'c1', grade: FSRSGrade.good);
       final logsAfterPractice = await db.reviewsDao.unsyncedLogs();
       expect(logsAfterPractice.length, 1,
-          reason: 'practice mode keeps the review log clean');
+          reason: 'practice mode keeps the review log clean',);
     });
 
     test('practice counter accumulates across multiple practice taps',
@@ -142,7 +142,7 @@ void main() {
       final row = await db.reviewsDao.stateFor('c1');
       expect(row!.reviewCount, 2, reason: 'second real review fires');
       expect(row.practiceCountSinceReview, 0,
-          reason: 'real review resets practice counter');
+          reason: 'real review resets practice counter',);
     });
   });
 }

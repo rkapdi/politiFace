@@ -26,7 +26,7 @@ void main() {
       externalId: 'd',
       name: 'D',
       updatedAt: 0,
-    ));
+    ),);
     for (var i = 0; i < 6; i++) {
       await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
         id: 'aj$i',
@@ -38,7 +38,7 @@ void main() {
         sourceUrl: 'about:blank',
         sortOrder: Value(i),
         updatedAt: 0,
-      ));
+      ),);
     }
     for (var i = 0; i < 6; i++) {
       await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
@@ -51,7 +51,7 @@ void main() {
         sourceUrl: 'about:blank',
         sortOrder: Value(10 + i),
         updatedAt: 0,
-      ));
+      ),);
     }
   }
 
@@ -68,11 +68,11 @@ void main() {
         final sameTitle =
             q.options.where((c) => c.title == correctTitle).length;
         expect(sameTitle, 1,
-            reason: '$mode: only one option may hold "$correctTitle"');
+            reason: '$mode: only one option may hold "$correctTitle"',);
         if (correctTitle.contains('Associate Justice')) sawSharedTitleCorrect++;
       }
       expect(sawSharedTitleCorrect, greaterThan(0),
-          reason: 'must exercise a shared-title correct answer');
+          reason: 'must exercise a shared-title correct answer',);
     });
   }
 }

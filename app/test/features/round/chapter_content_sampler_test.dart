@@ -7,9 +7,7 @@ import 'package:politiface/features/curriculum/domain/curriculum.dart';
 import 'package:politiface/features/round/data/chapter_content_sampler.dart';
 
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   late AppDatabase db;
   late ChapterContentSampler sampler;
@@ -37,7 +35,7 @@ void main() {
           externalId: '${prefix}_deck_ext',
           name: 'Pool deck',
           updatedAt: now,
-        ));
+        ),);
     for (var i = 0; i < count; i++) {
       await db.into(db.localCards).insert(LocalCardsCompanion.insert(
             id: '${prefix}_card_$i',
@@ -47,7 +45,7 @@ void main() {
             title: 'Title $i',
             sourceUrl: '',
             updatedAt: now,
-          ));
+          ),);
     }
   }
 
@@ -58,7 +56,7 @@ void main() {
           externalId: 'deck_concepts$suffix',
           name: 'Concept deck',
           updatedAt: now,
-        ));
+        ),);
     await db.into(db.localCards).insert(LocalCardsCompanion.insert(
           id: 'concept_${itemId.replaceAll('.', '_')}',
           deckId: 'deck_concepts$suffix',
@@ -67,7 +65,7 @@ void main() {
           title: 'concept: $itemId',
           sourceUrl: '',
           updatedAt: now,
-        ));
+        ),);
   }
 
   // ── Tests ──────────────────────────────────────────────────────────────
@@ -114,7 +112,7 @@ void main() {
     for (var i = 0; i < firstThreeItemIds.length; i++) {
       await seedCardForItem(firstThreeItemIds[i], suffix: '_$i');
     }
-    await seedDeckWithCards(10, prefix: 'pool');
+    await seedDeckWithCards(10);
 
     final result = await sampler.sampleCards(
       chapter: chapter,
@@ -125,11 +123,11 @@ void main() {
     final fromChapter =
         result.sourceItemIds.where((id) => id != null).length;
     expect(fromChapter, 3,
-        reason: 'All 3 chapter-resolved items should be in the sample first');
+        reason: 'All 3 chapter-resolved items should be in the sample first',);
     final fromFallback =
         result.sourceItemIds.where((id) => id == null).length;
     expect(fromFallback, 2,
-        reason: 'Remaining 2 slots filled by fallback');
+        reason: 'Remaining 2 slots filled by fallback',);
   });
 
   test('deterministic by date — same date returns same cards', () async {
@@ -145,7 +143,7 @@ void main() {
       dateIso: '2026-05-26',
     );
     expect(a.cards.map((c) => c.id).toList(),
-        equals(b.cards.map((c) => c.id).toList()));
+        equals(b.cards.map((c) => c.id).toList()),);
   });
 
   test('different date → likely different cards', () async {

@@ -103,7 +103,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                                 const SizedBox(height: 20),
                                 _Row(
                                     label: 'Cards reviewed',
-                                    value: '$completed'),
+                                    value: '$completed',),
                                 const SizedBox(height: 12),
                                 _Row(label: 'Correct', value: '$correct'),
                                 const SizedBox(height: 12),
@@ -113,7 +113,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                                   _Row(
                                       label: 'Streak',
                                       value:
-                                          '${profile.streakDays} day${profile.streakDays == 1 ? "" : "s"}'),
+                                          '${profile.streakDays} day${profile.streakDays == 1 ? "" : "s"}',),
                                   const SizedBox(height: 12),
                                   _Row(label: 'XP', value: '${profile.xpTotal}'),
                                   const SizedBox(height: 12),
@@ -145,7 +145,7 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                         ref.read(activeSessionDeckIdProvider.notifier).state =
                             null;
                         ref
-                            .read(activeDailyChallengeDateProvider.notifier)
+                            .read(activeSessionCardIdsProvider.notifier)
                             .state = null;
                         ref.read(sessionControllerProvider.notifier).reset();
                         ref.invalidate(govMapDataProvider);
@@ -206,8 +206,7 @@ class _AccuracyRing extends StatelessWidget {
       tween: Tween<double>(begin: 0, end: percent.clamp(0, 100)),
       duration: const Duration(milliseconds: 900),
       curve: Curves.easeOutCubic,
-      builder: (context, value, _) {
-        return SizedBox(
+      builder: (context, value, _) => SizedBox(
           width: 140,
           height: 140,
           child: Stack(
@@ -243,8 +242,7 @@ class _AccuracyRing extends StatelessWidget {
               ),
             ],
           ),
-        );
-      },
+        ),
     );
   }
 

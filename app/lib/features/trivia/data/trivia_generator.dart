@@ -38,7 +38,7 @@ class TriviaGenerator {
         format: format,
         pool: cards,
         rng: rng,
-      ));
+      ),);
     }
     return questions;
   }
@@ -64,7 +64,7 @@ class TriviaGenerator {
         photoUrl = card.photoUrl;
       case TriviaFormat.titleToName:
         correct = card.politicianName;
-        prompt = "Who currently holds the role of ${card.title}?";
+        prompt = 'Who currently holds the role of ${card.title}?';
         photoUrl = null;
       case TriviaFormat.nameToTitle:
         correct = card.title;

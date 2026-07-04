@@ -10,16 +10,12 @@ part 'completed_runs_dao.g.dart';
 @DriftAccessor(tables: [CompletedRuns])
 class CompletedRunsDao extends DatabaseAccessor<AppDatabase>
     with _$CompletedRunsDaoMixin {
-  CompletedRunsDao(AppDatabase db) : super(db);
+  CompletedRunsDao(super.db);
 
-  Future<void> insert(CompletedRunsCompanion entry) {
-    return into(completedRuns).insertOnConflictUpdate(entry);
-  }
+  Future<void> insert(CompletedRunsCompanion entry) => into(completedRuns).insertOnConflictUpdate(entry);
 
-  Future<CompletedRunEntry?> byId(String id) {
-    return (select(completedRuns)..where((t) => t.id.equals(id)))
+  Future<CompletedRunEntry?> byId(String id) => (select(completedRuns)..where((t) => t.id.equals(id)))
         .getSingleOrNull();
-  }
 
   /// Most recent first. Filter by mode if provided.
   Future<List<CompletedRunEntry>> recent({
@@ -37,8 +33,6 @@ class CompletedRunsDao extends DatabaseAccessor<AppDatabase>
     return q.get();
   }
 
-  Future<int> deleteAllForUser(String userId) {
-    return (delete(completedRuns)..where((t) => t.userId.equals(userId)))
+  Future<int> deleteAllForUser(String userId) => (delete(completedRuns)..where((t) => t.userId.equals(userId)))
         .go();
-  }
 }

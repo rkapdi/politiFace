@@ -6,14 +6,20 @@ part 'cards_dao.g.dart';
 
 @DriftAccessor(tables: [LocalCards])
 class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
-  CardsDao(AppDatabase db) : super(db);
+  CardsDao(super.db);
 
-  Future<List<LocalCard>> allActiveCards() {
-    return (select(localCards)
+  Future<List<LocalCard>> allActiveCards() => (select(localCards)
           ..where((c) => c.isActive.equals(true))
           ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
         .get();
-  }
+
+  /// Active face (politician) cards only. The Atlas grid, trivia/endless
+  /// MCQ pools, and round fallback sampling must never mix concept cards
+  /// into politician name/photo questions or listings.
+  Future<List<LocalCard>> allActiveFaceCards() => (select(localCards)
+          ..where((c) => c.isActive.equals(true) & c.cardType.equals('face'))
+          ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
+        .get();
 
   /// Cheap count of active cards — used as the denominator of the
   /// Memory tab's brain-strength score.
@@ -25,23 +31,17 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     return row.read(localCards.id.count()) ?? 0;
   }
 
-  Future<LocalCard?> cardById(String id) {
-    return (select(localCards)..where((c) => c.id.equals(id))).getSingleOrNull();
-  }
+  Future<LocalCard?> cardById(String id) => (select(localCards)..where((c) => c.id.equals(id))).getSingleOrNull();
 
   Future<List<LocalCard>> cardsByIds(List<String> ids) {
     if (ids.isEmpty) return Future.value(const []);
     return (select(localCards)..where((c) => c.id.isIn(ids))).get();
   }
 
-  Future<List<LocalCard>> cardsByDeckId(String deckId) {
-    return (select(localCards)
+  Future<List<LocalCard>> cardsByDeckId(String deckId) => (select(localCards)
           ..where((c) => c.deckId.equals(deckId) & c.isActive.equals(true))
           ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
         .get();
-  }
 
-  Future<void> upsertCard(LocalCardsCompanion card) {
-    return into(localCards).insertOnConflictUpdate(card);
-  }
+  Future<void> upsertCard(LocalCardsCompanion card) => into(localCards).insertOnConflictUpdate(card);
 }

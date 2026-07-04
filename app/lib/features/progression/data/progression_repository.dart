@@ -96,7 +96,7 @@ class ProgressionRepository {
           tier: tier,
           cards: evals,
           nowUnix: nowUnix,
-        ));
+        ),);
       }
       tiersByNode[node.id] = tierStatuses;
     }

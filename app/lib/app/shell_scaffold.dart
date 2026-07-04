@@ -6,12 +6,11 @@ import 'package:go_router/go_router.dart';
 /// bottom NavigationBar. Routes outside [StatefulShellRoute] (session,
 /// summary, node detail, settings, onboarding) render without this chrome.
 class ShellScaffold extends StatelessWidget {
-  const ShellScaffold({super.key, required this.navigationShell});
+  const ShellScaffold({required this.navigationShell, super.key});
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  Widget build(BuildContext context) => Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
@@ -43,5 +42,4 @@ class ShellScaffold extends StatelessWidget {
         ],
       ),
     );
-  }
 }

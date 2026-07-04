@@ -98,7 +98,7 @@ class CardReviewRepository {
         result: result,
         grade: grade,
         now: reviewAt,
-      ));
+      ),);
 
       await _db.reviewsDao.appendLog(ReviewLogsCompanion.insert(
         cardId: cardId,
@@ -108,7 +108,7 @@ class CardReviewRepository {
         difficulty: result.nextState.difficulty,
         retrievability: result.nextState.retrievability,
         intervalDays: result.intervalDays,
-      ));
+      ),);
 
       return result.nextState;
     });
@@ -139,7 +139,7 @@ class CardReviewRepository {
       cardId: Value(cardId),
       practiceCountSinceReview: Value(row.practiceCountSinceReview + 1),
       lastGrade: Value(grade.value),
-    ));
+    ),);
     await _profile.recordReview(grade: grade, now: reviewAt);
     return memoryStateFromRow(row);
   }
@@ -178,7 +178,7 @@ class CardReviewRepository {
         card: card,
         state: s,
         phase: CardPhase.dueReview,
-      ));
+      ),);
     }
 
     final fresh = <SessionCard>[];
@@ -189,7 +189,7 @@ class CardReviewRepository {
         card: card,
         state: s,
         phase: CardPhase.newCard,
-      ));
+      ),);
     }
 
     return SessionCandidates(due: due, fresh: fresh);
@@ -222,7 +222,7 @@ class CardReviewRepository {
             card: card,
             state: state,
             phase: CardPhase.newCard,
-          ));
+          ),);
         }
       } else {
         if (due.length < dueLimit) {
@@ -230,7 +230,7 @@ class CardReviewRepository {
             card: card,
             state: state,
             phase: CardPhase.dueReview,
-          ));
+          ),);
         }
       }
     }
@@ -265,13 +265,13 @@ class CardReviewRepository {
           card: card,
           state: state,
           phase: CardPhase.newCard,
-        ));
+        ),);
       } else {
         due.add(sessionCardFromRows(
           card: card,
           state: state,
           phase: CardPhase.dueReview,
-        ));
+        ),);
       }
     }
     return SessionCandidates(due: due, fresh: fresh);

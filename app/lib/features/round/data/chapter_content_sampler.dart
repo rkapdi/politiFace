@@ -34,16 +34,19 @@ class ChapterContentSampler {
     required Chapter chapter,
     required int count,
     required String dateIso,
+    Curriculum? curriculum,
     bool allowFallback = true,
-  }) async {
-    return _sample(
-      chapter: chapter,
-      count: count,
-      dateIso: dateIso,
-      saltSuffix: 'cards',
-      allowFallback: allowFallback,
-    );
-  }
+    List<String> preferItemIds = const [],
+  }) async =>
+      _sample(
+        chapter: chapter,
+        count: count,
+        dateIso: dateIso,
+        saltSuffix: 'cards',
+        curriculum: curriculum,
+        allowFallback: allowFallback,
+        preferItemIds: preferItemIds,
+      );
 
   /// Samples [count] cards to seed trivia questions from. Same shape as
   /// [sampleCards] but with a different deterministic seed so a single
@@ -53,16 +56,17 @@ class ChapterContentSampler {
     required Chapter chapter,
     required int count,
     required String dateIso,
+    Curriculum? curriculum,
     bool allowFallback = true,
-  }) async {
-    return _sample(
-      chapter: chapter,
-      count: count,
-      dateIso: dateIso,
-      saltSuffix: 'trivia',
-      allowFallback: allowFallback,
-    );
-  }
+  }) async =>
+      _sample(
+        chapter: chapter,
+        count: count,
+        dateIso: dateIso,
+        saltSuffix: 'trivia',
+        curriculum: curriculum,
+        allowFallback: allowFallback,
+      );
 
   Future<SampledContent> _sample({
     required Chapter chapter,
@@ -70,16 +74,33 @@ class ChapterContentSampler {
     required String dateIso,
     required String saltSuffix,
     required bool allowFallback,
+    Curriculum? curriculum,
+    List<String> preferItemIds = const [],
   }) async {
     final seed = _seedFor(dateIso, chapter.id, saltSuffix);
     final rng = Random(seed);
 
-    // Resolve every chapter item against the card database; collect the
-    // hits and remember the misses for diagnostics.
+    // Today's briefing lessons name the cards they introduce — those go
+    // to the front of the round, in lesson order, so the user drills what
+    // they just read.
+    final picked = <_ResolvedItem>[];
+    final preferred = <String>{};
+    for (final itemId in preferItemIds) {
+      if (picked.length >= count) break;
+      if (!preferred.add(itemId)) continue;
+      final card = await _resolveItemId(itemId, curriculum);
+      if (card != null) {
+        picked.add(_ResolvedItem(itemId: itemId, card: card));
+      }
+    }
+
+    // Resolve every remaining chapter item against the card database;
+    // collect the hits and remember the misses for diagnostics.
     final resolved = <_ResolvedItem>[];
     final missingItemIds = <String>[];
     for (final itemId in chapter.itemIds) {
-      final card = await _resolveItemId(itemId);
+      if (preferred.contains(itemId)) continue;
+      final card = await _resolveItemId(itemId, curriculum);
       if (card != null) {
         resolved.add(_ResolvedItem(itemId: itemId, card: card));
       } else {
@@ -87,16 +108,16 @@ class ChapterContentSampler {
       }
     }
 
-    // Deterministic shuffle, then take the front.
+    // Deterministic shuffle, then top up to the requested count.
     resolved.shuffle(rng);
-    final picked = resolved.take(count).toList();
+    picked.addAll(resolved.take(count - picked.length));
 
     // If the chapter resolved fewer cards than asked for and we're allowed
     // to fall back, top up from any active card not already picked. This
     // keeps the round playable during the Phase 0 authoring gap.
     if (picked.length < count && allowFallback) {
       final usedCardIds = picked.map((r) => r.card.id).toSet();
-      final pool = await _db.cardsDao.allActiveCards();
+      final pool = await _db.cardsDao.allActiveFaceCards();
       final available = pool.where((c) => !usedCardIds.contains(c.id)).toList()
         ..shuffle(rng);
       final needed = count - picked.length;
@@ -112,8 +133,16 @@ class ChapterContentSampler {
     );
   }
 
-  Future<LocalCard?> _resolveItemId(String itemId) =>
-      _linker.cardForId(itemId);
+  /// Resolves an item id to a card. With a [curriculum] in hand we can read
+  /// the item's `card_ids` (so `face_card` items drill their intended face);
+  /// without it we fall back to externalId-only resolution.
+  Future<LocalCard?> _resolveItemId(String itemId, Curriculum? curriculum) {
+    if (curriculum != null) {
+      final item = curriculum.itemById(itemId);
+      if (item != null) return _linker.cardFor(item);
+    }
+    return _linker.cardForId(itemId);
+  }
 
   /// Deterministic seed: same date + chapter + phase → same shuffle.
   int _seedFor(String dateIso, String chapterId, String saltSuffix) {

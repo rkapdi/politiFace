@@ -8,6 +8,7 @@ import '../features/endless/presentation/endless_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/history/presentation/history_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/memory/presentation/card_retention_detail_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
 import '../features/round/presentation/daily_round_screen.dart';
 import '../features/round/presentation/round_review_screen.dart';
@@ -19,8 +20,7 @@ import '../features/trivia/presentation/trivia_review_screen.dart';
 import '../features/trivia/presentation/trivia_screen.dart';
 import 'shell_scaffold.dart';
 
-GoRouter buildRouter({String initialLocation = '/'}) {
-  return GoRouter(
+GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
     initialLocation: initialLocation,
     routes: [
       StatefulShellRoute.indexedStack(
@@ -118,6 +118,10 @@ GoRouter buildRouter({String initialLocation = '/'}) {
         path: '/memory/history',
         builder: (context, state) => const HistoryScreen(),
       ),
+      GoRoute(
+        path: '/memory/card/:cardId',
+        builder: (context, state) =>
+            CardRetentionDetailScreen(cardId: state.pathParameters['cardId']!),
+      ),
     ],
   );
-}

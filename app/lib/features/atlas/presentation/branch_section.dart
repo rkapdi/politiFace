@@ -11,9 +11,7 @@ import 'branch_info_sheet.dart';
 /// this branch), and a responsive grid of [AtlasCard]s.
 class BranchSection extends StatelessWidget {
   const BranchSection({
-    super.key,
-    required this.branch,
-    required this.spotlighted,
+    required this.branch, required this.spotlighted, super.key,
   });
 
   final AtlasBranch branch;
@@ -126,12 +124,10 @@ class BranchSection extends StatelessWidget {
                         childAspectRatio: 0.70,
                       ),
                     itemCount: branch.cards.length,
-                    itemBuilder: (context, i) {
-                      return AtlasCard(
+                    itemBuilder: (context, i) => AtlasCard(
                         data: branch.cards[i],
                         branchColor: branch.color,
-                      );
-                    },
+                      ),
                   ),
               ],
             ),

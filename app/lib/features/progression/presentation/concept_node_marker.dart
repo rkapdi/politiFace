@@ -15,11 +15,7 @@ import '../domain/tier_mastery.dart';
 ///   mastered   — branch-color filled circle + branch-color outer glow
 class ConceptNodeMarker extends StatelessWidget {
   const ConceptNodeMarker({
-    super.key,
-    required this.label,
-    required this.branchColor,
-    required this.state,
-    required this.tiers,
+    required this.label, required this.branchColor, required this.state, required this.tiers, super.key,
     this.labelOnLeft = false,
     this.size = 18,
     this.onTap,
@@ -313,7 +309,7 @@ class _MarkerPainter extends CustomPainter {
   }
 
   void _drawDashedCircle(
-      Canvas canvas, Offset center, double radius, Paint paint) {
+      Canvas canvas, Offset center, double radius, Paint paint,) {
     const dashArc = 0.18; // radians per dash
     const gapArc = 0.18;
     for (var theta = 0.0; theta < 2 * math.pi; theta += dashArc + gapArc) {

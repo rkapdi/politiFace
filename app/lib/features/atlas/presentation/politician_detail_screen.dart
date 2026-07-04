@@ -22,7 +22,7 @@ import '../../shared/widgets/state_views.dart';
 ///   - "Also appears in" — query LocalCards by normalized name across
 ///     all decks
 class PoliticianDetailScreen extends ConsumerWidget {
-  const PoliticianDetailScreen({super.key, required this.cardId});
+  const PoliticianDetailScreen({required this.cardId, super.key});
 
   final String cardId;
 
@@ -119,13 +119,13 @@ class _DetailBody extends ConsumerWidget {
           const SizedBox(height: 28),
 
           // ── Bio (Wikipedia lead paragraph) ──────────────────────────
-          _SectionHeader(label: 'BIOGRAPHY'),
+          const _SectionHeader(label: 'BIOGRAPHY'),
           const SizedBox(height: 10),
           _BioSection(bioAsync: bioAsync),
           const SizedBox(height: 24),
 
           // ── Also appears in (deck membership across the app) ────────
-          _SectionHeader(label: 'ALSO IN'),
+          const _SectionHeader(label: 'ALSO IN'),
           const SizedBox(height: 10),
           alsoAsync.when(
             loading: () => const SizedBox(

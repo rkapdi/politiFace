@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
-import '../../curriculum/domain/curriculum.dart';
 import '../../../core/database/drift/app_database.dart';
+import '../../curriculum/domain/curriculum.dart';
 import 'chapter_info_sheet.dart';
 
 /// Vertical strip showing the entire season at a glance — one row per
@@ -237,7 +237,6 @@ class _DayDots extends StatelessWidget {
               border: i >= filled
                   ? Border.all(
                       color: theme.colorScheme.outlineVariant,
-                      width: 1,
                     )
                   : null,
             ),

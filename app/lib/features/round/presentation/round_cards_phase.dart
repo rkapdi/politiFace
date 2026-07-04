@@ -19,7 +19,7 @@ import '../domain/round_state.dart';
 /// round; photo rendering comes back when the curriculum content layer
 /// catches up.
 class RoundCardsPhase extends ConsumerStatefulWidget {
-  const RoundCardsPhase({super.key, required this.state});
+  const RoundCardsPhase({required this.state, super.key});
   final DailyRoundState state;
 
   @override
@@ -52,6 +52,15 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
         .gradeCard(idx, grade);
   }
 
+  Future<void> _gotIt() async {
+    // Teach-first concept: a single acknowledge grades 'good' through the
+    // normal pipeline (it's the card's first review, so FSRS schedules it).
+    HapticFeedback.lightImpact();
+    await ref
+        .read(dailyRoundControllerProvider.notifier)
+        .gradeCard(_index, 2);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -59,6 +68,16 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
     final completed =
         widget.state.cards.where((c) => c.grade != null).length;
     final progress = total == 0 ? 0.0 : completed / total;
+
+    if (_card.teachFirst && _card.grade == null) {
+      return _TeachCard(
+        key: ValueKey('teach-${_card.cardId}'),
+        card: _card,
+        progressLabel: 'CARD ${completed + 1} OF $total',
+        progress: progress,
+        onGotIt: _gotIt,
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
@@ -127,8 +146,7 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
     );
   }
 
-  Widget _gradeBtn(String label, int grade, Color color) {
-    return FilledButton(
+  Widget _gradeBtn(String label, int grade, Color color) => FilledButton(
       onPressed: () => _grade(grade),
       style: FilledButton.styleFrom(
         backgroundColor: color,
@@ -136,13 +154,12 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
         padding: const EdgeInsets.symmetric(vertical: 14),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.0,
+          letterSpacing: 1,
           fontSize: 12,
         ),
       ),
       child: Text(label),
     );
-  }
 }
 
 class _CardFront extends StatelessWidget {
@@ -248,10 +265,7 @@ class _CardBack extends StatelessWidget {
 /// don't have to widen the session module's public API for one consumer.
 class _FlipCard extends StatelessWidget {
   const _FlipCard({
-    super.key,
-    required this.revealed,
-    required this.front,
-    required this.back,
+    required this.revealed, required this.front, required this.back, super.key,
   });
 
   final bool revealed;
@@ -259,8 +273,7 @@ class _FlipCard extends StatelessWidget {
   final Widget back;
 
   @override
-  Widget build(BuildContext context) {
-    return TweenAnimationBuilder<double>(
+  Widget build(BuildContext context) => TweenAnimationBuilder<double>(
       // begin = end on remount — prevents the flash-of-back-side bug the
       // session screen also fixed by keying the flip card.
       tween: Tween<double>(begin: revealed ? 1.0 : 0.0, end: revealed ? 1.0 : 0.0),
@@ -283,6 +296,109 @@ class _FlipCard extends StatelessWidget {
                 ),
         );
       },
+    );
+}
+
+/// First encounter with a concept card: a lesson presentation, not a quiz.
+/// One button — GOT IT — which grades 'good' and schedules the first
+/// FSRS review. Recall encounters use the normal flip card instead.
+class _TeachCard extends StatelessWidget {
+  const _TeachCard({
+    required this.card,
+    required this.progressLabel,
+    required this.progress,
+    required this.onGotIt,
+    super.key,
+  });
+
+  final RoundCard card;
+  final String progressLabel;
+  final double progress;
+  final VoidCallback onGotIt;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(2),
+            child: LinearProgressIndicator(
+              value: progress.clamp(0.0, 1.0),
+              minHeight: 4,
+              backgroundColor: theme.colorScheme.surfaceContainerHigh,
+              valueColor:
+                  AlwaysStoppedAnimation(theme.colorScheme.brandOchre),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            progressLabel,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              letterSpacing: 1.6,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 28),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 4,),
+                    decoration: BoxDecoration(
+                      color: EditorialPalette.civicGreen,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                    child: Text(
+                      'NEW CONCEPT',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: Colors.white,
+                        letterSpacing: 1.8,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  Text(
+                    card.answer == card.body
+                        ? card.prompt
+                        : card.prompt,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w900,
+                      height: 1.15,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    card.body ?? card.answer,
+                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.55),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: onGotIt,
+            style: FilledButton.styleFrom(
+              backgroundColor: EditorialPalette.civicGreen,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+            ),
+            child: const Text(
+              'GOT IT',
+              style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1.2),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

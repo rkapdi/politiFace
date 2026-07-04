@@ -86,8 +86,11 @@ workflows:
       events:
         - pull_request
       branch_patterns:
-        - pattern: main
-          include: false  # don't double-run on push-to-main; ios-release covers that
+        # Run on every PR. (This previously excluded 'main', which for
+        # pull_request events matches the TARGET branch — so the workflow
+        # never ran at all. Push-to-main is covered by ios-release.)
+        - pattern: '*'
+          include: true
     environment:
       flutter: 3.22.0
     scripts:

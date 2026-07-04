@@ -12,24 +12,21 @@ import '../data/branch_info_loader.dart';
 /// chapters of the round where the branch shows up.
 class BranchInfoSheet extends ConsumerWidget {
   const BranchInfoSheet({
-    super.key,
-    required this.branch,
+    required this.branch, super.key,
     this.scrollController,
   });
 
   final AtlasBranch branch;
   final ScrollController? scrollController;
 
-  static Future<void> show(BuildContext context, AtlasBranch branch) {
-    return showModalBottomSheet<void>(
+  static Future<void> show(BuildContext context, AtlasBranch branch) => showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
+      builder: (ctx) => DraggableScrollableSheet(
           initialChildSize: 0.7,
           minChildSize: 0.4,
           maxChildSize: 0.95,
@@ -38,10 +35,8 @@ class BranchInfoSheet extends ConsumerWidget {
             branch: branch,
             scrollController: controller,
           ),
-        );
-      },
+        ),
     );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -173,7 +168,7 @@ class _Body extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 24),
-        _SectionHeader(label: 'QUICK FACTS'),
+        const _SectionHeader(label: 'QUICK FACTS'),
         const SizedBox(height: 10),
         for (final fact in info.quickFacts)
           Padding(
@@ -187,7 +182,6 @@ class _Body extends StatelessWidget {
                   height: 4,
                   decoration: BoxDecoration(
                     color: branch.color,
-                    shape: BoxShape.rectangle,
                   ),
                 ),
                 Expanded(
@@ -203,7 +197,7 @@ class _Body extends StatelessWidget {
           ),
         if (related.isNotEmpty) ...[
           const SizedBox(height: 16),
-          _SectionHeader(label: 'IN THE ROUND'),
+          const _SectionHeader(label: 'IN THE ROUND'),
           const SizedBox(height: 10),
           for (final ch in related)
             Padding(

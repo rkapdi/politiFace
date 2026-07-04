@@ -47,8 +47,7 @@ class EndlessState {
   /// avoid re-routing the user mid-rebuild.
   final bool runEnded;
 
-  static EndlessState initial() {
-    return EndlessState(
+  factory EndlessState.initial() => EndlessState(
       question: null,
       totalAnswered: 0,
       totalCorrect: 0,
@@ -59,7 +58,6 @@ class EndlessState {
       startedAtMs: DateTime.now().millisecondsSinceEpoch,
       runEnded: false,
     );
-  }
 
   EndlessState copyWith({
     EndlessQuestion? question,
@@ -73,8 +71,7 @@ class EndlessState {
     List<EndlessAnswer>? answers,
     int? startedAtMs,
     bool? runEnded,
-  }) {
-    return EndlessState(
+  }) => EndlessState(
       question: clearQuestion ? null : (question ?? this.question),
       totalAnswered: totalAnswered ?? this.totalAnswered,
       totalCorrect: totalCorrect ?? this.totalCorrect,
@@ -87,12 +84,9 @@ class EndlessState {
       startedAtMs: startedAtMs ?? this.startedAtMs,
       runEnded: runEnded ?? this.runEnded,
     );
-  }
 }
 
-final endlessEngineProvider = Provider<EndlessEngine>((ref) {
-  return EndlessEngine(ref.watch(databaseProvider));
-});
+final endlessEngineProvider = Provider<EndlessEngine>((ref) => EndlessEngine(ref.watch(databaseProvider)));
 
 /// Persisted `bestStreak` storage key on the [MetaDao] keystore.
 const _bestStreakKey = 'endless_best_streak';
@@ -140,7 +134,7 @@ class EndlessController extends AsyncNotifier<EndlessState> {
       bestStreak: newBest,
       lastWasCorrect: correct,
       answers: trimmed,
-    ));
+    ),);
 
     // Persist best streak on every improvement — cheap (single row upsert),
     // and means the chip and result screen always reflect a real value.
@@ -157,7 +151,7 @@ class EndlessController extends AsyncNotifier<EndlessState> {
     state = AsyncData(s.copyWith(
       question: q,
       clearLastWasCorrect: true,
-    ));
+    ),);
   }
 
   /// End the current run, mark it ended, and persist the history row. The
@@ -213,8 +207,8 @@ class EndlessController extends AsyncNotifier<EndlessState> {
                     a.question.options[a.pickedIndex].title,
               },
           ],
-        })),
-      ));
+        }),),
+      ),);
     } catch (_) {
       // Swallow — history writes never block the end-run flow.
     }

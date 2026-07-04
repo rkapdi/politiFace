@@ -43,10 +43,10 @@ class EndlessShareCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
+                    children: [
                       Text(
                         'POLITIFACE',
                         style: TextStyle(
@@ -54,7 +54,7 @@ class EndlessShareCard extends StatelessWidget {
                           fontWeight: FontWeight.w900,
                           color: EditorialPalette.ink,
                           letterSpacing: 2.4,
-                          height: 1.0,
+                          height: 1,
                         ),
                       ),
                       SizedBox(height: 6),
@@ -105,7 +105,7 @@ class EndlessShareCard extends StatelessWidget {
                       fontSize: 130,
                       fontWeight: FontWeight.w900,
                       color: Color(0xFFE67E22),
-                      height: 1.0,
+                      height: 1,
                       letterSpacing: -3,
                       fontFeatures: [FontFeature.tabularFigures()],
                     ),
@@ -117,7 +117,7 @@ class EndlessShareCard extends StatelessWidget {
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: EditorialPalette.inkSubdued,
-                      letterSpacing: 2.0,
+                      letterSpacing: 2,
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -192,8 +192,7 @@ class _StatBlock extends StatelessWidget {
   final String value;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
+  Widget build(BuildContext context) => Column(
       children: [
         Text(
           label,
@@ -217,5 +216,4 @@ class _StatBlock extends StatelessWidget {
         ),
       ],
     );
-  }
 }

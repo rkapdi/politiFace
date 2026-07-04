@@ -11,15 +11,15 @@ Future<List<LocalCard>> _seedPool(AppDatabase db, int count) async {
     externalId: 'deck-a',
     name: 'Deck A',
     updatedAt: 0,
-  ));
+  ),);
   await db.decksDao.upsertDeck(LocalDecksCompanion.insert(
     id: 'deck-b',
     externalId: 'deck-b',
     name: 'Deck B',
     updatedAt: 0,
-  ));
+  ),);
   for (var i = 0; i < count; i++) {
-    final deckId = i % 2 == 0 ? 'deck-a' : 'deck-b';
+    final deckId = i.isEven ? 'deck-a' : 'deck-b';
     await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
       id: 'card-$i',
       deckId: deckId,
@@ -30,7 +30,7 @@ Future<List<LocalCard>> _seedPool(AppDatabase db, int count) async {
       sourceUrl: 'about:blank',
       sortOrder: Value(i),
       updatedAt: 0,
-    ));
+    ),);
   }
   return db.cardsDao.allActiveCards();
 }
@@ -44,13 +44,13 @@ Future<List<LocalCard>> _seedSharedTitlePool(AppDatabase db) async {
     externalId: 'scotus',
     name: 'SCOTUS',
     updatedAt: 0,
-  ));
+  ),);
   await db.decksDao.upsertDeck(LocalDecksCompanion.insert(
     id: 'other',
     externalId: 'other',
     name: 'Other',
     updatedAt: 0,
-  ));
+  ),);
   final justices = <String, String>{
     'card-cj': 'Chief Justice of the United States',
     for (var i = 0; i < 8; i++)
@@ -69,7 +69,7 @@ Future<List<LocalCard>> _seedSharedTitlePool(AppDatabase db) async {
       sourceUrl: 'about:blank',
       sortOrder: Value(sort++),
       updatedAt: 0,
-    ));
+    ),);
   }
   // Distinct-title filler so there are always >= 3 unambiguous distractors.
   for (var i = 0; i < 10; i++) {
@@ -84,7 +84,7 @@ Future<List<LocalCard>> _seedSharedTitlePool(AppDatabase db) async {
       sourceUrl: 'about:blank',
       sortOrder: Value(i),
       updatedAt: 0,
-    ));
+    ),);
   }
   return db.cardsDao.allActiveCards();
 }
@@ -179,11 +179,11 @@ void main() {
             .length;
         expect(matching, 1,
             reason: 'only the correct holder of "${asked.title}" '
-                'should be an option, got $matching');
+                'should be an option, got $matching',);
         if (asked.title.contains('Associate Justice')) exercisedSharedTitle++;
       }
     }
     expect(exercisedSharedTitle, greaterThan(0),
-        reason: 'guard must actually exercise the shared-title (ambiguous) case');
+        reason: 'guard must actually exercise the shared-title (ambiguous) case',);
   });
 }

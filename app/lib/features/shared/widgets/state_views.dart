@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 /// Standardized empty-state widget. Icon + headline + body + optional action.
 class AppEmptyView extends StatelessWidget {
   const AppEmptyView({
-    super.key,
-    required this.icon,
-    required this.title,
+    required this.icon, required this.title, super.key,
     this.body,
     this.action,
   });
@@ -56,9 +54,7 @@ class AppEmptyView extends StatelessWidget {
 /// Standardized error view. Icon + message + retry.
 class AppErrorView extends StatelessWidget {
   const AppErrorView({
-    super.key,
-    required this.message,
-    required this.onRetry,
+    required this.message, required this.onRetry, super.key,
     this.title = 'Something went wrong',
   });
 

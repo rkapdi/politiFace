@@ -2180,6 +2180,25 @@ class $LocalCardsTable extends LocalCards
   late final GeneratedColumn<String> gender = GeneratedColumn<String>(
       'gender', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _cardTypeMeta =
+      const VerificationMeta('cardType');
+  @override
+  late final GeneratedColumn<String> cardType = GeneratedColumn<String>(
+      'card_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('face'));
+  static const VerificationMeta _bodyMeta = const VerificationMeta('body');
+  @override
+  late final GeneratedColumn<String> body = GeneratedColumn<String>(
+      'body', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _recallPromptMeta =
+      const VerificationMeta('recallPrompt');
+  @override
+  late final GeneratedColumn<String> recallPrompt = GeneratedColumn<String>(
+      'recall_prompt', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
   @override
   late final GeneratedColumn<String> tags = GeneratedColumn<String>(
@@ -2225,6 +2244,9 @@ class $LocalCardsTable extends LocalCards
         oneLiner,
         sourceUrl,
         gender,
+        cardType,
+        body,
+        recallPrompt,
         tags,
         isActive,
         sortOrder,
@@ -2307,6 +2329,20 @@ class $LocalCardsTable extends LocalCards
       context.handle(_genderMeta,
           gender.isAcceptableOrUnknown(data['gender']!, _genderMeta));
     }
+    if (data.containsKey('card_type')) {
+      context.handle(_cardTypeMeta,
+          cardType.isAcceptableOrUnknown(data['card_type']!, _cardTypeMeta));
+    }
+    if (data.containsKey('body')) {
+      context.handle(
+          _bodyMeta, body.isAcceptableOrUnknown(data['body']!, _bodyMeta));
+    }
+    if (data.containsKey('recall_prompt')) {
+      context.handle(
+          _recallPromptMeta,
+          recallPrompt.isAcceptableOrUnknown(
+              data['recall_prompt']!, _recallPromptMeta));
+    }
     if (data.containsKey('tags')) {
       context.handle(
           _tagsMeta, tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta));
@@ -2358,6 +2394,12 @@ class $LocalCardsTable extends LocalCards
           .read(DriftSqlType.string, data['${effectivePrefix}source_url'])!,
       gender: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}gender']),
+      cardType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}card_type'])!,
+      body: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}body']),
+      recallPrompt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}recall_prompt']),
       tags: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tags'])!,
       isActive: attachedDatabase.typeMapping
@@ -2388,6 +2430,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
   final String? oneLiner;
   final String sourceUrl;
   final String? gender;
+  final String cardType;
+  final String? body;
+  final String? recallPrompt;
   final String tags;
   final bool isActive;
   final int sortOrder;
@@ -2405,6 +2450,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       this.oneLiner,
       required this.sourceUrl,
       this.gender,
+      required this.cardType,
+      this.body,
+      this.recallPrompt,
       required this.tags,
       required this.isActive,
       required this.sortOrder,
@@ -2435,6 +2483,13 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
     map['source_url'] = Variable<String>(sourceUrl);
     if (!nullToAbsent || gender != null) {
       map['gender'] = Variable<String>(gender);
+    }
+    map['card_type'] = Variable<String>(cardType);
+    if (!nullToAbsent || body != null) {
+      map['body'] = Variable<String>(body);
+    }
+    if (!nullToAbsent || recallPrompt != null) {
+      map['recall_prompt'] = Variable<String>(recallPrompt);
     }
     map['tags'] = Variable<String>(tags);
     map['is_active'] = Variable<bool>(isActive);
@@ -2467,6 +2522,11 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       sourceUrl: Value(sourceUrl),
       gender:
           gender == null && nullToAbsent ? const Value.absent() : Value(gender),
+      cardType: Value(cardType),
+      body: body == null && nullToAbsent ? const Value.absent() : Value(body),
+      recallPrompt: recallPrompt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(recallPrompt),
       tags: Value(tags),
       isActive: Value(isActive),
       sortOrder: Value(sortOrder),
@@ -2490,6 +2550,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       oneLiner: serializer.fromJson<String?>(json['oneLiner']),
       sourceUrl: serializer.fromJson<String>(json['sourceUrl']),
       gender: serializer.fromJson<String?>(json['gender']),
+      cardType: serializer.fromJson<String>(json['cardType']),
+      body: serializer.fromJson<String?>(json['body']),
+      recallPrompt: serializer.fromJson<String?>(json['recallPrompt']),
       tags: serializer.fromJson<String>(json['tags']),
       isActive: serializer.fromJson<bool>(json['isActive']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
@@ -2512,6 +2575,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       'oneLiner': serializer.toJson<String?>(oneLiner),
       'sourceUrl': serializer.toJson<String>(sourceUrl),
       'gender': serializer.toJson<String?>(gender),
+      'cardType': serializer.toJson<String>(cardType),
+      'body': serializer.toJson<String?>(body),
+      'recallPrompt': serializer.toJson<String?>(recallPrompt),
       'tags': serializer.toJson<String>(tags),
       'isActive': serializer.toJson<bool>(isActive),
       'sortOrder': serializer.toJson<int>(sortOrder),
@@ -2532,6 +2598,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           Value<String?> oneLiner = const Value.absent(),
           String? sourceUrl,
           Value<String?> gender = const Value.absent(),
+          String? cardType,
+          Value<String?> body = const Value.absent(),
+          Value<String?> recallPrompt = const Value.absent(),
           String? tags,
           bool? isActive,
           int? sortOrder,
@@ -2550,6 +2619,10 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
         oneLiner: oneLiner.present ? oneLiner.value : this.oneLiner,
         sourceUrl: sourceUrl ?? this.sourceUrl,
         gender: gender.present ? gender.value : this.gender,
+        cardType: cardType ?? this.cardType,
+        body: body.present ? body.value : this.body,
+        recallPrompt:
+            recallPrompt.present ? recallPrompt.value : this.recallPrompt,
         tags: tags ?? this.tags,
         isActive: isActive ?? this.isActive,
         sortOrder: sortOrder ?? this.sortOrder,
@@ -2575,6 +2648,11 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       oneLiner: data.oneLiner.present ? data.oneLiner.value : this.oneLiner,
       sourceUrl: data.sourceUrl.present ? data.sourceUrl.value : this.sourceUrl,
       gender: data.gender.present ? data.gender.value : this.gender,
+      cardType: data.cardType.present ? data.cardType.value : this.cardType,
+      body: data.body.present ? data.body.value : this.body,
+      recallPrompt: data.recallPrompt.present
+          ? data.recallPrompt.value
+          : this.recallPrompt,
       tags: data.tags.present ? data.tags.value : this.tags,
       isActive: data.isActive.present ? data.isActive.value : this.isActive,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
@@ -2597,6 +2675,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           ..write('oneLiner: $oneLiner, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('gender: $gender, ')
+          ..write('cardType: $cardType, ')
+          ..write('body: $body, ')
+          ..write('recallPrompt: $recallPrompt, ')
           ..write('tags: $tags, ')
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
@@ -2619,6 +2700,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
       oneLiner,
       sourceUrl,
       gender,
+      cardType,
+      body,
+      recallPrompt,
       tags,
       isActive,
       sortOrder,
@@ -2639,6 +2723,9 @@ class LocalCard extends DataClass implements Insertable<LocalCard> {
           other.oneLiner == this.oneLiner &&
           other.sourceUrl == this.sourceUrl &&
           other.gender == this.gender &&
+          other.cardType == this.cardType &&
+          other.body == this.body &&
+          other.recallPrompt == this.recallPrompt &&
           other.tags == this.tags &&
           other.isActive == this.isActive &&
           other.sortOrder == this.sortOrder &&
@@ -2658,6 +2745,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
   final Value<String?> oneLiner;
   final Value<String> sourceUrl;
   final Value<String?> gender;
+  final Value<String> cardType;
+  final Value<String?> body;
+  final Value<String?> recallPrompt;
   final Value<String> tags;
   final Value<bool> isActive;
   final Value<int> sortOrder;
@@ -2676,6 +2766,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     this.oneLiner = const Value.absent(),
     this.sourceUrl = const Value.absent(),
     this.gender = const Value.absent(),
+    this.cardType = const Value.absent(),
+    this.body = const Value.absent(),
+    this.recallPrompt = const Value.absent(),
     this.tags = const Value.absent(),
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -2695,6 +2788,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     this.oneLiner = const Value.absent(),
     required String sourceUrl,
     this.gender = const Value.absent(),
+    this.cardType = const Value.absent(),
+    this.body = const Value.absent(),
+    this.recallPrompt = const Value.absent(),
     this.tags = const Value.absent(),
     this.isActive = const Value.absent(),
     this.sortOrder = const Value.absent(),
@@ -2720,6 +2816,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     Expression<String>? oneLiner,
     Expression<String>? sourceUrl,
     Expression<String>? gender,
+    Expression<String>? cardType,
+    Expression<String>? body,
+    Expression<String>? recallPrompt,
     Expression<String>? tags,
     Expression<bool>? isActive,
     Expression<int>? sortOrder,
@@ -2739,6 +2838,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       if (oneLiner != null) 'one_liner': oneLiner,
       if (sourceUrl != null) 'source_url': sourceUrl,
       if (gender != null) 'gender': gender,
+      if (cardType != null) 'card_type': cardType,
+      if (body != null) 'body': body,
+      if (recallPrompt != null) 'recall_prompt': recallPrompt,
       if (tags != null) 'tags': tags,
       if (isActive != null) 'is_active': isActive,
       if (sortOrder != null) 'sort_order': sortOrder,
@@ -2760,6 +2862,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       Value<String?>? oneLiner,
       Value<String>? sourceUrl,
       Value<String?>? gender,
+      Value<String>? cardType,
+      Value<String?>? body,
+      Value<String?>? recallPrompt,
       Value<String>? tags,
       Value<bool>? isActive,
       Value<int>? sortOrder,
@@ -2778,6 +2883,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
       oneLiner: oneLiner ?? this.oneLiner,
       sourceUrl: sourceUrl ?? this.sourceUrl,
       gender: gender ?? this.gender,
+      cardType: cardType ?? this.cardType,
+      body: body ?? this.body,
+      recallPrompt: recallPrompt ?? this.recallPrompt,
       tags: tags ?? this.tags,
       isActive: isActive ?? this.isActive,
       sortOrder: sortOrder ?? this.sortOrder,
@@ -2825,6 +2933,15 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
     if (gender.present) {
       map['gender'] = Variable<String>(gender.value);
     }
+    if (cardType.present) {
+      map['card_type'] = Variable<String>(cardType.value);
+    }
+    if (body.present) {
+      map['body'] = Variable<String>(body.value);
+    }
+    if (recallPrompt.present) {
+      map['recall_prompt'] = Variable<String>(recallPrompt.value);
+    }
     if (tags.present) {
       map['tags'] = Variable<String>(tags.value);
     }
@@ -2858,6 +2975,9 @@ class LocalCardsCompanion extends UpdateCompanion<LocalCard> {
           ..write('oneLiner: $oneLiner, ')
           ..write('sourceUrl: $sourceUrl, ')
           ..write('gender: $gender, ')
+          ..write('cardType: $cardType, ')
+          ..write('body: $body, ')
+          ..write('recallPrompt: $recallPrompt, ')
           ..write('tags: $tags, ')
           ..write('isActive: $isActive, ')
           ..write('sortOrder: $sortOrder, ')
@@ -2893,7 +3013,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
       'difficulty', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(5.0));
+      defaultValue: const Constant(5));
   static const VerificationMeta _stabilityMeta =
       const VerificationMeta('stability');
   @override
@@ -2901,7 +3021,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
       'stability', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(1.0));
+      defaultValue: const Constant(1));
   static const VerificationMeta _retrievabilityMeta =
       const VerificationMeta('retrievability');
   @override
@@ -2909,7 +3029,7 @@ class $CardMemoryStatesTable extends CardMemoryStates
       'retrievability', aliasedName, false,
       type: DriftSqlType.double,
       requiredDuringInsert: false,
-      defaultValue: const Constant(1.0));
+      defaultValue: const Constant(1));
   static const VerificationMeta _lastReviewedAtMeta =
       const VerificationMeta('lastReviewedAt');
   @override
@@ -4385,300 +4505,11 @@ class UserNodeProgressCompanion extends UpdateCompanion<UserNodeProgressEntry> {
   }
 }
 
-class $DailyChallengeCachesTable extends DailyChallengeCaches
-    with TableInfo<$DailyChallengeCachesTable, DailyChallengeCache> {
+class $AppMetaTable extends AppMeta with TableInfo<$AppMetaTable, AppMetaData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DailyChallengeCachesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _challengeDateMeta =
-      const VerificationMeta('challengeDate');
-  @override
-  late final GeneratedColumn<String> challengeDate = GeneratedColumn<String>(
-      'challenge_date', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _cardIdsMeta =
-      const VerificationMeta('cardIds');
-  @override
-  late final GeneratedColumn<String> cardIds = GeneratedColumn<String>(
-      'card_ids', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _shareTemplateMeta =
-      const VerificationMeta('shareTemplate');
-  @override
-  late final GeneratedColumn<String> shareTemplate = GeneratedColumn<String>(
-      'share_template', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _cachedAtMeta =
-      const VerificationMeta('cachedAt');
-  @override
-  late final GeneratedColumn<int> cachedAt = GeneratedColumn<int>(
-      'cached_at', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [challengeDate, cardIds, shareTemplate, cachedAt];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'daily_challenge_caches';
-  @override
-  VerificationContext validateIntegrity(
-      Insertable<DailyChallengeCache> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('challenge_date')) {
-      context.handle(
-          _challengeDateMeta,
-          challengeDate.isAcceptableOrUnknown(
-              data['challenge_date']!, _challengeDateMeta));
-    } else if (isInserting) {
-      context.missing(_challengeDateMeta);
-    }
-    if (data.containsKey('card_ids')) {
-      context.handle(_cardIdsMeta,
-          cardIds.isAcceptableOrUnknown(data['card_ids']!, _cardIdsMeta));
-    } else if (isInserting) {
-      context.missing(_cardIdsMeta);
-    }
-    if (data.containsKey('share_template')) {
-      context.handle(
-          _shareTemplateMeta,
-          shareTemplate.isAcceptableOrUnknown(
-              data['share_template']!, _shareTemplateMeta));
-    }
-    if (data.containsKey('cached_at')) {
-      context.handle(_cachedAtMeta,
-          cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta));
-    } else if (isInserting) {
-      context.missing(_cachedAtMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {challengeDate};
-  @override
-  DailyChallengeCache map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return DailyChallengeCache(
-      challengeDate: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}challenge_date'])!,
-      cardIds: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}card_ids'])!,
-      shareTemplate: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}share_template']),
-      cachedAt: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}cached_at'])!,
-    );
-  }
-
-  @override
-  $DailyChallengeCachesTable createAlias(String alias) {
-    return $DailyChallengeCachesTable(attachedDatabase, alias);
-  }
-}
-
-class DailyChallengeCache extends DataClass
-    implements Insertable<DailyChallengeCache> {
-  final String challengeDate;
-  final String cardIds;
-  final String? shareTemplate;
-  final int cachedAt;
-  const DailyChallengeCache(
-      {required this.challengeDate,
-      required this.cardIds,
-      this.shareTemplate,
-      required this.cachedAt});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['challenge_date'] = Variable<String>(challengeDate);
-    map['card_ids'] = Variable<String>(cardIds);
-    if (!nullToAbsent || shareTemplate != null) {
-      map['share_template'] = Variable<String>(shareTemplate);
-    }
-    map['cached_at'] = Variable<int>(cachedAt);
-    return map;
-  }
-
-  DailyChallengeCachesCompanion toCompanion(bool nullToAbsent) {
-    return DailyChallengeCachesCompanion(
-      challengeDate: Value(challengeDate),
-      cardIds: Value(cardIds),
-      shareTemplate: shareTemplate == null && nullToAbsent
-          ? const Value.absent()
-          : Value(shareTemplate),
-      cachedAt: Value(cachedAt),
-    );
-  }
-
-  factory DailyChallengeCache.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return DailyChallengeCache(
-      challengeDate: serializer.fromJson<String>(json['challengeDate']),
-      cardIds: serializer.fromJson<String>(json['cardIds']),
-      shareTemplate: serializer.fromJson<String?>(json['shareTemplate']),
-      cachedAt: serializer.fromJson<int>(json['cachedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'challengeDate': serializer.toJson<String>(challengeDate),
-      'cardIds': serializer.toJson<String>(cardIds),
-      'shareTemplate': serializer.toJson<String?>(shareTemplate),
-      'cachedAt': serializer.toJson<int>(cachedAt),
-    };
-  }
-
-  DailyChallengeCache copyWith(
-          {String? challengeDate,
-          String? cardIds,
-          Value<String?> shareTemplate = const Value.absent(),
-          int? cachedAt}) =>
-      DailyChallengeCache(
-        challengeDate: challengeDate ?? this.challengeDate,
-        cardIds: cardIds ?? this.cardIds,
-        shareTemplate:
-            shareTemplate.present ? shareTemplate.value : this.shareTemplate,
-        cachedAt: cachedAt ?? this.cachedAt,
-      );
-  DailyChallengeCache copyWithCompanion(DailyChallengeCachesCompanion data) {
-    return DailyChallengeCache(
-      challengeDate: data.challengeDate.present
-          ? data.challengeDate.value
-          : this.challengeDate,
-      cardIds: data.cardIds.present ? data.cardIds.value : this.cardIds,
-      shareTemplate: data.shareTemplate.present
-          ? data.shareTemplate.value
-          : this.shareTemplate,
-      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DailyChallengeCache(')
-          ..write('challengeDate: $challengeDate, ')
-          ..write('cardIds: $cardIds, ')
-          ..write('shareTemplate: $shareTemplate, ')
-          ..write('cachedAt: $cachedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode =>
-      Object.hash(challengeDate, cardIds, shareTemplate, cachedAt);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is DailyChallengeCache &&
-          other.challengeDate == this.challengeDate &&
-          other.cardIds == this.cardIds &&
-          other.shareTemplate == this.shareTemplate &&
-          other.cachedAt == this.cachedAt);
-}
-
-class DailyChallengeCachesCompanion
-    extends UpdateCompanion<DailyChallengeCache> {
-  final Value<String> challengeDate;
-  final Value<String> cardIds;
-  final Value<String?> shareTemplate;
-  final Value<int> cachedAt;
-  final Value<int> rowid;
-  const DailyChallengeCachesCompanion({
-    this.challengeDate = const Value.absent(),
-    this.cardIds = const Value.absent(),
-    this.shareTemplate = const Value.absent(),
-    this.cachedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  DailyChallengeCachesCompanion.insert({
-    required String challengeDate,
-    required String cardIds,
-    this.shareTemplate = const Value.absent(),
-    required int cachedAt,
-    this.rowid = const Value.absent(),
-  })  : challengeDate = Value(challengeDate),
-        cardIds = Value(cardIds),
-        cachedAt = Value(cachedAt);
-  static Insertable<DailyChallengeCache> custom({
-    Expression<String>? challengeDate,
-    Expression<String>? cardIds,
-    Expression<String>? shareTemplate,
-    Expression<int>? cachedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (challengeDate != null) 'challenge_date': challengeDate,
-      if (cardIds != null) 'card_ids': cardIds,
-      if (shareTemplate != null) 'share_template': shareTemplate,
-      if (cachedAt != null) 'cached_at': cachedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  DailyChallengeCachesCompanion copyWith(
-      {Value<String>? challengeDate,
-      Value<String>? cardIds,
-      Value<String?>? shareTemplate,
-      Value<int>? cachedAt,
-      Value<int>? rowid}) {
-    return DailyChallengeCachesCompanion(
-      challengeDate: challengeDate ?? this.challengeDate,
-      cardIds: cardIds ?? this.cardIds,
-      shareTemplate: shareTemplate ?? this.shareTemplate,
-      cachedAt: cachedAt ?? this.cachedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (challengeDate.present) {
-      map['challenge_date'] = Variable<String>(challengeDate.value);
-    }
-    if (cardIds.present) {
-      map['card_ids'] = Variable<String>(cardIds.value);
-    }
-    if (shareTemplate.present) {
-      map['share_template'] = Variable<String>(shareTemplate.value);
-    }
-    if (cachedAt.present) {
-      map['cached_at'] = Variable<int>(cachedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DailyChallengeCachesCompanion(')
-          ..write('challengeDate: $challengeDate, ')
-          ..write('cardIds: $cardIds, ')
-          ..write('shareTemplate: $shareTemplate, ')
-          ..write('cachedAt: $cachedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $SyncMetaTable extends SyncMeta
-    with TableInfo<$SyncMetaTable, SyncMetaData> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $SyncMetaTable(this.attachedDatabase, [this._alias]);
+  $AppMetaTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _keyMeta = const VerificationMeta('key');
   @override
   late final GeneratedColumn<String> key = GeneratedColumn<String>(
@@ -4702,9 +4533,9 @@ class $SyncMetaTable extends SyncMeta
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'sync_meta';
+  static const String $name = 'app_meta';
   @override
-  VerificationContext validateIntegrity(Insertable<SyncMetaData> instance,
+  VerificationContext validateIntegrity(Insertable<AppMetaData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4730,9 +4561,9 @@ class $SyncMetaTable extends SyncMeta
   @override
   Set<GeneratedColumn> get $primaryKey => {key};
   @override
-  SyncMetaData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  AppMetaData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return SyncMetaData(
+    return AppMetaData(
       key: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}key'])!,
       userId: attachedDatabase.typeMapping
@@ -4743,16 +4574,16 @@ class $SyncMetaTable extends SyncMeta
   }
 
   @override
-  $SyncMetaTable createAlias(String alias) {
-    return $SyncMetaTable(attachedDatabase, alias);
+  $AppMetaTable createAlias(String alias) {
+    return $AppMetaTable(attachedDatabase, alias);
   }
 }
 
-class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
+class AppMetaData extends DataClass implements Insertable<AppMetaData> {
   final String key;
   final String userId;
   final String value;
-  const SyncMetaData(
+  const AppMetaData(
       {required this.key, required this.userId, required this.value});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4763,18 +4594,18 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
     return map;
   }
 
-  SyncMetaCompanion toCompanion(bool nullToAbsent) {
-    return SyncMetaCompanion(
+  AppMetaCompanion toCompanion(bool nullToAbsent) {
+    return AppMetaCompanion(
       key: Value(key),
       userId: Value(userId),
       value: Value(value),
     );
   }
 
-  factory SyncMetaData.fromJson(Map<String, dynamic> json,
+  factory AppMetaData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return SyncMetaData(
+    return AppMetaData(
       key: serializer.fromJson<String>(json['key']),
       userId: serializer.fromJson<String>(json['userId']),
       value: serializer.fromJson<String>(json['value']),
@@ -4790,14 +4621,14 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
     };
   }
 
-  SyncMetaData copyWith({String? key, String? userId, String? value}) =>
-      SyncMetaData(
+  AppMetaData copyWith({String? key, String? userId, String? value}) =>
+      AppMetaData(
         key: key ?? this.key,
         userId: userId ?? this.userId,
         value: value ?? this.value,
       );
-  SyncMetaData copyWithCompanion(SyncMetaCompanion data) {
-    return SyncMetaData(
+  AppMetaData copyWithCompanion(AppMetaCompanion data) {
+    return AppMetaData(
       key: data.key.present ? data.key.value : this.key,
       userId: data.userId.present ? data.userId.value : this.userId,
       value: data.value.present ? data.value.value : this.value,
@@ -4806,7 +4637,7 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
 
   @override
   String toString() {
-    return (StringBuffer('SyncMetaData(')
+    return (StringBuffer('AppMetaData(')
           ..write('key: $key, ')
           ..write('userId: $userId, ')
           ..write('value: $value')
@@ -4819,31 +4650,31 @@ class SyncMetaData extends DataClass implements Insertable<SyncMetaData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is SyncMetaData &&
+      (other is AppMetaData &&
           other.key == this.key &&
           other.userId == this.userId &&
           other.value == this.value);
 }
 
-class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
+class AppMetaCompanion extends UpdateCompanion<AppMetaData> {
   final Value<String> key;
   final Value<String> userId;
   final Value<String> value;
   final Value<int> rowid;
-  const SyncMetaCompanion({
+  const AppMetaCompanion({
     this.key = const Value.absent(),
     this.userId = const Value.absent(),
     this.value = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  SyncMetaCompanion.insert({
+  AppMetaCompanion.insert({
     required String key,
     this.userId = const Value.absent(),
     required String value,
     this.rowid = const Value.absent(),
   })  : key = Value(key),
         value = Value(value);
-  static Insertable<SyncMetaData> custom({
+  static Insertable<AppMetaData> custom({
     Expression<String>? key,
     Expression<String>? userId,
     Expression<String>? value,
@@ -4857,12 +4688,12 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
     });
   }
 
-  SyncMetaCompanion copyWith(
+  AppMetaCompanion copyWith(
       {Value<String>? key,
       Value<String>? userId,
       Value<String>? value,
       Value<int>? rowid}) {
-    return SyncMetaCompanion(
+    return AppMetaCompanion(
       key: key ?? this.key,
       userId: userId ?? this.userId,
       value: value ?? this.value,
@@ -4890,7 +4721,7 @@ class SyncMetaCompanion extends UpdateCompanion<SyncMetaData> {
 
   @override
   String toString() {
-    return (StringBuffer('SyncMetaCompanion(')
+    return (StringBuffer('AppMetaCompanion(')
           ..write('key: $key, ')
           ..write('userId: $userId, ')
           ..write('value: $value, ')
@@ -6937,9 +6768,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ReviewLogsTable reviewLogs = $ReviewLogsTable(this);
   late final $UserNodeProgressTable userNodeProgress =
       $UserNodeProgressTable(this);
-  late final $DailyChallengeCachesTable dailyChallengeCaches =
-      $DailyChallengeCachesTable(this);
-  late final $SyncMetaTable syncMeta = $SyncMetaTable(this);
+  late final $AppMetaTable appMeta = $AppMetaTable(this);
   late final $ChapterProgressTable chapterProgress =
       $ChapterProgressTable(this);
   late final $DailyRoundsTable dailyRounds = $DailyRoundsTable(this);
@@ -6971,8 +6800,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         cardMemoryStates,
         reviewLogs,
         userNodeProgress,
-        dailyChallengeCaches,
-        syncMeta,
+        appMeta,
         chapterProgress,
         dailyRounds,
         politicianBios,
@@ -7921,6 +7749,9 @@ typedef $$LocalCardsTableCreateCompanionBuilder = LocalCardsCompanion Function({
   Value<String?> oneLiner,
   required String sourceUrl,
   Value<String?> gender,
+  Value<String> cardType,
+  Value<String?> body,
+  Value<String?> recallPrompt,
   Value<String> tags,
   Value<bool> isActive,
   Value<int> sortOrder,
@@ -7940,6 +7771,9 @@ typedef $$LocalCardsTableUpdateCompanionBuilder = LocalCardsCompanion Function({
   Value<String?> oneLiner,
   Value<String> sourceUrl,
   Value<String?> gender,
+  Value<String> cardType,
+  Value<String?> body,
+  Value<String?> recallPrompt,
   Value<String> tags,
   Value<bool> isActive,
   Value<int> sortOrder,
@@ -7992,6 +7826,15 @@ class $$LocalCardsTableFilterComposer
 
   ColumnFilters<String> get gender => $composableBuilder(
       column: $table.gender, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get cardType => $composableBuilder(
+      column: $table.cardType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get body => $composableBuilder(
+      column: $table.body, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get recallPrompt => $composableBuilder(
+      column: $table.recallPrompt, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnFilters(column));
@@ -8053,6 +7896,16 @@ class $$LocalCardsTableOrderingComposer
   ColumnOrderings<String> get gender => $composableBuilder(
       column: $table.gender, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get cardType => $composableBuilder(
+      column: $table.cardType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get body => $composableBuilder(
+      column: $table.body, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get recallPrompt => $composableBuilder(
+      column: $table.recallPrompt,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get tags => $composableBuilder(
       column: $table.tags, builder: (column) => ColumnOrderings(column));
 
@@ -8111,6 +7964,15 @@ class $$LocalCardsTableAnnotationComposer
   GeneratedColumn<String> get gender =>
       $composableBuilder(column: $table.gender, builder: (column) => column);
 
+  GeneratedColumn<String> get cardType =>
+      $composableBuilder(column: $table.cardType, builder: (column) => column);
+
+  GeneratedColumn<String> get body =>
+      $composableBuilder(column: $table.body, builder: (column) => column);
+
+  GeneratedColumn<String> get recallPrompt => $composableBuilder(
+      column: $table.recallPrompt, builder: (column) => column);
+
   GeneratedColumn<String> get tags =>
       $composableBuilder(column: $table.tags, builder: (column) => column);
 
@@ -8159,6 +8021,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             Value<String?> oneLiner = const Value.absent(),
             Value<String> sourceUrl = const Value.absent(),
             Value<String?> gender = const Value.absent(),
+            Value<String> cardType = const Value.absent(),
+            Value<String?> body = const Value.absent(),
+            Value<String?> recallPrompt = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -8178,6 +8043,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             oneLiner: oneLiner,
             sourceUrl: sourceUrl,
             gender: gender,
+            cardType: cardType,
+            body: body,
+            recallPrompt: recallPrompt,
             tags: tags,
             isActive: isActive,
             sortOrder: sortOrder,
@@ -8197,6 +8065,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             Value<String?> oneLiner = const Value.absent(),
             required String sourceUrl,
             Value<String?> gender = const Value.absent(),
+            Value<String> cardType = const Value.absent(),
+            Value<String?> body = const Value.absent(),
+            Value<String?> recallPrompt = const Value.absent(),
             Value<String> tags = const Value.absent(),
             Value<bool> isActive = const Value.absent(),
             Value<int> sortOrder = const Value.absent(),
@@ -8216,6 +8087,9 @@ class $$LocalCardsTableTableManager extends RootTableManager<
             oneLiner: oneLiner,
             sourceUrl: sourceUrl,
             gender: gender,
+            cardType: cardType,
+            body: body,
+            recallPrompt: recallPrompt,
             tags: tags,
             isActive: isActive,
             sortOrder: sortOrder,
@@ -8972,188 +8846,22 @@ typedef $$UserNodeProgressTableProcessedTableManager = ProcessedTableManager<
     ),
     UserNodeProgressEntry,
     PrefetchHooks Function()>;
-typedef $$DailyChallengeCachesTableCreateCompanionBuilder
-    = DailyChallengeCachesCompanion Function({
-  required String challengeDate,
-  required String cardIds,
-  Value<String?> shareTemplate,
-  required int cachedAt,
-  Value<int> rowid,
-});
-typedef $$DailyChallengeCachesTableUpdateCompanionBuilder
-    = DailyChallengeCachesCompanion Function({
-  Value<String> challengeDate,
-  Value<String> cardIds,
-  Value<String?> shareTemplate,
-  Value<int> cachedAt,
-  Value<int> rowid,
-});
-
-class $$DailyChallengeCachesTableFilterComposer
-    extends Composer<_$AppDatabase, $DailyChallengeCachesTable> {
-  $$DailyChallengeCachesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get challengeDate => $composableBuilder(
-      column: $table.challengeDate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get cardIds => $composableBuilder(
-      column: $table.cardIds, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<String> get shareTemplate => $composableBuilder(
-      column: $table.shareTemplate, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<int> get cachedAt => $composableBuilder(
-      column: $table.cachedAt, builder: (column) => ColumnFilters(column));
-}
-
-class $$DailyChallengeCachesTableOrderingComposer
-    extends Composer<_$AppDatabase, $DailyChallengeCachesTable> {
-  $$DailyChallengeCachesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get challengeDate => $composableBuilder(
-      column: $table.challengeDate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get cardIds => $composableBuilder(
-      column: $table.cardIds, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<String> get shareTemplate => $composableBuilder(
-      column: $table.shareTemplate,
-      builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<int> get cachedAt => $composableBuilder(
-      column: $table.cachedAt, builder: (column) => ColumnOrderings(column));
-}
-
-class $$DailyChallengeCachesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $DailyChallengeCachesTable> {
-  $$DailyChallengeCachesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get challengeDate => $composableBuilder(
-      column: $table.challengeDate, builder: (column) => column);
-
-  GeneratedColumn<String> get cardIds =>
-      $composableBuilder(column: $table.cardIds, builder: (column) => column);
-
-  GeneratedColumn<String> get shareTemplate => $composableBuilder(
-      column: $table.shareTemplate, builder: (column) => column);
-
-  GeneratedColumn<int> get cachedAt =>
-      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
-}
-
-class $$DailyChallengeCachesTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $DailyChallengeCachesTable,
-    DailyChallengeCache,
-    $$DailyChallengeCachesTableFilterComposer,
-    $$DailyChallengeCachesTableOrderingComposer,
-    $$DailyChallengeCachesTableAnnotationComposer,
-    $$DailyChallengeCachesTableCreateCompanionBuilder,
-    $$DailyChallengeCachesTableUpdateCompanionBuilder,
-    (
-      DailyChallengeCache,
-      BaseReferences<_$AppDatabase, $DailyChallengeCachesTable,
-          DailyChallengeCache>
-    ),
-    DailyChallengeCache,
-    PrefetchHooks Function()> {
-  $$DailyChallengeCachesTableTableManager(
-      _$AppDatabase db, $DailyChallengeCachesTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$DailyChallengeCachesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$DailyChallengeCachesTableOrderingComposer(
-                  $db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$DailyChallengeCachesTableAnnotationComposer(
-                  $db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<String> challengeDate = const Value.absent(),
-            Value<String> cardIds = const Value.absent(),
-            Value<String?> shareTemplate = const Value.absent(),
-            Value<int> cachedAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              DailyChallengeCachesCompanion(
-            challengeDate: challengeDate,
-            cardIds: cardIds,
-            shareTemplate: shareTemplate,
-            cachedAt: cachedAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String challengeDate,
-            required String cardIds,
-            Value<String?> shareTemplate = const Value.absent(),
-            required int cachedAt,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              DailyChallengeCachesCompanion.insert(
-            challengeDate: challengeDate,
-            cardIds: cardIds,
-            shareTemplate: shareTemplate,
-            cachedAt: cachedAt,
-            rowid: rowid,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$DailyChallengeCachesTableProcessedTableManager
-    = ProcessedTableManager<
-        _$AppDatabase,
-        $DailyChallengeCachesTable,
-        DailyChallengeCache,
-        $$DailyChallengeCachesTableFilterComposer,
-        $$DailyChallengeCachesTableOrderingComposer,
-        $$DailyChallengeCachesTableAnnotationComposer,
-        $$DailyChallengeCachesTableCreateCompanionBuilder,
-        $$DailyChallengeCachesTableUpdateCompanionBuilder,
-        (
-          DailyChallengeCache,
-          BaseReferences<_$AppDatabase, $DailyChallengeCachesTable,
-              DailyChallengeCache>
-        ),
-        DailyChallengeCache,
-        PrefetchHooks Function()>;
-typedef $$SyncMetaTableCreateCompanionBuilder = SyncMetaCompanion Function({
+typedef $$AppMetaTableCreateCompanionBuilder = AppMetaCompanion Function({
   required String key,
   Value<String> userId,
   required String value,
   Value<int> rowid,
 });
-typedef $$SyncMetaTableUpdateCompanionBuilder = SyncMetaCompanion Function({
+typedef $$AppMetaTableUpdateCompanionBuilder = AppMetaCompanion Function({
   Value<String> key,
   Value<String> userId,
   Value<String> value,
   Value<int> rowid,
 });
 
-class $$SyncMetaTableFilterComposer
-    extends Composer<_$AppDatabase, $SyncMetaTable> {
-  $$SyncMetaTableFilterComposer({
+class $$AppMetaTableFilterComposer
+    extends Composer<_$AppDatabase, $AppMetaTable> {
+  $$AppMetaTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9170,9 +8878,9 @@ class $$SyncMetaTableFilterComposer
       column: $table.value, builder: (column) => ColumnFilters(column));
 }
 
-class $$SyncMetaTableOrderingComposer
-    extends Composer<_$AppDatabase, $SyncMetaTable> {
-  $$SyncMetaTableOrderingComposer({
+class $$AppMetaTableOrderingComposer
+    extends Composer<_$AppDatabase, $AppMetaTable> {
+  $$AppMetaTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9189,9 +8897,9 @@ class $$SyncMetaTableOrderingComposer
       column: $table.value, builder: (column) => ColumnOrderings(column));
 }
 
-class $$SyncMetaTableAnnotationComposer
-    extends Composer<_$AppDatabase, $SyncMetaTable> {
-  $$SyncMetaTableAnnotationComposer({
+class $$AppMetaTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AppMetaTable> {
+  $$AppMetaTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -9208,35 +8916,35 @@ class $$SyncMetaTableAnnotationComposer
       $composableBuilder(column: $table.value, builder: (column) => column);
 }
 
-class $$SyncMetaTableTableManager extends RootTableManager<
+class $$AppMetaTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $SyncMetaTable,
-    SyncMetaData,
-    $$SyncMetaTableFilterComposer,
-    $$SyncMetaTableOrderingComposer,
-    $$SyncMetaTableAnnotationComposer,
-    $$SyncMetaTableCreateCompanionBuilder,
-    $$SyncMetaTableUpdateCompanionBuilder,
-    (SyncMetaData, BaseReferences<_$AppDatabase, $SyncMetaTable, SyncMetaData>),
-    SyncMetaData,
+    $AppMetaTable,
+    AppMetaData,
+    $$AppMetaTableFilterComposer,
+    $$AppMetaTableOrderingComposer,
+    $$AppMetaTableAnnotationComposer,
+    $$AppMetaTableCreateCompanionBuilder,
+    $$AppMetaTableUpdateCompanionBuilder,
+    (AppMetaData, BaseReferences<_$AppDatabase, $AppMetaTable, AppMetaData>),
+    AppMetaData,
     PrefetchHooks Function()> {
-  $$SyncMetaTableTableManager(_$AppDatabase db, $SyncMetaTable table)
+  $$AppMetaTableTableManager(_$AppDatabase db, $AppMetaTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$SyncMetaTableFilterComposer($db: db, $table: table),
+              $$AppMetaTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$SyncMetaTableOrderingComposer($db: db, $table: table),
+              $$AppMetaTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$SyncMetaTableAnnotationComposer($db: db, $table: table),
+              $$AppMetaTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> key = const Value.absent(),
             Value<String> userId = const Value.absent(),
             Value<String> value = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              SyncMetaCompanion(
+              AppMetaCompanion(
             key: key,
             userId: userId,
             value: value,
@@ -9248,7 +8956,7 @@ class $$SyncMetaTableTableManager extends RootTableManager<
             required String value,
             Value<int> rowid = const Value.absent(),
           }) =>
-              SyncMetaCompanion.insert(
+              AppMetaCompanion.insert(
             key: key,
             userId: userId,
             value: value,
@@ -9261,17 +8969,17 @@ class $$SyncMetaTableTableManager extends RootTableManager<
         ));
 }
 
-typedef $$SyncMetaTableProcessedTableManager = ProcessedTableManager<
+typedef $$AppMetaTableProcessedTableManager = ProcessedTableManager<
     _$AppDatabase,
-    $SyncMetaTable,
-    SyncMetaData,
-    $$SyncMetaTableFilterComposer,
-    $$SyncMetaTableOrderingComposer,
-    $$SyncMetaTableAnnotationComposer,
-    $$SyncMetaTableCreateCompanionBuilder,
-    $$SyncMetaTableUpdateCompanionBuilder,
-    (SyncMetaData, BaseReferences<_$AppDatabase, $SyncMetaTable, SyncMetaData>),
-    SyncMetaData,
+    $AppMetaTable,
+    AppMetaData,
+    $$AppMetaTableFilterComposer,
+    $$AppMetaTableOrderingComposer,
+    $$AppMetaTableAnnotationComposer,
+    $$AppMetaTableCreateCompanionBuilder,
+    $$AppMetaTableUpdateCompanionBuilder,
+    (AppMetaData, BaseReferences<_$AppDatabase, $AppMetaTable, AppMetaData>),
+    AppMetaData,
     PrefetchHooks Function()>;
 typedef $$ChapterProgressTableCreateCompanionBuilder = ChapterProgressCompanion
     Function({
@@ -10265,10 +9973,8 @@ class $AppDatabaseManager {
       $$ReviewLogsTableTableManager(_db, _db.reviewLogs);
   $$UserNodeProgressTableTableManager get userNodeProgress =>
       $$UserNodeProgressTableTableManager(_db, _db.userNodeProgress);
-  $$DailyChallengeCachesTableTableManager get dailyChallengeCaches =>
-      $$DailyChallengeCachesTableTableManager(_db, _db.dailyChallengeCaches);
-  $$SyncMetaTableTableManager get syncMeta =>
-      $$SyncMetaTableTableManager(_db, _db.syncMeta);
+  $$AppMetaTableTableManager get appMeta =>
+      $$AppMetaTableTableManager(_db, _db.appMeta);
   $$ChapterProgressTableTableManager get chapterProgress =>
       $$ChapterProgressTableTableManager(_db, _db.chapterProgress);
   $$DailyRoundsTableTableManager get dailyRounds =>

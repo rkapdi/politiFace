@@ -7,6 +7,7 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../profile/data/profile_service.dart';
 import 'chapter_round_card.dart';
+import 'first_run_tour.dart';
 import 'next_up_section.dart';
 import 'season_spine.dart';
 import 'streak_hero.dart';
@@ -18,6 +19,11 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final profileAsync = ref.watch(profileProvider);
     final profile = profileAsync.valueOrNull ?? UserProfile.empty;
+
+    // First-run orientation — one-time, checked once per launch.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) FirstRunTour.maybeShow(context, ref);
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -42,13 +48,13 @@ class HomeScreen extends ConsumerWidget {
               // Daily Challenge + Trivia tiles as the single ritual.
               const ChapterRoundCard(),
               const SizedBox(height: 24),
-              _SectionDivider(label: 'SECONDARY'),
+              const _SectionDivider(label: 'SECONDARY'),
               const SizedBox(height: 12),
-              _TriviaTile(),
+              const _TriviaTile(),
               const SizedBox(height: 12),
-              _EndlessTile(),
+              const _EndlessTile(),
               const SizedBox(height: 24),
-              _SectionDivider(label: 'THE SEASON'),
+              const _SectionDivider(label: 'THE SEASON'),
               const SizedBox(height: 12),
               const SeasonSpine(),
               const SizedBox(height: 24),
@@ -80,7 +86,7 @@ class _SectionDivider extends StatelessWidget {
           label,
           style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
-            letterSpacing: 2.0,
+            letterSpacing: 2,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -167,7 +173,7 @@ class _ActionTile extends StatelessWidget {
                               fontSize: 28,
                               color: accent,
                               fontWeight: FontWeight.w900,
-                              height: 1.0,
+                              height: 1,
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -205,8 +211,7 @@ class _TriviaTile extends StatelessWidget {
   const _TriviaTile();
 
   @override
-  Widget build(BuildContext context) {
-    return _ActionTile(
+  Widget build(BuildContext context) => _ActionTile(
       section: 'TRIVIA · DAILY',
       headline: 'Are you a Civic Bluffer?',
       body: '10 questions. Bet your confidence. Get an archetype.',
@@ -217,15 +222,13 @@ class _TriviaTile extends StatelessWidget {
         context.go('/trivia');
       },
     );
-  }
 }
 
 class _EndlessTile extends StatelessWidget {
   const _EndlessTile();
 
   @override
-  Widget build(BuildContext context) {
-    return _ActionTile(
+  Widget build(BuildContext context) => _ActionTile(
       section: 'ENDLESS',
       headline: 'Play forever.',
       body: 'Quick MCQ. No streak burn. Beat your best run.',
@@ -236,5 +239,4 @@ class _EndlessTile extends StatelessWidget {
         context.go('/endless');
       },
     );
-  }
 }

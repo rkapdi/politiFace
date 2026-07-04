@@ -142,8 +142,7 @@ class _ReviewBody extends StatelessWidget {
   final List<TriviaAnswer> answers;
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
+  Widget build(BuildContext context) => ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       children: [
         _CalibrationHeader(answers: answers),
@@ -154,7 +153,6 @@ class _ReviewBody extends StatelessWidget {
         ],
       ],
     );
-  }
 }
 
 class _CalibrationHeader extends StatelessWidget {
@@ -300,7 +298,7 @@ class _BucketStat extends StatelessWidget {
               label.toUpperCase(),
               style: theme.textTheme.labelSmall?.copyWith(
                 color: color,
-                letterSpacing: 1.0,
+                letterSpacing: 1,
                 fontWeight: FontWeight.w800,
               ),
             ),

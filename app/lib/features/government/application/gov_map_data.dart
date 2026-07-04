@@ -28,7 +28,7 @@ class NodeMastery {
   /// 0..1. The "soft" progress signal — moves on every grade, unlike
   /// [masteredCount] which only ticks when a card crosses the ★5 threshold.
   double get masteryFraction {
-    if (totalCards == 0) return 0.0;
+    if (totalCards == 0) return 0;
     return (masteryPoints / totalCards).clamp(0.0, 1.0);
   }
 }

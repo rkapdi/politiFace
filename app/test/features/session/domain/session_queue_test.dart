@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/features/session/domain/session_queue.dart';
 
-SessionCard _card(String id, {CardPhase phase = CardPhase.dueReview, double stability = 1.0}) {
-  return SessionCard(
+SessionCard _card(String id, {CardPhase phase = CardPhase.dueReview, double stability = 1.0}) => SessionCard(
     cardId: id,
     externalId: id,
     politicianName: id,
@@ -11,7 +10,6 @@ SessionCard _card(String id, {CardPhase phase = CardPhase.dueReview, double stab
     stability: stability,
     priority: phase == CardPhase.dueReview ? stability : 1.0,
   );
-}
 
 void main() {
   group('SessionQueue.buildSession', () {
@@ -62,7 +60,7 @@ void main() {
       final q = SessionQueue();
       q.buildSession(
         dueCards: [
-          _card('a', stability: 1),
+          _card('a'),
           _card('b', stability: 2),
           _card('c', stability: 3),
         ],
@@ -80,7 +78,7 @@ void main() {
       }
       expect(seenOrder.contains('a'), isTrue, reason: 'requeued card must come back');
       expect(seenOrder.indexOf('b'), lessThan(seenOrder.indexOf('a')),
-          reason: 'b should be shown before requeued a');
+          reason: 'b should be shown before requeued a',);
     });
   });
 
@@ -88,7 +86,7 @@ void main() {
     test('does not loop forever when only card in heap is recent', () {
       final q = SessionQueue();
       q.buildSession(
-        dueCards: [_card('only', stability: 1)],
+        dueCards: [_card('only')],
         newCards: const [],
         targetSize: 20,
       );
@@ -100,7 +98,7 @@ void main() {
       // This must terminate.
       final second = q.next();
       expect(second?.cardId, 'only',
-          reason: 'after exhausting requeue budget, recent card returns anyway');
+          reason: 'after exhausting requeue budget, recent card returns anyway',);
     });
 
     test('returns null when heap empty', () {

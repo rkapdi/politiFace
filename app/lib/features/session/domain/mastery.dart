@@ -47,7 +47,7 @@ double cardMasteryFraction({
   required double stability,
   required int reviewCount,
 }) {
-  if (isNewCard || reviewCount == 0) return 0.0;
+  if (isNewCard || reviewCount == 0) return 0;
   final effortBase = 0.30 + 0.10 * math.min(reviewCount, 5);
   final effortBonus = reviewCount > 5
       ? 0.15 * (1 - math.exp(-(reviewCount - 5) / 4.0))

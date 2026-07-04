@@ -14,8 +14,7 @@ CardEvaluation _eval({
   int practiceCountSinceReview = 2,
   int lastGrade = 2, // Good
   String cardId = 'c1',
-}) {
-  return CardEvaluation(
+}) => CardEvaluation(
     cardId: cardId,
     isNew: isNew,
     stability: stability,
@@ -24,7 +23,6 @@ CardEvaluation _eval({
     practiceCountSinceReview: practiceCountSinceReview,
     lastGrade: lastGrade,
   );
-}
 
 void main() {
   const sm = ProgressionStateMachine();
@@ -66,7 +64,7 @@ void main() {
 
     test('insufficient attempts blocks the gate', () {
       // 1 review + 0 practice = 1 attempt, below default min of 2
-      final c = _eval(reviewCount: 1, practiceCountSinceReview: 0);
+      final c = _eval(practiceCountSinceReview: 0);
       expect(sm.isTierMastered(cards: [c], nowUnix: _now), isFalse);
     });
 
@@ -78,7 +76,7 @@ void main() {
     test('low retrievability (stale review) blocks the gate', () {
       // Reviewed long ago: stability 1 day, elapsed 30 days → R is tiny.
       final c = _eval(
-        stability: 1.0,
+        stability: 1,
         lastReviewedAtUnix: _now - 30 * 86400,
       );
       expect(sm.isTierMastered(cards: [c], nowUnix: _now), isFalse);
@@ -183,14 +181,14 @@ void main() {
           tier: 1,
           totalCards: 3,
           passingCards: 3,
-          progressFraction: 1.0,
+          progressFraction: 1,
           isMastered: true,
         ),
         const TierMasteryStatus(
           tier: 2,
           totalCards: 0, // no content yet — ignored
           passingCards: 0,
-          progressFraction: 0.0,
+          progressFraction: 0,
           isMastered: false,
         ),
       ];

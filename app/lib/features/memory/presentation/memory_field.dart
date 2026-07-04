@@ -17,8 +17,13 @@ import '../data/memory_service.dart';
 ///  - Tier rings labeled ★1..★5 for orientation
 ///  - Long-press an orb to freeze the field and inspect that card
 class MemoryField extends StatefulWidget {
-  const MemoryField({super.key, required this.orbits});
+  const MemoryField({required this.orbits, this.onCardTap, super.key});
   final List<OrbitalCard> orbits;
+
+  /// Called when a card orb is tapped. Tapping opens that card's retention
+  /// detail; long-press still shows the quick-peek popover. Kept as a
+  /// callback so this widget stays free of routing dependencies.
+  final void Function(String cardId)? onCardTap;
 
   @override
   State<MemoryField> createState() => _MemoryFieldState();
@@ -39,7 +44,7 @@ double _stabilityRadiusFactor(double s) {
 }
 
 double _orbRetrievability(OrbitalCard o, int nowSeconds) {
-  if (o.lastReviewedAtUnix == 0) return 1.0;
+  if (o.lastReviewedAtUnix == 0) return 1;
   final elapsedDays = (nowSeconds - o.lastReviewedAtUnix) / 86400.0;
   final s = math.max(0.1, o.stability);
   return 1.0 / (1.0 + elapsedDays / (9.0 * s));
@@ -91,7 +96,7 @@ class _MemoryFieldState extends State<MemoryField>
     final orbitAngle = _rotation.value * 2 * math.pi;
     OrbitalCard? best;
     Offset? bestPos;
-    double bestDist = 32; // generous touch tolerance for moving orbs
+    var bestDist = 32.0; // generous touch tolerance for moving orbs
     for (final o in widget.orbits) {
       final hash = o.id.hashCode;
       final baseAngle = (hash % 360) * math.pi / 180;
@@ -124,6 +129,17 @@ class _MemoryFieldState extends State<MemoryField>
     _sweep.stop(canceled: false);
   }
 
+  void _handleTap(TapUpDetails details, Size size) {
+    // A peek popover is showing — first tap just dismisses it.
+    if (_selected != null) {
+      _dismiss();
+      return;
+    }
+    final hit = _hitTest(details.localPosition, size);
+    if (hit == null) return;
+    widget.onCardTap?.call(hit.card.id);
+  }
+
   void _dismiss() {
     if (_selected == null) return;
     setState(() {
@@ -139,7 +155,7 @@ class _MemoryFieldState extends State<MemoryField>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AspectRatio(
-      aspectRatio: 1.0,
+      aspectRatio: 1,
       child: LayoutBuilder(
         builder: (context, constraints) {
           final size = constraints.biggest;
@@ -166,7 +182,7 @@ class _MemoryFieldState extends State<MemoryField>
                 child: GestureDetector(
                   behavior: HitTestBehavior.translucent,
                   onLongPressStart: (d) => _handleLongPress(d, size),
-                  onTap: _selected != null ? _dismiss : null,
+                  onTapUp: (d) => _handleTap(d, size),
                 ),
               ),
               if (_selected != null && _selectedPos != null)
@@ -228,18 +244,15 @@ class _OrbPopover extends StatelessWidget {
       width: popoverWidth,
       height: popoverHeight,
       child: IgnorePointer(
-        // Tapping the popover should dismiss too — pass taps through to the
-        // gesture detector below. Long-press elsewhere still re-targets.
-        ignoring: true,
         child: TweenAnimationBuilder<double>(
-          tween: Tween(begin: 0.85, end: 1.0),
+          tween: Tween(begin: 0.85, end: 1),
           duration: const Duration(milliseconds: 160),
           curve: Curves.easeOutBack,
           builder: (context, scale, child) => Transform.scale(
             scale: scale,
             alignment:
                 useAbove ? Alignment.bottomCenter : Alignment.topCenter,
-            child: Opacity(opacity: math.min(1.0, scale), child: child),
+            child: Opacity(opacity: math.min(1, scale), child: child),
           ),
           child: Material(
             color: Colors.transparent,
@@ -251,7 +264,7 @@ class _OrbPopover extends StatelessWidget {
                     : Colors.white.withOpacity(0.98),
                 borderRadius: BorderRadius.circular(12),
                 border:
-                    Border.all(color: tierColor.withOpacity(0.55), width: 1),
+                    Border.all(color: tierColor.withOpacity(0.55)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(isDark ? 0.5 : 0.18),
@@ -268,7 +281,7 @@ class _OrbPopover extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                            horizontal: 6, vertical: 2,),
                         decoration: BoxDecoration(
                           color: tierColor.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(4),
@@ -326,7 +339,7 @@ class _OrbPopover extends StatelessWidget {
                         child: _StatChip(
                           label: 'Seen',
                           value: _formatElapsed(
-                              elapsedDays, card.lastReviewedAtUnix),
+                              elapsedDays, card.lastReviewedAtUnix,),
                         ),
                       ),
                     ],
@@ -458,7 +471,7 @@ class _MemoryFieldPainter extends CustomPainter {
       final color = _tierColors[(o.level - 1).clamp(0, 4)];
       _drawOrb(canvas, pos, color, pulse, o.stability, sweepBoost, selected);
       _drawRetrievabilityArc(
-          canvas, pos, color, _orbRetrievability(o, nowSeconds), pulse, o.stability);
+          canvas, pos, color, _orbRetrievability(o, nowSeconds), pulse, o.stability,);
     }
   }
 
@@ -475,7 +488,7 @@ class _MemoryFieldPainter extends CustomPainter {
       final r = _stabilityRadiusFactor(_stabilityForTierStart(tier)) * radius;
       canvas.drawCircle(center, r, ringPaint);
       // Label at ~4 o'clock so it stays out of the sweep starting position.
-      final labelAngle = 1.05; // ~60° below horizontal
+      const labelAngle = 1.05; // ~60° below horizontal
       final tp = TextPainter(
         text: TextSpan(
           text: '★$tier',
@@ -493,7 +506,7 @@ class _MemoryFieldPainter extends CustomPainter {
         center.dy + math.sin(labelAngle) * r - tp.height / 2,
       );
       // Pad the label with a small backdrop so it stays legible over rings.
-      final pad = const EdgeInsets.symmetric(horizontal: 3, vertical: 1);
+      const pad = EdgeInsets.symmetric(horizontal: 3, vertical: 1);
       final rect = Rect.fromLTWH(
         labelOffset.dx - pad.left,
         labelOffset.dy - pad.top,
@@ -510,7 +523,7 @@ class _MemoryFieldPainter extends CustomPainter {
   }
 
   void _drawRadarSweep(
-      Canvas canvas, Offset center, double radius, double angle) {
+      Canvas canvas, Offset center, double radius, double angle,) {
     // Trailing wedge — angular fade so it reads like a radar sweep.
     const wedge = math.pi / 3; // 60° tail
     final start = angle - wedge;
@@ -527,7 +540,7 @@ class _MemoryFieldPainter extends CustomPainter {
           startAngle: start,
           endAngle: angle,
           colors: [
-            primary.withOpacity(0.0),
+            primary.withOpacity(0),
             primary.withOpacity(0.18),
           ],
         ).createShader(rect),

@@ -36,7 +36,7 @@ class NodeUnlockService {
           governmentId: node.governmentId,
           status: const Value('completed'),
           completedAt: Value(nowSeconds),
-        ));
+        ),);
         progressByNodeId[node.id] = 'completed';
         newlyCompleted.add(node.id);
       }
@@ -58,7 +58,7 @@ class NodeUnlockService {
           governmentId: node.governmentId,
           status: const Value('unlocked'),
           unlockedAt: Value(nowSeconds),
-        ));
+        ),);
         progressByNodeId[node.id] = 'unlocked';
         newlyUnlocked.add(node.id);
       }

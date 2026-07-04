@@ -44,8 +44,13 @@ linter:
     - always_put_required_named_parameters_first
     - annotate_overrides
     - avoid_bool_literals_in_conditional_expressions
-    - avoid_catches_without_on_clauses
-    - avoid_dynamic_calls
+    # avoid_catches_without_on_clauses — intentionally off. The codebase uses
+    # bare `catch (_)` for best-effort side work (pending-session persistence,
+    # node-unlock recalc, share flows) where ANY failure must not break the
+    # user path; typed on-clauses would silently narrow that contract.
+    # avoid_dynamic_calls — intentionally off. YAML/JSON parsing (content
+    # loaders, Wikipedia client) is inherently dynamic; the parse layers
+    # validate and cast at the boundary instead.
     - avoid_empty_else
     - avoid_print                 # use Sentry/logging instead
     - avoid_redundant_argument_values

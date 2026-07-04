@@ -68,7 +68,7 @@ extension BrandColors on ColorScheme {
 
 /// Build the Editorial Campaign light theme.
 ThemeData buildLightTheme() {
-  final base = ColorScheme(
+  const base = ColorScheme(
     brightness: Brightness.light,
     primary: EditorialPalette.actionRed,
     onPrimary: Colors.white,
@@ -82,23 +82,23 @@ ThemeData buildLightTheme() {
     onSurface: EditorialPalette.ink,
     onSurfaceVariant: EditorialPalette.inkSubdued,
     surfaceContainerLowest: EditorialPalette.paper,
-    surfaceContainerLow: const Color(0xFFEFEADA),
-    surfaceContainer: const Color(0xFFE8E2CF),
-    surfaceContainerHigh: const Color(0xFFE1DAC4),
-    surfaceContainerHighest: const Color(0xFFD8D2BB),
+    surfaceContainerLow: Color(0xFFEFEADA),
+    surfaceContainer: Color(0xFFE8E2CF),
+    surfaceContainerHigh: Color(0xFFE1DAC4),
+    surfaceContainerHighest: Color(0xFFD8D2BB),
     outline: EditorialPalette.rule,
-    outlineVariant: const Color(0xFFE5DFCD),
+    outlineVariant: Color(0xFFE5DFCD),
   );
   return _themeFrom(base);
 }
 
 /// Build the Editorial Campaign dark theme.
 ThemeData buildDarkTheme() {
-  final base = ColorScheme(
+  const base = ColorScheme(
     brightness: Brightness.dark,
     primary: EditorialPalette.actionRed,
     onPrimary: Colors.white,
-    secondary: const Color(0xFF6B82B8), // navy reads lifted in dark
+    secondary: Color(0xFF6B82B8), // navy reads lifted in dark
     onSecondary: EditorialPalette.inkInverted,
     tertiary: EditorialPalette.ochre,
     onTertiary: EditorialPalette.inkInverted,
@@ -109,13 +109,13 @@ ThemeData buildDarkTheme() {
     onSurfaceVariant: EditorialPalette.inkInvertedSubdued,
     // Surface containers stepped up so cards read as real cards, not
     // adjacent puddles of near-black.
-    surfaceContainerLowest: const Color(0xFF0B0B0E),
-    surfaceContainerLow: const Color(0xFF1A1A1F),
-    surfaceContainer: const Color(0xFF22222A),
-    surfaceContainerHigh: const Color(0xFF2C2C36),
-    surfaceContainerHighest: const Color(0xFF363641),
+    surfaceContainerLowest: Color(0xFF0B0B0E),
+    surfaceContainerLow: Color(0xFF1A1A1F),
+    surfaceContainer: Color(0xFF22222A),
+    surfaceContainerHigh: Color(0xFF2C2C36),
+    surfaceContainerHighest: Color(0xFF363641),
     outline: EditorialPalette.ruleInverted,
-    outlineVariant: const Color(0xFF34343C),
+    outlineVariant: Color(0xFF34343C),
   );
   return _themeFrom(base);
 }
@@ -142,8 +142,8 @@ ThemeData _themeFrom(ColorScheme scheme) {
     ),
     displayMedium: base.displayMedium?.copyWith(
       fontWeight: FontWeight.w800,
-      letterSpacing: -1.0,
-      height: 1.0,
+      letterSpacing: -1,
+      height: 1,
       color: scheme.onSurface,
       fontFeatures: tabular,
     ),

@@ -60,6 +60,72 @@ chapters:
       - const.we-the-people
       - const.convention-1787
       - const.articles-of-confederation
+    lessons:
+      - id: les-ch1-declaration
+        day: 1
+        title: "Why a Declaration?"
+        body: >
+          On July 4, 1776, the Continental Congress adopted the Declaration
+          of Independence, announcing the thirteen colonies' separation from
+          Great Britain. Thomas Jefferson was its principal author. It lists
+          grievances against King George III and explains why the colonies
+          were breaking away.
+        related_cards: [decl.purpose]
+        source: "https://www.archives.gov/founding-docs/declaration"
+      - id: les-ch1-rights
+        day: 1
+        title: "Life, Liberty, and the Pursuit of Happiness"
+        body: >
+          The Declaration rests on a claim about rights: all people are
+          created equal and hold unalienable rights — among them life,
+          liberty, and the pursuit of happiness. Governments exist to secure
+          those rights and derive their just powers from the consent of the
+          governed.
+        related_cards: [decl.unalienable-rights]
+        source: "https://www.archives.gov/founding-docs/declaration-transcript"
+      - id: les-ch1-founders
+        day: 1
+        title: "The People Who Built It"
+        body: >
+          George Washington commanded the Continental Army and later became
+          the first President. Thomas Jefferson drafted the Declaration.
+          James Madison earned the name Father of the Constitution. Benjamin
+          Franklin was the Convention's elder statesman; Alexander Hamilton
+          co-wrote the Federalist Papers that argued for ratification.
+        related_cards: [founders.washington, founders.jefferson-madison-franklin-hamilton]
+        source: "https://www.archives.gov/founding-docs/founding-fathers"
+      - id: les-ch1-articles
+        day: 2
+        title: "The First Try Failed"
+        body: >
+          America's first framework, the Articles of Confederation, made the
+          central government deliberately weak: Congress could not tax, there
+          was no executive, and amending anything required unanimous consent.
+          Economic disarray and Shays' Rebellion exposed the weaknesses and
+          pushed leaders toward a new design.
+        related_cards: [const.articles-of-confederation]
+        source: "https://www.archives.gov/milestone-documents/articles-of-confederation"
+      - id: les-ch1-convention
+        day: 2
+        title: "Philadelphia, 1787"
+        body: >
+          Delegates met in Philadelphia to revise the Articles — and instead
+          wrote a new Constitution. Washington presided over the Convention.
+          The finished document was signed on September 17, 1787, and sent to
+          the states, where the ratification debate played out partly through
+          the Federalist Papers.
+        related_cards: [const.convention-1787]
+        source: "https://www.archives.gov/milestone-documents/constitution"
+      - id: les-ch1-preamble
+        day: 2
+        title: "We the People"
+        body: >
+          The Constitution opens by naming its source of authority — the
+          people. The Preamble then states six purposes: a more perfect
+          union, justice, domestic tranquility, common defense, the general
+          welfare, and the blessings of liberty for ourselves and posterity.
+        related_cards: [const.we-the-people]
+        source: "https://www.archives.gov/founding-docs/constitution-transcript"
 
   - id: ch2.the-architecture
     order: 2
@@ -82,6 +148,70 @@ chapters:
       - fed.10-factions
       - fed.51-separation
 
+    lessons:
+      - id: les-ch2-supreme-law
+        day: 1
+        title: "The Supreme Law of the Land"
+        body: >
+          Article VI makes the Constitution supreme: every federal and state
+          law, and every officer of government, is bound by it. When a law
+          conflicts with the Constitution, the Constitution wins. Everything
+          else in this chapter flows from that rule.
+        related_cards: [const.supreme-law]
+        source: "https://constitution.congress.gov/constitution/article-6/"
+      - id: les-ch2-separation
+        day: 1
+        title: "Three Branches, Three Jobs"
+        body: >
+          The Constitution splits power so no one holds it all: Congress
+          makes laws, the President enforces them, the courts interpret
+          them. Then it arms each branch against the others — vetoes,
+          overrides, confirmations, judicial review, impeachment. Power
+          checks power.
+        related_cards: [prin.separation-of-powers, prin.checks-and-balances]
+        source: "https://constitution.congress.gov/browse/"
+      - id: les-ch2-federalism
+        day: 2
+        title: "Two Levels of Government"
+        body: >
+          Federalism divides power between the nation and the states. The
+          federal government holds the powers the Constitution grants it;
+          the Tenth Amendment reserves the rest to the states or the
+          people. Some powers, like taxing, are shared by both levels.
+        related_cards: [prin.federalism]
+        source: "https://constitution.congress.gov/constitution/amendment-10/"
+      - id: les-ch2-amendments
+        day: 2
+        title: "A Constitution That Can Change"
+        body: >
+          Article V lets the Constitution be amended — but deliberately
+          makes it hard: two-thirds of both chambers to propose, three-
+          fourths of the states to ratify. In over two centuries, only 27
+          amendments have cleared that bar.
+        related_cards: [const.amendment-process]
+        source: "https://constitution.congress.gov/constitution/article-5/"
+      - id: les-ch2-bill-of-rights
+        day: 3
+        title: "The Bill of Rights"
+        body: >
+          Several states would only ratify the Constitution with a promise:
+          explicit protections for individual liberty. The first ten
+          amendments, ratified in 1791, deliver it — starting with the
+          First Amendment's five freedoms: religion, speech, press,
+          assembly, and petition.
+        related_cards: [bor.what-and-why, bor.first-amendment]
+        source: "https://www.archives.gov/founding-docs/bill-of-rights"
+      - id: les-ch2-federalist
+        day: 3
+        title: "Selling the Constitution"
+        body: >
+          Ratification was a fight. Hamilton, Madison, and Jay wrote 85
+          essays as "Publius" — the Federalist Papers — arguing the new
+          design would control factions (No. 10) and make ambition counter
+          ambition (No. 51). Courts still cite them today.
+        related_cards: [fed.papers-overview]
+        source: "https://guides.loc.gov/federalist-papers"
+
   - id: ch3.three-branches
     order: 3
     title: Three Branches
@@ -101,6 +231,72 @@ chapters:
       - jud.lifetime-tenure
       - fed.70-executive
       - fed.78-judiciary
+
+    lessons:
+      - id: les-ch3-congress
+        day: 1
+        title: "Congress: Two Chambers"
+        body: >
+          Article I gives all federal lawmaking power to a bicameral
+          Congress. The House — 435 seats divided by population, elected
+          every two years — is built for responsiveness. The Senate — two
+          per state for six-year terms — is built for deliberation. Both
+          must pass identical text before a bill reaches the President.
+        related_cards: [leg.bicameral, leg.house-basics]
+        source: "https://www.congress.gov/about"
+      - id: les-ch3-senate
+        day: 1
+        title: "Why Two Senators Per State?"
+        body: >
+          The Connecticut Compromise of 1787 settled the fight between
+          large and small states: the House uses proportional
+          representation, the Senate gives every state two votes. Wyoming
+          has the same Senate power as California. The Senate alone
+          confirms appointments, ratifies treaties, and tries impeachments.
+        related_cards: [leg.senate-basics]
+        source: "https://www.senate.gov/about/origins-foundations/senate-and-constitution.htm"
+      - id: les-ch3-president
+        day: 2
+        title: "The Presidency"
+        body: >
+          Head of state and head of government, elected every four years,
+          capped at two terms. The President commands the military, signs
+          or vetoes every bill, issues executive orders, grants federal
+          pardons, and conducts foreign policy — but cannot declare war.
+          That power belongs to Congress.
+        related_cards: [exec.president-basics]
+        source: "https://constitution.congress.gov/constitution/article-2/"
+      - id: les-ch3-cabinet
+        day: 2
+        title: "The Cabinet and the Line of Succession"
+        body: >
+          Fifteen department secretaries advise the President and run the
+          federal agencies — appointed by the President, confirmed by the
+          Senate. If the President cannot serve, the 25th Amendment sends
+          power to the Vice President; the Speaker of the House is next.
+        related_cards: [exec.cabinet, exec.vp-succession]
+        source: "https://www.whitehouse.gov/administration/cabinet/"
+      - id: les-ch3-scotus
+        day: 3
+        title: "The Supreme Court"
+        body: >
+          Nine justices, nominated by the President, confirmed by the
+          Senate, serving for life. The Court's biggest power — striking
+          down laws as unconstitutional — appears nowhere in the
+          Constitution. It comes from Marbury v. Madison (1803), and it
+          made the judiciary a co-equal branch.
+        related_cards: [jud.scotus-basics, jud.lifetime-tenure]
+        source: "https://www.supremecourt.gov/about/about.aspx"
+      - id: les-ch3-filibuster
+        day: 3
+        title: "The Filibuster"
+        body: >
+          In the Senate, any senator can delay a vote by refusing to yield
+          the floor. Ending debate — cloture — takes 60 votes, which gives
+          the minority real blocking power. Budget bills move under
+          reconciliation rules and need only a simple majority.
+        related_cards: [leg.senate-basics]
+        source: "https://www.senate.gov/about/powers-procedures/filibusters-cloture.htm"
 
   - id: ch4.machine-in-motion
     order: 4
@@ -123,6 +319,40 @@ chapters:
       - exec.appointments
       - exec.bureaucracy-basics
       - jud.judicial-review
+    lessons:
+      - id: les-ch4-powers
+        day: 1
+        title: "What Congress Can Do"
+        body: >
+          Article I lists Congress's enumerated powers — among them taxing,
+          spending, regulating interstate commerce, and declaring war. The
+          "necessary and proper" (elastic) clause lets Congress pass laws to
+          carry those powers out, and its control of federal spending — the
+          power of the purse — is one of its strongest tools.
+        related_cards: [leg.enumerated-powers, leg.elastic-clause, leg.power-of-purse]
+        source: "https://constitution.congress.gov/constitution/article-1/"
+      - id: les-ch4-bill-to-law
+        day: 2
+        title: "How a Bill Becomes Law"
+        body: >
+          A bill is introduced, studied in committee, then debated and voted
+          on in both the House and the Senate. If both chambers pass the same
+          version, it goes to the President. Most bills never make it out of
+          committee — where much of the detailed work and the gatekeeping
+          happens.
+        related_cards: [leg.bill-to-law, leg.committees]
+        source: "https://www.congress.gov/legislative-process"
+      - id: les-ch4-checks
+        day: 3
+        title: "Checks on Power"
+        body: >
+          The President can veto a bill, but Congress can override a veto with
+          a two-thirds vote of both chambers. Congress also oversees the
+          executive branch and can impeach and remove officials, while the
+          courts can strike down laws they find unconstitutional — the power
+          of judicial review.
+        related_cards: [exec.veto, leg.oversight, leg.impeachment, jud.judicial-review]
+        source: "https://www.archives.gov/founding-docs/constitution-transcript"
 
   - id: ch5.rights-and-the-court
     order: 5
@@ -144,6 +374,40 @@ chapters:
       - case.citizens-united
       - doc.incorporation
       - cr.movement
+    lessons:
+      - id: les-ch5-judicial-review
+        day: 1
+        title: "The Court's Power"
+        body: >
+          In Marbury v. Madison (1803), the Supreme Court established judicial
+          review — its authority to strike down laws that violate the
+          Constitution. In McCulloch v. Maryland (1819), the Court upheld
+          implied federal powers and held that states cannot tax the federal
+          government, reinforcing national supremacy.
+        related_cards: [case.marbury, case.mcculloch]
+        source: "https://www.archives.gov/milestone-documents/marbury-v-madison"
+      - id: les-ch5-equal-protection
+        day: 2
+        title: "Toward Equal Protection"
+        body: >
+          In Plessy v. Ferguson (1896), the Court allowed "separate but equal"
+          segregation. More than fifty years later, Brown v. Board of
+          Education (1954) overturned it, ruling that segregated public schools
+          are inherently unequal — a legal cornerstone of the civil rights
+          movement.
+        related_cards: [case.plessy, case.brown, cr.movement]
+        source: "https://www.archives.gov/milestone-documents/brown-v-board-of-education"
+      - id: les-ch5-everyday-rights
+        day: 3
+        title: "Rights in Everyday Life"
+        body: >
+          Gideon v. Wainwright (1963) guaranteed a lawyer to defendants who
+          cannot afford one. Tinker v. Des Moines (1969) affirmed that
+          students keep their free-speech rights at school. Through a process
+          called incorporation, most Bill of Rights protections apply against
+          the states too, not just the federal government.
+        related_cards: [case.gideon, case.tinker, doc.incorporation]
+        source: "https://www.uscourts.gov/about-federal-courts/educational-resources/educational-activities/first-amendment-activities/tinker-v-des-moines/facts-and-case-summary-tinker-v-des-moines"
 
   - id: ch6.we-the-people
     order: 6
@@ -171,6 +435,49 @@ chapters:
       - sym.anthem
       - geo.essentials
       - leg.gerrymandering
+    lessons:
+      - id: les-ch6-federalism
+        day: 1
+        title: "Who Governs What"
+        body: >
+          Power in the United States is shared between the national government
+          and the states — a system called federalism. States run their own
+          governments under elected governors and legislatures, and they
+          create the local governments — counties, cities, school boards —
+          that handle most day-to-day services.
+        related_cards: [sl.governor, sl.state-powers, sl.federalism-practice, sl.local-structures]
+        source: "https://www.usa.gov/state-governments"
+      - id: les-ch6-elections
+        day: 2
+        title: "How Elections Work"
+        body: >
+          Most U.S. citizens 18 and older can vote, but they usually must
+          register first. Presidential elections happen every four years, and
+          the winner is chosen not by the national popular vote directly but
+          through the Electoral College, where each state casts electoral
+          votes.
+        related_cards: [vote.eligibility, vote.registration-turnout, vote.presidential-cycle]
+        source: "https://www.archives.gov/electoral-college"
+      - id: les-ch6-parties-money
+        day: 3
+        title: "Parties, Campaigns, and Money"
+        body: >
+          The United States has two major parties, with smaller third parties
+          competing for influence. Campaigns run on donations that federal law
+          regulates and requires to be disclosed, and interest groups and the
+          news media help shape which issues voters hear about.
+        related_cards: [part.two-parties, camp.finance, camp.interest-groups, media.role]
+        source: "https://www.fec.gov/introduction-campaign-finance/"
+      - id: les-ch6-citizenship
+        day: 4
+        title: "Being a Citizen"
+        body: >
+          Citizenship carries both rights — like voting and serving on a jury
+          — and responsibilities, such as obeying the law and paying taxes.
+          Landmark laws including the Civil Rights Act and the Voting Rights
+          Act expanded those rights to more Americans.
+        related_cards: [civ.duties, civ.citizen-rights, cr.landmark-legislation]
+        source: "https://www.uscis.gov/citizenship"
 
 # ── Map structure ──────────────────────────────────────────────────────────
 # Top-level branches mirror the existing learn-tab map. `Foundations` is
@@ -342,21 +649,25 @@ branches:
             tier: core
             sources: [U, F, A, N, I]
             coverage: face_card  # us-legislative-congress.yaml
+            card_ids: [us-congress-speaker, us-congress-senate-majority-leader]
           - id: leg.senate-basics
             prompt: 100 Senators (2 per state), 6-year terms
             tier: core
             sources: [U, I]
             coverage: face_card  # us-legislative-senate.yaml
+            card_ids: [us-congress-senate-majority-leader, us-senate-pres-pro-tem]
           - id: leg.house-basics
             prompt: 435 House members, 2-year terms, apportioned by state population
             tier: core
             sources: [U, F, I]
             coverage: face_card  # us-legislative-house.yaml
+            card_ids: [us-congress-house-majority-leader, us-congress-speaker]
           - id: leg.speaker
             prompt: Speaker of the House — role and current officeholder
             tier: core
             sources: [U, I]
             coverage: face_card
+            card_ids: [us-congress-speaker]
 
       - id: legislative.powers
         title: Powers of Congress
@@ -426,21 +737,25 @@ branches:
             tier: core
             sources: [U, F, I]
             coverage: face_card
+            card_ids: [us-exec-president]
           - id: exec.vp-succession
             prompt: Vice President and presidential succession (Speaker, President pro tempore, etc.)
             tier: core
             sources: [U, I]
             coverage: face_card
+            card_ids: [us-exec-vice-president]
           - id: exec.cabinet
             prompt: Cabinet — purpose, 15 executive departments
             tier: core
             sources: [U, F, I]
             coverage: face_card  # us-executive-cabinet.yaml
+            card_ids: [us-exec-sec-state, us-cabinet-treasury]
           - id: exec.eop
             prompt: Executive Office of the President — White House staff, OMB, NSC
             tier: standard
             sources: [A, I]
             coverage: face_card  # us-executive-eop.yaml
+            card_ids: [us-eop-chief-of-staff]
 
       - id: executive.powers
         title: Executive Powers
@@ -494,6 +809,7 @@ branches:
             tier: core
             sources: [U, F, I]
             coverage: face_card  # us-judicial-scotus.yaml
+            card_ids: [us-scotus-roberts]
           - id: jud.court-hierarchy
             prompt: Federal court hierarchy — District Courts → Circuit Courts of Appeals → Supreme Court
             tier: standard

@@ -1,22 +1,21 @@
 // lib/core/database/drift/app_database.dart
 //
 // Local SQLite database via Drift.
-// This is the SOURCE OF TRUTH on device.
-// Supabase is the sync target, never the hot path.
+// This is the SOURCE OF TRUTH — the app is fully offline; there is no backend.
 
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import '../daos/cards_dao.dart';
-import '../daos/reviews_dao.dart';
+import '../daos/chapter_progress_dao.dart';
+import '../daos/completed_runs_dao.dart';
+import '../daos/daily_rounds_dao.dart';
 import '../daos/decks_dao.dart';
 import '../daos/government_dao.dart';
-import '../daos/progress_dao.dart';
 import '../daos/meta_dao.dart';
-import '../daos/chapter_progress_dao.dart';
-import '../daos/daily_rounds_dao.dart';
 import '../daos/politician_bios_dao.dart';
-import '../daos/completed_runs_dao.dart';
+import '../daos/progress_dao.dart';
+import '../daos/reviews_dao.dart';
 
 part 'app_database.g.dart';
 
@@ -99,6 +98,11 @@ class LocalCards extends Table {
   // gender-aware distractor selection in TriviaGenerator + EndlessEngine so
   // "identify the male senator" doesn't get women as wrong-option foils.
   TextColumn get gender          => text().nullable()();
+  // 'face' (politician recognition) or 'concept' (civics fact). Concept
+  // cards teach on first encounter (body) and recall afterward (recallPrompt).
+  TextColumn get cardType        => text().withDefault(const Constant('face'))();
+  TextColumn get body            => text().nullable()();   // teach-first prose
+  TextColumn get recallPrompt    => text().nullable()();   // later-encounter question
   TextColumn get tags            => text().withDefault(const Constant('[]'))(); // JSON array
   BoolColumn get isActive        => boolean().withDefault(const Constant(true))();
   IntColumn  get sortOrder       => integer().withDefault(const Constant(0))();
@@ -116,9 +120,9 @@ class CardMemoryStates extends Table {
   // userId is 'local-user' for the no-account MVP. When Supabase auth ships,
   // backfill with auth.uid() and the rest of the schema is unchanged.
   TextColumn get userId          => text().withDefault(const Constant('local-user'))();
-  RealColumn get difficulty      => real().withDefault(const Constant(5.0))();   // FSRS D: 1-10
-  RealColumn get stability       => real().withDefault(const Constant(1.0))();   // FSRS S: days to 90% retention
-  RealColumn get retrievability  => real().withDefault(const Constant(1.0))();   // FSRS R: current recall probability
+  RealColumn get difficulty      => real().withDefault(const Constant(5))();   // FSRS D: 1-10
+  RealColumn get stability       => real().withDefault(const Constant(1))();   // FSRS S: days to 90% retention
+  RealColumn get retrievability  => real().withDefault(const Constant(1))();   // FSRS R: current recall probability
   IntColumn  get lastReviewedAt  => integer().withDefault(const Constant(0))();  // Unix timestamp
   IntColumn  get nextReviewAt    => integer().withDefault(const Constant(0))();  // Unix timestamp — INDEXED
   IntColumn  get intervalDays    => integer().withDefault(const Constant(1))();
@@ -166,19 +170,12 @@ class UserNodeProgress extends Table {
   Set<Column> get primaryKey => {nodeId};
 }
 
-// ── Daily challenge cache ─────────────────────────────────────────────────────
-class DailyChallengeCaches extends Table {
-  TextColumn get challengeDate => text()();  // YYYY-MM-DD — PRIMARY KEY
-  TextColumn get cardIds       => text()();  // JSON array of card IDs
-  TextColumn get shareTemplate => text().nullable()();
-  IntColumn  get cachedAt      => integer()();
-
-  @override
-  Set<Column> get primaryKey => {challengeDate};
-}
-
-// ── Sync metadata ─────────────────────────────────────────────────────────────
-class SyncMeta extends Table {
+// ── App meta (key-value store) ────────────────────────────────────────────────
+// Holds streak/XP counters, settings, seed flags, onboarding state, and the
+// pending-session snapshot. Was named `sync_meta` until schema v8 (a leftover
+// from the cut sync design); the v8 migration renames the SQL table in place
+// so every row survives.
+class AppMeta extends Table {
   TextColumn get key    => text()();
   TextColumn get userId => text().withDefault(const Constant('local-user'))();
   TextColumn get value  => text()();
@@ -280,8 +277,7 @@ class ChapterProgress extends Table {
     CardMemoryStates,
     ReviewLogs,
     UserNodeProgress,
-    DailyChallengeCaches,
-    SyncMeta,
+    AppMeta,
     ChapterProgress,
     DailyRounds,
     PoliticianBios,
@@ -304,30 +300,38 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   /// Test-only constructor. Inject an in-memory `NativeDatabase.memory()`.
-  AppDatabase.forTesting(QueryExecutor e) : super(e);
+  AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) => m.createAll(),
     onUpgrade: (m, from, to) async {
       // Add migration steps here as schemaVersion increases.
-      // Never drop tables. Use ALTER TABLE ADD COLUMN for additions.
-      // Test every migration against a populated DB before shipping.
+      // User data (FSRS memory state, review logs, streak/XP meta, history)
+      // must survive every migration — test against a populated DB.
+      if (from < 8) {
+        // v8 renamed sync_meta → app_meta (the table was always the app's
+        // key-value store — streaks, XP, settings, seed flags — never sync
+        // state; the name was a leftover from the cut sync design). Rename
+        // FIRST so the steps below can target the table by its current
+        // Dart definition even when upgrading from very old versions.
+        // ALTER TABLE RENAME preserves every row.
+        await customStatement('ALTER TABLE sync_meta RENAME TO app_meta');
+      }
       if (from < 2) {
-        // v1 → v2: add userId everywhere (future Supabase swap = one
-        // find/replace), plus the practice-mode counter and lastGrade
-        // columns on CardMemoryStates for the demonstrated-recall unlock
-        // gate. All additive ALTER TABLEs — no data loss.
+        // v1 → v2: add userId everywhere, plus the practice-mode counter
+        // and lastGrade columns on CardMemoryStates for the
+        // demonstrated-recall unlock gate. All additive ALTER TABLEs.
         await m.addColumn(cardMemoryStates, cardMemoryStates.userId);
         await m.addColumn(
-            cardMemoryStates, cardMemoryStates.practiceCountSinceReview);
+            cardMemoryStates, cardMemoryStates.practiceCountSinceReview,);
         await m.addColumn(cardMemoryStates, cardMemoryStates.lastGrade);
         await m.addColumn(reviewLogs, reviewLogs.userId);
         await m.addColumn(userNodeProgress, userNodeProgress.userId);
-        await m.addColumn(syncMeta, syncMeta.userId);
+        await m.addColumn(appMeta, appMeta.userId);
       }
       if (from < 3) {
         // v2 → v3: add ChapterProgress for the chapter-aware daily round.
@@ -362,10 +366,24 @@ class AppDatabase extends _$AppDatabase {
         // paths backfill on every finished run going forward.
         await m.createTable(completedRuns);
       }
+      if (from < 8) {
+        // v7 → v8: drop the legacy daily-challenge cache, superseded by
+        // DailyRounds. The table held each day's card picks plus, for
+        // played days, the legacy challenge's result payload. The FSRS
+        // reviews made during those challenges live in review_logs /
+        // card_memory_states and are untouched; only the removed feature's
+        // own rows go. Shipped TestFlight builds may have rows here.
+        await customStatement('DROP TABLE IF EXISTS daily_challenge_caches');
+      }
+      if (from < 9) {
+        // v8 → v9: concept-card columns on LocalCards for the lesson layer.
+        // All additive with defaults — face cards and user data untouched.
+        await m.addColumn(localCards, localCards.cardType);
+        await m.addColumn(localCards, localCards.body);
+        await m.addColumn(localCards, localCards.recallPrompt);
+      }
     },
   );
 
-  static QueryExecutor _openConnection() {
-    return driftDatabase(name: 'politiface_db');
-  }
+  static QueryExecutor _openConnection() => driftDatabase(name: 'politiface_db');
 }
