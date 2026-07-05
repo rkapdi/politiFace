@@ -179,11 +179,14 @@ void main() {
     final version = (await db.customSelect('PRAGMA user_version').get())
         .single
         .read<int>('user_version');
-    expect(version, 10);
+    expect(version, 11);
 
     // v10 sync outbox exists and starts empty.
     expect(tables, contains('outbox_events'));
     expect(await db.outboxDao.pendingCount(), 0);
+
+    // v11 FCLE answer log exists.
+    expect(tables, contains('fcle_answers'));
 
     // v9 concept-card columns exist with safe defaults on migrated rows.
     final cardCols = (await db

@@ -61,6 +61,20 @@ jobs:
       - name: Validate FCLE question bank + objectives
         run: python scripts/ingest_content.py --check
 
+      - name: Bundled question bank matches canonical content
+        run: |
+          fail=0
+          for f in content/questions/*.yaml; do
+            if ! cmp -s "$f" "app/assets/content/questions/$(basename "$f")"; then
+              echo "::error::app/assets/content/questions/$(basename "$f") is out of sync with $f"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo "Run: cp content/questions/*.yaml app/assets/content/questions/"
+            exit 1
+          fi
+
   ingest-content:
     # Merge to main only. Skips quietly until the SUPABASE_DB_URL secret
     # exists (repo settings -> secrets), so the pipeline is safe to land

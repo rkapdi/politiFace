@@ -11,6 +11,7 @@ import '../daos/chapter_progress_dao.dart';
 import '../daos/completed_runs_dao.dart';
 import '../daos/daily_rounds_dao.dart';
 import '../daos/decks_dao.dart';
+import '../daos/fcle_answers_dao.dart';
 import '../daos/government_dao.dart';
 import '../daos/meta_dao.dart';
 import '../daos/outbox_dao.dart';
@@ -290,6 +291,19 @@ class OutboxEvents extends Table {
   Set<Column> get primaryKey => {eventId};
 }
 
+// ── FCLE answer log ───────────────────────────────────────────────────────────
+// Local record of every FCLE practice/mock answer. Source of truth for the
+// readiness indicator and weak-area practice (per-domain rolling accuracy);
+// the server event log gets the same answers via the outbox when signed in.
+class FcleAnswers extends Table {
+  IntColumn  get id         => integer().autoIncrement()();
+  TextColumn get questionId => text()();          // YAML slug id
+  TextColumn get domain     => text()();          // FCLE domain code
+  BoolColumn get correct    => boolean()();
+  BoolColumn get inMock     => boolean().withDefault(const Constant(false))();
+  IntColumn  get answeredAt => integer()();       // Unix ms
+}
+
 // ── Database class ────────────────────────────────────────────────────────────
 @DriftDatabase(
   tables: [
@@ -306,6 +320,7 @@ class OutboxEvents extends Table {
     PoliticianBios,
     CompletedRuns,
     OutboxEvents,
+    FcleAnswers,
   ],
   daos: [
     CardsDao,
@@ -319,6 +334,7 @@ class OutboxEvents extends Table {
     PoliticianBiosDao,
     CompletedRunsDao,
     OutboxDao,
+    FcleAnswersDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -328,7 +344,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -411,6 +427,11 @@ class AppDatabase extends _$AppDatabase {
         // v9 → v10: sync outbox for the V2 backend. Brand-new table; no
         // user data touched.
         await m.createTable(outboxEvents);
+      }
+      if (from < 11) {
+        // v10 → v11: local FCLE answer log (readiness + weak-area
+        // practice). Brand-new table; no user data touched.
+        await m.createTable(fcleAnswers);
       }
     },
   );

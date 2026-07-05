@@ -5,6 +5,11 @@ import '../features/atlas/presentation/politician_detail_screen.dart';
 import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
 import '../features/endless/presentation/endless_screen.dart';
+import '../features/fcle/domain/mock_engine.dart';
+import '../features/fcle/presentation/fcle_hub_screen.dart';
+import '../features/fcle/presentation/mock_exam_screen.dart';
+import '../features/fcle/presentation/mock_result_screen.dart';
+import '../features/fcle/presentation/practice_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/history/presentation/history_screen.dart';
 import '../features/home/presentation/home_screen.dart';
@@ -117,6 +122,25 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       GoRoute(
         path: '/memory/history',
         builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/fcle',
+        builder: (context, state) => const FcleHubScreen(),
+      ),
+      GoRoute(
+        path: '/fcle/mock',
+        builder: (context, state) => const MockExamScreen(),
+      ),
+      GoRoute(
+        path: '/fcle/result',
+        builder: (context, state) =>
+            MockResultScreen(result: state.extra! as MockResult),
+      ),
+      GoRoute(
+        path: '/fcle/practice',
+        builder: (context, state) => PracticeScreen(
+          domainCode: state.uri.queryParameters['domain'] ?? '',
+        ),
       ),
       GoRoute(
         path: '/memory/card/:cardId',

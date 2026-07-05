@@ -315,3 +315,39 @@ export.
   pins v10 + outbox table. Full suite green, analyze clean.
 - NOT yet verified against a hosted Supabase project (none provisioned);
   the transport talks to the RPC contract validated by supabase/tests.
+
+### FCLE Prep UI + Edge Functions + compliance scaffolds (2026-07-04, same day)
+
+- **FCLE prep feature (local-first).** The bank YAML ships in app assets
+  (CI drift check mirrors the government.yaml pattern). New feature module:
+  question model over the four-domain taxonomy, published-only bank loader
+  (drafts never reach students), MockEngine (80Q, 4x20 in domain order, no
+  repeats, 48-to-pass grading, per-domain breakdown, weakest-domain pick),
+  schema v11 fcle_answers local log, per-domain rolling-accuracy readiness
+  (window 50, matching the server read model), and weak-area practice sets
+  (missed first, then unseen). Dart uuidV5 port pinned bit-for-bit to the
+  Python ingest via fixtures, so outbox answer events reference the exact
+  server question UUIDs.
+- **Screens + flow.** Hub (readiness bars, mock CTA with a bank-growing
+  state until 20/domain exist, per-domain practice), Mock exam (no feedback
+  until the end, exam-mirroring; answers recorded one by one so
+  backgrounding loses nothing), Results (score vs the 60% bar, per-domain
+  bars, straight into weakest-area practice), Practice (immediate feedback
+  with explanation + tappable primary-source citation). Home gains an FCLE
+  tile ("Could you pass?"). Positioning copy everywhere: supplemental
+  practice, not the official exam, not a predictor.
+- **Sync tie-in.** Every FCLE answer logs locally and enqueues to the
+  outbox (server UUID, chosen key); readiness works fully offline; server
+  efficacy accumulates when signed in. Server-side mock_attempts
+  (assemble_mock online flow) is deliberately deferred until the hosted
+  project exists.
+- **Edge Functions authored** (deploy pending hosted project):
+  revenuecat-webhook (shared-secret auth, entitlement mirror, verify_jwt
+  off) and efficacy-report (printable cohort one-pager HTML; runs under
+  the caller's JWT so RLS keeps it faculty-only).
+- **Compliance scaffolds** in docs/compliance/: AI usage note (HECVAT 4 AI
+  section), DPA template (FERPA school-official fallback), VPAT 2.5
+  scaffold with the WCAG 2.1 A/AA criteria list + known work items, HECVAT
+  4.1.5 answer bank keyed to the data-minimal posture.
+- Tests: 17 new FCLE tests (engine, loader, DAO, practice-set builder,
+  uuid5 parity). Full suite green, analyze clean.

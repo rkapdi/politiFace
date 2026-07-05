@@ -1,0 +1,52 @@
+# FCLE domain 4: Landmark Influences and Supreme Court Cases.
+# Starter tranche. All questions are original, grounded in primary public
+# sources. status stays draft until founder editorial review.
+
+domain: landmark_impact
+questions:
+  - id: landmark-marbury-001
+    stem: >
+      Marbury v. Madison (1803) is a landmark case because it established
+      which principle?
+    options:
+      - key: a
+        text: Separate but equal
+      - key: b
+        text: Judicial review
+      - key: c
+        text: The right to remain silent
+      - key: d
+        text: One person, one vote
+    answer: b
+    explanation: >
+      In Marbury v. Madison, the Supreme Court held that it could declare an
+      act of Congress unconstitutional, establishing judicial review as a
+      power of the federal courts.
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    difficulty: 2
+    objective: null
+    status: draft
+
+  - id: landmark-brown-board-001
+    stem: >
+      In Brown v. Board of Education (1954), the Supreme Court ruled that
+      racial segregation in public schools was what?
+    options:
+      - key: a
+        text: A matter for each state to decide
+      - key: b
+        text: Constitutional if facilities were equal
+      - key: c
+        text: Unconstitutional
+      - key: d
+        text: Permitted only in elementary schools
+    answer: c
+    explanation: >
+      Brown v. Board of Education held that separate educational facilities
+      are inherently unequal, ruling school segregation unconstitutional
+      under the Equal Protection Clause of the Fourteenth Amendment and
+      overturning Plessy v. Ferguson in public education.
+    citation: https://www.archives.gov/milestone-documents/brown-v-board-of-education
+    difficulty: 2
+    objective: null
+    status: draft

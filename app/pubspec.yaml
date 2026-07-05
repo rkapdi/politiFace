@@ -82,4 +82,5 @@ flutter:
     # Bundled copy of content/governments/us/government.yaml (the canonical
     # source). CI fails if the two files differ — see content-ci workflow.
     - assets/content/governments/us/
+    - assets/content/questions/
     - assets/portraits/

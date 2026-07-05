@@ -7303,6 +7303,351 @@ class OutboxEventsCompanion extends UpdateCompanion<OutboxEvent> {
   }
 }
 
+class $FcleAnswersTable extends FcleAnswers
+    with TableInfo<$FcleAnswersTable, FcleAnswer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FcleAnswersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _questionIdMeta =
+      const VerificationMeta('questionId');
+  @override
+  late final GeneratedColumn<String> questionId = GeneratedColumn<String>(
+      'question_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _domainMeta = const VerificationMeta('domain');
+  @override
+  late final GeneratedColumn<String> domain = GeneratedColumn<String>(
+      'domain', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _correctMeta =
+      const VerificationMeta('correct');
+  @override
+  late final GeneratedColumn<bool> correct = GeneratedColumn<bool>(
+      'correct', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("correct" IN (0, 1))'));
+  static const VerificationMeta _inMockMeta = const VerificationMeta('inMock');
+  @override
+  late final GeneratedColumn<bool> inMock = GeneratedColumn<bool>(
+      'in_mock', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("in_mock" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _answeredAtMeta =
+      const VerificationMeta('answeredAt');
+  @override
+  late final GeneratedColumn<int> answeredAt = GeneratedColumn<int>(
+      'answered_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, questionId, domain, correct, inMock, answeredAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fcle_answers';
+  @override
+  VerificationContext validateIntegrity(Insertable<FcleAnswer> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('question_id')) {
+      context.handle(
+          _questionIdMeta,
+          questionId.isAcceptableOrUnknown(
+              data['question_id']!, _questionIdMeta));
+    } else if (isInserting) {
+      context.missing(_questionIdMeta);
+    }
+    if (data.containsKey('domain')) {
+      context.handle(_domainMeta,
+          domain.isAcceptableOrUnknown(data['domain']!, _domainMeta));
+    } else if (isInserting) {
+      context.missing(_domainMeta);
+    }
+    if (data.containsKey('correct')) {
+      context.handle(_correctMeta,
+          correct.isAcceptableOrUnknown(data['correct']!, _correctMeta));
+    } else if (isInserting) {
+      context.missing(_correctMeta);
+    }
+    if (data.containsKey('in_mock')) {
+      context.handle(_inMockMeta,
+          inMock.isAcceptableOrUnknown(data['in_mock']!, _inMockMeta));
+    }
+    if (data.containsKey('answered_at')) {
+      context.handle(
+          _answeredAtMeta,
+          answeredAt.isAcceptableOrUnknown(
+              data['answered_at']!, _answeredAtMeta));
+    } else if (isInserting) {
+      context.missing(_answeredAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FcleAnswer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FcleAnswer(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      questionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}question_id'])!,
+      domain: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}domain'])!,
+      correct: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}correct'])!,
+      inMock: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}in_mock'])!,
+      answeredAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}answered_at'])!,
+    );
+  }
+
+  @override
+  $FcleAnswersTable createAlias(String alias) {
+    return $FcleAnswersTable(attachedDatabase, alias);
+  }
+}
+
+class FcleAnswer extends DataClass implements Insertable<FcleAnswer> {
+  final int id;
+  final String questionId;
+  final String domain;
+  final bool correct;
+  final bool inMock;
+  final int answeredAt;
+  const FcleAnswer(
+      {required this.id,
+      required this.questionId,
+      required this.domain,
+      required this.correct,
+      required this.inMock,
+      required this.answeredAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['question_id'] = Variable<String>(questionId);
+    map['domain'] = Variable<String>(domain);
+    map['correct'] = Variable<bool>(correct);
+    map['in_mock'] = Variable<bool>(inMock);
+    map['answered_at'] = Variable<int>(answeredAt);
+    return map;
+  }
+
+  FcleAnswersCompanion toCompanion(bool nullToAbsent) {
+    return FcleAnswersCompanion(
+      id: Value(id),
+      questionId: Value(questionId),
+      domain: Value(domain),
+      correct: Value(correct),
+      inMock: Value(inMock),
+      answeredAt: Value(answeredAt),
+    );
+  }
+
+  factory FcleAnswer.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FcleAnswer(
+      id: serializer.fromJson<int>(json['id']),
+      questionId: serializer.fromJson<String>(json['questionId']),
+      domain: serializer.fromJson<String>(json['domain']),
+      correct: serializer.fromJson<bool>(json['correct']),
+      inMock: serializer.fromJson<bool>(json['inMock']),
+      answeredAt: serializer.fromJson<int>(json['answeredAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'questionId': serializer.toJson<String>(questionId),
+      'domain': serializer.toJson<String>(domain),
+      'correct': serializer.toJson<bool>(correct),
+      'inMock': serializer.toJson<bool>(inMock),
+      'answeredAt': serializer.toJson<int>(answeredAt),
+    };
+  }
+
+  FcleAnswer copyWith(
+          {int? id,
+          String? questionId,
+          String? domain,
+          bool? correct,
+          bool? inMock,
+          int? answeredAt}) =>
+      FcleAnswer(
+        id: id ?? this.id,
+        questionId: questionId ?? this.questionId,
+        domain: domain ?? this.domain,
+        correct: correct ?? this.correct,
+        inMock: inMock ?? this.inMock,
+        answeredAt: answeredAt ?? this.answeredAt,
+      );
+  FcleAnswer copyWithCompanion(FcleAnswersCompanion data) {
+    return FcleAnswer(
+      id: data.id.present ? data.id.value : this.id,
+      questionId:
+          data.questionId.present ? data.questionId.value : this.questionId,
+      domain: data.domain.present ? data.domain.value : this.domain,
+      correct: data.correct.present ? data.correct.value : this.correct,
+      inMock: data.inMock.present ? data.inMock.value : this.inMock,
+      answeredAt:
+          data.answeredAt.present ? data.answeredAt.value : this.answeredAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FcleAnswer(')
+          ..write('id: $id, ')
+          ..write('questionId: $questionId, ')
+          ..write('domain: $domain, ')
+          ..write('correct: $correct, ')
+          ..write('inMock: $inMock, ')
+          ..write('answeredAt: $answeredAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, questionId, domain, correct, inMock, answeredAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FcleAnswer &&
+          other.id == this.id &&
+          other.questionId == this.questionId &&
+          other.domain == this.domain &&
+          other.correct == this.correct &&
+          other.inMock == this.inMock &&
+          other.answeredAt == this.answeredAt);
+}
+
+class FcleAnswersCompanion extends UpdateCompanion<FcleAnswer> {
+  final Value<int> id;
+  final Value<String> questionId;
+  final Value<String> domain;
+  final Value<bool> correct;
+  final Value<bool> inMock;
+  final Value<int> answeredAt;
+  const FcleAnswersCompanion({
+    this.id = const Value.absent(),
+    this.questionId = const Value.absent(),
+    this.domain = const Value.absent(),
+    this.correct = const Value.absent(),
+    this.inMock = const Value.absent(),
+    this.answeredAt = const Value.absent(),
+  });
+  FcleAnswersCompanion.insert({
+    this.id = const Value.absent(),
+    required String questionId,
+    required String domain,
+    required bool correct,
+    this.inMock = const Value.absent(),
+    required int answeredAt,
+  })  : questionId = Value(questionId),
+        domain = Value(domain),
+        correct = Value(correct),
+        answeredAt = Value(answeredAt);
+  static Insertable<FcleAnswer> custom({
+    Expression<int>? id,
+    Expression<String>? questionId,
+    Expression<String>? domain,
+    Expression<bool>? correct,
+    Expression<bool>? inMock,
+    Expression<int>? answeredAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (questionId != null) 'question_id': questionId,
+      if (domain != null) 'domain': domain,
+      if (correct != null) 'correct': correct,
+      if (inMock != null) 'in_mock': inMock,
+      if (answeredAt != null) 'answered_at': answeredAt,
+    });
+  }
+
+  FcleAnswersCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? questionId,
+      Value<String>? domain,
+      Value<bool>? correct,
+      Value<bool>? inMock,
+      Value<int>? answeredAt}) {
+    return FcleAnswersCompanion(
+      id: id ?? this.id,
+      questionId: questionId ?? this.questionId,
+      domain: domain ?? this.domain,
+      correct: correct ?? this.correct,
+      inMock: inMock ?? this.inMock,
+      answeredAt: answeredAt ?? this.answeredAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (questionId.present) {
+      map['question_id'] = Variable<String>(questionId.value);
+    }
+    if (domain.present) {
+      map['domain'] = Variable<String>(domain.value);
+    }
+    if (correct.present) {
+      map['correct'] = Variable<bool>(correct.value);
+    }
+    if (inMock.present) {
+      map['in_mock'] = Variable<bool>(inMock.value);
+    }
+    if (answeredAt.present) {
+      map['answered_at'] = Variable<int>(answeredAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FcleAnswersCompanion(')
+          ..write('id: $id, ')
+          ..write('questionId: $questionId, ')
+          ..write('domain: $domain, ')
+          ..write('correct: $correct, ')
+          ..write('inMock: $inMock, ')
+          ..write('answeredAt: $answeredAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7322,6 +7667,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PoliticianBiosTable politicianBios = $PoliticianBiosTable(this);
   late final $CompletedRunsTable completedRuns = $CompletedRunsTable(this);
   late final $OutboxEventsTable outboxEvents = $OutboxEventsTable(this);
+  late final $FcleAnswersTable fcleAnswers = $FcleAnswersTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
@@ -7337,6 +7683,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final CompletedRunsDao completedRunsDao =
       CompletedRunsDao(this as AppDatabase);
   late final OutboxDao outboxDao = OutboxDao(this as AppDatabase);
+  late final FcleAnswersDao fcleAnswersDao =
+      FcleAnswersDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7354,7 +7702,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         dailyRounds,
         politicianBios,
         completedRuns,
-        outboxEvents
+        outboxEvents,
+        fcleAnswers
       ];
 }
 
@@ -10768,6 +11117,182 @@ typedef $$OutboxEventsTableProcessedTableManager = ProcessedTableManager<
     ),
     OutboxEvent,
     PrefetchHooks Function()>;
+typedef $$FcleAnswersTableCreateCompanionBuilder = FcleAnswersCompanion
+    Function({
+  Value<int> id,
+  required String questionId,
+  required String domain,
+  required bool correct,
+  Value<bool> inMock,
+  required int answeredAt,
+});
+typedef $$FcleAnswersTableUpdateCompanionBuilder = FcleAnswersCompanion
+    Function({
+  Value<int> id,
+  Value<String> questionId,
+  Value<String> domain,
+  Value<bool> correct,
+  Value<bool> inMock,
+  Value<int> answeredAt,
+});
+
+class $$FcleAnswersTableFilterComposer
+    extends Composer<_$AppDatabase, $FcleAnswersTable> {
+  $$FcleAnswersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get questionId => $composableBuilder(
+      column: $table.questionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get domain => $composableBuilder(
+      column: $table.domain, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get correct => $composableBuilder(
+      column: $table.correct, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get inMock => $composableBuilder(
+      column: $table.inMock, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get answeredAt => $composableBuilder(
+      column: $table.answeredAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$FcleAnswersTableOrderingComposer
+    extends Composer<_$AppDatabase, $FcleAnswersTable> {
+  $$FcleAnswersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get questionId => $composableBuilder(
+      column: $table.questionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get domain => $composableBuilder(
+      column: $table.domain, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get correct => $composableBuilder(
+      column: $table.correct, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get inMock => $composableBuilder(
+      column: $table.inMock, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get answeredAt => $composableBuilder(
+      column: $table.answeredAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$FcleAnswersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FcleAnswersTable> {
+  $$FcleAnswersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get questionId => $composableBuilder(
+      column: $table.questionId, builder: (column) => column);
+
+  GeneratedColumn<String> get domain =>
+      $composableBuilder(column: $table.domain, builder: (column) => column);
+
+  GeneratedColumn<bool> get correct =>
+      $composableBuilder(column: $table.correct, builder: (column) => column);
+
+  GeneratedColumn<bool> get inMock =>
+      $composableBuilder(column: $table.inMock, builder: (column) => column);
+
+  GeneratedColumn<int> get answeredAt => $composableBuilder(
+      column: $table.answeredAt, builder: (column) => column);
+}
+
+class $$FcleAnswersTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $FcleAnswersTable,
+    FcleAnswer,
+    $$FcleAnswersTableFilterComposer,
+    $$FcleAnswersTableOrderingComposer,
+    $$FcleAnswersTableAnnotationComposer,
+    $$FcleAnswersTableCreateCompanionBuilder,
+    $$FcleAnswersTableUpdateCompanionBuilder,
+    (FcleAnswer, BaseReferences<_$AppDatabase, $FcleAnswersTable, FcleAnswer>),
+    FcleAnswer,
+    PrefetchHooks Function()> {
+  $$FcleAnswersTableTableManager(_$AppDatabase db, $FcleAnswersTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FcleAnswersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FcleAnswersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FcleAnswersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> questionId = const Value.absent(),
+            Value<String> domain = const Value.absent(),
+            Value<bool> correct = const Value.absent(),
+            Value<bool> inMock = const Value.absent(),
+            Value<int> answeredAt = const Value.absent(),
+          }) =>
+              FcleAnswersCompanion(
+            id: id,
+            questionId: questionId,
+            domain: domain,
+            correct: correct,
+            inMock: inMock,
+            answeredAt: answeredAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String questionId,
+            required String domain,
+            required bool correct,
+            Value<bool> inMock = const Value.absent(),
+            required int answeredAt,
+          }) =>
+              FcleAnswersCompanion.insert(
+            id: id,
+            questionId: questionId,
+            domain: domain,
+            correct: correct,
+            inMock: inMock,
+            answeredAt: answeredAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$FcleAnswersTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $FcleAnswersTable,
+    FcleAnswer,
+    $$FcleAnswersTableFilterComposer,
+    $$FcleAnswersTableOrderingComposer,
+    $$FcleAnswersTableAnnotationComposer,
+    $$FcleAnswersTableCreateCompanionBuilder,
+    $$FcleAnswersTableUpdateCompanionBuilder,
+    (FcleAnswer, BaseReferences<_$AppDatabase, $FcleAnswersTable, FcleAnswer>),
+    FcleAnswer,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10798,4 +11323,6 @@ class $AppDatabaseManager {
       $$CompletedRunsTableTableManager(_db, _db.completedRuns);
   $$OutboxEventsTableTableManager get outboxEvents =>
       $$OutboxEventsTableTableManager(_db, _db.outboxEvents);
+  $$FcleAnswersTableTableManager get fcleAnswers =>
+      $$FcleAnswersTableTableManager(_db, _db.fcleAnswers);
 }

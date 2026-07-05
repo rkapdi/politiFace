@@ -52,6 +52,17 @@ supabase start
 supabase db reset   # applies migrations + seed.sql
 ```
 
+## Edge Functions
+
+- `revenuecat-webhook` - RevenueCat -> `entitlements` mirror. Deployed with
+  `verify_jwt = false`; authenticated by the `RC_WEBHOOK_SECRET` shared
+  secret (set with `supabase secrets set RC_WEBHOOK_SECRET=...`, and paste
+  the same value as the Authorization header in the RevenueCat webhook
+  config). The app must set the RevenueCat appUserID to the Supabase user id.
+- `efficacy-report` - the exportable cohort one-pager (printable HTML) from
+  `cohort_rollups`. Runs under the CALLER's JWT, so RLS restricts it to
+  faculty of the cohort; there is no service-role bypass.
+
 ## RPC surface (what the app calls)
 
 | RPC | Purpose |

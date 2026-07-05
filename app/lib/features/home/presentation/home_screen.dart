@@ -53,6 +53,8 @@ class HomeScreen extends ConsumerWidget {
               const _TriviaTile(),
               const SizedBox(height: 12),
               const _EndlessTile(),
+              const SizedBox(height: 12),
+              const _FcleTile(),
               const SizedBox(height: 24),
               const _SectionDivider(label: 'THE SEASON'),
               const SizedBox(height: 12),
@@ -220,6 +222,24 @@ class _TriviaTile extends StatelessWidget {
       onTap: () {
         HapticFeedback.lightImpact();
         context.go('/trivia');
+      },
+    );
+}
+
+class _FcleTile extends StatelessWidget {
+  const _FcleTile();
+
+  @override
+  Widget build(BuildContext context) => _ActionTile(
+      section: 'FCLE PREP',
+      headline: 'Could you pass?',
+      body: 'Practice for the Florida Civic Literacy Exam. '
+          'Four domains, mock exams, readiness tracking.',
+      accent: Theme.of(context).colorScheme.brandGreen,
+      mark: '§',
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.push('/fcle');
       },
     );
 }

@@ -1,0 +1,53 @@
+# FCLE domain 1: American Democracy.
+# Starter tranche. All questions are original, grounded in primary public
+# sources. status stays draft until founder editorial review.
+
+domain: american_democracy
+questions:
+  - id: amdem-separation-powers-001
+    stem: >
+      Which principle divides the powers of the federal government among a
+      legislative, an executive, and a judicial branch?
+    options:
+      - key: a
+        text: Federalism
+      - key: b
+        text: Separation of powers
+      - key: c
+        text: Popular sovereignty
+      - key: d
+        text: Judicial review
+    answer: b
+    explanation: >
+      The Constitution assigns lawmaking to Congress (Article I), enforcement
+      to the President (Article II), and interpretation to the courts
+      (Article III). This division is the separation of powers; federalism
+      instead divides power between the national government and the states.
+    citation: https://constitution.congress.gov/constitution/
+    difficulty: 1
+    objective: null
+    status: draft
+
+  - id: amdem-consent-governed-001
+    stem: >
+      The idea that governments derive "their just powers from the consent of
+      the governed" appears in which founding document?
+    options:
+      - key: a
+        text: The Mayflower Compact
+      - key: b
+        text: The Articles of Confederation
+      - key: c
+        text: The Declaration of Independence
+      - key: d
+        text: The Federalist Papers
+    answer: c
+    explanation: >
+      The Declaration of Independence (1776) states that governments are
+      instituted among men, "deriving their just powers from the consent of
+      the governed." It is the classic American statement of popular
+      sovereignty.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 2
+    objective: null
+    status: draft
