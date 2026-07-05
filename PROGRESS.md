@@ -375,3 +375,20 @@ export.
 - Tests: 3 ServerMockSession tests (online verdicts, offline queue +
   pendingSync, server-only questions from a newer bank) + a FIFO
   answer-before-finalize engine test. Suite green, analyze clean.
+
+### Class leaderboard UI (2026-07-04, same day)
+
+- **Leaderboard feature (read-only client).** LeaderboardApi behind an
+  interface (Supabase impl reads cohort_members + leaderboard with the
+  profiles handle join; RLS scopes everything to the member's own
+  cohorts). Competition ranking (ties share a rank) computed client-side
+  and unit-tested. Scores stay server-authoritative: +1 per correct
+  answer, written only by the grading RPCs.
+- **Three screen states.** Signed out: pointer to Settings/Account.
+  Signed in, no class: join-by-code view (join_cohort RPC, 6-char code
+  from the professor). In class: ranked pseudonymous handles with own row
+  highlighted, top-3 accent, chip switcher for multiple classes,
+  pull-to-refresh. Privacy copy on the board itself: generated handles
+  only, no names or emails, points counted by the server.
+- Home gains a CLASS tile (configured builds only). Route /leaderboard.
+- Tests: ranking unit tests. Suite green (246), analyze clean.

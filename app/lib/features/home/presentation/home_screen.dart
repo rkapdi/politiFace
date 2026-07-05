@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/sync/supabase_config.dart';
 import '../../profile/data/profile_service.dart';
 import 'chapter_round_card.dart';
 import 'first_run_tour.dart';
@@ -55,6 +56,10 @@ class HomeScreen extends ConsumerWidget {
               const _EndlessTile(),
               const SizedBox(height: 12),
               const _FcleTile(),
+              if (SupabaseConfig.isConfigured) ...[
+                const SizedBox(height: 12),
+                const _LeaderboardTile(),
+              ],
               const SizedBox(height: 24),
               const _SectionDivider(label: 'THE SEASON'),
               const SizedBox(height: 12),
@@ -222,6 +227,23 @@ class _TriviaTile extends StatelessWidget {
       onTap: () {
         HapticFeedback.lightImpact();
         context.go('/trivia');
+      },
+    );
+}
+
+class _LeaderboardTile extends StatelessWidget {
+  const _LeaderboardTile();
+
+  @override
+  Widget build(BuildContext context) => _ActionTile(
+      section: 'CLASS',
+      headline: 'Beat your class.',
+      body: 'Join with your class code. Every correct answer scores.',
+      accent: Theme.of(context).colorScheme.brandOchre,
+      mark: '#1',
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.push('/leaderboard');
       },
     );
 }

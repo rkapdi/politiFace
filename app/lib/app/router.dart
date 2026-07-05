@@ -13,6 +13,7 @@ import '../features/fcle/presentation/practice_screen.dart';
 import '../features/government/presentation/node_detail_screen.dart';
 import '../features/history/presentation/history_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../features/memory/presentation/card_retention_detail_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
 import '../features/round/presentation/daily_round_screen.dart';
@@ -122,6 +123,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       GoRoute(
         path: '/memory/history',
         builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/leaderboard',
+        builder: (context, state) => const LeaderboardScreen(),
       ),
       GoRoute(
         path: '/fcle',
