@@ -226,3 +226,36 @@ verification):** concept-card decks for chapters 4–6 (~29 cards: ch4
 lawmaking powers, ch5 landmark cases, ch6 voting/parties/symbols). Until
 authored, ch4–6 card phases fall back to face cards while the briefing
 lessons teach. ch1–3 concept cards remain pending editorial review.
+
+---
+
+## Phase 0 (V2) — Backend foundation ✅ (2026-07-04)
+
+Goal: the greenfield Supabase backend per `ARCHITECTURE.md`, data-minimal by
+schema, with the append-only event log as the spine.
+
+- **Branch consolidation.** `worktree-ownership-phase1` (29 commits: lesson
+  layer, ch2-6 content, YAML seeding, checksum deck versioning, content CI,
+  lint zero, opt-in Sentry) merged into `v2-planning`. Conflicts resolved so
+  both the review-today hotfix and chapter replay survive; live version
+  1.1.0+7 kept. Privacy policy truth pass ported into the canonical
+  `docs/privacy-policy/index.html` (deploys with the next release from main).
+- **Supabase migrations** (`supabase/migrations/`, 7 files): identity and
+  tenancy (pseudonymous profiles, cohorts, join codes), content (four FCLE
+  domains seeded, entities, questions with answer keys split into a
+  client-inaccessible `app` schema), append-only event log + mock attempts,
+  derived read models with a 1:1 plpgsql port of the app's FSRS-4.5,
+  cohort-aggregate efficacy rollups (pg_cron nightly), entitlements +
+  redemption codes, and the SECURITY DEFINER RPC trust boundary
+  (`submit_answer`, `submit_review`, `assemble_mock`, `finalize_mock`,
+  `join_cohort`, `redeem_code`, `upsert_faculty_question`).
+- **Validated end to end** without Docker: `supabase/tests/run_local.sh`
+  boots a throwaway Postgres 17, applies a Supabase auth shim + all
+  migrations, and runs `smoke.sql` (full student/faculty lifecycle, mock
+  80Q assemble/answer/finalize, idempotent retries, plus RLS negatives:
+  no key-table reads, no event forgery/updates, no cross-cohort visibility,
+  faculty aggregates only). Passing.
+
+**Next:** YAML -> Postgres content ingest CI, Flutter Supabase auth +
+event outbox sync, RevenueCat webhook Edge Function, efficacy one-pager
+export.
