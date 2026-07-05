@@ -141,6 +141,10 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
     );
 
     await _persist(initial, startedAt: now);
+
+    // Efficacy plumbing: session boundaries feed the cohort engagement
+    // metrics. No-op unless a backend is configured AND the user signed in.
+    unawaited(ref.read(syncEngineProvider).enqueueSessionStart());
     return initial;
   }
 
@@ -249,6 +253,9 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
 
     // History row — best-effort, never blocks completion.
     unawaited(_writeHistoryRow(next, completedAt: now));
+
+    // Efficacy plumbing counterpart to the session_start in _createNewRound.
+    unawaited(ref.read(syncEngineProvider).enqueueSessionEnd());
 
     // Force any chapter-aware UI to refetch.
     ref.read(sessionTickProvider.notifier).state++;

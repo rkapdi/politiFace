@@ -13,6 +13,7 @@ import '../daos/daily_rounds_dao.dart';
 import '../daos/decks_dao.dart';
 import '../daos/government_dao.dart';
 import '../daos/meta_dao.dart';
+import '../daos/outbox_dao.dart';
 import '../daos/politician_bios_dao.dart';
 import '../daos/progress_dao.dart';
 import '../daos/reviews_dao.dart';
@@ -267,6 +268,28 @@ class ChapterProgress extends Table {
   Set<Column> get primaryKey => {userId, seasonId, chapterId};
 }
 
+// ── Sync outbox ───────────────────────────────────────────────────────────────
+// Server-bound events, queued locally and flushed by SyncEngine when signed
+// in. event_id is client-generated so server retries are idempotent; rows are
+// deleted on confirmed delivery. Only rows the server can accept are queued
+// (session boundaries now; FCLE answers/reviews once that UI ships).
+class OutboxEvents extends Table {
+  TextColumn get eventId    => text()();
+  TextColumn get type       => text()();               // answer | review | session_start | session_end
+  TextColumn get questionId => text().nullable()();    // server question UUID
+  TextColumn get attemptId  => text().nullable()();    // server mock attempt UUID
+  TextColumn get chosenKey  => text().nullable()();
+  TextColumn get grade      => text().nullable()();    // again | hard | good | easy
+  TextColumn get payload    => text().withDefault(const Constant('{}'))();
+  IntColumn  get clientTs   => integer()();            // Unix ms at the moment of action
+  IntColumn  get tries      => integer().withDefault(const Constant(0))();
+  TextColumn get lastError  => text().nullable()();
+  IntColumn  get createdAt  => integer()();            // Unix ms enqueue time
+
+  @override
+  Set<Column> get primaryKey => {eventId};
+}
+
 // ── Database class ────────────────────────────────────────────────────────────
 @DriftDatabase(
   tables: [
@@ -282,6 +305,7 @@ class ChapterProgress extends Table {
     DailyRounds,
     PoliticianBios,
     CompletedRuns,
+    OutboxEvents,
   ],
   daos: [
     CardsDao,
@@ -294,6 +318,7 @@ class ChapterProgress extends Table {
     DailyRoundsDao,
     PoliticianBiosDao,
     CompletedRunsDao,
+    OutboxDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -303,7 +328,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -381,6 +406,11 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(localCards, localCards.cardType);
         await m.addColumn(localCards, localCards.body);
         await m.addColumn(localCards, localCards.recallPrompt);
+      }
+      if (from < 10) {
+        // v9 → v10: sync outbox for the V2 backend. Brand-new table; no
+        // user data touched.
+        await m.createTable(outboxEvents);
       }
     },
   );

@@ -6756,6 +6756,553 @@ class CompletedRunsCompanion extends UpdateCompanion<CompletedRunEntry> {
   }
 }
 
+class $OutboxEventsTable extends OutboxEvents
+    with TableInfo<$OutboxEventsTable, OutboxEvent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OutboxEventsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _eventIdMeta =
+      const VerificationMeta('eventId');
+  @override
+  late final GeneratedColumn<String> eventId = GeneratedColumn<String>(
+      'event_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+      'type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _questionIdMeta =
+      const VerificationMeta('questionId');
+  @override
+  late final GeneratedColumn<String> questionId = GeneratedColumn<String>(
+      'question_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _attemptIdMeta =
+      const VerificationMeta('attemptId');
+  @override
+  late final GeneratedColumn<String> attemptId = GeneratedColumn<String>(
+      'attempt_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _chosenKeyMeta =
+      const VerificationMeta('chosenKey');
+  @override
+  late final GeneratedColumn<String> chosenKey = GeneratedColumn<String>(
+      'chosen_key', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<String> grade = GeneratedColumn<String>(
+      'grade', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _payloadMeta =
+      const VerificationMeta('payload');
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+      'payload', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  static const VerificationMeta _clientTsMeta =
+      const VerificationMeta('clientTs');
+  @override
+  late final GeneratedColumn<int> clientTs = GeneratedColumn<int>(
+      'client_ts', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _triesMeta = const VerificationMeta('tries');
+  @override
+  late final GeneratedColumn<int> tries = GeneratedColumn<int>(
+      'tries', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _lastErrorMeta =
+      const VerificationMeta('lastError');
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+      'last_error', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        eventId,
+        type,
+        questionId,
+        attemptId,
+        chosenKey,
+        grade,
+        payload,
+        clientTs,
+        tries,
+        lastError,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'outbox_events';
+  @override
+  VerificationContext validateIntegrity(Insertable<OutboxEvent> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('event_id')) {
+      context.handle(_eventIdMeta,
+          eventId.isAcceptableOrUnknown(data['event_id']!, _eventIdMeta));
+    } else if (isInserting) {
+      context.missing(_eventIdMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+          _typeMeta, type.isAcceptableOrUnknown(data['type']!, _typeMeta));
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('question_id')) {
+      context.handle(
+          _questionIdMeta,
+          questionId.isAcceptableOrUnknown(
+              data['question_id']!, _questionIdMeta));
+    }
+    if (data.containsKey('attempt_id')) {
+      context.handle(_attemptIdMeta,
+          attemptId.isAcceptableOrUnknown(data['attempt_id']!, _attemptIdMeta));
+    }
+    if (data.containsKey('chosen_key')) {
+      context.handle(_chosenKeyMeta,
+          chosenKey.isAcceptableOrUnknown(data['chosen_key']!, _chosenKeyMeta));
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+          _gradeMeta, grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta));
+    }
+    if (data.containsKey('payload')) {
+      context.handle(_payloadMeta,
+          payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta));
+    }
+    if (data.containsKey('client_ts')) {
+      context.handle(_clientTsMeta,
+          clientTs.isAcceptableOrUnknown(data['client_ts']!, _clientTsMeta));
+    } else if (isInserting) {
+      context.missing(_clientTsMeta);
+    }
+    if (data.containsKey('tries')) {
+      context.handle(
+          _triesMeta, tries.isAcceptableOrUnknown(data['tries']!, _triesMeta));
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(_lastErrorMeta,
+          lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {eventId};
+  @override
+  OutboxEvent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OutboxEvent(
+      eventId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}event_id'])!,
+      type: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}type'])!,
+      questionId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}question_id']),
+      attemptId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}attempt_id']),
+      chosenKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chosen_key']),
+      grade: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}grade']),
+      payload: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}payload'])!,
+      clientTs: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}client_ts'])!,
+      tries: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}tries'])!,
+      lastError: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}last_error']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $OutboxEventsTable createAlias(String alias) {
+    return $OutboxEventsTable(attachedDatabase, alias);
+  }
+}
+
+class OutboxEvent extends DataClass implements Insertable<OutboxEvent> {
+  final String eventId;
+  final String type;
+  final String? questionId;
+  final String? attemptId;
+  final String? chosenKey;
+  final String? grade;
+  final String payload;
+  final int clientTs;
+  final int tries;
+  final String? lastError;
+  final int createdAt;
+  const OutboxEvent(
+      {required this.eventId,
+      required this.type,
+      this.questionId,
+      this.attemptId,
+      this.chosenKey,
+      this.grade,
+      required this.payload,
+      required this.clientTs,
+      required this.tries,
+      this.lastError,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['event_id'] = Variable<String>(eventId);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || questionId != null) {
+      map['question_id'] = Variable<String>(questionId);
+    }
+    if (!nullToAbsent || attemptId != null) {
+      map['attempt_id'] = Variable<String>(attemptId);
+    }
+    if (!nullToAbsent || chosenKey != null) {
+      map['chosen_key'] = Variable<String>(chosenKey);
+    }
+    if (!nullToAbsent || grade != null) {
+      map['grade'] = Variable<String>(grade);
+    }
+    map['payload'] = Variable<String>(payload);
+    map['client_ts'] = Variable<int>(clientTs);
+    map['tries'] = Variable<int>(tries);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  OutboxEventsCompanion toCompanion(bool nullToAbsent) {
+    return OutboxEventsCompanion(
+      eventId: Value(eventId),
+      type: Value(type),
+      questionId: questionId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(questionId),
+      attemptId: attemptId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(attemptId),
+      chosenKey: chosenKey == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chosenKey),
+      grade:
+          grade == null && nullToAbsent ? const Value.absent() : Value(grade),
+      payload: Value(payload),
+      clientTs: Value(clientTs),
+      tries: Value(tries),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory OutboxEvent.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OutboxEvent(
+      eventId: serializer.fromJson<String>(json['eventId']),
+      type: serializer.fromJson<String>(json['type']),
+      questionId: serializer.fromJson<String?>(json['questionId']),
+      attemptId: serializer.fromJson<String?>(json['attemptId']),
+      chosenKey: serializer.fromJson<String?>(json['chosenKey']),
+      grade: serializer.fromJson<String?>(json['grade']),
+      payload: serializer.fromJson<String>(json['payload']),
+      clientTs: serializer.fromJson<int>(json['clientTs']),
+      tries: serializer.fromJson<int>(json['tries']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'eventId': serializer.toJson<String>(eventId),
+      'type': serializer.toJson<String>(type),
+      'questionId': serializer.toJson<String?>(questionId),
+      'attemptId': serializer.toJson<String?>(attemptId),
+      'chosenKey': serializer.toJson<String?>(chosenKey),
+      'grade': serializer.toJson<String?>(grade),
+      'payload': serializer.toJson<String>(payload),
+      'clientTs': serializer.toJson<int>(clientTs),
+      'tries': serializer.toJson<int>(tries),
+      'lastError': serializer.toJson<String?>(lastError),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  OutboxEvent copyWith(
+          {String? eventId,
+          String? type,
+          Value<String?> questionId = const Value.absent(),
+          Value<String?> attemptId = const Value.absent(),
+          Value<String?> chosenKey = const Value.absent(),
+          Value<String?> grade = const Value.absent(),
+          String? payload,
+          int? clientTs,
+          int? tries,
+          Value<String?> lastError = const Value.absent(),
+          int? createdAt}) =>
+      OutboxEvent(
+        eventId: eventId ?? this.eventId,
+        type: type ?? this.type,
+        questionId: questionId.present ? questionId.value : this.questionId,
+        attemptId: attemptId.present ? attemptId.value : this.attemptId,
+        chosenKey: chosenKey.present ? chosenKey.value : this.chosenKey,
+        grade: grade.present ? grade.value : this.grade,
+        payload: payload ?? this.payload,
+        clientTs: clientTs ?? this.clientTs,
+        tries: tries ?? this.tries,
+        lastError: lastError.present ? lastError.value : this.lastError,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  OutboxEvent copyWithCompanion(OutboxEventsCompanion data) {
+    return OutboxEvent(
+      eventId: data.eventId.present ? data.eventId.value : this.eventId,
+      type: data.type.present ? data.type.value : this.type,
+      questionId:
+          data.questionId.present ? data.questionId.value : this.questionId,
+      attemptId: data.attemptId.present ? data.attemptId.value : this.attemptId,
+      chosenKey: data.chosenKey.present ? data.chosenKey.value : this.chosenKey,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      clientTs: data.clientTs.present ? data.clientTs.value : this.clientTs,
+      tries: data.tries.present ? data.tries.value : this.tries,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OutboxEvent(')
+          ..write('eventId: $eventId, ')
+          ..write('type: $type, ')
+          ..write('questionId: $questionId, ')
+          ..write('attemptId: $attemptId, ')
+          ..write('chosenKey: $chosenKey, ')
+          ..write('grade: $grade, ')
+          ..write('payload: $payload, ')
+          ..write('clientTs: $clientTs, ')
+          ..write('tries: $tries, ')
+          ..write('lastError: $lastError, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(eventId, type, questionId, attemptId,
+      chosenKey, grade, payload, clientTs, tries, lastError, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OutboxEvent &&
+          other.eventId == this.eventId &&
+          other.type == this.type &&
+          other.questionId == this.questionId &&
+          other.attemptId == this.attemptId &&
+          other.chosenKey == this.chosenKey &&
+          other.grade == this.grade &&
+          other.payload == this.payload &&
+          other.clientTs == this.clientTs &&
+          other.tries == this.tries &&
+          other.lastError == this.lastError &&
+          other.createdAt == this.createdAt);
+}
+
+class OutboxEventsCompanion extends UpdateCompanion<OutboxEvent> {
+  final Value<String> eventId;
+  final Value<String> type;
+  final Value<String?> questionId;
+  final Value<String?> attemptId;
+  final Value<String?> chosenKey;
+  final Value<String?> grade;
+  final Value<String> payload;
+  final Value<int> clientTs;
+  final Value<int> tries;
+  final Value<String?> lastError;
+  final Value<int> createdAt;
+  final Value<int> rowid;
+  const OutboxEventsCompanion({
+    this.eventId = const Value.absent(),
+    this.type = const Value.absent(),
+    this.questionId = const Value.absent(),
+    this.attemptId = const Value.absent(),
+    this.chosenKey = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.clientTs = const Value.absent(),
+    this.tries = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OutboxEventsCompanion.insert({
+    required String eventId,
+    required String type,
+    this.questionId = const Value.absent(),
+    this.attemptId = const Value.absent(),
+    this.chosenKey = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.payload = const Value.absent(),
+    required int clientTs,
+    this.tries = const Value.absent(),
+    this.lastError = const Value.absent(),
+    required int createdAt,
+    this.rowid = const Value.absent(),
+  })  : eventId = Value(eventId),
+        type = Value(type),
+        clientTs = Value(clientTs),
+        createdAt = Value(createdAt);
+  static Insertable<OutboxEvent> custom({
+    Expression<String>? eventId,
+    Expression<String>? type,
+    Expression<String>? questionId,
+    Expression<String>? attemptId,
+    Expression<String>? chosenKey,
+    Expression<String>? grade,
+    Expression<String>? payload,
+    Expression<int>? clientTs,
+    Expression<int>? tries,
+    Expression<String>? lastError,
+    Expression<int>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (eventId != null) 'event_id': eventId,
+      if (type != null) 'type': type,
+      if (questionId != null) 'question_id': questionId,
+      if (attemptId != null) 'attempt_id': attemptId,
+      if (chosenKey != null) 'chosen_key': chosenKey,
+      if (grade != null) 'grade': grade,
+      if (payload != null) 'payload': payload,
+      if (clientTs != null) 'client_ts': clientTs,
+      if (tries != null) 'tries': tries,
+      if (lastError != null) 'last_error': lastError,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OutboxEventsCompanion copyWith(
+      {Value<String>? eventId,
+      Value<String>? type,
+      Value<String?>? questionId,
+      Value<String?>? attemptId,
+      Value<String?>? chosenKey,
+      Value<String?>? grade,
+      Value<String>? payload,
+      Value<int>? clientTs,
+      Value<int>? tries,
+      Value<String?>? lastError,
+      Value<int>? createdAt,
+      Value<int>? rowid}) {
+    return OutboxEventsCompanion(
+      eventId: eventId ?? this.eventId,
+      type: type ?? this.type,
+      questionId: questionId ?? this.questionId,
+      attemptId: attemptId ?? this.attemptId,
+      chosenKey: chosenKey ?? this.chosenKey,
+      grade: grade ?? this.grade,
+      payload: payload ?? this.payload,
+      clientTs: clientTs ?? this.clientTs,
+      tries: tries ?? this.tries,
+      lastError: lastError ?? this.lastError,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (eventId.present) {
+      map['event_id'] = Variable<String>(eventId.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (questionId.present) {
+      map['question_id'] = Variable<String>(questionId.value);
+    }
+    if (attemptId.present) {
+      map['attempt_id'] = Variable<String>(attemptId.value);
+    }
+    if (chosenKey.present) {
+      map['chosen_key'] = Variable<String>(chosenKey.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<String>(grade.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (clientTs.present) {
+      map['client_ts'] = Variable<int>(clientTs.value);
+    }
+    if (tries.present) {
+      map['tries'] = Variable<int>(tries.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OutboxEventsCompanion(')
+          ..write('eventId: $eventId, ')
+          ..write('type: $type, ')
+          ..write('questionId: $questionId, ')
+          ..write('attemptId: $attemptId, ')
+          ..write('chosenKey: $chosenKey, ')
+          ..write('grade: $grade, ')
+          ..write('payload: $payload, ')
+          ..write('clientTs: $clientTs, ')
+          ..write('tries: $tries, ')
+          ..write('lastError: $lastError, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6774,6 +7321,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DailyRoundsTable dailyRounds = $DailyRoundsTable(this);
   late final $PoliticianBiosTable politicianBios = $PoliticianBiosTable(this);
   late final $CompletedRunsTable completedRuns = $CompletedRunsTable(this);
+  late final $OutboxEventsTable outboxEvents = $OutboxEventsTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
@@ -6788,6 +7336,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       PoliticianBiosDao(this as AppDatabase);
   late final CompletedRunsDao completedRunsDao =
       CompletedRunsDao(this as AppDatabase);
+  late final OutboxDao outboxDao = OutboxDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6804,7 +7353,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         chapterProgress,
         dailyRounds,
         politicianBios,
-        completedRuns
+        completedRuns,
+        outboxEvents
       ];
 }
 
@@ -9955,6 +10505,269 @@ typedef $$CompletedRunsTableProcessedTableManager = ProcessedTableManager<
     ),
     CompletedRunEntry,
     PrefetchHooks Function()>;
+typedef $$OutboxEventsTableCreateCompanionBuilder = OutboxEventsCompanion
+    Function({
+  required String eventId,
+  required String type,
+  Value<String?> questionId,
+  Value<String?> attemptId,
+  Value<String?> chosenKey,
+  Value<String?> grade,
+  Value<String> payload,
+  required int clientTs,
+  Value<int> tries,
+  Value<String?> lastError,
+  required int createdAt,
+  Value<int> rowid,
+});
+typedef $$OutboxEventsTableUpdateCompanionBuilder = OutboxEventsCompanion
+    Function({
+  Value<String> eventId,
+  Value<String> type,
+  Value<String?> questionId,
+  Value<String?> attemptId,
+  Value<String?> chosenKey,
+  Value<String?> grade,
+  Value<String> payload,
+  Value<int> clientTs,
+  Value<int> tries,
+  Value<String?> lastError,
+  Value<int> createdAt,
+  Value<int> rowid,
+});
+
+class $$OutboxEventsTableFilterComposer
+    extends Composer<_$AppDatabase, $OutboxEventsTable> {
+  $$OutboxEventsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get eventId => $composableBuilder(
+      column: $table.eventId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get questionId => $composableBuilder(
+      column: $table.questionId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get attemptId => $composableBuilder(
+      column: $table.attemptId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chosenKey => $composableBuilder(
+      column: $table.chosenKey, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get clientTs => $composableBuilder(
+      column: $table.clientTs, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get tries => $composableBuilder(
+      column: $table.tries, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$OutboxEventsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OutboxEventsTable> {
+  $$OutboxEventsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get eventId => $composableBuilder(
+      column: $table.eventId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get type => $composableBuilder(
+      column: $table.type, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get questionId => $composableBuilder(
+      column: $table.questionId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get attemptId => $composableBuilder(
+      column: $table.attemptId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chosenKey => $composableBuilder(
+      column: $table.chosenKey, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+      column: $table.payload, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get clientTs => $composableBuilder(
+      column: $table.clientTs, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get tries => $composableBuilder(
+      column: $table.tries, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$OutboxEventsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OutboxEventsTable> {
+  $$OutboxEventsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get eventId =>
+      $composableBuilder(column: $table.eventId, builder: (column) => column);
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get questionId => $composableBuilder(
+      column: $table.questionId, builder: (column) => column);
+
+  GeneratedColumn<String> get attemptId =>
+      $composableBuilder(column: $table.attemptId, builder: (column) => column);
+
+  GeneratedColumn<String> get chosenKey =>
+      $composableBuilder(column: $table.chosenKey, builder: (column) => column);
+
+  GeneratedColumn<String> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<int> get clientTs =>
+      $composableBuilder(column: $table.clientTs, builder: (column) => column);
+
+  GeneratedColumn<int> get tries =>
+      $composableBuilder(column: $table.tries, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$OutboxEventsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $OutboxEventsTable,
+    OutboxEvent,
+    $$OutboxEventsTableFilterComposer,
+    $$OutboxEventsTableOrderingComposer,
+    $$OutboxEventsTableAnnotationComposer,
+    $$OutboxEventsTableCreateCompanionBuilder,
+    $$OutboxEventsTableUpdateCompanionBuilder,
+    (
+      OutboxEvent,
+      BaseReferences<_$AppDatabase, $OutboxEventsTable, OutboxEvent>
+    ),
+    OutboxEvent,
+    PrefetchHooks Function()> {
+  $$OutboxEventsTableTableManager(_$AppDatabase db, $OutboxEventsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OutboxEventsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OutboxEventsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OutboxEventsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> eventId = const Value.absent(),
+            Value<String> type = const Value.absent(),
+            Value<String?> questionId = const Value.absent(),
+            Value<String?> attemptId = const Value.absent(),
+            Value<String?> chosenKey = const Value.absent(),
+            Value<String?> grade = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            Value<int> clientTs = const Value.absent(),
+            Value<int> tries = const Value.absent(),
+            Value<String?> lastError = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              OutboxEventsCompanion(
+            eventId: eventId,
+            type: type,
+            questionId: questionId,
+            attemptId: attemptId,
+            chosenKey: chosenKey,
+            grade: grade,
+            payload: payload,
+            clientTs: clientTs,
+            tries: tries,
+            lastError: lastError,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String eventId,
+            required String type,
+            Value<String?> questionId = const Value.absent(),
+            Value<String?> attemptId = const Value.absent(),
+            Value<String?> chosenKey = const Value.absent(),
+            Value<String?> grade = const Value.absent(),
+            Value<String> payload = const Value.absent(),
+            required int clientTs,
+            Value<int> tries = const Value.absent(),
+            Value<String?> lastError = const Value.absent(),
+            required int createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              OutboxEventsCompanion.insert(
+            eventId: eventId,
+            type: type,
+            questionId: questionId,
+            attemptId: attemptId,
+            chosenKey: chosenKey,
+            grade: grade,
+            payload: payload,
+            clientTs: clientTs,
+            tries: tries,
+            lastError: lastError,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$OutboxEventsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $OutboxEventsTable,
+    OutboxEvent,
+    $$OutboxEventsTableFilterComposer,
+    $$OutboxEventsTableOrderingComposer,
+    $$OutboxEventsTableAnnotationComposer,
+    $$OutboxEventsTableCreateCompanionBuilder,
+    $$OutboxEventsTableUpdateCompanionBuilder,
+    (
+      OutboxEvent,
+      BaseReferences<_$AppDatabase, $OutboxEventsTable, OutboxEvent>
+    ),
+    OutboxEvent,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9983,4 +10796,6 @@ class $AppDatabaseManager {
       $$PoliticianBiosTableTableManager(_db, _db.politicianBios);
   $$CompletedRunsTableTableManager get completedRuns =>
       $$CompletedRunsTableTableManager(_db, _db.completedRuns);
+  $$OutboxEventsTableTableManager get outboxEvents =>
+      $$OutboxEventsTableTableManager(_db, _db.outboxEvents);
 }

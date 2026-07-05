@@ -280,3 +280,38 @@ export.
   quietly until the hosted project is provisioned).
 - Verified against a throwaway Postgres: double ingest idempotent, publish
   flip, unpublish-on-removal, malformed YAML rejected with exit 1.
+
+### Flutter auth + outbox sync (2026-07-04, same day)
+
+- **Optional backend wiring in the app.** `SupabaseConfig` reads
+  SUPABASE_URL / SUPABASE_ANON_KEY from --dart-define exactly like the
+  Sentry DSN: unconfigured builds never initialize Supabase and stay fully
+  offline (v1 behavior preserved bit for bit). Codemagic passes both
+  through; they are optional secrets.
+- **Auth (email OTP, pseudonymous).** `AuthService`: request/verify one-time
+  code, sign out, and `ensureProfile()` which creates the server profile
+  with a generated neutral handle (adjective_noun_nnnn). The email lives
+  only in Supabase Auth; nothing app-visible derives from it. Sign in with
+  Apple deferred (needs entitlement + portal setup). Settings gains an
+  Account section (hidden in unconfigured builds): sign in is explicitly
+  optional copy, sheet does email -> code -> verified.
+- **Outbox sync (schema v10).** New `outbox_events` Drift table + OutboxDao
+  (FIFO, per-row tries, dead-letter after 8). `SyncEngine` behind a
+  `SyncTransport` boundary: answers -> submit_answer RPC, reviews ->
+  submit_review RPC, session boundaries -> direct insert (RLS-allowed).
+  Client-generated UUIDv4 event ids make retries idempotent; 23505 on
+  replay counts as delivered. Transient errors stop the pass (retry on next
+  trigger: enqueue, sign-in, app launch); permanent server rejections
+  record the error and never dam the queue. Enqueue is a no-op unless a
+  backend is configured AND a user is signed in: nothing leaves the device
+  otherwise.
+- **Hooks.** Daily round emits session_start on creation and session_end on
+  completion (efficacy engagement metrics). FCLE answer/review enqueue
+  paths are built and tested, activating when the FCLE prep UI ships;
+  v1 face/concept card reviews intentionally stay local (their cards are
+  not in the server question bank).
+- Tests: 9 new sync-engine tests (idempotence, ordering, transient vs
+  permanent failure, dead-lettering, field carriage); migration test now
+  pins v10 + outbox table. Full suite green, analyze clean.
+- NOT yet verified against a hosted Supabase project (none provisioned);
+  the transport talks to the RPC contract validated by supabase/tests.

@@ -3,8 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthState, Supabase;
 
 import '../core/database/drift/app_database.dart';
+import '../core/sync/auth_service.dart';
+import '../core/sync/supabase_config.dart';
+import '../core/sync/sync_engine.dart';
 import '../features/atlas/data/branch_info_loader.dart';
 import '../features/atlas/data/wikipedia_bio_service.dart';
 import '../features/benchmark/data/benchmark_loader.dart';
@@ -30,6 +35,29 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 final fsrsProvider = Provider<FSRS>((ref) => const FSRS());
+
+// ── Backend (optional; absent config = fully offline, exactly like v1) ──────
+
+/// Null when the build carries no backend config or the user is signed out
+/// of everything Supabase. All sync features no-op through this null.
+final authServiceProvider = Provider<AuthService?>((ref) =>
+    SupabaseConfig.isConfigured
+        ? AuthService(Supabase.instance.client)
+        : null,);
+
+final authStateProvider = StreamProvider<AuthState>((ref) {
+  final auth = ref.watch(authServiceProvider);
+  return auth == null ? const Stream.empty() : auth.onAuthStateChange;
+});
+
+final syncEngineProvider = Provider<SyncEngine>((ref) {
+  // Recreate when auth flips so isActive reflects the current session.
+  ref.watch(authStateProvider);
+  final transport = SupabaseConfig.isConfigured
+      ? SupabaseTransport(Supabase.instance.client)
+      : null;
+  return SyncEngine(ref.watch(databaseProvider), transport);
+});
 
 final profileServiceProvider = Provider<ProfileService>((ref) => ProfileService(ref.watch(databaseProvider)));
 

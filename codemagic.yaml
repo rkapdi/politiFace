@@ -10,6 +10,8 @@
 #
 # Required secrets:
 #   SENTRY_DSN                      (optional — empty disables crash reports)
+#   SUPABASE_URL                    (optional — empty disables backend/auth/sync)
+#   SUPABASE_ANON_KEY               (optional — public client key; RLS is the guard)
 #   APP_STORE_CONNECT_ISSUER_ID
 #   APP_STORE_CONNECT_KEY_IDENTIFIER
 #   APP_STORE_CONNECT_PRIVATE_KEY
@@ -56,6 +58,8 @@ workflows:
           flutter build ipa \
             --release \
             --dart-define=SENTRY_DSN="$SENTRY_DSN" \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:

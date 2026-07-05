@@ -6,8 +6,10 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/sync/supabase_config.dart';
 import '../../notifications/data/notification_service.dart';
 import '../data/settings_service.dart';
+import 'account_section.dart';
 
 const _githubUrl = 'https://github.com/rkapdi/politiFace';
 const _licenseUrl =
@@ -61,6 +63,11 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         children: [
+          if (SupabaseConfig.isConfigured) ...[
+            _SectionHeader(text: 'Account', theme: theme),
+            const AccountSection(),
+            const Divider(height: 32),
+          ],
           _SectionHeader(text: 'Appearance', theme: theme),
           _ThemeModePicker(
             value: ref.watch(themeModeProvider),
