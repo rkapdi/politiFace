@@ -392,3 +392,26 @@ export.
   only, no names or emails, points counted by the server.
 - Home gains a CLASS tile (configured builds only). Route /leaderboard.
 - Tests: ranking unit tests. Suite green (246), analyze clean.
+
+### Faculty weakness view (2026-07-04, same day)
+
+- **Server: faculty aggregate RPCs** (migration 000800). cohort_overview
+  (students, active 7d, answers, mocks completed), cohort_domain_stats
+  (per-domain accuracy across the cohort), cohort_top_misses (most-missed
+  questions with stems). All SECURITY DEFINER behind an is-faculty check,
+  aggregates only: faculty still cannot read a single raw event. Built-in
+  k-anonymity floor: nothing renders below 5 students per slice (default
+  p_min_n, overridable only downward by callers we control, e.g. tests).
+  Plus create_cohort RPC (name/term -> id + 6-char join code). Smoke test
+  extended: overview counts, 4-domain stats at floor 1, EMPTY at the
+  default floor for a tiny cohort, top misses populated, student calls
+  rejected. Full harness green.
+- **Web: docs/faculty/ on the existing Pages site.** Static page, no build
+  system: supabase-js from CDN, email OTP sign-in, class list + create
+  class (join code displayed for students), overview stats, domain
+  accuracy bars, most-missed questions, and an "Open one-pager" button
+  that fetches the efficacy-report Edge Function under the professor's
+  own JWT. All server-derived strings HTML-escaped; page is noindex;
+  config.js placeholder until the hosted project exists (page shows a
+  setup note when empty). This is the Epic 7a lightweight educator view;
+  the full portal (authoring, dashboards) stays deferred.

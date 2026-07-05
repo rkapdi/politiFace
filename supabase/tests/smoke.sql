@@ -340,5 +340,64 @@ begin
   end if;
 end $$;
 
+-- ── Faculty aggregates: weakness view + min-n floor ─────────────────────────
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid;
+  v_created jsonb;
+  n int;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+    where user_id = auth.uid() and role = 'faculty'
+    order by joined_at asc limit 1;
+
+  -- create_cohort RPC mints a class + join code.
+  v_created := public.create_cohort('POS2041 Spring', '2027S');
+  if length(v_created ->> 'join_code') <> 6 then
+    raise exception 'FAIL: create_cohort join code';
+  end if;
+
+  -- Overview counts the mock activity.
+  perform 1 from public.cohort_overview(v_cohort)
+    where answers_total >= 80 and mocks_completed >= 1;
+  if not found then raise exception 'FAIL: cohort_overview counts'; end if;
+
+  -- With the floor lowered (one student answered), stats appear...
+  select count(*) into n from public.cohort_domain_stats(v_cohort, 1);
+  if n <> 4 then
+    raise exception 'FAIL: domain stats should cover 4 domains, got %', n;
+  end if;
+
+  -- ...but at the default floor of 5 students, NOTHING renders.
+  select count(*) into n from public.cohort_domain_stats(v_cohort);
+  if n <> 0 then
+    raise exception 'FAIL: min-n floor leaked stats for a tiny cohort';
+  end if;
+
+  -- Top misses: the student answered 24 mock questions wrong.
+  select count(*) into n from public.cohort_top_misses(v_cohort, 1, 10);
+  if n < 1 then raise exception 'FAIL: no top misses returned'; end if;
+  perform 1 from public.cohort_top_misses(v_cohort, 1, 10)
+    where miss_rate <= 0 or stem is null;
+  if found then raise exception 'FAIL: bad top-miss row'; end if;
+end $$;
+
+-- Students cannot call the faculty aggregates.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+    where user_id = auth.uid() limit 1;
+  begin
+    perform * from public.cohort_domain_stats(v_cohort, 1);
+    raise exception 'FAIL: student read cohort stats';
+  exception when others then
+    if sqlerrm not like '%not faculty%' then raise; end if;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
