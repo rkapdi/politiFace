@@ -259,3 +259,24 @@ schema, with the append-only event log as the spine.
 **Next:** YAML -> Postgres content ingest CI, Flutter Supabase auth +
 event outbox sync, RevenueCat webhook Edge Function, efficacy one-pager
 export.
+
+### Content ingest CI (2026-07-04, same day)
+
+- **Canonical FCLE question bank format** under `content/questions/` (one
+  YAML per domain) + `content/fcle/objectives.yaml` (format defined; codes
+  await transcription from the official FLDOE competencies document, never
+  invented). Starter tranche: 8 original questions (2 per domain), each
+  cited to a primary public source, all `status: draft` pending founder
+  editorial review (publish is gated at PR review).
+- **`scripts/ingest_content.py`**: `--check` validates on every PR (ids,
+  options, answer key membership, https citations, explanations, domains,
+  objectives, house style); `--db` ingests under a new `content_version`.
+  Question ids map to deterministic UUIDv5, so re-ingest updates in place
+  and student FSRS state survives edits. Questions removed from YAML are
+  unpublished, never deleted. Government graph nodes ingest into
+  `public.entities`.
+- **`content-ci.yml`** extended: question validation on PRs; on merge to
+  main an ingest job runs when the `SUPABASE_DB_URL` secret exists (skips
+  quietly until the hosted project is provisioned).
+- Verified against a throwaway Postgres: double ingest idempotent, publish
+  flip, unpublish-on-removal, malformed YAML rejected with exit 1.

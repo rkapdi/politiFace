@@ -1,0 +1,50 @@
+# FCLE domain 2: United States Constitution.
+# Starter tranche. All questions are original, grounded in primary public
+# sources. status stays draft until founder editorial review.
+
+domain: us_constitution
+questions:
+  - id: usconst-article1-congress-001
+    stem: >
+      Article I of the Constitution vests "all legislative Powers herein
+      granted" in which body?
+    options:
+      - key: a
+        text: The Supreme Court
+      - key: b
+        text: The President
+      - key: c
+        text: The state legislatures
+      - key: d
+        text: The Congress of the United States
+    answer: d
+    explanation: >
+      Article I, Section 1 vests all granted legislative powers in a Congress
+      of the United States, consisting of a Senate and a House of
+      Representatives.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 1
+    objective: null
+    status: draft
+
+  - id: usconst-bill-of-rights-count-001
+    stem: >
+      How many amendments make up the Bill of Rights?
+    options:
+      - key: a
+        text: Five
+      - key: b
+        text: Ten
+      - key: c
+        text: Twelve
+      - key: d
+        text: Twenty-seven
+    answer: b
+    explanation: >
+      The first ten amendments to the Constitution, ratified in 1791, are
+      known collectively as the Bill of Rights. Twelve were proposed; ten
+      were ratified at the time.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 1
+    objective: null
+    status: draft

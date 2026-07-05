@@ -11,6 +11,11 @@ of schema truth.
   models, efficacy, entitlements, then the RPC trust boundary.
 - `seed.sql` - local dev seed (placeholder question bank; real content comes
   from the YAML -> Postgres CI ingest).
+- Content ingest: `scripts/ingest_content.py` (repo root). CI validates
+  `content/questions/` on every PR and ingests on merge to main under a new
+  `content_version` (see `.github/workflows/content-ci.yml`). Question YAML
+  ids map to deterministic UUIDs, so re-ingest updates in place and student
+  FSRS state survives content edits.
 - `tests/` - `run_local.sh` spins up a throwaway plain Postgres 17 cluster
   (no Docker), applies a tiny Supabase auth shim, runs every migration, then
   `smoke.sql`: the full student/faculty lifecycle through the RPCs plus RLS

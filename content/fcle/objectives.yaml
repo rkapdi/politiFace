@@ -1,0 +1,16 @@
+# FCLE objectives (competencies) per domain.
+#
+# IMPORTANT: transcribe these from the official FLDOE Civic Literacy
+# competencies and skills document (Rule 6A-10.02413, FAC; see
+# https://www.fldoe.org/ for the current publication). Do not invent codes.
+# Until transcribed, this file stays empty and the `objective` field on
+# questions stays null; the ingest treats unknown objective codes as errors.
+#
+# Format:
+# objectives:
+#   - code: AD.1            # short stable code, referenced by questions
+#     domain: american_democracy
+#     description: >
+#       The competency text, paraphrased from the official document.
+
+objectives: []

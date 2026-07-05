@@ -1,0 +1,51 @@
+# FCLE domain 3: Founding Documents.
+# Starter tranche. All questions are original, grounded in primary public
+# sources. status stays draft until founder editorial review.
+
+domain: founding_documents
+questions:
+  - id: founddocs-federalist-purpose-001
+    stem: >
+      The Federalist Papers were written primarily to accomplish what goal?
+    options:
+      - key: a
+        text: To declare independence from Great Britain
+      - key: b
+        text: To persuade New Yorkers to ratify the proposed Constitution
+      - key: c
+        text: To list grievances against King George III
+      - key: d
+        text: To establish the first national bank
+    answer: b
+    explanation: >
+      Alexander Hamilton, James Madison, and John Jay published the essays
+      under the pen name Publius to urge ratification of the Constitution,
+      addressing the citizens of New York during the ratification debate.
+    citation: https://www.archives.gov/milestone-documents/federalist-papers-no-10-no-51
+    difficulty: 2
+    objective: null
+    status: draft
+
+  - id: founddocs-articles-confederation-001
+    stem: >
+      Which document established the first national government of the United
+      States, before the Constitution?
+    options:
+      - key: a
+        text: The Articles of Confederation
+      - key: b
+        text: The Declaration of Independence
+      - key: c
+        text: The Northwest Ordinance
+      - key: d
+        text: The Virginia Plan
+    answer: a
+    explanation: >
+      The Articles of Confederation, ratified in 1781, created the first
+      national frame of government. Its weaknesses, especially the lack of
+      taxing power and a national executive, led to the Constitutional
+      Convention of 1787.
+    citation: https://www.archives.gov/milestone-documents/articles-of-confederation
+    difficulty: 2
+    objective: null
+    status: draft
