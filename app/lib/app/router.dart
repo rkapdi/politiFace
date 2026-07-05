@@ -1,7 +1,9 @@
 import 'package:go_router/go_router.dart';
 
 import '../features/atlas/presentation/atlas_screen.dart';
+import '../features/atlas/presentation/executive_orders_screen.dart';
 import '../features/atlas/presentation/politician_detail_screen.dart';
+import '../features/atlas/presentation/vocabulary_screen.dart';
 import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
 import '../features/endless/presentation/endless_screen.dart';
@@ -123,6 +125,14 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       GoRoute(
         path: '/memory/history',
         builder: (context, state) => const HistoryScreen(),
+      ),
+      GoRoute(
+        path: '/atlas/orders',
+        builder: (context, state) => const ExecutiveOrdersScreen(),
+      ),
+      GoRoute(
+        path: '/atlas/vocabulary',
+        builder: (context, state) => const VocabularyScreen(),
       ),
       GoRoute(
         path: '/leaderboard',

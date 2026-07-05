@@ -35,6 +35,8 @@ REPO = Path(__file__).resolve().parent.parent
 QUESTIONS_DIR = REPO / "content" / "questions"
 OBJECTIVES_FILE = REPO / "content" / "fcle" / "objectives.yaml"
 GOVERNMENT_FILE = REPO / "content" / "governments" / "us" / "government.yaml"
+EO_FILE = REPO / "content" / "atlas" / "executive_orders.yaml"
+VOCABULARY_FILE = REPO / "content" / "atlas" / "vocabulary.yaml"
 
 DOMAINS = {
     "american_democracy": 1,
@@ -184,25 +186,87 @@ def load_questions(errors: Errors, objective_codes: set[str]) -> list[dict]:
 
 
 def load_entities(errors: Errors) -> list[dict]:
-    if not GOVERNMENT_FILE.exists():
-        return []
-    doc = yaml.safe_load(GOVERNMENT_FILE.read_text()) or {}
     entities: list[dict] = []
-    for i, node in enumerate(doc.get("nodes") or []):
-        where = f"{GOVERNMENT_FILE.name}[{i}]"
-        slug = node.get("id")
-        if not slug:
-            errors.add(where, "node missing id")
-            continue
-        etype = node.get("node_type") or "institution"
-        data = {
-            k: v
-            for k, v in node.items()
-            if k not in ("id", "name", "map", "unlock_requires")
-        }
-        entities.append(
-            {"type": etype, "slug": slug, "name": node.get("name") or slug, "data": data}
-        )
+
+    if GOVERNMENT_FILE.exists():
+        doc = yaml.safe_load(GOVERNMENT_FILE.read_text()) or {}
+        for i, node in enumerate(doc.get("nodes") or []):
+            where = f"{GOVERNMENT_FILE.name}[{i}]"
+            slug = node.get("id")
+            if not slug:
+                errors.add(where, "node missing id")
+                continue
+            etype = node.get("node_type") or "institution"
+            data = {
+                k: v
+                for k, v in node.items()
+                if k not in ("id", "name", "map", "unlock_requires")
+            }
+            entities.append({
+                "type": etype, "slug": slug,
+                "name": node.get("name") or slug,
+                "data": data, "citations": [],
+            })
+
+    if EO_FILE.exists():
+        doc = yaml.safe_load(EO_FILE.read_text()) or {}
+        for i, o in enumerate(doc.get("orders") or []):
+            where = f"{EO_FILE.name}[{i}]"
+            number = o.get("eo_number")
+            if not isinstance(number, int):
+                errors.add(where, f"bad eo_number {number!r}")
+                continue
+            url = (o.get("url") or "").strip()
+            if not url.startswith("https://www.federalregister.gov/"):
+                errors.add(where, "url must be a federalregister.gov link")
+            if not (o.get("title") or "").strip():
+                errors.add(where, "missing title")
+            entities.append({
+                "type": "executive_order",
+                "slug": f"eo-{number}",
+                "name": o.get("title") or f"Executive Order {number}",
+                "data": {
+                    "eo_number": number,
+                    "president": o.get("president"),
+                    "signing_date": o.get("signing_date"),
+                    "federal_register_citation":
+                        o.get("federal_register_citation"),
+                    "document_number": o.get("document_number"),
+                    "abstract": o.get("abstract"),
+                },
+                "citations": [url],
+            })
+
+    if VOCABULARY_FILE.exists():
+        doc = yaml.safe_load(VOCABULARY_FILE.read_text()) or {}
+        for i, t in enumerate(doc.get("terms") or []):
+            tid = t.get("id")
+            where = f"{VOCABULARY_FILE.name}[{i}]"
+            if not tid or not ID_RE.match(str(tid)):
+                errors.add(where, f"bad term id {tid!r}")
+                continue
+            where = f"{VOCABULARY_FILE.name}:{tid}"
+            if len((t.get("definition") or "").strip()) < 20:
+                errors.add(where, "definition missing or too short")
+            citation = (t.get("citation") or "").strip()
+            if not citation.startswith("https://"):
+                errors.add(where, "citation must be a working https:// URL")
+            domain = t.get("domain")
+            if domain is not None and domain not in DOMAINS:
+                errors.add(where, f"unknown domain {domain!r}")
+            if "—" in (t.get("definition") or ""):
+                errors.add(where, "em-dash in student-facing text (house style)")
+            entities.append({
+                "type": "term",
+                "slug": str(tid),
+                "name": (t.get("term") or "").strip() or str(tid),
+                "data": {
+                    "definition": (t.get("definition") or "").strip(),
+                    "domain": domain,
+                },
+                "citations": [citation],
+            })
+
     return entities
 
 
@@ -289,15 +353,17 @@ def ingest(db_url: str, version: str, git_sha: str | None,
             cur.execute(
                 """
                 insert into public.entities
-                  (id, type, slug, name, data, content_version_id)
-                values (%s, %s, %s, %s, %s, %s)
+                  (id, type, slug, name, data, citations, content_version_id)
+                values (%s, %s, %s, %s, %s, %s, %s)
                 on conflict (type, slug) do update set
                   name = excluded.name,
                   data = excluded.data,
+                  citations = excluded.citations,
                   content_version_id = excluded.content_version_id
                 """,
                 (str(entity_uuid(e["type"], e["slug"])), e["type"], e["slug"],
-                 e["name"], json.dumps(e["data"]), version_id),
+                 e["name"], json.dumps(e["data"]),
+                 json.dumps(e.get("citations", [])), version_id),
             )
 
         conn.commit()

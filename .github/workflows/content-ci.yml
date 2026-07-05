@@ -75,6 +75,20 @@ jobs:
             exit 1
           fi
 
+      - name: Bundled atlas reference matches canonical content
+        run: |
+          fail=0
+          for f in content/atlas/*.yaml; do
+            if ! cmp -s "$f" "app/assets/content/atlas/$(basename "$f")"; then
+              echo "::error::app/assets/content/atlas/$(basename "$f") is out of sync with $f"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo "Run: cp content/atlas/*.yaml app/assets/content/atlas/"
+            exit 1
+          fi
+
   ingest-content:
     # Merge to main only. Skips quietly until the SUPABASE_DB_URL secret
     # exists (repo settings -> secrets), so the pipeline is safe to land

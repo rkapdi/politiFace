@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
 import '../../shared/widgets/state_views.dart';
@@ -137,6 +139,10 @@ class _AtlasBody extends ConsumerWidget {
                   const SizedBox(height: 16),
                 ],
               ],
+            if (showSpotlight) ...[
+              const _ReferenceSection(),
+              const SizedBox(height: 16),
+            ],
             const SizedBox(height: 8),
             _MasterySummary(view: view),
             const SizedBox(height: 16),
@@ -260,6 +266,103 @@ class _NoResults extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Entry tiles for the reference layer beyond the graph: executive orders
+/// (Federal Register) and the cited civic vocabulary.
+class _ReferenceSection extends StatelessWidget {
+  const _ReferenceSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'REFERENCE',
+          style: theme.textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.6,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 10),
+        _ReferenceTile(
+          icon: Icons.gavel_outlined,
+          title: 'Executive orders',
+          subtitle: 'Every order of the current administration, '
+              'from the Federal Register.',
+          onTap: () => context.push('/atlas/orders'),
+        ),
+        const SizedBox(height: 8),
+        _ReferenceTile(
+          icon: Icons.menu_book_outlined,
+          title: 'Civic vocabulary',
+          subtitle: 'Key terms, defined and cited to primary sources.',
+          onTap: () => context.push('/atlas/vocabulary'),
+        ),
+      ],
+    );
+  }
+}
+
+class _ReferenceTile extends StatelessWidget {
+  const _ReferenceTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: theme.colorScheme.onSurfaceVariant),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    subtitle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 20),
+          ],
+        ),
       ),
     );
   }

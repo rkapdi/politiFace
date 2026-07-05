@@ -453,3 +453,30 @@ export.
   tracked work-item list (VoiceOver walkthrough, Dynamic Type, portrait
   labels, legacy ochre sweep, Reduce Motion) are in the doc.
 - Suite green, analyze clean.
+
+### Atlas expansion: executive orders + civic vocabulary (2026-07-05)
+
+- **Executive orders (Purcell ask #2).** scripts/fetch_executive_orders.py
+  pulls every EO from the Federal Register API into canonical
+  content/atlas/executive_orders.yaml (deterministic output, auditable
+  diffs). Fetched live: 268 orders of the current administration
+  (2025-01-20 through 2026-06-25), each with number, title, president,
+  signing date, FR citation, and its federalregister.gov URL as the
+  citation. In-app: searchable list + detail sheet + READ AT
+  FEDERALREGISTER.GOV, under a new REFERENCE section on the Atlas tab.
+- **Civic vocabulary.** content/atlas/vocabulary.yaml: 12 starter terms
+  (habeas corpus, due process, judicial review, veto, separation of
+  powers, impeachment, ratification, Bill of Rights, and more), original
+  definitions, every citation verified reachable at authoring time
+  (uscourts.gov, archives.gov, federalregister.gov; senate.gov and
+  congress.gov block automated verification, so they are avoided until
+  the pipeline can check them). Glossary screen with expandable cited
+  definitions. Terms carry optional FCLE domain tags for later exam-prep
+  linkage.
+- **Pipeline.** ingest_content.py now validates + ingests both files into
+  public.entities (types executive_order and term) with citations; the
+  entities upsert carries the citations column. Verified against a
+  throwaway Postgres: 289 entities (9 government nodes, 268 EOs, 12
+  terms). content-ci gains the bundled-copy drift check for
+  content/atlas/. Loader test pins the bundled data (200+ orders, cited
+  alphabetical vocabulary, house-style check).
