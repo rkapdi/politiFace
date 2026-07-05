@@ -167,48 +167,53 @@ class _ReadinessRow extends StatelessWidget {
         : accuracy >= 0.6
             ? green
             : theme.colorScheme.brandRed;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  domain.label,
-                  style: theme.textTheme.bodyMedium
-                      ?.copyWith(fontWeight: FontWeight.w700),
+    // One semantic node per domain: "American Democracy, readiness 75%".
+    return MergeSemantics(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    domain.label,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
-              ),
-              Text(
-                accuracy == null
-                    ? 'No data yet'
-                    : '${(accuracy * 100).round()}%',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: accuracy == null
-                      ? theme.colorScheme.onSurfaceVariant
-                      : color,
+                Text(
+                  accuracy == null
+                      ? 'No data yet'
+                      : '${(accuracy * 100).round()}%',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: accuracy == null
+                        ? theme.colorScheme.onSurfaceVariant
+                        : color,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: accuracy ?? 0,
-              minHeight: 6,
-              backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              color: color,
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            ExcludeSemantics(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(3),
+                child: LinearProgressIndicator(
+                  value: accuracy ?? 0,
+                  minHeight: 6,
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  color: color,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

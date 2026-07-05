@@ -430,3 +430,26 @@ export.
   failure path and iPad share-origin rect).
 - Tests: pass/fail/degenerate render-without-overflow. Suite green,
   analyze clean.
+
+### Accessibility pass + VPAT fill (2026-07-04, same day)
+
+- **Contrast audit, measured not guessed.** Every palette text pair
+  computed against WCAG relative luminance. Three failures found and
+  fixed: actionRed as text was 4.49:1 on paper (darkened to 0xFFC41E25,
+  5.23:1; white-on-red buttons improved to 5.90:1); dark mode had NO red
+  sibling (3.78:1; added actionRedDark 0xFFEE6A70, 6.32:1; brandRed is
+  now brightness-aware); ochre as text on paper was 2.15:1 (added
+  text-safe ochreDeep 0xFF7E6128 at 5.14:1 + brandOchreText accessor;
+  switched leaderboard ranks, the CLASS home tile, chapter status label).
+  Full measurement table recorded in the VPAT.
+- **Semantics fixes on the new screens.** Mock option tiles expose button
+  role + selected state; practice feedback tiles carry correct/incorrect
+  labels AND announce the verdict + explanation via SemanticsService (no
+  hunting for icons); readiness rows, domain bars, and leaderboard rows
+  merge into single readable nodes; decorative progress bars excluded.
+- **VPAT filled honestly.** Every A/AA row now carries a level + remarks;
+  code-verifiable rows are Supports, device-dependent rows are Partially
+  Supports marked "pending device pass". The contrast audit table and a
+  tracked work-item list (VoiceOver walkthrough, Dynamic Type, portrait
+  labels, legacy ochre sweep, Reduce Motion) are in the doc.
+- Suite green, analyze clean.

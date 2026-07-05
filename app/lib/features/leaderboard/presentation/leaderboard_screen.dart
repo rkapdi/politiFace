@@ -48,9 +48,11 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           text: 'Could not load your classes. Pull to retry.',
         ),
         data: (list) => list.isEmpty
-            ? _JoinView(onJoined: () {
-                ref.invalidate(myCohortsProvider);
-              },)
+            ? _JoinView(
+                onJoined: () {
+                  ref.invalidate(myCohortsProvider);
+                },
+              )
             : _BoardView(
                 cohorts: list,
                 selectedId: _selectedCohortId ?? list.first.id,
@@ -111,8 +113,10 @@ class _JoinViewState extends ConsumerState<_JoinView> {
       await api.joinCohort(_code.text);
       widget.onJoined();
     } catch (_) {
-      setState(() => _error = 'That code did not work. Check with your '
-          'professor and try again.',);
+      setState(
+        () => _error = 'That code did not work. Check with your '
+            'professor and try again.',
+      );
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -282,44 +286,49 @@ class _EntryRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final green = theme.colorScheme.brandGreen;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: isMe ? green.withOpacity(0.10) : null,
-        border: Border.all(
-          color: isMe ? green.withOpacity(0.55) : theme.colorScheme.outlineVariant,
+    // One semantic node per row: "#3, handle, 42".
+    return MergeSemantics(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: isMe ? green.withOpacity(0.10) : null,
+          border: Border.all(
+            color: isMe
+                ? green.withOpacity(0.55)
+                : theme.colorScheme.outlineVariant,
+          ),
+          borderRadius: BorderRadius.circular(6),
         ),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 36,
-            child: Text(
-              '#${entry.rank}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: entry.rank <= 3
-                    ? theme.colorScheme.brandOchre
-                    : theme.colorScheme.onSurfaceVariant,
+        child: Row(
+          children: [
+            SizedBox(
+              width: 36,
+              child: Text(
+                '#${entry.rank}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: entry.rank <= 3
+                      ? theme.colorScheme.brandOchreText
+                      : theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              isMe ? '${entry.handle} (you)' : entry.handle,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: isMe ? FontWeight.w800 : FontWeight.w600,
+            Expanded(
+              child: Text(
+                isMe ? '${entry.handle} (you)' : entry.handle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: isMe ? FontWeight.w800 : FontWeight.w600,
+                ),
               ),
             ),
-          ),
-          Text(
-            '${entry.score}',
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w800),
-          ),
-        ],
+            Text(
+              '${entry.score}',
+              style: theme.textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ],
+        ),
       ),
     );
   }

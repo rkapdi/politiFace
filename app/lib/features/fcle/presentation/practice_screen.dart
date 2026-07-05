@@ -4,7 +4,10 @@
 // and the primary-source citation after every answer. Recently missed
 // questions come first, then unseen ones.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart' show SemanticsService;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,10 +58,21 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     if (_chosenKey != null) return; // already answered
     final q = _questions![_index];
     HapticFeedback.lightImpact();
+    final correct = q.isCorrect(key);
     setState(() {
       _chosenKey = key;
-      if (q.isCorrect(key)) _correct++;
+      if (correct) _correct++;
     });
+    // Screen-reader users hear the verdict without hunting for the icons.
+    unawaited(
+      SemanticsService.announce(
+        correct
+            ? 'Correct. ${q.explanation}'
+            : 'Incorrect. The answer is ${q.answerKey.toUpperCase()}. '
+                '${q.explanation}',
+        TextDirection.ltr,
+      ),
+    );
     await ref.read(fcleAnswerRecorderProvider).record(
           question: q,
           chosenKey: key,
@@ -206,38 +220,54 @@ class _FeedbackOptionTile extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(6),
-        onTap: answered ? null : onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            border: Border.all(color: border, width: answered && (isAnswer || isChosen) ? 2 : 1),
+      child: MergeSemantics(
+        child: Semantics(
+          button: true,
+          selected: isChosen,
+          label: !answered
+              ? null
+              : isAnswer
+                  ? 'Correct answer.'
+                  : isChosen
+                      ? 'Your choice, incorrect.'
+                      : null,
+          child: InkWell(
             borderRadius: BorderRadius.circular(6),
-            color: fill,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                option.key.toUpperCase(),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: theme.colorScheme.onSurfaceVariant,
+            onTap: answered ? null : onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: border,
+                  width: answered && (isAnswer || isChosen) ? 2 : 1,
                 ),
+                borderRadius: BorderRadius.circular(6),
+                color: fill,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  option.text,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.3),
-                ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    option.key.toUpperCase(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      option.text,
+                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.3),
+                    ),
+                  ),
+                  if (answered && isAnswer)
+                    Icon(Icons.check_circle, color: green, size: 20)
+                  else if (answered && isChosen && !isAnswer)
+                    Icon(Icons.cancel, color: red, size: 20),
+                ],
               ),
-              if (answered && isAnswer)
-                Icon(Icons.check_circle, color: green, size: 20)
-              else if (answered && isChosen && !isAnswer)
-                Icon(Icons.cancel, color: red, size: 20),
-            ],
+            ),
           ),
         ),
       ),
@@ -273,8 +303,11 @@ class _ExplanationCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.link,
-                      size: 16, color: theme.colorScheme.primary,),
+                  Icon(
+                    Icons.link,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(

@@ -235,38 +235,44 @@ class _OptionTile extends StatelessWidget {
         selected ? theme.colorScheme.primary : theme.colorScheme.outlineVariant;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(6),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-          decoration: BoxDecoration(
-            border: Border.all(color: borderColor, width: selected ? 2 : 1),
+      child: MergeSemantics(
+        child: Semantics(
+          button: true,
+          selected: selected,
+          child: InkWell(
             borderRadius: BorderRadius.circular(6),
-            color: selected
-                ? theme.colorScheme.primary.withOpacity(0.06)
-                : null,
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                option.key.toUpperCase(),
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: selected
-                      ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurfaceVariant,
-                ),
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+              decoration: BoxDecoration(
+                border: Border.all(color: borderColor, width: selected ? 2 : 1),
+                borderRadius: BorderRadius.circular(6),
+                color: selected
+                    ? theme.colorScheme.primary.withOpacity(0.06)
+                    : null,
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  option.text,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.3),
-                ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    option.key.toUpperCase(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: selected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      option.text,
+                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.3),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

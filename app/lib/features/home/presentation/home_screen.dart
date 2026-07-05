@@ -239,7 +239,8 @@ class _LeaderboardTile extends StatelessWidget {
       section: 'CLASS',
       headline: 'Beat your class.',
       body: 'Join with your class code. Every correct answer scores.',
-      accent: Theme.of(context).colorScheme.brandOchre,
+      // Text-safe ochre: _ActionTile renders the accent as small text.
+      accent: Theme.of(context).colorScheme.brandOchreText,
       mark: '#1',
       onTap: () {
         HapticFeedback.lightImpact();

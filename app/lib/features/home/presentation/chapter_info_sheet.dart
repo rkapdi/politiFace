@@ -62,7 +62,8 @@ class ChapterInfoSheet extends ConsumerWidget {
 
   Color _statusColor(ThemeData theme) {
     if (_isCompleted) return theme.colorScheme.brandGreen;
-    if (_isCurrent) return theme.colorScheme.brandOchre;
+    // Text-safe ochre: this color renders the status label text.
+    if (_isCurrent) return theme.colorScheme.brandOchreText;
     return theme.colorScheme.outlineVariant;
   }
 

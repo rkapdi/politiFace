@@ -38,9 +38,15 @@ class EditorialPalette {
   // Use [BrandColors] (extension on ColorScheme) when you want the
   // brightness-appropriate variant; reach for the constants only when you
   // need a fixed value (e.g. share-card render that ignores theme).
-  static const actionRed = Color(0xFFD6242C);      // campaign poster red
+  // WCAG note (measured 2026-07-04): actionRed was 0xFFD6242C at 4.49:1 on
+  // paper, a hair under the 4.5:1 AA text minimum; darkened to 5.23:1 while
+  // staying the same campaign red. Never use `ochre` for TEXT in light mode
+  // (2.15:1); it is an accent for strips, bars, and fills. Text wants
+  // [ochreDeep] via the brandOchreText accessor.
+  static const actionRed = Color(0xFFC41E25);      // campaign poster red
   static const civicNavy = Color(0xFF1E2A4A);      // trust
   static const ochre = Color(0xFFC9A05B);          // vintage paper highlight
+  static const ochreDeep = Color(0xFF7E6128);      // text-safe ochre (5.14:1)
   static const civicGreen = Color(0xFF2F6F4F);     // ledger / approval
 
   // Dark-mode siblings of the brand colors. Saturation lowered, brightness
@@ -48,19 +54,29 @@ class EditorialPalette {
   static const civicNavyDark = Color(0xFF7895CC);
   static const ochreDark = Color(0xFFE0B373);
   static const civicGreenDark = Color(0xFF5DAA80);
+  static const actionRedDark = Color(0xFFEE6A70);  // 6.32:1 on inkInverted
 }
 
 /// Brightness-aware accessors so the same widget can pull the right brand
 /// color in light vs dark without scattering `Theme.of(context).brightness`
 /// branches everywhere.
 extension BrandColors on ColorScheme {
-  Color get brandRed => EditorialPalette.actionRed;
+  Color get brandRed => brightness == Brightness.dark
+      ? EditorialPalette.actionRedDark
+      : EditorialPalette.actionRed;
   Color get brandNavy => brightness == Brightness.dark
       ? EditorialPalette.civicNavyDark
       : EditorialPalette.civicNavy;
   Color get brandOchre => brightness == Brightness.dark
       ? EditorialPalette.ochreDark
       : EditorialPalette.ochre;
+
+  /// Ochre for TEXT. The plain [brandOchre] fails AA contrast on light
+  /// paper (2.15:1); this variant passes in both modes. Use brandOchre only
+  /// for strips, bars, and fills.
+  Color get brandOchreText => brightness == Brightness.dark
+      ? EditorialPalette.ochreDark
+      : EditorialPalette.ochreDeep;
   Color get brandGreen => brightness == Brightness.dark
       ? EditorialPalette.civicGreenDark
       : EditorialPalette.civicGreen;
