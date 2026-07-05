@@ -415,3 +415,18 @@ export.
   config.js placeholder until the hosted project exists (page shows a
   setup note when empty). This is the Epic 7a lightweight educator view;
   the full portal (authoring, dashboards) stays deferred.
+
+### Score-challenge share (2026-07-04, same day)
+
+- **FcleShareCard**: the "I got X of 80, beat my score" artifact, sibling
+  to the trivia and Endless share cards (360x640 off-screen canvas ->
+  1080x1920 PNG via the existing ShareCardRenderer). Big score against the
+  pass bar, ABOVE THE PASSING BAR / BELOW THE BAR chip, four compact
+  domain bars, "Could you pass the Florida civics exam?" challenge line,
+  politiface.app footer. Says Mock FCLE explicitly (positioning rule:
+  practice, never the official exam).
+- **Mock result screen** gains CHALLENGE A FRIEND (same OverlayPortal +
+  RepaintBoundary + share_plus pattern as Endless, with the Sentry-logged
+  failure path and iPad share-origin rect).
+- Tests: pass/fail/degenerate render-without-overflow. Suite green,
+  analyze clean.
