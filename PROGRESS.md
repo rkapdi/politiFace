@@ -351,3 +351,27 @@ export.
   4.1.5 answer bank keyed to the data-minimal posture.
 - Tests: 17 new FCLE tests (engine, loader, DAO, practice-set builder,
   uuid5 parity). Full suite green, analyze clean.
+
+### Server mock flow (2026-07-04, same day)
+
+- **MockSession abstraction.** The exam screen now runs against a session
+  interface. Signed in with a backend: ServerMockSession calls
+  assemble_mock (creating the mock_attempts row that feeds the efficacy
+  one-pager; the first completed mock is kind=baseline, later ones
+  practice), grades each answer through submit_answer, and closes with
+  finalize_mock. Otherwise (or on ANY server failure): LocalMockSession,
+  bit-identical UX from the bundled bank.
+- **Offline degradation, no lost data.** Server questions map back onto
+  the bundled bank via the uuid5 parity mapping, so if the network drops
+  mid-mock, answers queue in the outbox WITH the attempt id and are graded
+  from the local key for the on-screen tally; a failed finalize queues a
+  mock_finalize outbox row (new outbox type; transport calls the
+  idempotent finalize_mock RPC). FIFO order guarantees queued answers land
+  before the finalize. The result screen flags offline-scored attempts
+  ("syncs on the next connection").
+- **Race closed.** Submits pipeline in the background while the student
+  advances, but finish awaits every in-flight submit before finalize, so a
+  slow answer can never be rejected by an already-completed attempt.
+- Tests: 3 ServerMockSession tests (online verdicts, offline queue +
+  pendingSync, server-only questions from a newer bank) + a FIFO
+  answer-before-finalize engine test. Suite green, analyze clean.

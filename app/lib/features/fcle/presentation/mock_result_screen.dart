@@ -65,6 +65,16 @@ class MockResultScreen extends ConsumerWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
+          if (result.pendingSync) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Scored offline. Your attempt syncs on the next connection.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           Text(
             'BY DOMAIN',

@@ -1,17 +1,20 @@
 // lib/features/fcle/presentation/mock_exam_screen.dart
 //
 // The Mock FCLE: 80 questions in domain order, no feedback until the end,
-// mirroring the real exam. Answers are recorded (locally + outbox) as they
-// are given; grading happens at the finish and routes to the result screen.
+// mirroring the real exam. The session behind the screen is server-backed
+// when signed in (mock_attempts, the efficacy instrument) and local
+// otherwise; the screen cannot tell the difference. Answers persist one by
+// one, so a backgrounded or killed app loses nothing already given.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../application/fcle_providers.dart';
+import '../../../app/providers.dart';
+import '../application/mock_session_provider.dart';
 import '../domain/fcle_question.dart';
-import '../domain/mock_engine.dart';
+import '../domain/mock_session.dart';
 
 class MockExamScreen extends ConsumerStatefulWidget {
   const MockExamScreen({super.key});
@@ -21,47 +24,42 @@ class MockExamScreen extends ConsumerStatefulWidget {
 }
 
 class _MockExamScreenState extends ConsumerState<MockExamScreen> {
-  static const _engine = MockEngine();
-
-  MockAssembly? _assembly;
-  final _answers = <String, String>{};
   int _index = 0;
   String? _selectedKey;
+  bool _finishing = false;
 
-  @override
-  void initState() {
-    super.initState();
-    // Assemble once the bank resolves; the hub only links here when the
-    // bank can supply a full mock.
-    ref.read(questionBankProvider.future).then((bank) {
-      if (!mounted) return;
-      setState(() => _assembly = _engine.assemble(bank));
-    });
-  }
+  /// In-flight submits. Advancing never waits on the network, but finish
+  /// waits for every answer to settle so finalize cannot race a submit.
+  final _pending = <Future<void>>[];
 
-  Future<void> _next() async {
-    final assembly = _assembly;
+  Future<void> _next(MockSession session) async {
     final chosen = _selectedKey;
-    if (assembly == null || chosen == null) return;
-    final q = assembly.questions[_index];
-    _answers[q.id] = chosen;
+    if (chosen == null || _finishing) return;
+    final q = session.questions[_index];
 
-    // Record now, not at the end: a backgrounded/killed app still keeps
-    // every given answer in the local log and outbox.
-    await ref.read(fcleAnswerRecorderProvider).record(
-          question: q,
-          chosenKey: chosen,
-          inMock: true,
-        );
-    if (!mounted) return;
-
-    if (_index + 1 < assembly.questions.length) {
+    if (_index + 1 < session.questions.length) {
       setState(() {
         _index++;
         _selectedKey = null;
       });
+      _pending.add(
+        session.submit(q, chosen).catchError((Object _) {}),
+      );
     } else {
-      final result = _engine.grade(assembly, _answers);
+      setState(() => _finishing = true);
+      _pending.add(
+        session.submit(q, chosen).catchError((Object _) {}),
+      );
+      await Future.wait(_pending);
+      final result = await session.finish();
+
+      // Count completed mocks: the first one is the baseline.
+      final meta = ref.read(databaseProvider).metaDao;
+      final completed =
+          int.tryParse(await meta.get(kCompletedMocksMetaKey) ?? '0') ?? 0;
+      await meta.set(kCompletedMocksMetaKey, '${completed + 1}');
+
+      if (!mounted) return;
       context.pushReplacement('/fcle/result', extra: result);
     }
   }
@@ -93,14 +91,36 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final assembly = _assembly;
+    final sessionAsync = ref.watch(mockSessionProvider);
 
-    if (assembly == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    return sessionAsync.when(
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (e, _) => Scaffold(
+        appBar: AppBar(title: const Text('Mock FCLE')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Text(
+              'Could not assemble a mock right now. Check back once more '
+              'questions are published.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyLarge,
+            ),
+          ),
+        ),
+      ),
+      data: (session) => _buildExam(context, theme, session),
+    );
+  }
 
-    final q = assembly.questions[_index];
-    final total = assembly.questions.length;
+  Widget _buildExam(
+    BuildContext context,
+    ThemeData theme,
+    MockSession session,
+  ) {
+    final q = session.questions[_index];
+    final total = session.questions.length;
 
     return PopScope(
       canPop: false,
@@ -164,20 +184,28 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
                 child: SizedBox(
                   width: double.infinity,
                   child: FilledButton(
-                    onPressed: _selectedKey == null ? null : _next,
+                    onPressed: _selectedKey == null || _finishing
+                        ? null
+                        : () => _next(session),
                     style: FilledButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(6)),
                       ),
                     ),
-                    child: Text(
-                      _index + 1 == total ? 'FINISH MOCK' : 'NEXT',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.2,
-                      ),
-                    ),
+                    child: _finishing
+                        ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            _index + 1 == total ? 'FINISH MOCK' : 'NEXT',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
                   ),
                 ),
               ),

@@ -29,6 +29,11 @@ abstract class SyncTransport {
   Future<void> sendAnswer(OutboxEvent e);
   Future<void> sendReview(OutboxEvent e);
   Future<void> sendSessionEvent(OutboxEvent e);
+
+  /// Not an event row: calls the idempotent finalize_mock RPC for
+  /// e.attemptId. Queued when finishing a server mock offline; FIFO order
+  /// guarantees the attempt's queued answers land first.
+  Future<void> sendMockFinalize(OutboxEvent e);
 }
 
 /// Thrown by transports for errors that will not succeed on retry (the
@@ -85,6 +90,13 @@ class SupabaseTransport implements SyncTransport {
                 .toIso8601String(),
           }),);
 
+  @override
+  Future<void> sendMockFinalize(OutboxEvent e) =>
+      _guard(() => _client.rpc<void>(
+            'finalize_mock',
+            params: {'p_attempt_id': e.attemptId},
+          ),);
+
   /// PostgrestExceptions are server verdicts (bad payload, RLS, missing
   /// content): retrying cannot fix them. Everything else (socket, timeout)
   /// is transient.
@@ -134,6 +146,10 @@ class SyncEngine {
   }) =>
       _enqueue(type: 'review', questionId: questionId, grade: grade);
 
+  /// Deferred finalize_mock call for a server mock finished offline.
+  Future<void> enqueueMockFinalize({required String attemptId}) =>
+      _enqueue(type: 'mock_finalize', attemptId: attemptId);
+
   Future<void> _enqueueSession(String type) => _enqueue(type: type);
 
   Future<void> _enqueue({
@@ -181,6 +197,8 @@ class SyncEngine {
               await transport.sendAnswer(event);
             case 'review':
               await transport.sendReview(event);
+            case 'mock_finalize':
+              await transport.sendMockFinalize(event);
             default:
               await transport.sendSessionEvent(event);
           }

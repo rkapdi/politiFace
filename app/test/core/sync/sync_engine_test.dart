@@ -32,6 +32,8 @@ class FakeTransport implements SyncTransport {
   Future<void> sendReview(OutboxEvent e) => _send(e);
   @override
   Future<void> sendSessionEvent(OutboxEvent e) => _send(e);
+  @override
+  Future<void> sendMockFinalize(OutboxEvent e) => _send(e);
 }
 
 void main() {
@@ -160,6 +162,24 @@ void main() {
     final rows = await db.select(db.outboxEvents).get();
     expect(rows.single.lastError, contains('42501'));
     expect(rows.single.tries, OutboxDao.maxTries);
+  });
+
+  test('mock_finalize flushes after its attempt answers (FIFO)', () async {
+    final transport = FakeTransport();
+    final engine = SyncEngine(db, transport);
+    await engine.enqueueAnswer(
+      questionId: 'q-uuid',
+      chosenKey: 'b',
+      attemptId: 'attempt-1',
+    );
+    await engine.enqueueMockFinalize(attemptId: 'attempt-1');
+    await engine.flush();
+
+    expect(transport.deliveredEvents.length, 2);
+    expect(transport.deliveredEvents.first.type, 'answer');
+    expect(transport.deliveredEvents.last.type, 'mock_finalize');
+    expect(transport.deliveredEvents.last.attemptId, 'attempt-1');
+    expect(await db.outboxDao.pendingCount(), 0);
   });
 
   test('answer and review events carry their payload fields', () async {

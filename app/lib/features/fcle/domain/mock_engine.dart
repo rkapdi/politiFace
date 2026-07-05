@@ -31,12 +31,18 @@ class MockResult {
     required this.total,
     required this.passed,
     required this.perDomain,
+    this.pendingSync = false,
   });
 
   final int score;
   final int total;
   final bool passed;
   final Map<FcleDomain, DomainScore> perDomain;
+
+  /// True when a server-backed mock could not be finalized online; the
+  /// score shown is the local tally and the server catches up via the
+  /// outbox on the next connection.
+  final bool pendingSync;
 
   /// Weakest domain by accuracy; break ties in exam order.
   FcleDomain get weakestDomain {
