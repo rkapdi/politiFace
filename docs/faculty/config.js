@@ -3,6 +3,6 @@
 // so committing it here is expected. Fill both values in after the hosted
 // Supabase project is provisioned; until then the page shows a setup note.
 window.POLITIFACE_SUPABASE = {
-  url: "",
-  anonKey: "",
+  url: "https://sbjpiajjlufrhigmovnk.supabase.co",
+  anonKey: "sb_publishable_BIJdeOXfjzXlJhsc8bX_Fw_YNX902qU",
 };
