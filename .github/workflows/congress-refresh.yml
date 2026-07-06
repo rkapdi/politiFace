@@ -1,0 +1,52 @@
+name: congress-refresh
+
+# Weekly roster refresh: members of Congress + committee assignments +
+# portraits for any new members. Opens a reviewable PR; the fetcher output
+# is deterministic so the diff is exactly what changed (new members,
+# committee moves, term updates).
+
+on:
+  schedule:
+    - cron: "41 11 * * 1" # Mondays 11:41 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install pyyaml pillow
+
+      - name: Fetch legislators + committees
+        run: python scripts/fetch_legislators.py
+
+      - name: Fetch portraits for new members
+        run: python scripts/fetch_member_photos.py --only-missing
+
+      - name: Sync bundled copies
+        run: cp content/people/*.yaml app/assets/content/people/
+
+      - name: Validate
+        run: python scripts/ingest_content.py --check
+
+      - name: Open PR if anything changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: content/congress-refresh
+          title: "Content: congressional roster refresh"
+          commit-message: "Content: congressional roster refresh"
+          body: |
+            Automated weekly refresh from unitedstates/congress-legislators.
+            Diff = roster changes (new members, committee moves, term
+            updates) plus portraits for any new members. Review and merge.
+          delete-branch: true

@@ -495,3 +495,43 @@ export.
   memory orbital canvas now carries a descriptive semantics label with
   the strongest-cards list as the accessible path.
 - Suite green, analyze clean.
+
+---
+
+## Atlas P1: the people reference layer ✅ (2026-07-06)
+
+Founder decisions locked: app size accepted; House members Atlas-only
+with the state-delegation deck as the learnable set (deck ships next);
+API-enriched data must also be bundled for offline; state picker over
+hardcoded Florida; api.congress.gov key provided (kept OUT of the repo,
+scripts read CONGRESS_GOV_API_KEY; add it as a GitHub secret for the
+refresh workflow when enrichment lands).
+
+- **Fetchers.** fetch_legislators.py: unitedstates/congress-legislators +
+  committee membership -> content/people/legislators.yaml (537 members,
+  full per-member term history back to first election, top-level
+  committee assignments with leadership titles, bioguide citations;
+  deterministic output). fetch_member_photos.py: official portraits
+  recompressed to 180x220 (~2.5MB TOTAL for 525 photos; 12 members have
+  no photo and fall back to initials). Total content cost ~3.1MB, far
+  under the accepted budget.
+- **App.** Schema v12 people table (JSON columns for terms, committees,
+  citations) + PeopleDao (composable directory filters, distinct states,
+  checksum-gated replaceAll) + PeopleSeedService wired into bootstrap.
+  Congress directory at /atlas/congress: search, Senate/House and party
+  chips, persisted home-state picker (defaults the directory to your
+  delegation on entry). Person pages at /person/:id, fully offline:
+  portrait, role line, facts, committees with leadership badges, career
+  timeline from the full term history, primary-source links, data
+  provenance line. Atlas REFERENCE gains the Members of Congress tile.
+- **Pipeline.** ingest_content.py loads people into public.entities
+  (type person, 826 entities total validate); content-ci checks bundled
+  drift for content/people/; congress-refresh.yml opens a weekly
+  reviewable roster PR (legislators + committees + portraits for new
+  members).
+- Tests: seed/DAO suite incl. the real 537-member roster; migration test
+  pins v12. Suite green, analyze clean.
+
+Next tranche: state delegation decks (auto-generated), officials.yaml
+(cabinet/EOP/SCOTUS, same person pages), retire runtime Wikipedia once
+officials land, api.congress.gov enrichment fetched to YAML for offline.

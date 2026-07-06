@@ -10,6 +10,7 @@ import 'app/providers.dart';
 import 'core/database/drift/app_database.dart';
 import 'core/sync/supabase_config.dart';
 import 'core/sync/sync_engine.dart';
+import 'features/atlas/data/people_seed_service.dart';
 import 'features/government/data/government_seed_service.dart';
 import 'features/notifications/data/notification_service.dart';
 import 'features/session/data/yaml_seed_service.dart';
@@ -60,6 +61,7 @@ Future<void> main() async {
 Future<void> _bootstrap(AppDatabase db) async {
   await YamlSeedService(db).ensureSeeded();
   await GovernmentSeedService(db).ensureSeeded();
+  await PeopleSeedService(db).ensureSeeded();
   await NotificationService.instance.init();
   // Sync the daily-reminder toggle with the OS authorization state. If the
   // user revoked notifications in iOS Settings since last launch, flip our

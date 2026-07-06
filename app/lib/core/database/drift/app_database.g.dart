@@ -7648,6 +7648,812 @@ class FcleAnswersCompanion extends UpdateCompanion<FcleAnswer> {
   }
 }
 
+class $PeopleTable extends People with TableInfo<$PeopleTable, Person> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PeopleTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _personTypeMeta =
+      const VerificationMeta('personType');
+  @override
+  late final GeneratedColumn<String> personType = GeneratedColumn<String>(
+      'person_type', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('legislator'));
+  static const VerificationMeta _chamberMeta =
+      const VerificationMeta('chamber');
+  @override
+  late final GeneratedColumn<String> chamber = GeneratedColumn<String>(
+      'chamber', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+      'state', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _districtMeta =
+      const VerificationMeta('district');
+  @override
+  late final GeneratedColumn<int> district = GeneratedColumn<int>(
+      'district', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _partyMeta = const VerificationMeta('party');
+  @override
+  late final GeneratedColumn<String> party = GeneratedColumn<String>(
+      'party', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _birthdayMeta =
+      const VerificationMeta('birthday');
+  @override
+  late final GeneratedColumn<String> birthday = GeneratedColumn<String>(
+      'birthday', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _currentRoleMeta =
+      const VerificationMeta('currentRole');
+  @override
+  late final GeneratedColumn<String> currentRole = GeneratedColumn<String>(
+      'current_role', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _termStartMeta =
+      const VerificationMeta('termStart');
+  @override
+  late final GeneratedColumn<String> termStart = GeneratedColumn<String>(
+      'term_start', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _termEndMeta =
+      const VerificationMeta('termEnd');
+  @override
+  late final GeneratedColumn<String> termEnd = GeneratedColumn<String>(
+      'term_end', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _officialUrlMeta =
+      const VerificationMeta('officialUrl');
+  @override
+  late final GeneratedColumn<String> officialUrl = GeneratedColumn<String>(
+      'official_url', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _wikidataIdMeta =
+      const VerificationMeta('wikidataId');
+  @override
+  late final GeneratedColumn<String> wikidataId = GeneratedColumn<String>(
+      'wikidata_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _portraitAssetMeta =
+      const VerificationMeta('portraitAsset');
+  @override
+  late final GeneratedColumn<String> portraitAsset = GeneratedColumn<String>(
+      'portrait_asset', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _termsMeta = const VerificationMeta('terms');
+  @override
+  late final GeneratedColumn<String> terms = GeneratedColumn<String>(
+      'terms', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _committeesMeta =
+      const VerificationMeta('committees');
+  @override
+  late final GeneratedColumn<String> committees = GeneratedColumn<String>(
+      'committees', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _citationsMeta =
+      const VerificationMeta('citations');
+  @override
+  late final GeneratedColumn<String> citations = GeneratedColumn<String>(
+      'citations', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        personType,
+        chamber,
+        state,
+        district,
+        party,
+        birthday,
+        currentRole,
+        termStart,
+        termEnd,
+        officialUrl,
+        wikidataId,
+        portraitAsset,
+        terms,
+        committees,
+        citations
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'people';
+  @override
+  VerificationContext validateIntegrity(Insertable<Person> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('person_type')) {
+      context.handle(
+          _personTypeMeta,
+          personType.isAcceptableOrUnknown(
+              data['person_type']!, _personTypeMeta));
+    }
+    if (data.containsKey('chamber')) {
+      context.handle(_chamberMeta,
+          chamber.isAcceptableOrUnknown(data['chamber']!, _chamberMeta));
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+          _stateMeta, state.isAcceptableOrUnknown(data['state']!, _stateMeta));
+    }
+    if (data.containsKey('district')) {
+      context.handle(_districtMeta,
+          district.isAcceptableOrUnknown(data['district']!, _districtMeta));
+    }
+    if (data.containsKey('party')) {
+      context.handle(
+          _partyMeta, party.isAcceptableOrUnknown(data['party']!, _partyMeta));
+    }
+    if (data.containsKey('birthday')) {
+      context.handle(_birthdayMeta,
+          birthday.isAcceptableOrUnknown(data['birthday']!, _birthdayMeta));
+    }
+    if (data.containsKey('current_role')) {
+      context.handle(
+          _currentRoleMeta,
+          currentRole.isAcceptableOrUnknown(
+              data['current_role']!, _currentRoleMeta));
+    } else if (isInserting) {
+      context.missing(_currentRoleMeta);
+    }
+    if (data.containsKey('term_start')) {
+      context.handle(_termStartMeta,
+          termStart.isAcceptableOrUnknown(data['term_start']!, _termStartMeta));
+    }
+    if (data.containsKey('term_end')) {
+      context.handle(_termEndMeta,
+          termEnd.isAcceptableOrUnknown(data['term_end']!, _termEndMeta));
+    }
+    if (data.containsKey('official_url')) {
+      context.handle(
+          _officialUrlMeta,
+          officialUrl.isAcceptableOrUnknown(
+              data['official_url']!, _officialUrlMeta));
+    }
+    if (data.containsKey('wikidata_id')) {
+      context.handle(
+          _wikidataIdMeta,
+          wikidataId.isAcceptableOrUnknown(
+              data['wikidata_id']!, _wikidataIdMeta));
+    }
+    if (data.containsKey('portrait_asset')) {
+      context.handle(
+          _portraitAssetMeta,
+          portraitAsset.isAcceptableOrUnknown(
+              data['portrait_asset']!, _portraitAssetMeta));
+    }
+    if (data.containsKey('terms')) {
+      context.handle(
+          _termsMeta, terms.isAcceptableOrUnknown(data['terms']!, _termsMeta));
+    }
+    if (data.containsKey('committees')) {
+      context.handle(
+          _committeesMeta,
+          committees.isAcceptableOrUnknown(
+              data['committees']!, _committeesMeta));
+    }
+    if (data.containsKey('citations')) {
+      context.handle(_citationsMeta,
+          citations.isAcceptableOrUnknown(data['citations']!, _citationsMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Person map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Person(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      personType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}person_type'])!,
+      chamber: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chamber']),
+      state: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}state']),
+      district: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}district']),
+      party: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}party']),
+      birthday: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}birthday']),
+      currentRole: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}current_role'])!,
+      termStart: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}term_start']),
+      termEnd: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}term_end']),
+      officialUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}official_url']),
+      wikidataId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}wikidata_id']),
+      portraitAsset: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}portrait_asset']),
+      terms: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}terms'])!,
+      committees: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}committees'])!,
+      citations: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}citations'])!,
+    );
+  }
+
+  @override
+  $PeopleTable createAlias(String alias) {
+    return $PeopleTable(attachedDatabase, alias);
+  }
+}
+
+class Person extends DataClass implements Insertable<Person> {
+  final String id;
+  final String name;
+  final String personType;
+  final String? chamber;
+  final String? state;
+  final int? district;
+  final String? party;
+  final String? birthday;
+  final String currentRole;
+  final String? termStart;
+  final String? termEnd;
+  final String? officialUrl;
+  final String? wikidataId;
+  final String? portraitAsset;
+  final String terms;
+  final String committees;
+  final String citations;
+  const Person(
+      {required this.id,
+      required this.name,
+      required this.personType,
+      this.chamber,
+      this.state,
+      this.district,
+      this.party,
+      this.birthday,
+      required this.currentRole,
+      this.termStart,
+      this.termEnd,
+      this.officialUrl,
+      this.wikidataId,
+      this.portraitAsset,
+      required this.terms,
+      required this.committees,
+      required this.citations});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['person_type'] = Variable<String>(personType);
+    if (!nullToAbsent || chamber != null) {
+      map['chamber'] = Variable<String>(chamber);
+    }
+    if (!nullToAbsent || state != null) {
+      map['state'] = Variable<String>(state);
+    }
+    if (!nullToAbsent || district != null) {
+      map['district'] = Variable<int>(district);
+    }
+    if (!nullToAbsent || party != null) {
+      map['party'] = Variable<String>(party);
+    }
+    if (!nullToAbsent || birthday != null) {
+      map['birthday'] = Variable<String>(birthday);
+    }
+    map['current_role'] = Variable<String>(currentRole);
+    if (!nullToAbsent || termStart != null) {
+      map['term_start'] = Variable<String>(termStart);
+    }
+    if (!nullToAbsent || termEnd != null) {
+      map['term_end'] = Variable<String>(termEnd);
+    }
+    if (!nullToAbsent || officialUrl != null) {
+      map['official_url'] = Variable<String>(officialUrl);
+    }
+    if (!nullToAbsent || wikidataId != null) {
+      map['wikidata_id'] = Variable<String>(wikidataId);
+    }
+    if (!nullToAbsent || portraitAsset != null) {
+      map['portrait_asset'] = Variable<String>(portraitAsset);
+    }
+    map['terms'] = Variable<String>(terms);
+    map['committees'] = Variable<String>(committees);
+    map['citations'] = Variable<String>(citations);
+    return map;
+  }
+
+  PeopleCompanion toCompanion(bool nullToAbsent) {
+    return PeopleCompanion(
+      id: Value(id),
+      name: Value(name),
+      personType: Value(personType),
+      chamber: chamber == null && nullToAbsent
+          ? const Value.absent()
+          : Value(chamber),
+      state:
+          state == null && nullToAbsent ? const Value.absent() : Value(state),
+      district: district == null && nullToAbsent
+          ? const Value.absent()
+          : Value(district),
+      party:
+          party == null && nullToAbsent ? const Value.absent() : Value(party),
+      birthday: birthday == null && nullToAbsent
+          ? const Value.absent()
+          : Value(birthday),
+      currentRole: Value(currentRole),
+      termStart: termStart == null && nullToAbsent
+          ? const Value.absent()
+          : Value(termStart),
+      termEnd: termEnd == null && nullToAbsent
+          ? const Value.absent()
+          : Value(termEnd),
+      officialUrl: officialUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(officialUrl),
+      wikidataId: wikidataId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(wikidataId),
+      portraitAsset: portraitAsset == null && nullToAbsent
+          ? const Value.absent()
+          : Value(portraitAsset),
+      terms: Value(terms),
+      committees: Value(committees),
+      citations: Value(citations),
+    );
+  }
+
+  factory Person.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Person(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      personType: serializer.fromJson<String>(json['personType']),
+      chamber: serializer.fromJson<String?>(json['chamber']),
+      state: serializer.fromJson<String?>(json['state']),
+      district: serializer.fromJson<int?>(json['district']),
+      party: serializer.fromJson<String?>(json['party']),
+      birthday: serializer.fromJson<String?>(json['birthday']),
+      currentRole: serializer.fromJson<String>(json['currentRole']),
+      termStart: serializer.fromJson<String?>(json['termStart']),
+      termEnd: serializer.fromJson<String?>(json['termEnd']),
+      officialUrl: serializer.fromJson<String?>(json['officialUrl']),
+      wikidataId: serializer.fromJson<String?>(json['wikidataId']),
+      portraitAsset: serializer.fromJson<String?>(json['portraitAsset']),
+      terms: serializer.fromJson<String>(json['terms']),
+      committees: serializer.fromJson<String>(json['committees']),
+      citations: serializer.fromJson<String>(json['citations']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'personType': serializer.toJson<String>(personType),
+      'chamber': serializer.toJson<String?>(chamber),
+      'state': serializer.toJson<String?>(state),
+      'district': serializer.toJson<int?>(district),
+      'party': serializer.toJson<String?>(party),
+      'birthday': serializer.toJson<String?>(birthday),
+      'currentRole': serializer.toJson<String>(currentRole),
+      'termStart': serializer.toJson<String?>(termStart),
+      'termEnd': serializer.toJson<String?>(termEnd),
+      'officialUrl': serializer.toJson<String?>(officialUrl),
+      'wikidataId': serializer.toJson<String?>(wikidataId),
+      'portraitAsset': serializer.toJson<String?>(portraitAsset),
+      'terms': serializer.toJson<String>(terms),
+      'committees': serializer.toJson<String>(committees),
+      'citations': serializer.toJson<String>(citations),
+    };
+  }
+
+  Person copyWith(
+          {String? id,
+          String? name,
+          String? personType,
+          Value<String?> chamber = const Value.absent(),
+          Value<String?> state = const Value.absent(),
+          Value<int?> district = const Value.absent(),
+          Value<String?> party = const Value.absent(),
+          Value<String?> birthday = const Value.absent(),
+          String? currentRole,
+          Value<String?> termStart = const Value.absent(),
+          Value<String?> termEnd = const Value.absent(),
+          Value<String?> officialUrl = const Value.absent(),
+          Value<String?> wikidataId = const Value.absent(),
+          Value<String?> portraitAsset = const Value.absent(),
+          String? terms,
+          String? committees,
+          String? citations}) =>
+      Person(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        personType: personType ?? this.personType,
+        chamber: chamber.present ? chamber.value : this.chamber,
+        state: state.present ? state.value : this.state,
+        district: district.present ? district.value : this.district,
+        party: party.present ? party.value : this.party,
+        birthday: birthday.present ? birthday.value : this.birthday,
+        currentRole: currentRole ?? this.currentRole,
+        termStart: termStart.present ? termStart.value : this.termStart,
+        termEnd: termEnd.present ? termEnd.value : this.termEnd,
+        officialUrl: officialUrl.present ? officialUrl.value : this.officialUrl,
+        wikidataId: wikidataId.present ? wikidataId.value : this.wikidataId,
+        portraitAsset:
+            portraitAsset.present ? portraitAsset.value : this.portraitAsset,
+        terms: terms ?? this.terms,
+        committees: committees ?? this.committees,
+        citations: citations ?? this.citations,
+      );
+  Person copyWithCompanion(PeopleCompanion data) {
+    return Person(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      personType:
+          data.personType.present ? data.personType.value : this.personType,
+      chamber: data.chamber.present ? data.chamber.value : this.chamber,
+      state: data.state.present ? data.state.value : this.state,
+      district: data.district.present ? data.district.value : this.district,
+      party: data.party.present ? data.party.value : this.party,
+      birthday: data.birthday.present ? data.birthday.value : this.birthday,
+      currentRole:
+          data.currentRole.present ? data.currentRole.value : this.currentRole,
+      termStart: data.termStart.present ? data.termStart.value : this.termStart,
+      termEnd: data.termEnd.present ? data.termEnd.value : this.termEnd,
+      officialUrl:
+          data.officialUrl.present ? data.officialUrl.value : this.officialUrl,
+      wikidataId:
+          data.wikidataId.present ? data.wikidataId.value : this.wikidataId,
+      portraitAsset: data.portraitAsset.present
+          ? data.portraitAsset.value
+          : this.portraitAsset,
+      terms: data.terms.present ? data.terms.value : this.terms,
+      committees:
+          data.committees.present ? data.committees.value : this.committees,
+      citations: data.citations.present ? data.citations.value : this.citations,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Person(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('personType: $personType, ')
+          ..write('chamber: $chamber, ')
+          ..write('state: $state, ')
+          ..write('district: $district, ')
+          ..write('party: $party, ')
+          ..write('birthday: $birthday, ')
+          ..write('currentRole: $currentRole, ')
+          ..write('termStart: $termStart, ')
+          ..write('termEnd: $termEnd, ')
+          ..write('officialUrl: $officialUrl, ')
+          ..write('wikidataId: $wikidataId, ')
+          ..write('portraitAsset: $portraitAsset, ')
+          ..write('terms: $terms, ')
+          ..write('committees: $committees, ')
+          ..write('citations: $citations')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      name,
+      personType,
+      chamber,
+      state,
+      district,
+      party,
+      birthday,
+      currentRole,
+      termStart,
+      termEnd,
+      officialUrl,
+      wikidataId,
+      portraitAsset,
+      terms,
+      committees,
+      citations);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Person &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.personType == this.personType &&
+          other.chamber == this.chamber &&
+          other.state == this.state &&
+          other.district == this.district &&
+          other.party == this.party &&
+          other.birthday == this.birthday &&
+          other.currentRole == this.currentRole &&
+          other.termStart == this.termStart &&
+          other.termEnd == this.termEnd &&
+          other.officialUrl == this.officialUrl &&
+          other.wikidataId == this.wikidataId &&
+          other.portraitAsset == this.portraitAsset &&
+          other.terms == this.terms &&
+          other.committees == this.committees &&
+          other.citations == this.citations);
+}
+
+class PeopleCompanion extends UpdateCompanion<Person> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String> personType;
+  final Value<String?> chamber;
+  final Value<String?> state;
+  final Value<int?> district;
+  final Value<String?> party;
+  final Value<String?> birthday;
+  final Value<String> currentRole;
+  final Value<String?> termStart;
+  final Value<String?> termEnd;
+  final Value<String?> officialUrl;
+  final Value<String?> wikidataId;
+  final Value<String?> portraitAsset;
+  final Value<String> terms;
+  final Value<String> committees;
+  final Value<String> citations;
+  final Value<int> rowid;
+  const PeopleCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.personType = const Value.absent(),
+    this.chamber = const Value.absent(),
+    this.state = const Value.absent(),
+    this.district = const Value.absent(),
+    this.party = const Value.absent(),
+    this.birthday = const Value.absent(),
+    this.currentRole = const Value.absent(),
+    this.termStart = const Value.absent(),
+    this.termEnd = const Value.absent(),
+    this.officialUrl = const Value.absent(),
+    this.wikidataId = const Value.absent(),
+    this.portraitAsset = const Value.absent(),
+    this.terms = const Value.absent(),
+    this.committees = const Value.absent(),
+    this.citations = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PeopleCompanion.insert({
+    required String id,
+    required String name,
+    this.personType = const Value.absent(),
+    this.chamber = const Value.absent(),
+    this.state = const Value.absent(),
+    this.district = const Value.absent(),
+    this.party = const Value.absent(),
+    this.birthday = const Value.absent(),
+    required String currentRole,
+    this.termStart = const Value.absent(),
+    this.termEnd = const Value.absent(),
+    this.officialUrl = const Value.absent(),
+    this.wikidataId = const Value.absent(),
+    this.portraitAsset = const Value.absent(),
+    this.terms = const Value.absent(),
+    this.committees = const Value.absent(),
+    this.citations = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        currentRole = Value(currentRole);
+  static Insertable<Person> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? personType,
+    Expression<String>? chamber,
+    Expression<String>? state,
+    Expression<int>? district,
+    Expression<String>? party,
+    Expression<String>? birthday,
+    Expression<String>? currentRole,
+    Expression<String>? termStart,
+    Expression<String>? termEnd,
+    Expression<String>? officialUrl,
+    Expression<String>? wikidataId,
+    Expression<String>? portraitAsset,
+    Expression<String>? terms,
+    Expression<String>? committees,
+    Expression<String>? citations,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (personType != null) 'person_type': personType,
+      if (chamber != null) 'chamber': chamber,
+      if (state != null) 'state': state,
+      if (district != null) 'district': district,
+      if (party != null) 'party': party,
+      if (birthday != null) 'birthday': birthday,
+      if (currentRole != null) 'current_role': currentRole,
+      if (termStart != null) 'term_start': termStart,
+      if (termEnd != null) 'term_end': termEnd,
+      if (officialUrl != null) 'official_url': officialUrl,
+      if (wikidataId != null) 'wikidata_id': wikidataId,
+      if (portraitAsset != null) 'portrait_asset': portraitAsset,
+      if (terms != null) 'terms': terms,
+      if (committees != null) 'committees': committees,
+      if (citations != null) 'citations': citations,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PeopleCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<String>? personType,
+      Value<String?>? chamber,
+      Value<String?>? state,
+      Value<int?>? district,
+      Value<String?>? party,
+      Value<String?>? birthday,
+      Value<String>? currentRole,
+      Value<String?>? termStart,
+      Value<String?>? termEnd,
+      Value<String?>? officialUrl,
+      Value<String?>? wikidataId,
+      Value<String?>? portraitAsset,
+      Value<String>? terms,
+      Value<String>? committees,
+      Value<String>? citations,
+      Value<int>? rowid}) {
+    return PeopleCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      personType: personType ?? this.personType,
+      chamber: chamber ?? this.chamber,
+      state: state ?? this.state,
+      district: district ?? this.district,
+      party: party ?? this.party,
+      birthday: birthday ?? this.birthday,
+      currentRole: currentRole ?? this.currentRole,
+      termStart: termStart ?? this.termStart,
+      termEnd: termEnd ?? this.termEnd,
+      officialUrl: officialUrl ?? this.officialUrl,
+      wikidataId: wikidataId ?? this.wikidataId,
+      portraitAsset: portraitAsset ?? this.portraitAsset,
+      terms: terms ?? this.terms,
+      committees: committees ?? this.committees,
+      citations: citations ?? this.citations,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (personType.present) {
+      map['person_type'] = Variable<String>(personType.value);
+    }
+    if (chamber.present) {
+      map['chamber'] = Variable<String>(chamber.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (district.present) {
+      map['district'] = Variable<int>(district.value);
+    }
+    if (party.present) {
+      map['party'] = Variable<String>(party.value);
+    }
+    if (birthday.present) {
+      map['birthday'] = Variable<String>(birthday.value);
+    }
+    if (currentRole.present) {
+      map['current_role'] = Variable<String>(currentRole.value);
+    }
+    if (termStart.present) {
+      map['term_start'] = Variable<String>(termStart.value);
+    }
+    if (termEnd.present) {
+      map['term_end'] = Variable<String>(termEnd.value);
+    }
+    if (officialUrl.present) {
+      map['official_url'] = Variable<String>(officialUrl.value);
+    }
+    if (wikidataId.present) {
+      map['wikidata_id'] = Variable<String>(wikidataId.value);
+    }
+    if (portraitAsset.present) {
+      map['portrait_asset'] = Variable<String>(portraitAsset.value);
+    }
+    if (terms.present) {
+      map['terms'] = Variable<String>(terms.value);
+    }
+    if (committees.present) {
+      map['committees'] = Variable<String>(committees.value);
+    }
+    if (citations.present) {
+      map['citations'] = Variable<String>(citations.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PeopleCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('personType: $personType, ')
+          ..write('chamber: $chamber, ')
+          ..write('state: $state, ')
+          ..write('district: $district, ')
+          ..write('party: $party, ')
+          ..write('birthday: $birthday, ')
+          ..write('currentRole: $currentRole, ')
+          ..write('termStart: $termStart, ')
+          ..write('termEnd: $termEnd, ')
+          ..write('officialUrl: $officialUrl, ')
+          ..write('wikidataId: $wikidataId, ')
+          ..write('portraitAsset: $portraitAsset, ')
+          ..write('terms: $terms, ')
+          ..write('committees: $committees, ')
+          ..write('citations: $citations, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -7668,6 +8474,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CompletedRunsTable completedRuns = $CompletedRunsTable(this);
   late final $OutboxEventsTable outboxEvents = $OutboxEventsTable(this);
   late final $FcleAnswersTable fcleAnswers = $FcleAnswersTable(this);
+  late final $PeopleTable people = $PeopleTable(this);
   late final CardsDao cardsDao = CardsDao(this as AppDatabase);
   late final ReviewsDao reviewsDao = ReviewsDao(this as AppDatabase);
   late final DecksDao decksDao = DecksDao(this as AppDatabase);
@@ -7685,6 +8492,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final OutboxDao outboxDao = OutboxDao(this as AppDatabase);
   late final FcleAnswersDao fcleAnswersDao =
       FcleAnswersDao(this as AppDatabase);
+  late final PeopleDao peopleDao = PeopleDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -7703,7 +8511,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         politicianBios,
         completedRuns,
         outboxEvents,
-        fcleAnswers
+        fcleAnswers,
+        people
       ];
 }
 
@@ -11293,6 +12102,352 @@ typedef $$FcleAnswersTableProcessedTableManager = ProcessedTableManager<
     (FcleAnswer, BaseReferences<_$AppDatabase, $FcleAnswersTable, FcleAnswer>),
     FcleAnswer,
     PrefetchHooks Function()>;
+typedef $$PeopleTableCreateCompanionBuilder = PeopleCompanion Function({
+  required String id,
+  required String name,
+  Value<String> personType,
+  Value<String?> chamber,
+  Value<String?> state,
+  Value<int?> district,
+  Value<String?> party,
+  Value<String?> birthday,
+  required String currentRole,
+  Value<String?> termStart,
+  Value<String?> termEnd,
+  Value<String?> officialUrl,
+  Value<String?> wikidataId,
+  Value<String?> portraitAsset,
+  Value<String> terms,
+  Value<String> committees,
+  Value<String> citations,
+  Value<int> rowid,
+});
+typedef $$PeopleTableUpdateCompanionBuilder = PeopleCompanion Function({
+  Value<String> id,
+  Value<String> name,
+  Value<String> personType,
+  Value<String?> chamber,
+  Value<String?> state,
+  Value<int?> district,
+  Value<String?> party,
+  Value<String?> birthday,
+  Value<String> currentRole,
+  Value<String?> termStart,
+  Value<String?> termEnd,
+  Value<String?> officialUrl,
+  Value<String?> wikidataId,
+  Value<String?> portraitAsset,
+  Value<String> terms,
+  Value<String> committees,
+  Value<String> citations,
+  Value<int> rowid,
+});
+
+class $$PeopleTableFilterComposer
+    extends Composer<_$AppDatabase, $PeopleTable> {
+  $$PeopleTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get personType => $composableBuilder(
+      column: $table.personType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chamber => $composableBuilder(
+      column: $table.chamber, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get state => $composableBuilder(
+      column: $table.state, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get district => $composableBuilder(
+      column: $table.district, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get party => $composableBuilder(
+      column: $table.party, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get birthday => $composableBuilder(
+      column: $table.birthday, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get currentRole => $composableBuilder(
+      column: $table.currentRole, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get termStart => $composableBuilder(
+      column: $table.termStart, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get termEnd => $composableBuilder(
+      column: $table.termEnd, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get officialUrl => $composableBuilder(
+      column: $table.officialUrl, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get wikidataId => $composableBuilder(
+      column: $table.wikidataId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get portraitAsset => $composableBuilder(
+      column: $table.portraitAsset, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get terms => $composableBuilder(
+      column: $table.terms, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get committees => $composableBuilder(
+      column: $table.committees, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get citations => $composableBuilder(
+      column: $table.citations, builder: (column) => ColumnFilters(column));
+}
+
+class $$PeopleTableOrderingComposer
+    extends Composer<_$AppDatabase, $PeopleTable> {
+  $$PeopleTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get personType => $composableBuilder(
+      column: $table.personType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chamber => $composableBuilder(
+      column: $table.chamber, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get state => $composableBuilder(
+      column: $table.state, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get district => $composableBuilder(
+      column: $table.district, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get party => $composableBuilder(
+      column: $table.party, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get birthday => $composableBuilder(
+      column: $table.birthday, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get currentRole => $composableBuilder(
+      column: $table.currentRole, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get termStart => $composableBuilder(
+      column: $table.termStart, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get termEnd => $composableBuilder(
+      column: $table.termEnd, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get officialUrl => $composableBuilder(
+      column: $table.officialUrl, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get wikidataId => $composableBuilder(
+      column: $table.wikidataId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get portraitAsset => $composableBuilder(
+      column: $table.portraitAsset,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get terms => $composableBuilder(
+      column: $table.terms, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get committees => $composableBuilder(
+      column: $table.committees, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get citations => $composableBuilder(
+      column: $table.citations, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PeopleTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PeopleTable> {
+  $$PeopleTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get personType => $composableBuilder(
+      column: $table.personType, builder: (column) => column);
+
+  GeneratedColumn<String> get chamber =>
+      $composableBuilder(column: $table.chamber, builder: (column) => column);
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<int> get district =>
+      $composableBuilder(column: $table.district, builder: (column) => column);
+
+  GeneratedColumn<String> get party =>
+      $composableBuilder(column: $table.party, builder: (column) => column);
+
+  GeneratedColumn<String> get birthday =>
+      $composableBuilder(column: $table.birthday, builder: (column) => column);
+
+  GeneratedColumn<String> get currentRole => $composableBuilder(
+      column: $table.currentRole, builder: (column) => column);
+
+  GeneratedColumn<String> get termStart =>
+      $composableBuilder(column: $table.termStart, builder: (column) => column);
+
+  GeneratedColumn<String> get termEnd =>
+      $composableBuilder(column: $table.termEnd, builder: (column) => column);
+
+  GeneratedColumn<String> get officialUrl => $composableBuilder(
+      column: $table.officialUrl, builder: (column) => column);
+
+  GeneratedColumn<String> get wikidataId => $composableBuilder(
+      column: $table.wikidataId, builder: (column) => column);
+
+  GeneratedColumn<String> get portraitAsset => $composableBuilder(
+      column: $table.portraitAsset, builder: (column) => column);
+
+  GeneratedColumn<String> get terms =>
+      $composableBuilder(column: $table.terms, builder: (column) => column);
+
+  GeneratedColumn<String> get committees => $composableBuilder(
+      column: $table.committees, builder: (column) => column);
+
+  GeneratedColumn<String> get citations =>
+      $composableBuilder(column: $table.citations, builder: (column) => column);
+}
+
+class $$PeopleTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $PeopleTable,
+    Person,
+    $$PeopleTableFilterComposer,
+    $$PeopleTableOrderingComposer,
+    $$PeopleTableAnnotationComposer,
+    $$PeopleTableCreateCompanionBuilder,
+    $$PeopleTableUpdateCompanionBuilder,
+    (Person, BaseReferences<_$AppDatabase, $PeopleTable, Person>),
+    Person,
+    PrefetchHooks Function()> {
+  $$PeopleTableTableManager(_$AppDatabase db, $PeopleTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PeopleTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PeopleTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PeopleTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<String> personType = const Value.absent(),
+            Value<String?> chamber = const Value.absent(),
+            Value<String?> state = const Value.absent(),
+            Value<int?> district = const Value.absent(),
+            Value<String?> party = const Value.absent(),
+            Value<String?> birthday = const Value.absent(),
+            Value<String> currentRole = const Value.absent(),
+            Value<String?> termStart = const Value.absent(),
+            Value<String?> termEnd = const Value.absent(),
+            Value<String?> officialUrl = const Value.absent(),
+            Value<String?> wikidataId = const Value.absent(),
+            Value<String?> portraitAsset = const Value.absent(),
+            Value<String> terms = const Value.absent(),
+            Value<String> committees = const Value.absent(),
+            Value<String> citations = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PeopleCompanion(
+            id: id,
+            name: name,
+            personType: personType,
+            chamber: chamber,
+            state: state,
+            district: district,
+            party: party,
+            birthday: birthday,
+            currentRole: currentRole,
+            termStart: termStart,
+            termEnd: termEnd,
+            officialUrl: officialUrl,
+            wikidataId: wikidataId,
+            portraitAsset: portraitAsset,
+            terms: terms,
+            committees: committees,
+            citations: citations,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            Value<String> personType = const Value.absent(),
+            Value<String?> chamber = const Value.absent(),
+            Value<String?> state = const Value.absent(),
+            Value<int?> district = const Value.absent(),
+            Value<String?> party = const Value.absent(),
+            Value<String?> birthday = const Value.absent(),
+            required String currentRole,
+            Value<String?> termStart = const Value.absent(),
+            Value<String?> termEnd = const Value.absent(),
+            Value<String?> officialUrl = const Value.absent(),
+            Value<String?> wikidataId = const Value.absent(),
+            Value<String?> portraitAsset = const Value.absent(),
+            Value<String> terms = const Value.absent(),
+            Value<String> committees = const Value.absent(),
+            Value<String> citations = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PeopleCompanion.insert(
+            id: id,
+            name: name,
+            personType: personType,
+            chamber: chamber,
+            state: state,
+            district: district,
+            party: party,
+            birthday: birthday,
+            currentRole: currentRole,
+            termStart: termStart,
+            termEnd: termEnd,
+            officialUrl: officialUrl,
+            wikidataId: wikidataId,
+            portraitAsset: portraitAsset,
+            terms: terms,
+            committees: committees,
+            citations: citations,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PeopleTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $PeopleTable,
+    Person,
+    $$PeopleTableFilterComposer,
+    $$PeopleTableOrderingComposer,
+    $$PeopleTableAnnotationComposer,
+    $$PeopleTableCreateCompanionBuilder,
+    $$PeopleTableUpdateCompanionBuilder,
+    (Person, BaseReferences<_$AppDatabase, $PeopleTable, Person>),
+    Person,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -11325,4 +12480,6 @@ class $AppDatabaseManager {
       $$OutboxEventsTableTableManager(_db, _db.outboxEvents);
   $$FcleAnswersTableTableManager get fcleAnswers =>
       $$FcleAnswersTableTableManager(_db, _db.fcleAnswers);
+  $$PeopleTableTableManager get people =>
+      $$PeopleTableTableManager(_db, _db.people);
 }

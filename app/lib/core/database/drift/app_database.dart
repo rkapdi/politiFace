@@ -15,6 +15,7 @@ import '../daos/fcle_answers_dao.dart';
 import '../daos/government_dao.dart';
 import '../daos/meta_dao.dart';
 import '../daos/outbox_dao.dart';
+import '../daos/people_dao.dart';
 import '../daos/politician_bios_dao.dart';
 import '../daos/progress_dao.dart';
 import '../daos/reviews_dao.dart';
@@ -304,6 +305,35 @@ class FcleAnswers extends Table {
   IntColumn  get answeredAt => integer()();       // Unix ms
 }
 
+// ── People (the Atlas reference layer) ────────────────────────────────────────
+// Every person page ships complete inside the app: structured facts, full
+// career term history, committees, citations. Seeded from bundled
+// content/people YAML by checksum; no runtime fetches. JSON columns hold
+// the list-shaped data (terms, committees, citations).
+@DataClassName('Person')
+class People extends Table {
+  TextColumn get id          => text()();                    // bioguide id or slug
+  TextColumn get name        => text()();
+  TextColumn get personType  => text().withDefault(const Constant('legislator'))();
+  TextColumn get chamber     => text().nullable()();          // senate | house
+  TextColumn get state       => text().nullable()();          // 2-letter code
+  IntColumn  get district    => integer().nullable()();       // house only
+  TextColumn get party       => text().nullable()();
+  TextColumn get birthday    => text().nullable()();          // ISO date
+  TextColumn get currentRole => text()();                     // display line
+  TextColumn get termStart   => text().nullable()();          // current term ISO
+  TextColumn get termEnd     => text().nullable()();
+  TextColumn get officialUrl => text().nullable()();
+  TextColumn get wikidataId  => text().nullable()();
+  TextColumn get portraitAsset => text().nullable()();        // bundled asset path
+  TextColumn get terms       => text().withDefault(const Constant('[]'))();      // JSON
+  TextColumn get committees  => text().withDefault(const Constant('[]'))();      // JSON
+  TextColumn get citations   => text().withDefault(const Constant('[]'))();      // JSON
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 // ── Database class ────────────────────────────────────────────────────────────
 @DriftDatabase(
   tables: [
@@ -321,6 +351,7 @@ class FcleAnswers extends Table {
     CompletedRuns,
     OutboxEvents,
     FcleAnswers,
+    People,
   ],
   daos: [
     CardsDao,
@@ -335,6 +366,7 @@ class FcleAnswers extends Table {
     CompletedRunsDao,
     OutboxDao,
     FcleAnswersDao,
+    PeopleDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -344,7 +376,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -432,6 +464,11 @@ class AppDatabase extends _$AppDatabase {
         // v10 → v11: local FCLE answer log (readiness + weak-area
         // practice). Brand-new table; no user data touched.
         await m.createTable(fcleAnswers);
+      }
+      if (from < 12) {
+        // v11 → v12: the people reference layer (Atlas as IMDb). Content
+        // table seeded from bundled YAML; no user data touched.
+        await m.createTable(people);
       }
     },
   );

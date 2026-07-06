@@ -83,4 +83,6 @@ flutter:
     # source). CI fails if the two files differ — see content-ci workflow.
     - assets/content/governments/us/
     - assets/content/questions/
+    - assets/content/people/
+    - assets/content/portraits/congress/
     - assets/portraits/

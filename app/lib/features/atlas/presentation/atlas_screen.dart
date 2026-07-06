@@ -292,6 +292,13 @@ class _ReferenceSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         _ReferenceTile(
+          icon: Icons.how_to_vote_outlined,
+          title: 'Members of Congress',
+          subtitle: 'All 537 members, offline. Find your delegation.',
+          onTap: () => context.push('/atlas/congress'),
+        ),
+        const SizedBox(height: 8),
+        _ReferenceTile(
           icon: Icons.gavel_outlined,
           title: 'Executive orders',
           subtitle: 'Every order of the current administration, '

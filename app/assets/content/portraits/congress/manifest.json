@@ -1,0 +1,19 @@
+{
+  "source": "unitedstates/images (official congressional photos)",
+  "rendition": "180x220 JPEG derived from the 225x275 originals",
+  "count": 525,
+  "missing": [
+    "A000383",
+    "B001321",
+    "B001323",
+    "B001324",
+    "F000485",
+    "G000606",
+    "G000607",
+    "H001104",
+    "M001245",
+    "M001246",
+    "V000139",
+    "W000831"
+  ]
+}

@@ -37,6 +37,7 @@ OBJECTIVES_FILE = REPO / "content" / "fcle" / "objectives.yaml"
 GOVERNMENT_FILE = REPO / "content" / "governments" / "us" / "government.yaml"
 EO_FILE = REPO / "content" / "atlas" / "executive_orders.yaml"
 VOCABULARY_FILE = REPO / "content" / "atlas" / "vocabulary.yaml"
+PEOPLE_FILE = REPO / "content" / "people" / "legislators.yaml"
 
 DOMAINS = {
     "american_democracy": 1,
@@ -265,6 +266,33 @@ def load_entities(errors: Errors) -> list[dict]:
                     "domain": domain,
                 },
                 "citations": [citation],
+            })
+
+    if PEOPLE_FILE.exists():
+        doc = yaml.safe_load(PEOPLE_FILE.read_text()) or {}
+        for i, p in enumerate(doc.get("people") or []):
+            where = f"{PEOPLE_FILE.name}[{i}]"
+            bioguide = p.get("id")
+            if not bioguide:
+                errors.add(where, "person missing id")
+                continue
+            if p.get("chamber") not in ("senate", "house"):
+                errors.add(f"{PEOPLE_FILE.name}:{bioguide}",
+                           f"bad chamber {p.get('chamber')!r}")
+            citations = p.get("citations") or []
+            if not citations:
+                errors.add(f"{PEOPLE_FILE.name}:{bioguide}", "no citations")
+            entities.append({
+                "type": "person",
+                "slug": str(bioguide),
+                "name": p.get("name") or str(bioguide),
+                "data": {
+                    k: p.get(k)
+                    for k in ("chamber", "state", "district", "party",
+                              "birthday", "wikidata", "current_term",
+                              "terms", "committees")
+                },
+                "citations": citations,
             })
 
     return entities
