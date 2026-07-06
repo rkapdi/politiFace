@@ -535,3 +535,29 @@ refresh workflow when enrichment lands).
 Next tranche: state delegation decks (auto-generated), officials.yaml
 (cabinet/EOP/SCOTUS, same person pages), retire runtime Wikipedia once
 officials land, api.congress.gov enrichment fetched to YAML for offline.
+
+### Atlas enrichment: congress.gov data, offline (2026-07-06)
+
+- **Member enrichment.** enrich_members.py calls the api.congress.gov
+  member endpoint for all 537 members (key via CONGRESS_GOV_API_KEY env,
+  never committed) -> content/people/enrichment.yaml: sponsored and
+  cosponsored bill counts, leadership history, honorific, official
+  portrait attribution. Bundled (96KB); schema v13 adds an open-ended
+  extras JSON column so future enrichment needs no more migrations.
+  Person pages gain Bills sponsored / Bills cosponsored facts and a
+  LEADERSHIP section. Migration-path bug caught by the suite and fixed
+  (addColumn guarded to from == 12; earlier versions create the table
+  with the column).
+- **Recent laws.** fetch_recent_laws.py pulls every public law of the
+  119th Congress (102 laws) with one bill-detail call each for the
+  sponsor -> content/atlas/recent_laws.yaml (36KB, bundled). New Atlas
+  REFERENCE screen: searchable law list, detail sheet (enacted date,
+  originating bill, sponsor CROSS-LINKED to their Atlas person page),
+  READ AT CONGRESS.GOV. The sponsor link is the IMDb connective tissue:
+  law -> person -> committees -> career.
+- **Pipeline.** Ingest carries laws as entities (type law) and merges
+  enrichment into person entities (928 entities validate).
+  congress-refresh workflow runs both enrichment steps weekly, skipping
+  quietly when the CONGRESS_GOV_API_KEY secret is absent.
+- Everything fetched at content time, bundled, fully offline per the
+  founder decision. Suite green, analyze clean.

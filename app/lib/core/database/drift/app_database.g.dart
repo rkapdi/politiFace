@@ -7758,6 +7758,13 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, Person> {
       type: DriftSqlType.string,
       requiredDuringInsert: false,
       defaultValue: const Constant('[]'));
+  static const VerificationMeta _extrasMeta = const VerificationMeta('extras');
+  @override
+  late final GeneratedColumn<String> extras = GeneratedColumn<String>(
+      'extras', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -7776,7 +7783,8 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, Person> {
         portraitAsset,
         terms,
         committees,
-        citations
+        citations,
+        extras
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7873,6 +7881,10 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, Person> {
       context.handle(_citationsMeta,
           citations.isAcceptableOrUnknown(data['citations']!, _citationsMeta));
     }
+    if (data.containsKey('extras')) {
+      context.handle(_extrasMeta,
+          extras.isAcceptableOrUnknown(data['extras']!, _extrasMeta));
+    }
     return context;
   }
 
@@ -7916,6 +7928,8 @@ class $PeopleTable extends People with TableInfo<$PeopleTable, Person> {
           .read(DriftSqlType.string, data['${effectivePrefix}committees'])!,
       citations: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}citations'])!,
+      extras: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}extras'])!,
     );
   }
 
@@ -7943,6 +7957,7 @@ class Person extends DataClass implements Insertable<Person> {
   final String terms;
   final String committees;
   final String citations;
+  final String extras;
   const Person(
       {required this.id,
       required this.name,
@@ -7960,7 +7975,8 @@ class Person extends DataClass implements Insertable<Person> {
       this.portraitAsset,
       required this.terms,
       required this.committees,
-      required this.citations});
+      required this.citations,
+      required this.extras});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -8001,6 +8017,7 @@ class Person extends DataClass implements Insertable<Person> {
     map['terms'] = Variable<String>(terms);
     map['committees'] = Variable<String>(committees);
     map['citations'] = Variable<String>(citations);
+    map['extras'] = Variable<String>(extras);
     return map;
   }
 
@@ -8041,6 +8058,7 @@ class Person extends DataClass implements Insertable<Person> {
       terms: Value(terms),
       committees: Value(committees),
       citations: Value(citations),
+      extras: Value(extras),
     );
   }
 
@@ -8065,6 +8083,7 @@ class Person extends DataClass implements Insertable<Person> {
       terms: serializer.fromJson<String>(json['terms']),
       committees: serializer.fromJson<String>(json['committees']),
       citations: serializer.fromJson<String>(json['citations']),
+      extras: serializer.fromJson<String>(json['extras']),
     );
   }
   @override
@@ -8088,6 +8107,7 @@ class Person extends DataClass implements Insertable<Person> {
       'terms': serializer.toJson<String>(terms),
       'committees': serializer.toJson<String>(committees),
       'citations': serializer.toJson<String>(citations),
+      'extras': serializer.toJson<String>(extras),
     };
   }
 
@@ -8108,7 +8128,8 @@ class Person extends DataClass implements Insertable<Person> {
           Value<String?> portraitAsset = const Value.absent(),
           String? terms,
           String? committees,
-          String? citations}) =>
+          String? citations,
+          String? extras}) =>
       Person(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -8128,6 +8149,7 @@ class Person extends DataClass implements Insertable<Person> {
         terms: terms ?? this.terms,
         committees: committees ?? this.committees,
         citations: citations ?? this.citations,
+        extras: extras ?? this.extras,
       );
   Person copyWithCompanion(PeopleCompanion data) {
     return Person(
@@ -8155,6 +8177,7 @@ class Person extends DataClass implements Insertable<Person> {
       committees:
           data.committees.present ? data.committees.value : this.committees,
       citations: data.citations.present ? data.citations.value : this.citations,
+      extras: data.extras.present ? data.extras.value : this.extras,
     );
   }
 
@@ -8177,7 +8200,8 @@ class Person extends DataClass implements Insertable<Person> {
           ..write('portraitAsset: $portraitAsset, ')
           ..write('terms: $terms, ')
           ..write('committees: $committees, ')
-          ..write('citations: $citations')
+          ..write('citations: $citations, ')
+          ..write('extras: $extras')
           ..write(')'))
         .toString();
   }
@@ -8200,7 +8224,8 @@ class Person extends DataClass implements Insertable<Person> {
       portraitAsset,
       terms,
       committees,
-      citations);
+      citations,
+      extras);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -8221,7 +8246,8 @@ class Person extends DataClass implements Insertable<Person> {
           other.portraitAsset == this.portraitAsset &&
           other.terms == this.terms &&
           other.committees == this.committees &&
-          other.citations == this.citations);
+          other.citations == this.citations &&
+          other.extras == this.extras);
 }
 
 class PeopleCompanion extends UpdateCompanion<Person> {
@@ -8242,6 +8268,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
   final Value<String> terms;
   final Value<String> committees;
   final Value<String> citations;
+  final Value<String> extras;
   final Value<int> rowid;
   const PeopleCompanion({
     this.id = const Value.absent(),
@@ -8261,6 +8288,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
     this.terms = const Value.absent(),
     this.committees = const Value.absent(),
     this.citations = const Value.absent(),
+    this.extras = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PeopleCompanion.insert({
@@ -8281,6 +8309,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
     this.terms = const Value.absent(),
     this.committees = const Value.absent(),
     this.citations = const Value.absent(),
+    this.extras = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -8303,6 +8332,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
     Expression<String>? terms,
     Expression<String>? committees,
     Expression<String>? citations,
+    Expression<String>? extras,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8323,6 +8353,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
       if (terms != null) 'terms': terms,
       if (committees != null) 'committees': committees,
       if (citations != null) 'citations': citations,
+      if (extras != null) 'extras': extras,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8345,6 +8376,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
       Value<String>? terms,
       Value<String>? committees,
       Value<String>? citations,
+      Value<String>? extras,
       Value<int>? rowid}) {
     return PeopleCompanion(
       id: id ?? this.id,
@@ -8364,6 +8396,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
       terms: terms ?? this.terms,
       committees: committees ?? this.committees,
       citations: citations ?? this.citations,
+      extras: extras ?? this.extras,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8422,6 +8455,9 @@ class PeopleCompanion extends UpdateCompanion<Person> {
     if (citations.present) {
       map['citations'] = Variable<String>(citations.value);
     }
+    if (extras.present) {
+      map['extras'] = Variable<String>(extras.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8448,6 +8484,7 @@ class PeopleCompanion extends UpdateCompanion<Person> {
           ..write('terms: $terms, ')
           ..write('committees: $committees, ')
           ..write('citations: $citations, ')
+          ..write('extras: $extras, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -12120,6 +12157,7 @@ typedef $$PeopleTableCreateCompanionBuilder = PeopleCompanion Function({
   Value<String> terms,
   Value<String> committees,
   Value<String> citations,
+  Value<String> extras,
   Value<int> rowid,
 });
 typedef $$PeopleTableUpdateCompanionBuilder = PeopleCompanion Function({
@@ -12140,6 +12178,7 @@ typedef $$PeopleTableUpdateCompanionBuilder = PeopleCompanion Function({
   Value<String> terms,
   Value<String> committees,
   Value<String> citations,
+  Value<String> extras,
   Value<int> rowid,
 });
 
@@ -12202,6 +12241,9 @@ class $$PeopleTableFilterComposer
 
   ColumnFilters<String> get citations => $composableBuilder(
       column: $table.citations, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get extras => $composableBuilder(
+      column: $table.extras, builder: (column) => ColumnFilters(column));
 }
 
 class $$PeopleTableOrderingComposer
@@ -12264,6 +12306,9 @@ class $$PeopleTableOrderingComposer
 
   ColumnOrderings<String> get citations => $composableBuilder(
       column: $table.citations, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get extras => $composableBuilder(
+      column: $table.extras, builder: (column) => ColumnOrderings(column));
 }
 
 class $$PeopleTableAnnotationComposer
@@ -12325,6 +12370,9 @@ class $$PeopleTableAnnotationComposer
 
   GeneratedColumn<String> get citations =>
       $composableBuilder(column: $table.citations, builder: (column) => column);
+
+  GeneratedColumn<String> get extras =>
+      $composableBuilder(column: $table.extras, builder: (column) => column);
 }
 
 class $$PeopleTableTableManager extends RootTableManager<
@@ -12367,6 +12415,7 @@ class $$PeopleTableTableManager extends RootTableManager<
             Value<String> terms = const Value.absent(),
             Value<String> committees = const Value.absent(),
             Value<String> citations = const Value.absent(),
+            Value<String> extras = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PeopleCompanion(
@@ -12387,6 +12436,7 @@ class $$PeopleTableTableManager extends RootTableManager<
             terms: terms,
             committees: committees,
             citations: citations,
+            extras: extras,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -12407,6 +12457,7 @@ class $$PeopleTableTableManager extends RootTableManager<
             Value<String> terms = const Value.absent(),
             Value<String> committees = const Value.absent(),
             Value<String> citations = const Value.absent(),
+            Value<String> extras = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               PeopleCompanion.insert(
@@ -12427,6 +12478,7 @@ class $$PeopleTableTableManager extends RootTableManager<
             terms: terms,
             committees: committees,
             citations: citations,
+            extras: extras,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

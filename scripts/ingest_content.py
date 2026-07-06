@@ -38,6 +38,8 @@ GOVERNMENT_FILE = REPO / "content" / "governments" / "us" / "government.yaml"
 EO_FILE = REPO / "content" / "atlas" / "executive_orders.yaml"
 VOCABULARY_FILE = REPO / "content" / "atlas" / "vocabulary.yaml"
 PEOPLE_FILE = REPO / "content" / "people" / "legislators.yaml"
+ENRICHMENT_FILE = REPO / "content" / "people" / "enrichment.yaml"
+LAWS_FILE = REPO / "content" / "atlas" / "recent_laws.yaml"
 
 DOMAINS = {
     "american_democracy": 1,
@@ -268,6 +270,34 @@ def load_entities(errors: Errors) -> list[dict]:
                 "citations": [citation],
             })
 
+    if LAWS_FILE.exists():
+        doc = yaml.safe_load(LAWS_FILE.read_text()) or {}
+        for i, l in enumerate(doc.get("laws") or []):
+            where = f"{LAWS_FILE.name}[{i}]"
+            number = l.get("law_number")
+            if not number:
+                errors.add(where, "law missing law_number")
+                continue
+            url = (l.get("url") or "").strip()
+            if not url.startswith("https://www.congress.gov/"):
+                errors.add(where, "url must be a congress.gov link")
+            entities.append({
+                "type": "law",
+                "slug": f"pl-{number}",
+                "name": (l.get("title") or f"Public Law {number}").strip(),
+                "data": {
+                    k: l.get(k)
+                    for k in ("law_number", "bill", "enacted_date",
+                              "origin_chamber", "sponsor")
+                },
+                "citations": [url],
+            })
+
+    enrichment_by_id: dict = {}
+    if ENRICHMENT_FILE.exists():
+        doc = yaml.safe_load(ENRICHMENT_FILE.read_text()) or {}
+        enrichment_by_id = doc.get("members") or {}
+
     if PEOPLE_FILE.exists():
         doc = yaml.safe_load(PEOPLE_FILE.read_text()) or {}
         for i, p in enumerate(doc.get("people") or []):
@@ -287,10 +317,13 @@ def load_entities(errors: Errors) -> list[dict]:
                 "slug": str(bioguide),
                 "name": p.get("name") or str(bioguide),
                 "data": {
-                    k: p.get(k)
-                    for k in ("chamber", "state", "district", "party",
-                              "birthday", "wikidata", "current_term",
-                              "terms", "committees")
+                    **{
+                        k: p.get(k)
+                        for k in ("chamber", "state", "district", "party",
+                                  "birthday", "wikidata", "current_term",
+                                  "terms", "committees")
+                    },
+                    "extras": enrichment_by_id.get(bioguide) or {},
                 },
                 "citations": citations,
             })

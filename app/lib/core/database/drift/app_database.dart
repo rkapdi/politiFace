@@ -329,6 +329,10 @@ class People extends Table {
   TextColumn get terms       => text().withDefault(const Constant('[]'))();      // JSON
   TextColumn get committees  => text().withDefault(const Constant('[]'))();      // JSON
   TextColumn get citations   => text().withDefault(const Constant('[]'))();      // JSON
+  // Open-ended enrichment payload (api.congress.gov: sponsored/cosponsored
+  // counts, leadership history, honorific, portrait attribution). JSON so
+  // future enrichment needs no further migrations.
+  TextColumn get extras      => text().withDefault(const Constant('{}'))();      // JSON
 
   @override
   Set<Column> get primaryKey => {id};
@@ -376,7 +380,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.e);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -469,6 +473,13 @@ class AppDatabase extends _$AppDatabase {
         // v11 → v12: the people reference layer (Atlas as IMDb). Content
         // table seeded from bundled YAML; no user data touched.
         await m.createTable(people);
+      }
+      if (from == 12) {
+        // v12 → v13: enrichment payload column on people (congress.gov
+        // legislative activity). Additive with default; content-only.
+        // Guarded to exactly 12: older versions create the table above
+        // with the column already in the current definition.
+        await m.addColumn(people, people.extras);
       }
     },
   );

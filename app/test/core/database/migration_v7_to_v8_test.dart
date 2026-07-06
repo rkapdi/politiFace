@@ -179,7 +179,7 @@ void main() {
     final version = (await db.customSelect('PRAGMA user_version').get())
         .single
         .read<int>('user_version');
-    expect(version, 12);
+    expect(version, 13);
 
     // v10 sync outbox exists and starts empty.
     expect(tables, contains('outbox_events'));

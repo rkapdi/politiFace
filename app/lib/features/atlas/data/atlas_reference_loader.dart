@@ -29,6 +29,26 @@ class ExecutiveOrder {
   final String? abstractText;
 }
 
+class RecentLaw {
+  const RecentLaw({
+    required this.lawNumber,
+    required this.title,
+    required this.bill,
+    required this.enactedDate,
+    required this.url,
+    this.sponsorBioguide,
+    this.sponsorName,
+  });
+
+  final String lawNumber; // e.g. 119-100
+  final String title;
+  final String bill; // e.g. S 1003
+  final String enactedDate;
+  final String url; // congress.gov
+  final String? sponsorBioguide; // cross-link to the person page
+  final String? sponsorName;
+}
+
 class CivicTerm {
   const CivicTerm({
     required this.id,
@@ -49,7 +69,9 @@ class AtlasReference {
   const AtlasReference({
     required this.orders,
     required this.terms,
+    required this.laws,
     required this.ordersUpdated,
+    required this.lawsCongress,
   });
 
   /// Newest first (the YAML is already sorted by EO number descending).
@@ -58,8 +80,15 @@ class AtlasReference {
   /// Alphabetical by term.
   final List<CivicTerm> terms;
 
+  /// Public laws of the current Congress, newest first. Empty when the
+  /// bundle predates the congress.gov enrichment.
+  final List<RecentLaw> laws;
+
   /// The `updated:` stamp from the fetcher run, shown as data provenance.
   final String? ordersUpdated;
+
+  /// Which Congress the laws list covers (e.g. 119).
+  final int? lawsCongress;
 }
 
 class AtlasReferenceLoader {
@@ -69,10 +98,17 @@ class AtlasReferenceLoader {
 
   static const _ordersAsset = 'assets/content/atlas/executive_orders.yaml';
   static const _vocabularyAsset = 'assets/content/atlas/vocabulary.yaml';
+  static const _lawsAsset = 'assets/content/atlas/recent_laws.yaml';
 
   Future<AtlasReference> load() async {
     final ordersDoc = loadYaml(await _bundle.loadString(_ordersAsset));
     final vocabDoc = loadYaml(await _bundle.loadString(_vocabularyAsset));
+    Object? lawsDoc;
+    try {
+      lawsDoc = loadYaml(await _bundle.loadString(_lawsAsset));
+    } catch (_) {
+      // Optional asset: bundles built without the congress.gov key.
+    }
 
     final orders = <ExecutiveOrder>[];
     if (ordersDoc is YamlMap) {
@@ -108,11 +144,31 @@ class AtlasReferenceLoader {
     }
     terms.sort((a, b) => a.term.toLowerCase().compareTo(b.term.toLowerCase()));
 
+    final laws = <RecentLaw>[];
+    if (lawsDoc is YamlMap) {
+      for (final l in (lawsDoc['laws'] as YamlList? ?? YamlList())
+          .whereType<YamlMap>()) {
+        final sponsor = l['sponsor'];
+        laws.add(RecentLaw(
+          lawNumber: l['law_number']?.toString() ?? '',
+          title: (l['title'] as String? ?? '').trim(),
+          bill: l['bill'] as String? ?? '',
+          enactedDate: l['enacted_date']?.toString() ?? '',
+          url: l['url'] as String? ?? '',
+          sponsorBioguide:
+              sponsor is YamlMap ? sponsor['bioguide'] as String? : null,
+          sponsorName: sponsor is YamlMap ? sponsor['name'] as String? : null,
+        ),);
+      }
+    }
+
     return AtlasReference(
       orders: orders,
       terms: terms,
+      laws: laws,
       ordersUpdated:
           ordersDoc is YamlMap ? ordersDoc['updated']?.toString() : null,
+      lawsCongress: lawsDoc is YamlMap ? lawsDoc['congress'] as int? : null,
     );
   }
 }

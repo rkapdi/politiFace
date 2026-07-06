@@ -33,8 +33,21 @@ jobs:
       - name: Fetch portraits for new members
         run: python scripts/fetch_member_photos.py --only-missing
 
+      # Both enrichment steps skip quietly when the secret is not set.
+      - name: Enrich members (congress.gov)
+        env:
+          CONGRESS_GOV_API_KEY: ${{ secrets.CONGRESS_GOV_API_KEY }}
+        run: python scripts/enrich_members.py
+
+      - name: Fetch recent laws (congress.gov)
+        env:
+          CONGRESS_GOV_API_KEY: ${{ secrets.CONGRESS_GOV_API_KEY }}
+        run: python scripts/fetch_recent_laws.py
+
       - name: Sync bundled copies
-        run: cp content/people/*.yaml app/assets/content/people/
+        run: |
+          cp content/people/*.yaml app/assets/content/people/
+          cp content/atlas/*.yaml app/assets/content/atlas/
 
       - name: Validate
         run: python scripts/ingest_content.py --check

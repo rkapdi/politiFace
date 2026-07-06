@@ -126,7 +126,8 @@ void main() {
     expect(await db.peopleDao.states(), ['CA', 'FL']);
   });
 
-  test('the real bundled roster seeds all 537 members', () async {
+  test('the real bundled roster seeds all 537 members with enrichment',
+      () async {
     // Uses the actual shipped assets (rootBundle).
     await PeopleSeedService(db).ensureSeeded();
     expect(await db.peopleDao.count(), 537);
@@ -134,5 +135,10 @@ void main() {
     expect(states, contains('FL'));
     final fl = await db.peopleDao.directory(state: 'FL');
     expect(fl.length, greaterThanOrEqualTo(29));
+
+    // congress.gov enrichment merged into extras (offline, bundled).
+    final enriched = fl.where((p) => p.extras.contains('sponsored_count'));
+    expect(enriched.length, fl.length,
+        reason: 'every member should carry enrichment',);
   });
 }

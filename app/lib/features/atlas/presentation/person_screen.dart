@@ -58,6 +58,16 @@ class _PersonView extends StatelessWidget {
             ?.whereType<String>()
             .toList() ??
         const <String>[];
+    final decodedExtras = json.decode(person.extras);
+    final extras = decodedExtras is Map
+        ? Map<String, dynamic>.from(decodedExtras)
+        : <String, dynamic>{};
+    final sponsored = extras['sponsored_count'] as int?;
+    final cosponsored = extras['cosponsored_count'] as int?;
+    final leadership = [
+      for (final l in extras['leadership'] as List? ?? const [])
+        if (l is Map) Map<String, dynamic>.from(l),
+    ];
     final firstTermStart =
         terms.isEmpty ? null : terms.first['start']?.toString();
 
@@ -107,7 +117,39 @@ class _PersonView extends StatelessWidget {
         _FactRow(label: 'Born', value: person.birthday),
         _FactRow(label: 'In Congress since', value: firstTermStart),
         _FactRow(label: 'Current term ends', value: person.termEnd),
+        if (sponsored != null)
+          _FactRow(label: 'Bills sponsored', value: '$sponsored'),
+        if (cosponsored != null)
+          _FactRow(label: 'Bills cosponsored', value: '$cosponsored'),
         const SizedBox(height: 20),
+        if (leadership.isNotEmpty) ...[
+          _SectionLabel(text: 'LEADERSHIP', theme: theme),
+          const SizedBox(height: 8),
+          for (final l in leadership)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.star_outline,
+                      size: 16, color: theme.colorScheme.onSurfaceVariant,),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      l['congress'] == null
+                          ? (l['type']?.toString() ?? '')
+                          : '${l['type']} (${l['congress']}th Congress)',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        height: 1.3,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 14),
+        ],
         if (committees.isNotEmpty) ...[
           _SectionLabel(text: 'COMMITTEES', theme: theme),
           const SizedBox(height: 8),

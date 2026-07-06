@@ -18,6 +18,17 @@ void main() {
       expect(o.signingDate, matches(r'^\d{4}-\d{2}-\d{2}$'));
     }
 
+    // Recent laws: real congress.gov data, newest first, sponsors linked.
+    expect(reference.laws.length, greaterThan(50));
+    expect(reference.lawsCongress, 119);
+    final law = reference.laws.first;
+    expect(law.lawNumber, isNotEmpty);
+    expect(law.url, startsWith('https://www.congress.gov/'));
+    expect(
+      reference.laws.where((l) => l.sponsorBioguide != null).length,
+      greaterThan(50),
+    );
+
     // Vocabulary: alphabetical, every term cited.
     expect(reference.terms.length, greaterThanOrEqualTo(10));
     final names = [for (final t in reference.terms) t.term.toLowerCase()];

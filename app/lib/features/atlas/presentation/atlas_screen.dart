@@ -299,6 +299,13 @@ class _ReferenceSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         _ReferenceTile(
+          icon: Icons.account_balance_outlined,
+          title: 'Recent laws',
+          subtitle: 'What actually became law this Congress, with sponsors.',
+          onTap: () => context.push('/atlas/laws'),
+        ),
+        const SizedBox(height: 8),
+        _ReferenceTile(
           icon: Icons.gavel_outlined,
           title: 'Executive orders',
           subtitle: 'Every order of the current administration, '

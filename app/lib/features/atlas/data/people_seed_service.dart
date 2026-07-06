@@ -22,16 +22,35 @@ class PeopleSeedService {
   final AssetBundle _bundle;
 
   static const _asset = 'assets/content/people/legislators.yaml';
+  static const _enrichmentAsset = 'assets/content/people/enrichment.yaml';
   static const _hashKey = 'seed.people.hash';
   static const _portraitDir = 'assets/content/portraits/congress';
 
   Future<void> ensureSeeded() async {
     final raw = await _bundle.loadString(_asset);
-    final hash = contentChecksum({_asset: raw});
+    // Enrichment (congress.gov legislative activity) is optional: content
+    // runs without the API key ship a roster with empty extras.
+    var enrichmentRaw = '';
+    try {
+      enrichmentRaw = await _bundle.loadString(_enrichmentAsset);
+    } catch (_) {
+      // Asset absent; extras stay empty.
+    }
+    final hash =
+        contentChecksum({_asset: raw, _enrichmentAsset: enrichmentRaw});
     if (await _db.metaDao.get(_hashKey) == hash) return;
 
     final doc = loadYaml(raw);
     if (doc is! YamlMap) return;
+
+    final enrichmentDoc =
+        enrichmentRaw.isEmpty ? null : loadYaml(enrichmentRaw);
+    final extrasById = <String, Object?>{};
+    if (enrichmentDoc is YamlMap && enrichmentDoc['members'] is YamlMap) {
+      for (final e in (enrichmentDoc['members'] as YamlMap).entries) {
+        extrasById[e.key.toString()] = _deepConvert(e.value);
+      }
+    }
 
     // Which members actually have a bundled portrait.
     final manifest = json.decode(
@@ -70,6 +89,7 @@ class PeopleSeedService {
         terms: Value(json.encode(_deepConvert(p['terms']))),
         committees: Value(json.encode(_deepConvert(p['committees']))),
         citations: Value(json.encode(_deepConvert(p['citations']))),
+        extras: Value(json.encode(extrasById[id] ?? const <String, Object?>{})),
       ),);
     }
 

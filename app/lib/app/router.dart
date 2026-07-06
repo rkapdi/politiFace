@@ -5,6 +5,7 @@ import '../features/atlas/presentation/congress_directory_screen.dart';
 import '../features/atlas/presentation/executive_orders_screen.dart';
 import '../features/atlas/presentation/person_screen.dart';
 import '../features/atlas/presentation/politician_detail_screen.dart';
+import '../features/atlas/presentation/recent_laws_screen.dart';
 import '../features/atlas/presentation/vocabulary_screen.dart';
 import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
@@ -140,6 +141,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       GoRoute(
         path: '/atlas/orders',
         builder: (context, state) => const ExecutiveOrdersScreen(),
+      ),
+      GoRoute(
+        path: '/atlas/laws',
+        builder: (context, state) => const RecentLawsScreen(),
       ),
       GoRoute(
         path: '/atlas/vocabulary',
