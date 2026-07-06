@@ -150,7 +150,10 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
       onPressed: () => _grade(grade),
       style: FilledButton.styleFrom(
         backgroundColor: color,
-        foregroundColor: Colors.white,
+        // White fails AA on the ochre fill (2.4:1); ink passes (7.15:1).
+        foregroundColor: color == EditorialPalette.ochre
+            ? EditorialPalette.ink
+            : Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 14),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w800,

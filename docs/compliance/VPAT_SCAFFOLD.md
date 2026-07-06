@@ -96,8 +96,14 @@ be re-checked against 1.4.11 on device.
 1. On-device VoiceOver walkthrough of every screen; upgrade "pending
    device pass" rows to definitive levels.
 2. Dynamic Type at accessibility sizes; fix any truncation found.
-3. Labels for politician portraits (card_avatar) and the memory orbital
-   field.
-4. Sweep legacy ochre-as-text usages onto `brandOchreText`.
-5. Reduce Motion audit of flutter_animate/confetti usages.
-6. Re-check selected-state and border contrast (1.4.11) on device.
+3. Reduce Motion audit of flutter_animate/confetti usages.
+4. Re-check selected-state and border contrast (1.4.11) on device.
+5. Custom semantics tree for the memory orbital field (the canvas now has
+   a descriptive label and the list alternative; per-orb nodes are the
+   full treatment).
+
+Completed 2026-07-05: legacy ochre-as-text sweep (archetype colors, DID
+YOU KNOW label, tour icons now use brandOchreText; HARD grade and GUESS
+confidence buttons use ink-on-ochre instead of white at 2.4:1); portrait
+labels confirmed already present on CardAvatar; memory field carries a
+descriptive label pointing to the accessible list.

@@ -480,3 +480,18 @@ export.
   terms). content-ci gains the bundled-copy drift check for
   content/atlas/. Loader test pins the bundled data (200+ orders, cited
   alphabetical vocabulary, house-style check).
+
+### Remaining-task cleanup (2026-07-05)
+
+- **EO refresh automation:** .github/workflows/eo-refresh.yml runs the
+  Federal Register fetcher weekly, syncs the bundled copy, validates, and
+  opens a reviewable PR (deterministic diff = just the new orders).
+- **Legacy ochre-text sweep (VPAT item):** archetype colors on the round
+  reveal are theme-aware (humble apprentice uses brandOchreText; the red
+  gains dark-mode compliance too); DID YOU KNOW label and first-run tour
+  icons switched; the trivia share card apprentice accent uses ochreDeep;
+  the HARD grade button and GUESS confidence button now render ink on
+  ochre (white was 2.4:1). CardAvatar already had portrait labels; the
+  memory orbital canvas now carries a descriptive semantics label with
+  the strongest-cards list as the accessible path.
+- Suite green, analyze clean.

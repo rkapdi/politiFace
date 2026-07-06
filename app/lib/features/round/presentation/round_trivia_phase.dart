@@ -393,7 +393,10 @@ class _ConfidenceBar extends StatelessWidget {
                     onPressed: () => onPick(c),
                     style: FilledButton.styleFrom(
                       backgroundColor: _palette[c],
-                      foregroundColor: Colors.white,
+                      // White fails AA on the ochre fill; ink passes.
+                      foregroundColor: _palette[c] == EditorialPalette.ochre
+                          ? EditorialPalette.ink
+                          : Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4)),

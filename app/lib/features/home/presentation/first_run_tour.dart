@@ -91,7 +91,13 @@ class _TourDialogState extends State<_TourDialog> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Icon(step.icon, size: 40, color: EditorialPalette.ochre),
+                  // Text-safe ochre: the plain accent misses the 3:1
+                  // non-text minimum on light surfaces.
+                  Icon(
+                    step.icon,
+                    size: 40,
+                    color: theme.colorScheme.brandOchreText,
+                  ),
                   const SizedBox(height: 16),
                   Text(
                     step.title,

@@ -123,7 +123,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
       return const Center(child: CircularProgressIndicator());
     }
     final theme = Theme.of(context);
-    final color = _archetypeColor(result.archetype);
+    final color = _archetypeColor(result.archetype, theme.colorScheme);
     // A national stat keyed to the chapter just played — shown only when the
     // player got at least one question right, so it reads as encouragement.
     final benchmarks = ref.watch(benchmarksProvider).valueOrNull;
@@ -352,7 +352,8 @@ class _BenchmarkCallout extends StatelessWidget {
           Text(
             'DID YOU KNOW',
             style: theme.textTheme.labelSmall?.copyWith(
-              color: EditorialPalette.ochre,
+              // Text-safe ochre; the plain accent fails AA on light paper.
+              color: theme.colorScheme.brandOchreText,
               letterSpacing: 1.8,
               fontWeight: FontWeight.w800,
             ),
@@ -395,15 +396,16 @@ String _shareText(TriviaResult r) => 'Politiface Daily — ${r.archetype.emoji} 
       '${r.gridEmojis.join()}\n'
       'politiface.app';
 
-Color _archetypeColor(TriviaArchetype a) {
+Color _archetypeColor(TriviaArchetype a, ColorScheme cs) {
   switch (a) {
     case TriviaArchetype.civicScholar:
-      return EditorialPalette.civicGreen;
+      return cs.brandGreen;
     case TriviaArchetype.luckyGuesser:
-      return EditorialPalette.civicNavy;
+      return cs.brandNavy;
     case TriviaArchetype.civicBullshitter:
-      return EditorialPalette.actionRed;
+      return cs.brandRed;
     case TriviaArchetype.humbleApprentice:
-      return EditorialPalette.ochre;
+      // Renders the archetype name as text; plain ochre fails AA contrast.
+      return cs.brandOchreText;
   }
 }

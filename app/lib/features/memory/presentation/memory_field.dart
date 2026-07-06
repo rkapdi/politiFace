@@ -179,10 +179,19 @@ class _MemoryFieldState extends State<MemoryField>
                 ),
               ),
               Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onLongPressStart: (d) => _handleLongPress(d, size),
-                  onTapUp: (d) => _handleTap(d, size),
+                // The orbital field is a painted canvas; per-orb semantics
+                // would need a custom semantics tree (VPAT work item). The
+                // accessible path is the strongest-cards list below, which
+                // opens the same detail screens.
+                child: Semantics(
+                  label: 'Memory field visualization. Cards orbit closer to '
+                      'the center the stronger your memory of them is. Use '
+                      'the list below to open any card.',
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onLongPressStart: (d) => _handleLongPress(d, size),
+                    onTapUp: (d) => _handleTap(d, size),
+                  ),
                 ),
               ),
               if (_selected != null && _selectedPos != null)

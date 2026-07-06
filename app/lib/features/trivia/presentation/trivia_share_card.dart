@@ -249,7 +249,8 @@ class TriviaShareCard extends StatelessWidget {
       case TriviaArchetype.civicBullshitter:
         return EditorialPalette.actionRed;
       case TriviaArchetype.humbleApprentice:
-        return EditorialPalette.ochre;
+        // The accent renders text on the light card; use text-safe ochre.
+        return EditorialPalette.ochreDeep;
     }
   }
 }
