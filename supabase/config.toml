@@ -411,3 +411,8 @@ s3_secret_key = "env(S3_SECRET_KEY)"
 # RC_WEBHOOK_SECRET shared-secret header instead.
 [functions.revenuecat-webhook]
 verify_jwt = false
+
+# The Pulse proxy serves public government data to signed-out users too;
+# the congress.gov key is a function secret, not a client credential.
+[functions.pulse]
+verify_jwt = false

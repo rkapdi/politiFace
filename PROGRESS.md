@@ -585,3 +585,25 @@ officials land, api.congress.gov enrichment fetched to YAML for offline.
   cannot ship in a public client); a keyless live layer (Federal
   Register direct, or a backend proxy) is the noted upgrade path.
 - Suite green (254), analyze clean.
+
+### Pulse goes near-real-time (2026-07-06)
+
+- **Live layer, fail-soft.** PulseLiveService: executive orders fetched
+  keyless straight from the Federal Register on feed open (last 60 days;
+  requests carry no user data), and bill actions from a new `pulse` Edge
+  Function once the backend exists. Live items overlay the bundle,
+  de-duped (live wins); the feed header states exactly what is live vs
+  bundled, and pull-to-refresh re-checks. Offline = bundled, stated
+  plainly.
+- **`pulse` Edge Function + pulse_cache migration.** The congress.gov key
+  lives ONLY as a function secret; responses cache in public.pulse_cache
+  (RLS enabled, zero policies/grants: invisible to clients, service role
+  bypasses) with a 15-minute TTL, so the entire install base costs a few
+  upstream calls per hour. Stale-beats-empty on upstream failure.
+  verify_jwt=false: public data, works signed out. Full backend harness
+  green with the migration.
+- **State delegation decks: decision needed, deliberately not hacked in.**
+  Global sessions and Endless sample ALL active cards, so seeding 537
+  member cards would flood the FSRS queue and Endless pools. Delegation
+  decks need a real opt-in deck mechanism (deck subscription flag +
+  sampler filtering). Flagged for design rather than shipped broken.

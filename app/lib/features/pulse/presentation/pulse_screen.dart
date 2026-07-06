@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../atlas/data/atlas_reference_loader.dart';
+import '../data/pulse_live_service.dart';
 
 enum _PulseKind { order, law, bill }
 
@@ -38,17 +39,71 @@ class _PulseItem {
   final String? sponsorName;
 }
 
-final _pulseFeedProvider = FutureProvider<List<_PulseItem>>((ref) async {
+final _liveProvider = FutureProvider.autoDispose<LivePulse>(
+  (ref) => PulseLiveService().fetch(),
+);
+
+class _PulseFeed {
+  const _PulseFeed({
+    required this.items,
+    required this.liveOrders,
+    required this.liveBills,
+  });
+
+  final List<_PulseItem> items;
+  final bool liveOrders;
+  final bool liveBills;
+}
+
+/// Bundled content overlaid with whatever is live right now. Executive
+/// orders come straight from the Federal Register (keyless); bill actions
+/// go live once the backend proxy exists. De-duped: live wins.
+final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
   final reference = await ref.watch(atlasReferenceProvider.future);
-  final items = <_PulseItem>[
+  final live = await ref.watch(_liveProvider.future);
+
+  final ordersByNumber = <int, _PulseItem>{
     for (final o in reference.orders)
-      _PulseItem(
+      o.number: _PulseItem(
         kind: _PulseKind.order,
         date: o.signingDate,
         title: o.title,
         detail: 'Executive Order ${o.number}, signed by ${o.president}',
         url: o.url,
       ),
+  };
+  for (final o in live.orders) {
+    ordersByNumber[o.number] = _PulseItem(
+      kind: _PulseKind.order,
+      date: o.signingDate,
+      title: o.title,
+      detail: 'Executive Order ${o.number}, signed by ${o.president}',
+      url: o.url,
+    );
+  }
+
+  final billsById = <String, _PulseItem>{
+    for (final b in reference.bills)
+      b.bill: _PulseItem(
+        kind: _PulseKind.bill,
+        date: b.actionDate,
+        title: b.title.isEmpty ? b.bill : b.title,
+        detail: '${b.bill}: ${b.action}',
+        url: b.url,
+      ),
+  };
+  for (final b in live.bills) {
+    billsById[b.bill] = _PulseItem(
+      kind: _PulseKind.bill,
+      date: b.actionDate,
+      title: b.title.isEmpty ? b.bill : b.title,
+      detail: '${b.bill}: ${b.action}',
+      url: b.url,
+    );
+  }
+
+  final items = <_PulseItem>[
+    ...ordersByNumber.values,
     for (final l in reference.laws)
       _PulseItem(
         kind: _PulseKind.law,
@@ -59,16 +114,14 @@ final _pulseFeedProvider = FutureProvider<List<_PulseItem>>((ref) async {
         sponsorBioguide: l.sponsorBioguide,
         sponsorName: l.sponsorName,
       ),
-    for (final b in reference.bills)
-      _PulseItem(
-        kind: _PulseKind.bill,
-        date: b.actionDate,
-        title: b.title.isEmpty ? b.bill : b.title,
-        detail: '${b.bill}: ${b.action}',
-        url: b.url,
-      ),
+    ...billsById.values,
   ]..sort((a, b) => b.date.compareTo(a.date));
-  return items;
+
+  return _PulseFeed(
+    items: items,
+    liveOrders: live.orders.isNotEmpty,
+    liveBills: live.bills.isNotEmpty,
+  );
 });
 
 class PulseScreen extends ConsumerStatefulWidget {
@@ -98,11 +151,11 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
       body: feed.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => const Center(child: Text('Could not load the feed.')),
-        data: (items) {
+        data: (data) {
           final visible = _filter == null
-              ? items
+              ? data.items
               : [
-                  for (final i in items)
+                  for (final i in data.items)
                     if (i.kind == _filter) i,
                 ];
           return Column(
@@ -133,26 +186,58 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                   ),
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
-                  itemCount: visible.length + 1,
-                  itemBuilder: (context, i) {
-                    if (i == visible.length) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          'From the Federal Register and congress.gov. '
-                          'Ships with content updates; every item links to '
-                          'the official record.',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 6, 24, 0),
+                child: Row(
+                  children: [
+                    Icon(
+                      data.liveOrders ? Icons.bolt : Icons.inventory_2_outlined,
+                      size: 14,
+                      color: data.liveOrders
+                          ? theme.colorScheme.brandGreen
+                          : theme.colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        data.liveOrders
+                            ? 'Executive orders live from the Federal '
+                                'Register${data.liveBills ? '; bills live' : '; bills from the latest content update'}.'
+                            : 'Offline: showing the latest content update. '
+                                'Pull to refresh.',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                      );
-                    }
-                    return _PulseTile(item: visible[i]);
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    ref.invalidate(_liveProvider);
+                    await ref.read(_pulseFeedProvider.future);
                   },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                    itemCount: visible.length + 1,
+                    itemBuilder: (context, i) {
+                      if (i == visible.length) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            'From the Federal Register and congress.gov. '
+                            'Every item links to the official record.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        );
+                      }
+                      return _PulseTile(item: visible[i]);
+                    },
+                  ),
                 ),
               ),
             ],
