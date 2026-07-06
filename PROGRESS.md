@@ -607,3 +607,29 @@ officials land, api.congress.gov enrichment fetched to YAML for offline.
   member cards would flood the FSRS queue and Endless pools. Delegation
   decks need a real opt-in deck mechanism (deck subscription flag +
   sampler filtering). Flagged for design rather than shipped broken.
+
+---
+
+## Production go-live (2026-07-06) ✅
+
+Hosted Supabase provisioned (us-east-1, Postgres 17). All 10 migrations
+applied; content ingested (8 draft questions, 926 entities after slug
+dedupe); Edge Functions deployed; pulse serving 50 live congress.gov
+bills through the server-side key with the 15-minute cache; faculty page
+config committed. Full production E2E passed: admin-created test users,
+password logins, RLS-guarded profile inserts, create_cohort + join code,
+join_cohort, transient question publish, server-side grading (wrong
+answer graded wrong, real key + explanation returned), idempotent
+replay, no leaderboard point for a wrong answer, cohort_domain_stats
+reflecting the miss in real time, students rejected from faculty RPCs,
+k-anonymity floor holding, complete test-data cleanup.
+
+One production-only bug found and fixed by migration 001000: the service
+role bypasses RLS but not schema ACLs, so service-role writes whose
+triggers touch the app schema failed (403). Granted app-schema access to
+service_role only; client roles remain fully revoked.
+
+Credential hygiene: the service_role key, the congress.gov key, and the
+database password all passed through the setup chat. Rotate all three
+(dashboard reset, api.congress.gov regenerate, database password reset)
+and update the GitHub SUPABASE_DB_URL secret + function secret after.
