@@ -561,3 +561,27 @@ officials land, api.congress.gov enrichment fetched to YAML for offline.
   quietly when the CONGRESS_GOV_API_KEY secret is absent.
 - Everything fetched at content time, bundled, fully offline per the
   founder decision. Suite green, analyze clean.
+
+### Faces complete + Anki-style card stats + The Pulse feed (2026-07-06)
+
+- **537/537 faces.** fetch_member_photos.py gains a congress.gov depiction
+  fallback (keyed); 11 of the 12 missing members recovered there, the
+  last (a 2026 freshman senator) from Wikidata Commons with the
+  attribution recorded as a manifest exception. Zero initials fallbacks
+  in the congressional directory.
+- **Anki-style memory detail.** The per-card retention screen gains a
+  Difficulty stat (plain Easy/Medium/Hard + the raw FSRS 1-10 value) and
+  a full REVIEW HISTORY timeline (date, AGAIN/HARD/GOOD/EASY grade chips
+  in brand colors, resulting interval), newest first. Politician detail
+  pages gain a MY MEMORY OF THIS CARD button into it, so every card's
+  stats are one tap from anywhere the card appears.
+- **The Pulse (/pulse).** One scrollable feed instead of notification
+  spam: executive orders, new laws, and the latest bill actions merged
+  chronologically with filter chips, each item linking to the official
+  record, law items cross-linking to the sponsor's person page. Fed by
+  the new fetch_recent_bills.py (150 latest bill actions, bundled,
+  weekly-refreshed in congress-refresh.yml). Home gains THE PULSE tile.
+  Freshness = content-refresh cadence for congress.gov data (the key
+  cannot ship in a public client); a keyless live layer (Federal
+  Register direct, or a backend proxy) is the noted upgrade path.
+- Suite green (254), analyze clean.

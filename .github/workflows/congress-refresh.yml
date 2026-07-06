@@ -44,6 +44,11 @@ jobs:
           CONGRESS_GOV_API_KEY: ${{ secrets.CONGRESS_GOV_API_KEY }}
         run: python scripts/fetch_recent_laws.py
 
+      - name: Fetch recent bill actions (congress.gov)
+        env:
+          CONGRESS_GOV_API_KEY: ${{ secrets.CONGRESS_GOV_API_KEY }}
+        run: python scripts/fetch_recent_bills.py
+
       - name: Sync bundled copies
         run: |
           cp content/people/*.yaml app/assets/content/people/

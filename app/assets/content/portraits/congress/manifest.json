@@ -1,19 +1,9 @@
 {
   "source": "unitedstates/images (official congressional photos)",
   "rendition": "180x220 JPEG derived from the 225x275 originals",
-  "count": 525,
-  "missing": [
-    "A000383",
-    "B001321",
-    "B001323",
-    "B001324",
-    "F000485",
-    "G000606",
-    "G000607",
-    "H001104",
-    "M001245",
-    "M001246",
-    "V000139",
-    "W000831"
-  ]
+  "count": 537,
+  "missing": [],
+  "exceptions": {
+    "A000383": "Wikimedia Commons: \"Senator Alan Armstrong swearing in ceremony, 2026.jpg\" (via Wikidata P18); verify license terms before any use outside the app bundle."
+  }
 }

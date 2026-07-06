@@ -21,6 +21,7 @@ import '../features/home/presentation/home_screen.dart';
 import '../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../features/memory/presentation/card_retention_detail_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
+import '../features/pulse/presentation/pulse_screen.dart';
 import '../features/round/presentation/daily_round_screen.dart';
 import '../features/round/presentation/round_review_screen.dart';
 import '../features/session/presentation/session_screen.dart';
@@ -149,6 +150,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       GoRoute(
         path: '/atlas/vocabulary',
         builder: (context, state) => const VocabularyScreen(),
+      ),
+      GoRoute(
+        path: '/pulse',
+        builder: (context, state) => const PulseScreen(),
       ),
       GoRoute(
         path: '/leaderboard',

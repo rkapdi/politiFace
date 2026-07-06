@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../session/domain/fsrs_algorithm.dart';
@@ -311,6 +312,7 @@ class _CurveSection extends StatelessWidget {
           reviewCount: state.reviewCount,
           lapses: state.lapses,
           durabilityDays: state.stability,
+          difficulty: state.difficulty,
         ),
         const SizedBox(height: 16),
         Text(
@@ -321,6 +323,8 @@ class _CurveSection extends StatelessWidget {
           ),
           textAlign: TextAlign.center,
         ),
+        const SizedBox(height: 20),
+        _HistorySection(logs: logs),
       ],
     );
   }
@@ -441,6 +445,7 @@ class _StatGrid extends StatelessWidget {
     required this.reviewCount,
     required this.lapses,
     required this.durabilityDays,
+    required this.difficulty,
   });
 
   final int strengthPct;
@@ -448,11 +453,19 @@ class _StatGrid extends StatelessWidget {
   final int reviewCount;
   final int lapses;
   final double durabilityDays;
+  final double difficulty;
 
   String get _durability {
     if (durabilityDays < 1) return '<1d';
     if (durabilityDays < 10) return '${durabilityDays.toStringAsFixed(1)}d';
     return '${durabilityDays.round()}d';
+  }
+
+  /// FSRS difficulty runs 1-10; students get the plain read.
+  String get _difficultyLabel {
+    if (difficulty < 4) return 'Easy';
+    if (difficulty < 7) return 'Medium';
+    return 'Hard';
   }
 
   @override
@@ -463,6 +476,7 @@ class _StatGrid extends StatelessWidget {
       (_durability, 'Memory lasts'),
       ('$reviewCount', 'Times reviewed'),
       ('$lapses', 'Times forgotten'),
+      ('$_difficultyLabel (${difficulty.toStringAsFixed(1)})', 'Difficulty'),
     ];
     return Wrap(
       spacing: 10,
@@ -806,3 +820,102 @@ final _cardRetentionProvider =
   final logs = await db.reviewsDao.logsForCard(cardId);
   return _CardRetention(card: card, state: state, logs: logs);
 });
+
+/// Anki-style per-review history: when, how it was graded, and the
+/// interval FSRS granted as a result. Newest first.
+class _HistorySection extends StatelessWidget {
+  const _HistorySection({required this.logs});
+
+  final List<ReviewLog> logs;
+
+  static const _gradeLabels = ['AGAIN', 'HARD', 'GOOD', 'EASY'];
+
+  Color _gradeColor(BuildContext context, int grade) {
+    final cs = Theme.of(context).colorScheme;
+    switch (grade) {
+      case 0:
+        return cs.brandRed;
+      case 1:
+        return cs.brandOchreText;
+      case 3:
+        return cs.brandNavy;
+      default:
+        return cs.brandGreen;
+    }
+  }
+
+  String _date(int unixSeconds) {
+    final d = DateTime.fromMillisecondsSinceEpoch(unixSeconds * 1000);
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'REVIEW HISTORY',
+          style: theme.textTheme.labelSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.6,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 10),
+        for (final log in logs.reversed)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: MergeSemantics(
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 92,
+                    child: Text(
+                      _date(log.reviewedAt),
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: _gradeColor(context, log.grade),
+                        width: 1.5,
+                      ),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      _gradeLabels[log.grade.clamp(0, 3)],
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.1,
+                        color: _gradeColor(context, log.grade),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    log.intervalDays < 1
+                        ? 'same day'
+                        : 'next in ${log.intervalDays}d',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}

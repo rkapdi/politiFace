@@ -29,6 +29,14 @@ void main() {
       greaterThan(50),
     );
 
+    // Recent bill actions: the Pulse feed source.
+    expect(reference.bills.length, greaterThan(100));
+    for (final b in reference.bills.take(10)) {
+      expect(b.url, startsWith('https://www.congress.gov/'));
+      expect(b.action, isNotEmpty);
+      expect(b.actionDate, matches(r'^\d{4}-\d{2}-\d{2}$'));
+    }
+
     // Vocabulary: alphabetical, every term cited.
     expect(reference.terms.length, greaterThanOrEqualTo(10));
     final names = [for (final t in reference.terms) t.term.toLowerCase()];

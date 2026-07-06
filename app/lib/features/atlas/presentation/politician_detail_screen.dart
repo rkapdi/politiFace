@@ -116,7 +116,23 @@ class _DetailBody extends ConsumerWidget {
           ),
           const SizedBox(height: 14),
           _FactStrip(card: card),
-          const SizedBox(height: 28),
+          const SizedBox(height: 14),
+
+          // ── Memory stats (Anki-style: curve + FSRS stats + history) ──
+          Center(
+            child: OutlinedButton.icon(
+              onPressed: () => context.push('/memory/card/${card.id}'),
+              icon: const Icon(Icons.show_chart_rounded, size: 18),
+              label: const Text(
+                'MY MEMORY OF THIS CARD',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.1,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
 
           // ── Bio (Wikipedia lead paragraph) ──────────────────────────
           const _SectionHeader(label: 'BIOGRAPHY'),

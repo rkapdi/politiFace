@@ -51,6 +51,8 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 24),
               const _SectionDivider(label: 'SECONDARY'),
               const SizedBox(height: 12),
+              const _PulseTile(),
+              const SizedBox(height: 12),
               const _TriviaTile(),
               const SizedBox(height: 12),
               const _EndlessTile(),
@@ -227,6 +229,23 @@ class _TriviaTile extends StatelessWidget {
       onTap: () {
         HapticFeedback.lightImpact();
         context.go('/trivia');
+      },
+    );
+}
+
+class _PulseTile extends StatelessWidget {
+  const _PulseTile();
+
+  @override
+  Widget build(BuildContext context) => _ActionTile(
+      section: 'THE PULSE',
+      headline: 'What Washington did.',
+      body: 'New laws, executive orders, and bill actions, one feed.',
+      accent: Theme.of(context).colorScheme.brandNavy,
+      mark: '⚡',
+      onTap: () {
+        HapticFeedback.lightImpact();
+        context.push('/pulse');
       },
     );
 }

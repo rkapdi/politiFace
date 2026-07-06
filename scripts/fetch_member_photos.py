@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os
 import sys
 import urllib.error
 import urllib.request
@@ -33,18 +34,35 @@ IMG_URL = "https://unitedstates.github.io/images/congress/225x275/{bioguide}.jpg
 USER_AGENT = "politiface-content-pipeline (rkapdi4@gmail.com)"
 
 
+def _get(url: str) -> bytes:
+    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return resp.read()
+
+
 def fetch(bioguide: str) -> bytes | None:
-    req = urllib.request.Request(
-        IMG_URL.format(bioguide=bioguide),
-        headers={"User-Agent": USER_AGENT},
-    )
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            return resp.read()
+        return _get(IMG_URL.format(bioguide=bioguide))
     except urllib.error.HTTPError as e:
-        if e.code == 404:
+        if e.code != 404:
+            raise
+    # Fallback: the official depiction from api.congress.gov (newer members
+    # often have a congress.gov photo before unitedstates/images catches
+    # up). Faces are pivotal to the brand; leave nobody blank if avoidable.
+    key = os.environ.get("CONGRESS_GOV_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        member = json.loads(_get(
+            f"https://api.congress.gov/v3/member/{bioguide}"
+            f"?api_key={key}&format=json",
+        ))["member"]
+        image_url = (member.get("depiction") or {}).get("imageUrl")
+        if not image_url:
             return None
-        raise
+        return _get(image_url)
+    except Exception:  # noqa: BLE001 - fallback is best-effort
+        return None
 
 
 def recompress(data: bytes, quality: int) -> bytes:

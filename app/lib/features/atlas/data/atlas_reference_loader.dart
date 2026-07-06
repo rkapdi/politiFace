@@ -49,6 +49,22 @@ class RecentLaw {
   final String? sponsorName;
 }
 
+class RecentBillAction {
+  const RecentBillAction({
+    required this.bill,
+    required this.title,
+    required this.actionDate,
+    required this.action,
+    required this.url,
+  });
+
+  final String bill; // e.g. HR 8121
+  final String title;
+  final String actionDate;
+  final String action; // the latest-action line from congress.gov
+  final String url;
+}
+
 class CivicTerm {
   const CivicTerm({
     required this.id,
@@ -70,6 +86,7 @@ class AtlasReference {
     required this.orders,
     required this.terms,
     required this.laws,
+    required this.bills,
     required this.ordersUpdated,
     required this.lawsCongress,
   });
@@ -83,6 +100,9 @@ class AtlasReference {
   /// Public laws of the current Congress, newest first. Empty when the
   /// bundle predates the congress.gov enrichment.
   final List<RecentLaw> laws;
+
+  /// Recently-acted-on bills (the feed), newest first. Optional asset.
+  final List<RecentBillAction> bills;
 
   /// The `updated:` stamp from the fetcher run, shown as data provenance.
   final String? ordersUpdated;
@@ -99,6 +119,7 @@ class AtlasReferenceLoader {
   static const _ordersAsset = 'assets/content/atlas/executive_orders.yaml';
   static const _vocabularyAsset = 'assets/content/atlas/vocabulary.yaml';
   static const _lawsAsset = 'assets/content/atlas/recent_laws.yaml';
+  static const _billsAsset = 'assets/content/atlas/recent_bills.yaml';
 
   Future<AtlasReference> load() async {
     final ordersDoc = loadYaml(await _bundle.loadString(_ordersAsset));
@@ -108,6 +129,12 @@ class AtlasReferenceLoader {
       lawsDoc = loadYaml(await _bundle.loadString(_lawsAsset));
     } catch (_) {
       // Optional asset: bundles built without the congress.gov key.
+    }
+    Object? billsDoc;
+    try {
+      billsDoc = loadYaml(await _bundle.loadString(_billsAsset));
+    } catch (_) {
+      // Optional asset, same reason.
     }
 
     final orders = <ExecutiveOrder>[];
@@ -162,10 +189,25 @@ class AtlasReferenceLoader {
       }
     }
 
+    final bills = <RecentBillAction>[];
+    if (billsDoc is YamlMap) {
+      for (final b in (billsDoc['bills'] as YamlList? ?? YamlList())
+          .whereType<YamlMap>()) {
+        bills.add(RecentBillAction(
+          bill: b['bill'] as String? ?? '',
+          title: (b['title'] as String? ?? '').trim(),
+          actionDate: b['action_date']?.toString() ?? '',
+          action: (b['action'] as String? ?? '').trim(),
+          url: b['url'] as String? ?? '',
+        ),);
+      }
+    }
+
     return AtlasReference(
       orders: orders,
       terms: terms,
       laws: laws,
+      bills: bills,
       ordersUpdated:
           ordersDoc is YamlMap ? ordersDoc['updated']?.toString() : null,
       lawsCongress: lawsDoc is YamlMap ? lawsDoc['congress'] as int? : null,
