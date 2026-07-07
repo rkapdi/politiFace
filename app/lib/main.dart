@@ -89,7 +89,11 @@ Future<void> _bootstrap(AppDatabase db) async {
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
-        initialRouteProvider.overrideWithValue('/'),
+        // Defaults to home; a --dart-define lets QA/deep-link builds open
+        // straight onto any route (e.g. INITIAL_ROUTE=/pulse).
+        initialRouteProvider.overrideWithValue(
+          const String.fromEnvironment('INITIAL_ROUTE', defaultValue: '/'),
+        ),
       ],
       child: const PolitifaceApp(),
     ),
