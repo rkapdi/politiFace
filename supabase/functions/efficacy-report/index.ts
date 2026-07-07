@@ -28,9 +28,14 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get("authorization");
   if (!authHeader) return new Response("unauthorized", { status: 401 });
 
+  // Runs under the CALLER's JWT (RLS enforced); the apikey just needs to be
+  // a valid public client key. Prefer the new publishable key; fall back to
+  // the injected legacy anon. The publishable key is public by design.
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_ANON_KEY")!,
+    Deno.env.get("SB_PUBLISHABLE_KEY") ??
+      Deno.env.get("SUPABASE_ANON_KEY") ??
+      "sb_publishable_BIJdeOXfjzXlJhsc8bX_Fw_YNX902qU",
     { global: { headers: { Authorization: authHeader } } },
   );
 

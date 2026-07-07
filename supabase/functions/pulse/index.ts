@@ -28,10 +28,16 @@ function webUrl(congress: number, type: string, number: string): string {
   return `https://www.congress.gov/bill/${congress}th-congress/${slug}/${number}`;
 }
 
+// Privileged (bypass-RLS) key. Prefer the new secret key (SB_SECRET_KEY);
+// fall back to the injected legacy service_role so this deploys safely in
+// any order relative to disabling legacy keys.
+const SERVICE_KEY = Deno.env.get("SB_SECRET_KEY") ??
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
 Deno.serve(async (_req) => {
   const admin = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    SERVICE_KEY,
   );
 
   const { data: cached } = await admin
