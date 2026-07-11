@@ -25,7 +25,7 @@ questions:
       instead divides power between the national government and the states.
     citation: https://constitution.congress.gov/constitution/
     difficulty: 1
-    objective: null
+    objective: SS.7.CG.1.9
     status: draft
 
   - id: amdem-consent-governed-001
@@ -49,5 +49,456 @@ questions:
       sovereignty.
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 2
-    objective: null
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-declaration-natural-rights-09
+    stem: >
+      The Declaration of Independence states that people are endowed by their
+      Creator with certain unalienable Rights. This language most directly
+      reflects the Enlightenment idea of...
+    options:
+      - key: a
+        text: "natural rights"
+      - key: b
+        text: "the divine right of kings"
+      - key: c
+        text: "mercantilism"
+      - key: d
+        text: "feudal obligation"
+    answer: a
+    explanation: >
+      The phrase expresses the Enlightenment concept of natural rights, drawn from
+      thinkers such as Locke, meaning rights that belong to all people and cannot
+      be justly taken away. The divine right of kings is the opposite idea,
+      holding that a monarch's power flows directly from God.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 3
+    objective: SS.912.CG.1.2
+    status: draft
+
+  - id: amdem-limited-government-02
+    stem: >
+      A constitution that lists the specific powers a government may exercise and
+      forbids it from taking away certain freedoms best illustrates which
+      principle?
+    options:
+      - key: a
+        text: "Limited government"
+      - key: b
+        text: "Absolute monarchy"
+      - key: c
+        text: "Direct democracy"
+      - key: d
+        text: "Anarchy"
+    answer: a
+    explanation: >
+      Limited government means a government's authority is restricted by law,
+      especially a written constitution, so it may not exceed granted powers or
+      violate protected rights. An absolute monarchy places unrestricted power in
+      one ruler, which is the opposite idea.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 2
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-checks-balances-07
+    stem: >
+      When the President rejects a bill passed by Congress and Congress can
+      override that rejection by a two-thirds vote, the Constitution is using
+      which method to limit government power?
+    options:
+      - key: a
+        text: "Checks and balances"
+      - key: b
+        text: "Judicial review"
+      - key: c
+        text: "Popular sovereignty"
+      - key: d
+        text: "Eminent domain"
+    answer: a
+    explanation: >
+      Checks and balances lets each branch limit the others, as when the
+      President's veto checks Congress and Congress's override checks the
+      President. Judicial review is a court power over laws, and eminent domain
+      concerns the taking of private property, so neither fits this exchange.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 3
+    objective: SS.7.CG.1.9
+    status: draft
+
+  - id: amdem-natural-law-locke-05
+    stem: >
+      According to Locke's idea of natural law, rights such as life and liberty
+      are best described as...
+    options:
+      - key: a
+        text: "inherent to all people and not created by government"
+      - key: b
+        text: "handed out to subjects by the king"
+      - key: c
+        text: "earned only through military service"
+      - key: d
+        text: "granted only to property owners by the church"
+    answer: a
+    explanation: >
+      Natural law holds that certain rights belong to every person simply by being
+      human, so government's role is to protect them rather than to create them.
+      Because these rights are not gifts from a ruler, a government cannot justly
+      take them away.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 3
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-roman-senate-03
+    stem: >
+      The United States borrowed the name of its upper legislative chamber, the
+      Senate, and the idea of a council of chosen representatives from the
+      government of ancient...
+    options:
+      - key: a
+        text: "Rome"
+      - key: b
+        text: "Egypt"
+      - key: c
+        text: "Persia"
+      - key: d
+        text: "Babylon"
+    answer: a
+    explanation: >
+      The word Senate comes from the Latin senatus, and the Roman Republic's
+      Senate inspired the American idea of representatives deliberating on behalf
+      of citizens. Ancient Egypt, Persia, and Babylon were ruled by monarchs
+      rather than by elected legislative councils.
+    citation: https://www.senate.gov
+    difficulty: 2
+    objective: SS.7.CG.1.1
+    status: draft
+
+  - id: amdem-federalism-11
+    stem: >
+      The constitutional principle by which power is divided between a national
+      government and the state governments is called...
+    options:
+      - key: a
+        text: "federalism"
+      - key: b
+        text: "republicanism"
+      - key: c
+        text: "due process"
+      - key: d
+        text: "popular sovereignty"
+    answer: a
+    explanation: >
+      Federalism divides authority between the national and state governments,
+      allowing each level to exercise certain powers. Republicanism refers to
+      governing through elected representatives, and due process concerns fair
+      legal procedures, so neither describes the division of power between the
+      nation and the states.
+    citation: https://constitution.congress.gov/constitution/amendment-10/
+    difficulty: 1
+    objective: SS.912.CG.1.5
+    status: draft
+
+  - id: amdem-supremacy-clause-03
+    stem: >
+      Under the Supremacy Clause in Article VI, when a valid federal law and a
+      state law directly conflict, which one governs?
+    options:
+      - key: a
+        text: "The federal law"
+      - key: b
+        text: "The state law"
+      - key: c
+        text: "Whichever law was enacted first"
+      - key: d
+        text: "Whichever law the state governor prefers"
+    answer: a
+    explanation: >
+      The Supremacy Clause makes the Constitution and valid federal laws the
+      supreme law of the land, binding state judges even when state law conflicts.
+      The date of enactment and a governor's preference do not override a valid
+      federal law in a genuine conflict.
+    citation: https://constitution.congress.gov/constitution/article-6/
+    difficulty: 3
+    objective: SS.912.CG.3.12
+    status: draft
+
+  - id: amdem-judicial-review-origin-01
+    stem: >
+      Which 1803 Supreme Court decision first established the principle of
+      judicial review, the power of federal courts to strike down a law that
+      conflicts with the Constitution?
+    options:
+      - key: a
+        text: "Marbury v. Madison"
+      - key: b
+        text: "McCulloch v. Maryland"
+      - key: c
+        text: "Gibbons v. Ogden"
+      - key: d
+        text: "Dred Scott v. Sandford"
+    answer: a
+    explanation: >
+      Marbury v. Madison (1803) established judicial review, with the Court
+      holding that it is the duty of the judiciary to say what the law is and to
+      void a statute that conflicts with the Constitution. McCulloch dealt with
+      federal implied powers and the Supremacy Clause, not with the origin of
+      judicial review.
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    difficulty: 2
+    objective: SS.912.CG.3.8
+    status: draft
+
+  - id: amdem-original-jurisdiction-states-05
+    stem: >
+      Under Article III, a legal dispute between two states, such as a boundary or
+      water rights disagreement, is heard first by which court under its original
+      jurisdiction?
+    options:
+      - key: a
+        text: "The United States Supreme Court"
+      - key: b
+        text: "The Florida Supreme Court"
+      - key: c
+        text: "A federal district court located in the larger state"
+      - key: d
+        text: "The United States House of Representatives"
+    answer: a
+    explanation: >
+      Article III gives the Supreme Court original jurisdiction over controversies
+      between two or more states, meaning such cases may begin there rather than
+      on appeal. A single state's supreme court cannot resolve a dispute involving
+      another state, and the House is a legislative body, not a court.
+    citation: https://constitution.congress.gov/constitution/article-3/
+    difficulty: 5
+    objective: SS.912.CG.3.13
+    status: draft
+
+  - id: amdem-electoral-college-electors-06
+    stem: >
+      In a United States presidential election, the voters in each state actually
+      choose which of the following, who then formally cast the votes that elect
+      the President?
+    options:
+      - key: a
+        text: "Presidential electors"
+      - key: b
+        text: "United States senators"
+      - key: c
+        text: "Delegates to a constitutional convention"
+      - key: d
+        text: "Supreme Court justices"
+    answer: a
+    explanation: >
+      Article II provides that each state appoints presidential electors, and the
+      popular vote in each state determines that slate of electors, who then cast
+      the official electoral votes for President. Senators are chosen in separate
+      elections, justices are appointed, and convention delegates play no role in
+      electing the President.
+    citation: https://constitution.congress.gov/constitution/article-2/
+    difficulty: 3
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-voting-age-turnout-08
+    stem: >
+      The Twenty-sixth Amendment enlarged the pool of eligible voters, and thus
+      the potential for turnout, by doing what?
+    options:
+      - key: a
+        text: "Lowering the minimum voting age to eighteen"
+      - key: b
+        text: "Requiring voters to pass a literacy test"
+      - key: c
+        text: "Extending the vote to noncitizen residents"
+      - key: d
+        text: "Making voting mandatory nationwide"
+    answer: a
+    explanation: >
+      The Twenty-sixth Amendment set the voting age at eighteen, adding millions
+      of younger citizens to the electorate and expanding the group who could turn
+      out to vote. It did not add a literacy requirement, extend voting to
+      noncitizens, or make voting compulsory.
+    citation: https://constitution.congress.gov/constitution/amendment-26/
+    difficulty: 2
+    objective: SS.912.CG.2.10
+    status: draft
+
+  - id: amdem-plessy-brown-segregation-10
+    stem: >
+      In Plessy v. Ferguson (1896), the Supreme Court upheld state laws requiring
+      racial segregation under the doctrine of separate but equal. That ruling was
+      later overturned by which 1954 decision?
+    options:
+      - key: a
+        text: "Brown v. Board of Education"
+      - key: b
+        text: "Marbury v. Madison"
+      - key: c
+        text: "Gideon v. Wainwright"
+      - key: d
+        text: "Miranda v. Arizona"
+    answer: a
+    explanation: >
+      Brown v. Board of Education (1954) overturned the separate but equal
+      doctrine from Plessy, holding that state-mandated segregation in public
+      schools was unconstitutional. Gideon concerned the right to counsel and
+      Miranda concerned rights during police questioning, so neither reversed
+      Plessy.
+    citation: https://www.archives.gov/milestone-documents/brown-v-board-of-education
+    difficulty: 3
+    objective: SS.912.CG.2.5
+    status: draft
+
+  - id: amdem-republic-advantage-08
+    stem: >
+      One advantage of a constitutional republic over a pure (direct) democracy in
+      a large nation is that a republic...
+    options:
+      - key: a
+        text: "lets citizens elect representatives to make laws, which is practical for a large population"
+      - key: b
+        text: "requires every citizen to vote personally on every single law"
+      - key: c
+        text: "places all authority in one hereditary ruler"
+      - key: d
+        text: "operates with no written rules limiting the government"
+    answer: a
+    explanation: >
+      In a constitutional republic, citizens elect representatives, which makes
+      lawmaking workable across a large and diverse population while a written
+      constitution limits government power. Requiring every citizen to vote on
+      every law describes direct democracy, which becomes impractical at a
+      national scale.
+    citation: https://founders.archives.gov/documents/Madison/01-10-02-0178
+    difficulty: 3
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-homestead-economic-freedom-12
+    stem: >
+      The Homestead Act of 1862 expanded economic opportunity for many citizens by
+      allowing them to do what?
+    options:
+      - key: a
+        text: "Claim and gain ownership of federal land by settling and improving it"
+      - key: b
+        text: "Receive a guaranteed federal salary for life"
+      - key: c
+        text: "Take ownership of land already owned by private farmers"
+      - key: d
+        text: "Avoid paying any federal taxes permanently"
+    answer: a
+    explanation: >
+      The Homestead Act let citizens acquire ownership of public land by living on
+      it, farming it, and making improvements, tying property ownership to
+      economic opportunity and prosperity. It did not provide salaries, seize
+      private property, or grant tax exemptions.
+    citation: https://www.archives.gov/milestone-documents/homestead-act
+    difficulty: 3
+    objective: SS.912.CG.4.1
+    status: draft
+
+  - id: amdem-due-process-06
+    stem: >
+      The Fifth Amendment's guarantee that no person shall be deprived of life,
+      liberty, or property without due process of law limits government by
+      requiring it to...
+    options:
+      - key: a
+        text: "follow fair legal procedures before punishing a person"
+      - key: b
+        text: "hold congressional elections every two years"
+      - key: c
+        text: "divide power between the states and the nation"
+      - key: d
+        text: "approve treaties by a two-thirds vote"
+    answer: a
+    explanation: >
+      Due process requires the government to use fair and established procedures
+      before it can take a person's life, liberty, or property, protecting
+      individuals from arbitrary action. The other choices describe unrelated
+      constitutional rules such as elections, federalism, and treaty ratification.
+    citation: https://constitution.congress.gov/constitution/amendment-5/
+    difficulty: 3
+    objective: SS.7.CG.1.9
+    status: draft
+
+  - id: amdem-rule-of-law-01
+    stem: >
+      Which core principle of American democracy holds that laws apply equally to
+      everyone, including government officials, so that no person is above the
+      law?
+    options:
+      - key: a
+        text: "Rule of law"
+      - key: b
+        text: "Popular sovereignty"
+      - key: c
+        text: "Separation of powers"
+      - key: d
+        text: "Judicial review"
+    answer: a
+    explanation: >
+      Rule of law means the same laws bind ordinary citizens and government
+      leaders alike, preventing arbitrary or unequal use of power. Popular
+      sovereignty concerns authority resting with the people, and judicial review
+      is a court's power to strike down unconstitutional acts, so neither matches
+      the definition.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 1
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-locke-social-contract-04
+    stem: >
+      Enlightenment philosopher John Locke argued that the main reason people
+      agree to form a government is to...
+    options:
+      - key: a
+        text: "protect their natural rights"
+      - key: b
+        text: "increase the ruler's personal wealth"
+      - key: c
+        text: "establish a single official church"
+      - key: d
+        text: "conquer neighboring lands"
+    answer: a
+    explanation: >
+      Locke's social contract theory taught that people consent to be governed in
+      order to secure natural rights such as life and liberty, and that a
+      government failing this purpose loses its legitimacy. The other options
+      describe aims Locke associated with tyrannical or illegitimate rule.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 2
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-declaration-govt-purpose-10
+    stem: >
+      The Declaration of Independence asserts that governments are instituted to
+      secure these rights. This idea, that a government's purpose is to protect
+      the people's rights, is an Enlightenment principle most closely associated
+      with...
+    options:
+      - key: a
+        text: "John Locke"
+      - key: b
+        text: "King George III"
+      - key: c
+        text: "Niccolo Machiavelli"
+      - key: d
+        text: "an absolute sovereign as described by Thomas Hobbes"
+    answer: a
+    explanation: >
+      The claim that legitimate government exists to secure the people's rights
+      comes from John Locke's social contract theory, which strongly influenced
+      Jefferson. Hobbes favored a nearly absolute sovereign, and Machiavelli
+      focused on how rulers gain and keep power, so neither matches the
+      Declaration's stated purpose.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 4
+    objective: SS.912.CG.1.2
     status: draft
