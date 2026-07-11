@@ -111,3 +111,17 @@ Why: any single readiness percentage reads as a predicted exam score, which brea
 positioning ("does not predict your score") and manufactures the false confidence above. The
 verdict is what's covered, what's solid, what's untouched, and the one thing to do next.
 Hook: "We refused to show a 'you're 74% ready' number. It's the most requested feature and the most dishonest one."
+
+**Review flow: founder, then Dawood, then Purcell, never the reverse.**
+Why: the questions are AI-drafted. Handing raw drafts to the champion professor as first-pass
+QA would make his first real encounter with the content be spotting our mistakes. Founder gates
+accuracy + brand; a trusted second reader confirms; the professor sees only clean content and is
+asked to endorse, not to fix.
+Hook: "Never let your most important evangelist be your QA. The first thing they touch has to be the polished thing, not the draft."
+
+**Planning the pivot two years early, on purpose.**
+Why: the FCLE trajectory tops out around $1M; the game/global vision is the path past it. But the
+moves that unlock that path (grant funding, a dual-entity nonprofit/for-profit, no-regret
+architecture) have lead times in quarters. If you wait for the pivot to plan the pivot, you've
+already lost the runway.
+Hook: "We're writing the pivot playbook two years before the pivot, because the moves that matter can't be made in a hurry."
