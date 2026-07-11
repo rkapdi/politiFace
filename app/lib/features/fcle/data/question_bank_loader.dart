@@ -75,6 +75,7 @@ class QuestionBankLoader {
           explanation: (q['explanation'] as String).trim(),
           citation: q['citation'] as String,
           difficulty: q['difficulty'] as int? ?? 3,
+          objective: q['objective'] as String?,
         ),);
       }
     }

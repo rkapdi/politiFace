@@ -99,6 +99,58 @@ void main() {
     expect(set.skip(1).map((x) => x.id).toSet(), {'unseen1', 'unseen2'});
   });
 
+  test('answerLog returns every row, newest first', () async {
+    await log('q1', 'us_constitution', true, 10);
+    await log('q2', 'american_democracy', false, 30);
+    await log('q3', 'us_constitution', true, 20);
+
+    final rows = await db.fcleAnswersDao.answerLog();
+    expect(rows.map((r) => r.questionId).toList(), ['q2', 'q3', 'q1']);
+    expect(rows.first.correct, isFalse);
+    expect(rows.first.answeredAt, 30);
+  });
+
+  test('buildPracticeSet filters the domain pool to one objective', () async {
+    FcleQuestion q(String id, String? objective) => FcleQuestion(
+          id: id,
+          domain: FcleDomain.usConstitution,
+          stem: 'Stem for $id?',
+          options: const [
+            FcleOption(key: 'a', text: 'A'),
+            FcleOption(key: 'b', text: 'B'),
+          ],
+          answerKey: 'a',
+          explanation: 'x',
+          citation: 'https://example.gov',
+          difficulty: 3,
+          objective: objective,
+        );
+    final bank = QuestionBank({
+      FcleDomain.usConstitution: [
+        q('art1-a', 'SS.912.CG.3.3'),
+        q('art1-b', 'SS.912.CG.3.3'),
+        q('art5-a', 'SS.7.CG.3.5'),
+        q('untagged', null),
+      ],
+    });
+
+    final scoped = await buildPracticeSet(
+      bank: bank,
+      dao: db.fcleAnswersDao,
+      domain: FcleDomain.usConstitution,
+      objective: 'SS.912.CG.3.3',
+    );
+    expect(scoped.map((x) => x.id).toSet(), {'art1-a', 'art1-b'});
+
+    // No objective filter still returns the whole domain pool.
+    final all = await buildPracticeSet(
+      bank: bank,
+      dao: db.fcleAnswersDao,
+      domain: FcleDomain.usConstitution,
+    );
+    expect(all.length, 4);
+  });
+
   test('buildPracticeSet caps at the pool size', () async {
     const bank = QuestionBank({
       FcleDomain.usConstitution: [

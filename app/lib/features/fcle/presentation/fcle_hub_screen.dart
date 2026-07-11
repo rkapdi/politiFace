@@ -52,6 +52,8 @@ class FcleHubScreen extends ConsumerWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+                const SizedBox(height: 20),
+                _BlueprintEntryTile(theme: theme),
                 const SizedBox(height: 24),
                 _SectionLabel(text: 'READINESS BY DOMAIN', theme: theme),
                 const SizedBox(height: 12),
@@ -127,6 +129,57 @@ class FcleHubScreen extends ConsumerWidget {
             ),
     );
   }
+}
+
+class _BlueprintEntryTile extends StatelessWidget {
+  const _BlueprintEntryTile({required this.theme});
+
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) => InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          context.push('/fcle/blueprint');
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.colorScheme.brandNavy, width: 1.5),
+            borderRadius: BorderRadius.circular(6),
+            color: theme.colorScheme.surfaceContainerLow,
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.map_outlined,
+                  size: 22, color: theme.colorScheme.brandNavy,),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "What's on the exam, and where you stand",
+                      style: theme.textTheme.titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'All 32 objectives across the four competencies, with '
+                      'your coverage on each.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 20),
+            ],
+          ),
+        ),
+      );
 }
 
 class _SectionLabel extends StatelessWidget {

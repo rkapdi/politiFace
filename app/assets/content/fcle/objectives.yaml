@@ -1,0 +1,261 @@
+# FCLE objectives (competencies) per domain.
+#
+# PROVENANCE
+# ----------
+# The FCLE has no published objective codes of its own. What it has is the
+# FLDOE "Supplemental Guide for the Florida Civic Literacy Examination"
+# (Office of Assessment, March 31 2022), which lays out the four competencies
+# and hyperlinks each topic to the Florida K-12 benchmark that carries it, on
+# CPALMS -- the state's official standards database.
+#
+# Those benchmark codes are the real, citable objective codes, so they are
+# what we use here. Nothing below is invented. Each `code` resolves at
+# https://www.cpalms.org/PreviewStandard/Preview/<id> and the id is recorded
+# beside it.
+#
+# Guide (source of the domain -> benchmark mapping):
+#   https://www.fldoe.org/core/fileparse.php/5663/urlt/SuppGuideFCLE.pdf
+#
+# COPYRIGHT
+# ---------
+# The Supplemental Guide is FLDOE copyright and its own notice withholds
+# permission for commercial reproduction. Politiface is a commercial product,
+# so the guide is used here strictly as a *reference* for which benchmarks the
+# exam draws on. Codes are identifiers (facts); every `description` below is
+# written in our own words rather than copied from FLDOE or CPALMS. Do not
+# paste official standard text into this file.
+#
+# DOMAIN ASSIGNMENT
+# -----------------
+# The guide states outright that the four competencies overlap, and several
+# benchmarks are hyperlinked under more than one. `public.objectives` allows a
+# single domain per code, so each benchmark is filed under the competency that
+# cites it most often. Benchmarks that span competencies carry a `spans:` note
+# in a comment, so question authors know an item may serve two domains.
+#
+# Two ties were broken on meaning rather than link count, marked OVERRIDE.
+
+objectives:
+  # ── Competency One: American Democracy ─────────────────────────────────
+  # Basic principles and practices of American democracy, and how they are
+  # applied in a republican form of government.
+
+  - code: SS.912.C.3.1 # cpalms 3539
+    domain: american_democracy
+    description: >
+      Identify the core constitutional principles -- representative
+      government, limited government, consent of the governed, rule of law,
+      and individual rights -- and recognise them at work.
+
+  - code: SS.7.CG.1.1 # cpalms 16088
+    domain: american_democracy
+    description: >
+      Trace what ancient Greece, ancient Rome, and the Judeo-Christian
+      tradition each contributed to the American constitutional republic.
+
+  - code: SS.7.CG.1.4 # cpalms 16091
+    domain: american_democracy
+    description: >
+      Explain how Enlightenment thinking shaped the Founding, in particular
+      Montesquieu on the separation of powers and Locke on natural law and the
+      social contract.
+
+  - code: SS.7.CG.1.9 # cpalms 16096
+    domain: american_democracy
+    description: >
+      Describe the mechanisms by which the Constitution restrains government:
+      separation of powers, checks and balances, protected individual rights,
+      the rule of law, and due process.
+
+  - code: SS.7.CG.3.1 # cpalms 16109
+    domain: american_democracy
+    description: >
+      Weigh what a constitutional republic offers, relative to other systems,
+      for protecting liberty and sustaining representative government.
+
+  - code: SS.912.CG.1.2 # cpalms 16138  spans: founding_documents
+    domain: american_democracy
+    description: >
+      Explain how Enlightenment ideas found their way into the Declaration of
+      Independence.
+
+  - code: SS.912.CG.1.5 # cpalms 16141
+    domain: american_democracy
+    description: >
+      Show how the Constitution and its amendments give effect to checks and
+      balances, consent of the governed, democracy, due process, federalism,
+      individual rights, limited government, representative government,
+      republicanism, the rule of law, and separation of powers.
+
+  - code: SS.912.CG.2.5 # cpalms 16146
+    domain: american_democracy
+    description: >
+      Examine cases, past and present, in which government has restricted
+      rights, and the justifications offered for doing so.
+
+  - code: SS.912.CG.2.9 # cpalms 16150
+    domain: american_democracy
+    description: >
+      Explain how elections are actually run at the state and national levels,
+      procedurally and institutionally.
+
+  - code: SS.912.CG.2.10 # cpalms 16151  spans: us_constitution
+    domain: american_democracy
+    description: >
+      Analyse what drives voter turnout up or down in local, state, and
+      national elections.
+
+  - code: SS.912.CG.3.8 # cpalms 16162
+    domain: american_democracy
+    description: >
+      Describe judicial review -- where it came from, what it does, and why it
+      matters to constitutional government.
+
+  - code: SS.912.CG.3.12 # cpalms 16166  spans: us_constitution
+    domain: american_democracy
+    description: >
+      Analyse federalism as practised in the United States and how it sets the
+      terms between state and national government.
+
+  - code: SS.912.CG.3.13 # cpalms 16167
+    domain: american_democracy
+    description: >
+      Explain the mechanisms that resolve disputes among Florida, other
+      states, and the national government.
+
+  - code: SS.912.CG.4.1 # cpalms 16170
+    domain: american_democracy
+    description: >
+      Analyse the relationship between liberty, economic freedom, and
+      broad-based opportunity and prosperity in the United States.
+
+  # ── Competency Two: United States Constitution ─────────────────────────
+  # The articles, amendments, clauses and structures of the Constitution, and
+  # how they apply.
+
+  - code: SS.7.CG.3.5 # cpalms 16113
+    domain: us_constitution
+    description: >
+      Explain the amendment process laid out in Article V.
+
+  - code: SS.912.CG.2.1 # cpalms 16142
+    domain: us_constitution
+    description: >
+      Explain which constitutional provisions establish citizenship and how
+      they bear on it.
+
+  - code: SS.912.CG.3.2 # cpalms 16156  spans: american_democracy
+    domain: us_constitution
+    description: >
+      Explain the two-sided role of the Constitution toward individual rights:
+      it both safeguards them and marks their limits.
+
+  - code: SS.912.CG.3.3 # cpalms 16157
+    domain: us_constitution
+    description: >
+      Analyse the legislative branch as Article I constructs it -- structure,
+      function, and process.
+
+  - code: SS.912.CG.3.4 # cpalms 16158
+    domain: us_constitution
+    description: >
+      Analyse the executive branch as Article II constructs it -- structure,
+      function, and process.
+
+  # OVERRIDE: the guide links this benchmark once under Competency One and
+  # once under Competency Two. Its subject is Article III, so it belongs here.
+  - code: SS.912.CG.3.7 # cpalms 16161  spans: american_democracy
+    domain: us_constitution
+    description: >
+      Analyse the judicial branch as Article III constructs it -- structure,
+      function, and process.
+
+  - code: SS.912.CG.3.6 # cpalms 16160
+    domain: us_constitution
+    description: >
+      Distinguish expressed, implied, concurrent, and reserved powers under
+      the Constitution.
+
+  - code: SS.912.CG.3.10 # cpalms 16164
+    domain: us_constitution
+    description: >
+      Analyse how state and federal courts are tiered and what each level is
+      responsible for.
+
+  # ── Competency Three: Founding Documents ───────────────────────────────
+  # Documents of the founding era (1776-1791), their antecedents, and how they
+  # shaped the institutions of self-government.
+
+  - code: SS.7.CG.1.7 # cpalms 16094
+    domain: founding_documents
+    description: >
+      Explain how the failures of the Articles of Confederation drove the
+      writing of the Constitution.
+
+  - code: SS.912.CG.1.1 # cpalms 16137  spans: american_democracy
+    domain: founding_documents
+    description: >
+      Examine how earlier primary documents fed the ideas behind the
+      Declaration of Independence, the Constitution, and the Bill of Rights --
+      among them Magna Carta, the Mayflower Compact, the English Bill of
+      Rights, Common Sense, the Massachusetts Constitution, the Articles of
+      Confederation, and the Northwest Ordinance.
+
+  - code: SS.912.CG.1.3 # cpalms 16139  spans: us_constitution
+    domain: founding_documents
+    description: >
+      Explain the case the Federalist Papers make for ratifying the
+      Constitution and for a republican form of government. Nos. 10, 14, 31,
+      39 and 51 are the ones the FLDOE guide names; authors and central
+      arguments are both fair game.
+
+  - code: SS.912.CG.1.4 # cpalms 16140  spans: american_democracy
+    domain: founding_documents
+    description: >
+      Analyse how the ideals stated in the founding documents shape the United
+      States as a constitutional republic.
+
+  - code: SS.912.CG.2.6 # cpalms 16147  spans: american_democracy
+    domain: founding_documents
+    description: >
+      Explain how principles set down in the foundational documents drove the
+      expansion of civil rights and liberties over time.
+
+  # ── Competency Four: Landmark Impact ───────────────────────────────────
+  # Landmark Supreme Court cases, landmark legislation, and landmark executive
+  # actions, and their impact on law and society.
+  #
+  # The FLDOE guide names 26 specific cases. See docs/fcle-coverage.md for the
+  # list and where our content currently stands against it.
+
+  - code: SS.7.CG.3.10 # cpalms 16118
+    domain: landmark_impact
+    description: >
+      Identify where law comes from and the different types of law.
+
+  - code: SS.7.CG.3.11 # cpalms 16119
+    domain: landmark_impact
+    description: >
+      Analyse how landmark Supreme Court decisions have altered law, liberty,
+      and the reading of the Constitution.
+
+  # OVERRIDE: linked once under Competency One and once under Competency Four.
+  # Its subject is landmark decisions, so it is filed here.
+  - code: SS.912.CG.3.11 # cpalms 16165  spans: american_democracy
+    domain: landmark_impact
+    description: >
+      Evaluate the effect of landmark Supreme Court decisions on law, liberty,
+      and constitutional interpretation.
+
+  - code: SS.8.A.4.13 # cpalms 3289
+    domain: landmark_impact
+    description: >
+      Explain what followed from the early landmark decisions of the Marshall
+      era and after -- McCulloch v. Maryland, Gibbons v. Ogden, Cherokee
+      Nation v. Georgia, and Worcester v. Georgia.
+
+  - code: SS.912.A.7.8 # cpalms 3424
+    domain: landmark_impact
+    description: >
+      Analyse the Supreme Court decisions governing integration, busing,
+      affirmative action, the rights of the accused, and reproductive rights.

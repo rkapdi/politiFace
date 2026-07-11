@@ -34,6 +34,19 @@ questions:
     explanation: It is published.
     citation: https://constitution.congress.gov/
     difficulty: 2
+    objective: SS.912.CG.3.3
+    status: published
+  - id: usconst-c-001
+    stem: Published question with no objective?
+    options:
+      - key: a
+        text: Yes
+      - key: b
+        text: No
+    answer: a
+    explanation: It is published, untagged.
+    citation: https://constitution.congress.gov/
+    objective: null
     status: published
   - id: usconst-b-001
     stem: Draft question stays hidden?
@@ -64,13 +77,18 @@ void main() {
     });
     final bank = await QuestionBankLoader(bundle: bundle).load();
 
-    expect(bank.countFor(FcleDomain.usConstitution), 1);
-    final q = bank.byDomain[FcleDomain.usConstitution]!.single;
-    expect(q.id, 'usconst-a-001');
+    expect(bank.countFor(FcleDomain.usConstitution), 2);
+    final byId = {
+      for (final q in bank.byDomain[FcleDomain.usConstitution]!) q.id: q,
+    };
+    final q = byId['usconst-a-001']!;
     expect(q.answerKey, 'a');
     expect(q.isCorrect('a'), isTrue);
     expect(q.isCorrect('b'), isFalse);
     expect(q.difficulty, 2);
+    expect(q.objective, 'SS.912.CG.3.3');
+    // A published question with `objective: null` parses to a null objective.
+    expect(byId['usconst-c-001']!.objective, isNull);
     expect(bank.canAssembleMock, isFalse);
   });
 

@@ -42,6 +42,7 @@ class FcleQuestion {
     required this.explanation,
     required this.citation,
     required this.difficulty,
+    this.objective,
   });
 
   /// Stable YAML slug (e.g. usconst-article1-congress-001). Maps
@@ -54,6 +55,11 @@ class FcleQuestion {
   final String explanation;
   final String citation;
   final int difficulty;
+
+  /// FCLE objective (competency benchmark) this question maps to, e.g.
+  /// "SS.912.CG.1.1". Null when the item is not yet tagged. See
+  /// content/fcle/objectives.yaml for the taxonomy.
+  final String? objective;
 
   bool isCorrect(String chosenKey) => chosenKey == answerKey;
 }

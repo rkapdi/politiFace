@@ -11,6 +11,7 @@ import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
 import '../features/endless/presentation/endless_screen.dart';
 import '../features/fcle/domain/mock_engine.dart';
+import '../features/fcle/presentation/fcle_blueprint_screen.dart';
 import '../features/fcle/presentation/fcle_hub_screen.dart';
 import '../features/fcle/presentation/mock_exam_screen.dart';
 import '../features/fcle/presentation/mock_result_screen.dart';
@@ -173,9 +174,14 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
             MockResultScreen(result: state.extra! as MockResult),
       ),
       GoRoute(
+        path: '/fcle/blueprint',
+        builder: (context, state) => const FcleBlueprintScreen(),
+      ),
+      GoRoute(
         path: '/fcle/practice',
         builder: (context, state) => PracticeScreen(
           domainCode: state.uri.queryParameters['domain'] ?? '',
+          objective: state.uri.queryParameters['objective'],
         ),
       ),
       GoRoute(

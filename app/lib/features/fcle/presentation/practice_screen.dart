@@ -19,9 +19,12 @@ import '../application/fcle_providers.dart';
 import '../domain/fcle_question.dart';
 
 class PracticeScreen extends ConsumerStatefulWidget {
-  const PracticeScreen({required this.domainCode, super.key});
+  const PracticeScreen({required this.domainCode, this.objective, super.key});
 
   final String domainCode;
+
+  /// When set, practice is scoped to a single FCLE objective (competency).
+  final String? objective;
 
   @override
   ConsumerState<PracticeScreen> createState() => _PracticeScreenState();
@@ -49,6 +52,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       bank: bank,
       dao: ref.read(databaseProvider).fcleAnswersDao,
       domain: _domain,
+      objective: widget.objective,
     );
     if (!mounted) return;
     setState(() => _questions = questions);

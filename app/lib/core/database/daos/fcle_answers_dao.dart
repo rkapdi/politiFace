@@ -57,6 +57,25 @@ class FcleAnswersDao extends DatabaseAccessor<AppDatabase>
     return row.read(c) ?? 0;
   }
 
+  /// The full local answer log, newest first. Objective-level readiness joins
+  /// this against the in-memory question bank (questionId -> objective) rather
+  /// than storing an objective column, so re-tagging content needs no schema
+  /// migration. Local volume is small, so returning every row is fine.
+  Future<List<({String questionId, bool correct, int answeredAt})>>
+      answerLog() async {
+    final rows = await (select(fcleAnswers)
+          ..orderBy([(t) => OrderingTerm.desc(t.answeredAt)]))
+        .get();
+    return [
+      for (final r in rows)
+        (
+          questionId: r.questionId,
+          correct: r.correct,
+          answeredAt: r.answeredAt,
+        ),
+    ];
+  }
+
   /// Question ids answered incorrectly more recently than correctly:
   /// the weak-area practice pool, most recently missed first.
   Future<List<String>> missedQuestionIds(String domain,

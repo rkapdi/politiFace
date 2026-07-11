@@ -75,6 +75,15 @@ jobs:
             exit 1
           fi
 
+      - name: Bundled FCLE objectives match canonical content
+        run: |
+          if ! cmp -s content/fcle/objectives.yaml \
+                      app/assets/content/fcle/objectives.yaml; then
+            echo "::error::app/assets/content/fcle/objectives.yaml is out of sync with content/fcle/objectives.yaml"
+            echo "Run: cp content/fcle/objectives.yaml app/assets/content/fcle/objectives.yaml"
+            exit 1
+          fi
+
       - name: Bundled atlas reference matches canonical content
         run: |
           fail=0
