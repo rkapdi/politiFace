@@ -83,3 +83,17 @@ Why: virality comes from artifacts people share (streaks, challenge cards, resul
 conversations we have to moderate. An open political forum manufactures the exact partisan
 moment that destroys the trust moat.
 Hook: "Duolingo's growth engine was never a forum. It's a streak you can't shut up about."
+
+**Layered verification caught what single-layer would have shipped.**
+Why: the content pipeline's adversarial reviewer caught a hallucinated citation (a 404
+archives.gov path). But a dumb follow-up "does every URL actually resolve" curl sweep then
+caught two MORE dead links the smart agents missed, including one that had lived in the
+hand-written question bank for weeks. Different layers catch different failures.
+Hook: "The AI hallucinated a citation. A second AI caught it. Then a ten-line curl loop caught two more the smart agents missed. Trust needs a dumb layer under the clever one."
+
+**The delegated agent corrected my premise instead of executing it.**
+Why: I dispatched an agent to 'add' cohort attribution to FCLE efficacy data. It found the
+attribution already existed and was already server-side, and that the real bug was subtler:
+the lookup was role-blind, so a professor running a practice mock polluted their own class's
+stats. It fixed the actual defect, not the imagined one.
+Hook: "I told the agent to build a feature. It came back and said the feature already existed, and here's the real bug you didn't know you had."
