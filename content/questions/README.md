@@ -46,3 +46,48 @@ questions:
   student-facing text (house style).
 - A question removed from YAML is automatically unpublished on the next
   ingest (never deleted; events referencing it stay intact).
+
+## Editorial review flow
+
+`scripts/review_questions.py` is the founder-facing tool for reviewing the
+bank and gating the `draft -> reviewed -> published` flip. It reads the same
+YAML this file documents and edits nothing but `status:` lines.
+
+pyyaml is not installed against the system `python3` on the build machine, so
+run the tool (and the ingest check) through a local venv:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install pyyaml
+```
+
+The `.venv/` directory is git-ignored; never commit it.
+
+Three modes:
+
+```bash
+# 1. LIST / REVIEW: one compact card per question (id, domain, objective,
+#    status, stem, options with the answer marked, explanation, citation).
+#    Filter with --domain, --status, --file.
+.venv/bin/python scripts/review_questions.py --domain us_constitution --status draft
+
+# 2. COVERAGE REPORT: per-domain published-vs-20 (the Mock FCLE threshold),
+#    counts per objective code, and which domains are still below threshold.
+.venv/bin/python scripts/review_questions.py --report
+
+# 3. STATUS SETTER: flip status with a MINIMAL in-place edit (only the
+#    question's `status:` line changes; block scalars and comments are
+#    preserved). Select by --ids and/or --file (and optionally --domain /
+#    --status). Preview first with --dry-run.
+.venv/bin/python scripts/review_questions.py --dry-run \
+    --set-status published --ids usconst-article1-congress-001,landmark-marbury-001
+.venv/bin/python scripts/review_questions.py \
+    --set-status reviewed --file content/questions/us_constitution.yaml
+```
+
+After a status flip, confirm the edit was surgical:
+
+```bash
+git diff -- content/questions   # only `status:` lines should differ
+.venv/bin/python scripts/ingest_content.py --check   # still passes
+```
