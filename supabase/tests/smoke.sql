@@ -399,5 +399,62 @@ begin
   end;
 end $$;
 
+-- ── Objective-level readiness (Tier 2, user_objective_readiness) ────────────
+-- A question tagged to an objective feeds a per-objective rolling accuracy,
+-- mirroring domain readiness one level deeper. Seed as owner (bypasses RLS),
+-- then answer as the student and assert the derived accuracy.
+reset role;
+do $$
+declare v_obj uuid; qa uuid; qb uuid;
+begin
+  insert into public.objectives (domain_id, code, description)
+  values (1, 'test_obj_rolling', 'Objective readiness regression')
+  returning id into v_obj;
+
+  insert into public.questions (domain_id, objective_id, stem, options, citation, review_status)
+  values (1, v_obj, 'Objective readiness A?',
+          '[{"key":"a","text":"A"},{"key":"b","text":"B"}]',
+          'https://constitution.congress.gov/', 'draft') returning id into qa;
+  insert into app.question_keys (question_id, answer_key, explanation) values (qa, 'b', 'Because b.');
+  update public.questions set review_status = 'published' where id = qa;
+
+  insert into public.questions (domain_id, objective_id, stem, options, citation, review_status)
+  values (1, v_obj, 'Objective readiness B?',
+          '[{"key":"a","text":"A"},{"key":"b","text":"B"}]',
+          'https://constitution.congress.gov/', 'draft') returning id into qb;
+  insert into app.question_keys (question_id, answer_key, explanation) values (qb, 'b', 'Because b.');
+  update public.questions set review_status = 'published' where id = qb;
+end $$;
+
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+declare qa uuid; qb uuid; obj uuid; acc real; res jsonb;
+begin
+  select id, objective_id into qa, obj from public.questions where stem = 'Objective readiness A?';
+  select id into qb from public.questions where stem = 'Objective readiness B?';
+
+  res := public.submit_answer(gen_random_uuid(), qa, 'b', now());  -- correct
+  res := public.submit_answer(gen_random_uuid(), qb, 'a', now());  -- wrong
+
+  select accuracy into acc from public.user_objective_readiness
+    where user_id = auth.uid() and objective_id = obj;
+  if acc is null then
+    raise exception 'FAIL: objective readiness row not written';
+  end if;
+  if abs(acc - 0.5) > 1e-6 then
+    raise exception 'FAIL: objective accuracy should be 0.5 (1 of 2 correct), got %', acc;
+  end if;
+end $$;
+
+-- An outsider cannot read another user's objective readiness.
+set app.test_uid = :s2_uid;
+do $$
+begin
+  if exists (select 1 from public.user_objective_readiness) then
+    raise exception 'FAIL: outsider sees objective readiness';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
