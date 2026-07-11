@@ -97,3 +97,17 @@ attribution already existed and was already server-side, and that the real bug w
 the lookup was role-blind, so a professor running a practice mock polluted their own class's
 stats. It fixed the actual defect, not the imagined one.
 Hook: "I told the agent to build a feature. It came back and said the feature already existed, and here's the real bug you didn't know you had."
+
+**Set the 'you're ready' bar well above the 60% passing score, on purpose.**
+Why: practice accuracy over-predicts real-exam performance (questions repeat, no timer, no
+nerves, easier items). Calibrating "ready" to the pass line would hand students false
+confidence and fail them on a graduation requirement, which would also kill the pass-rate
+efficacy story we sell to the institution. So "solid" is 85%+, not 60%+. Recalibrate later
+against real baseline-to-outcome data.
+Hook: "Our app tells you you're ready at 85%, not 60%. An exam-prep tool that celebrates the passing score is lying to you, and it'll get you failed."
+
+**No 'percent ready' number. Coverage and a next step instead.**
+Why: any single readiness percentage reads as a predicted exam score, which breaks our
+positioning ("does not predict your score") and manufactures the false confidence above. The
+verdict is what's covered, what's solid, what's untouched, and the one thing to do next.
+Hook: "We refused to show a 'you're 74% ready' number. It's the most requested feature and the most dishonest one."
