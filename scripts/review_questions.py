@@ -281,9 +281,15 @@ def set_status_in_file(
             continue
         end = id_hits[hit_idx + 1][0] if hit_idx + 1 < len(id_hits) else len(lines)
 
+        # A real status FIELD sits at exactly the question's field indent.
+        # Anything deeper is block-scalar text (a stem or explanation may
+        # legitimately contain the words "status: ...") and must not be edited.
+        id_indent = ID_LINE_RE.match(lines[start]).group(1)
+        field_indent = " " * (len(id_indent) + 2)
+
         status_line = None
         for j in range(start, end):
-            if STATUS_LINE_RE.match(lines[j]):
+            if lines[j].startswith(f"{field_indent}status:"):
                 status_line = j
                 break
 
@@ -296,8 +302,6 @@ def set_status_in_file(
         else:
             # No explicit status line (defaults to draft): insert one, aligned
             # with the question's other sub-fields.
-            id_indent = ID_LINE_RE.match(lines[start]).group(1)
-            field_indent = " " * (len(id_indent) + 2)
             # Insert after the last non-blank line of the block.
             insert_at = end
             while insert_at - 1 > start and not lines[insert_at - 1].strip():
@@ -360,7 +364,10 @@ def run_set_status(
     verb = "would set" if dry_run else "set"
     changed = 0
     for path, qid, old, new in sorted(all_changes, key=lambda c: (c[0].name, c[1])):
-        rel = path.relative_to(REPO)
+        try:
+            rel = path.relative_to(REPO)
+        except ValueError:
+            rel = path
         if old == new:
             print(f"  {qid}: already {new} (no change)  [{rel}]")
         else:
