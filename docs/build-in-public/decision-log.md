@@ -125,3 +125,12 @@ moves that unlock that path (grant funding, a dual-entity nonprofit/for-profit, 
 architecture) have lead times in quarters. If you wait for the pivot to plan the pivot, you've
 already lost the runway.
 Hook: "We're writing the pivot playbook two years before the pivot, because the moves that matter can't be made in a hurry."
+
+**Shipped the bank on one reviewer, not three.**
+Why: the review flow is founder -> Dawood -> Purcell, but with launch on July 25 the founder
+reviewed all 80 questions against the FCLE material and shipped on his own sign-off. The
+three-pass flow protects two things: accuracy (the founder pass caught that) and the rule that
+Purcell only ever sees polished content (still true; his pass was endorsement, never QA, so
+deferring it costs nothing). Dawood's student's-eye read still happens, it just happens on
+published content and any fix ships as an edit. Ids are stable, so live corrections are safe.
+Hook: "Process is a tool, not a ritual. We wrote a three-reviewer flow, then shipped on one, because the calendar is also a reviewer."
