@@ -134,3 +134,19 @@ Purcell only ever sees polished content (still true; his pass was endorsement, n
 deferring it costs nothing). Dawood's student's-eye read still happens, it just happens on
 published content and any fix ships as an edit. Ids are stable, so live corrections are safe.
 Hook: "Process is a tool, not a ritual. We wrote a three-reviewer flow, then shipped on one, because the calendar is also a reviewer."
+
+**An interpretive layer for bills: comprehension yes, verdicts never.**
+Why: users who don't read legal language should still understand what a new bill actually
+does. The obvious feature ("objective pros and cons") is the one version we won't build: any
+pro/con list is an editorial selection, and on live partisan legislation there is no selection
+both sides read as neutral. One screenshot of "Politiface says the pros of this bill are..."
+in a Florida faculty meeting and the trust moat is gone. So the layer is built from things
+that carry no verdict: CRS summaries (nonpartisan, public domain, already in the congress.gov
+API we consume), glossary tooltips from Atlas's cited vocabulary, and where the debate itself
+matters, "what supporters say / what opponents say" with every claim attributed and linked.
+Any AI-drafted explainer goes through the same draft, human review, publish pipeline as exam
+questions; nothing auto-publishes in real time. And "what's in it for you" stays generic
+audience framing ("if you're a college student..."), never computed from personal data we
+refuse to collect. Sequenced post-launch: CRS summaries + tooltips first, reviewed explainers
+after.
+Hook: "Users asked us to rate new laws. We're building the layer that explains them instead, because the day your civics app has opinions is the day it stops being a civics app."
