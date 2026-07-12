@@ -102,7 +102,7 @@ objectives:
   - code: SS.912.CG.2.10 # cpalms 16151  spans: us_constitution
     domain: american_democracy
     description: >
-      Analyse what drives voter turnout up or down in local, state, and
+      Analyze what drives voter turnout up or down in local, state, and
       national elections.
 
   - code: SS.912.CG.3.8 # cpalms 16162
@@ -114,7 +114,7 @@ objectives:
   - code: SS.912.CG.3.12 # cpalms 16166  spans: us_constitution
     domain: american_democracy
     description: >
-      Analyse federalism as practised in the United States and how it sets the
+      Analyze federalism as practiced in the United States and how it sets the
       terms between state and national government.
 
   - code: SS.912.CG.3.13 # cpalms 16167
@@ -126,7 +126,7 @@ objectives:
   - code: SS.912.CG.4.1 # cpalms 16170
     domain: american_democracy
     description: >
-      Analyse the relationship between liberty, economic freedom, and
+      Analyze the relationship between liberty, economic freedom, and
       broad-based opportunity and prosperity in the United States.
 
   # ── Competency Two: United States Constitution ─────────────────────────
@@ -153,13 +153,13 @@ objectives:
   - code: SS.912.CG.3.3 # cpalms 16157
     domain: us_constitution
     description: >
-      Analyse the legislative branch as Article I constructs it -- structure,
+      Analyze the legislative branch as Article I constructs it -- structure,
       function, and process.
 
   - code: SS.912.CG.3.4 # cpalms 16158
     domain: us_constitution
     description: >
-      Analyse the executive branch as Article II constructs it -- structure,
+      Analyze the executive branch as Article II constructs it -- structure,
       function, and process.
 
   # OVERRIDE: the guide links this benchmark once under Competency One and
@@ -167,7 +167,7 @@ objectives:
   - code: SS.912.CG.3.7 # cpalms 16161  spans: american_democracy
     domain: us_constitution
     description: >
-      Analyse the judicial branch as Article III constructs it -- structure,
+      Analyze the judicial branch as Article III constructs it -- structure,
       function, and process.
 
   - code: SS.912.CG.3.6 # cpalms 16160
@@ -179,7 +179,7 @@ objectives:
   - code: SS.912.CG.3.10 # cpalms 16164
     domain: us_constitution
     description: >
-      Analyse how state and federal courts are tiered and what each level is
+      Analyze how state and federal courts are tiered and what each level is
       responsible for.
 
   # ── Competency Three: Founding Documents ───────────────────────────────
@@ -212,7 +212,7 @@ objectives:
   - code: SS.912.CG.1.4 # cpalms 16140  spans: american_democracy
     domain: founding_documents
     description: >
-      Analyse how the ideals stated in the founding documents shape the United
+      Analyze how the ideals stated in the founding documents shape the United
       States as a constitutional republic.
 
   - code: SS.912.CG.2.6 # cpalms 16147  spans: american_democracy
@@ -236,7 +236,7 @@ objectives:
   - code: SS.7.CG.3.11 # cpalms 16119
     domain: landmark_impact
     description: >
-      Analyse how landmark Supreme Court decisions have altered law, liberty,
+      Analyze how landmark Supreme Court decisions have altered law, liberty,
       and the reading of the Constitution.
 
   # OVERRIDE: linked once under Competency One and once under Competency Four.
@@ -257,5 +257,5 @@ objectives:
   - code: SS.912.A.7.8 # cpalms 3424
     domain: landmark_impact
     description: >
-      Analyse the Supreme Court decisions governing integration, busing,
+      Analyze the Supreme Court decisions governing integration, busing,
       affirmative action, the rights of the accused, and reproductive rights.

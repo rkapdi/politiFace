@@ -3,7 +3,7 @@
 How to take the 80 draft questions to publishable quality. They are AI-drafted,
 machine-verified against a skeptic pass, cited to primary sources, and tagged to the
 official CPALMS objectives. **Human review is the trust gate. Nothing goes live until a
-human signs off** — because on a nonpartisan-trust product, one wrong or slanted question
+human signs off**, because on a nonpartisan-trust product, one wrong or slanted question
 costs more than ten good ones earn.
 
 ## Who reviews, in what order
@@ -11,19 +11,19 @@ costs more than ten good ones earn.
 The `status` field carries the state: `draft -> reviewed -> published`. Only `published`
 questions are served to students or counted toward the Mock FCLE.
 
-1. **Pass 1 — Founder (you).** The accuracy *and* brand gate. You are the only reviewer who
+1. **Pass 1: Founder (you).** The accuracy *and* brand gate. You are the only reviewer who
    will catch the product-specific rules: nonpartisan framing and the no-score-prediction
    positioning. Mark each survivor `reviewed`; fix or cut the rest.
-2. **Pass 2 — Dawood.** Independent second read of the `reviewed` set. He is prepping for the
+2. **Pass 2: Dawood.** Independent second read of the `reviewed` set. He is prepping for the
    exam himself, which makes him the ideal student's-eye fact-checker. On his confirmation,
    flip to `published`.
-3. **Pass 3 — Purcell (later, and only on clean `published` content).** Expert endorsement,
+3. **Pass 3: Purcell (later, and only on clean `published` content).** Expert endorsement,
    not QA. The ask is "lend your expertise and your name," never "fix our mistakes." His edits
    are gold, but his review is a credibility layer, never a gate on the critical path.
 
 ## Per-question checklist
 
-**Disqualifying — fail any one and the question must be fixed or cut:**
+**Disqualifying (fail any one and the question must be fixed or cut):**
 
 - [ ] **Answer is correct.** The keyed answer is unambiguously right.
 - [ ] **Exactly one answer is correct.** No distractor is *also* defensibly correct. This is
@@ -36,7 +36,7 @@ questions are served to students or counted toward the Mock FCLE.
 - [ ] **Nonpartisan.** No framing implying a case, law, or policy was rightly or wrongly
       decided. Charged topics test only the neutral historical holding and its date.
 
-**Quality — fix if weak:**
+**Quality (fix if weak):**
 
 - [ ] Distractors are plausible to a novice but clearly wrong to an expert. No giveaways
       (grammatical mismatch, one absurd option, "all/none of the above").
@@ -52,7 +52,7 @@ questions are served to students or counted toward the Mock FCLE.
 
 ## Where to spend your attention (hotspots)
 
-- **Charged cases — verify strict neutrality:** Dred Scott, Plessy, Korematsu, Roe v. Wade,
+- **Charged cases (verify strict neutrality):** Dred Scott, Plessy, Korematsu, Roe v. Wade,
   Bakke, Citizens United, Heller, McDonald. These are where a slanted phrasing would do the
   most damage to the trust moat. Read each twice.
 - **Citations the machine could not content-verify:** every URL resolves, but the
