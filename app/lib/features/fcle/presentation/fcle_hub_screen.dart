@@ -137,46 +137,55 @@ class _BlueprintEntryTile extends StatelessWidget {
   final ThemeData theme;
 
   @override
-  Widget build(BuildContext context) => InkWell(
-        borderRadius: BorderRadius.circular(6),
-        onTap: () {
-          HapticFeedback.lightImpact();
-          context.push('/fcle/blueprint');
-        },
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            border: Border.all(color: theme.colorScheme.brandNavy, width: 1.5),
+  Widget build(BuildContext context) => MergeSemantics(
+        child: Semantics(
+          button: true,
+          child: InkWell(
             borderRadius: BorderRadius.circular(6),
-            color: theme.colorScheme.surfaceContainerLow,
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.map_outlined,
-                  size: 22, color: theme.colorScheme.brandNavy,),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "What's on the exam, and where you stand",
-                      style: theme.textTheme.titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      'All 32 objectives across the four competencies, with '
-                      'your coverage on each.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/fcle/blueprint');
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border:
+                    Border.all(color: theme.colorScheme.brandNavy, width: 1.5),
+                borderRadius: BorderRadius.circular(6),
+                color: theme.colorScheme.surfaceContainerLow,
               ),
-              const Icon(Icons.chevron_right, size: 20),
-            ],
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.map_outlined,
+                    size: 22,
+                    color: theme.colorScheme.brandNavy,
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "What's on the exam, and where you stand",
+                          style: theme.textTheme.titleSmall
+                              ?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'All 32 objectives across the four competencies, with '
+                          'your coverage on each.',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right, size: 20),
+                ],
+              ),
+            ),
           ),
         ),
       );
@@ -287,8 +296,11 @@ class _BankGrowingCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.hourglass_top,
-                color: theme.colorScheme.onSurfaceVariant, size: 18,),
+            Icon(
+              Icons.hourglass_top,
+              color: theme.colorScheme.onSurfaceVariant,
+              size: 18,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(

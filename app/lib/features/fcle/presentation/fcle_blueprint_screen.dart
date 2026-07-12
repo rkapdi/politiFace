@@ -22,9 +22,15 @@ class FcleBlueprintScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final objectives = ref.watch(objectivesProvider).valueOrNull;
-    final readiness = ref.watch(objectiveReadinessProvider).valueOrNull;
-    final exam = ref.watch(examReadinessProvider).valueOrNull;
+    final objectivesAsync = ref.watch(objectivesProvider);
+    final readinessAsync = ref.watch(objectiveReadinessProvider);
+    final examAsync = ref.watch(examReadinessProvider);
+    final objectives = objectivesAsync.valueOrNull;
+    final readiness = readinessAsync.valueOrNull;
+    final exam = examAsync.valueOrNull;
+    final hasError = objectivesAsync.hasError ||
+        readinessAsync.hasError ||
+        examAsync.hasError;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,41 +41,67 @@ class FcleBlueprintScreen extends ConsumerWidget {
           onPressed: () => context.go('/fcle'),
         ),
       ),
-      body: (objectives == null || readiness == null || exam == null)
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(24),
-              children: [
-                Text(
-                  "What's on the exam, and where you stand",
-                  style: theme.textTheme.titleLarge
-                      ?.copyWith(fontWeight: FontWeight.w800),
+      body: hasError
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'The exam blueprint could not load.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: () {
+                        ref
+                          ..invalidate(objectivesProvider)
+                          ..invalidate(objectiveReadinessProvider)
+                          ..invalidate(examReadinessProvider);
+                      },
+                      child: const Text('TRY AGAIN'),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  'The FCLE draws on 32 objectives across four competencies. '
-                  'This shows how much of each you have practiced. It reports '
-                  'coverage, not a predicted score.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _VerdictCard(exam: exam, theme: theme),
-                const SizedBox(height: 24),
-                for (final domain in FcleDomain.values) ...[
-                  _CompetencySection(
-                    domain: domain,
-                    objectives: [
-                      for (final o in objectives)
-                        if (o.domain == domain) o,
+              ),
+            )
+          : (objectives == null || readiness == null || exam == null)
+              ? const Center(child: CircularProgressIndicator())
+              : ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    Text(
+                      "What's on the exam, and where you stand",
+                      style: theme.textTheme.titleLarge
+                          ?.copyWith(fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'The FCLE draws on 32 objectives across four competencies. '
+                      'This shows how much of each you have practiced. It reports '
+                      'coverage, not a predicted score.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _VerdictCard(exam: exam, theme: theme),
+                    const SizedBox(height: 24),
+                    for (final domain in FcleDomain.values) ...[
+                      _CompetencySection(
+                        domain: domain,
+                        objectives: [
+                          for (final o in objectives)
+                            if (o.domain == domain) o,
+                        ],
+                        readiness: readiness,
+                      ),
+                      const SizedBox(height: 20),
                     ],
-                    readiness: readiness,
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ],
-            ),
+                  ],
+                ),
     );
   }
 }
@@ -171,55 +203,64 @@ class _FocusNextCta extends StatelessWidget {
         ? '/fcle/practice?domain=${focus.domain.code}&objective=${obj.code}'
         : '/fcle/practice?domain=${focus.domain.code}';
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(6),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push(target);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.brandNavy, width: 1.5),
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
           borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.my_location,
-                size: 20, color: theme.colorScheme.brandNavy,),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Focus next: $title',
-                    style: theme.textTheme.bodyMedium
-                        ?.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context.push(target);
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              border:
+                  Border.all(color: theme.colorScheme.brandNavy, width: 1.5),
+              borderRadius: BorderRadius.circular(6),
             ),
-            const SizedBox(width: 8),
-            const Text(
-              'PRACTICE',
-              style: TextStyle(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1,
-                fontSize: 12,
-              ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.my_location,
+                  size: 20,
+                  color: theme.colorScheme.brandNavy,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Focus next: $title',
+                        style: theme.textTheme.bodyMedium
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'PRACTICE',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
+                    fontSize: 12,
+                  ),
+                ),
+                const Icon(Icons.chevron_right, size: 20),
+              ],
             ),
-            const Icon(Icons.chevron_right, size: 20),
-          ],
+          ),
         ),
       ),
     );
@@ -319,75 +360,81 @@ class _ObjectiveRow extends StatelessWidget {
     final count = readiness?.count ?? 0;
     final accuracy = readiness?.accuracy;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(6),
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push(
-          '/fcle/practice?domain=${objective.domain.code}'
-          '&objective=${objective.code}',
-        );
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          border: Border.all(color: theme.colorScheme.outlineVariant),
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        child: InkWell(
           borderRadius: BorderRadius.circular(6),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            context.push(
+              '/fcle/practice?domain=${objective.domain.code}'
+              '&objective=${objective.code}',
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.colorScheme.outlineVariant),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    objective.description,
-                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.35),
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        objective.description,
+                        style:
+                            theme.textTheme.bodyMedium?.copyWith(height: 1.35),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    _StatePill(state: state, theme: theme),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                _StatePill(state: state, theme: theme),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text(
+                      objective.code,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (count > 0) ...[
+                      Text(
+                        accuracy == null
+                            ? ''
+                            : 'Recent practice accuracy '
+                                '${(accuracy * 100).floor()}%',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        '$count attempt${count == 1 ? '' : 's'}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ] else
+                      Text(
+                        'Not practiced yet',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Text(
-                  objective.code,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(),
-                if (count > 0) ...[
-                  Text(
-                    accuracy == null
-                        ? ''
-                        : 'Recent practice accuracy '
-                            '${(accuracy * 100).round()}%',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    '$count attempt${count == 1 ? '' : 's'}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ] else
-                  Text(
-                    'Not practiced yet',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );

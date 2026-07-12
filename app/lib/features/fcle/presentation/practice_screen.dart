@@ -110,7 +110,9 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Text(
-              'No published questions in this domain yet.',
+              widget.objective != null
+                  ? 'No published questions for this objective yet.'
+                  : 'No published questions in this domain yet.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge,
             ),
