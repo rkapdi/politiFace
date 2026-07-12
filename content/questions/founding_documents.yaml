@@ -24,7 +24,7 @@ questions:
     citation: https://guides.loc.gov/federalist-papers/text-1-10
     difficulty: 2
     objective: SS.912.CG.1.3
-    status: draft
+    status: published
 
   - id: founddocs-articles-confederation-001
     stem: >
@@ -48,7 +48,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/articles-of-confederation
     difficulty: 2
     objective: SS.7.CG.1.7
-    status: draft
+    status: published
 
   - id: founddocs-articles-notax-01
     stem: >
@@ -73,7 +73,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/articles-of-confederation
     difficulty: 2
     objective: SS.7.CG.1.7
-    status: draft
+    status: published
 
   - id: founddocs-articles-league-01
     stem: >
@@ -97,7 +97,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/articles-of-confederation
     difficulty: 3
     objective: SS.912.CG.1.1
-    status: draft
+    status: published
 
   - id: founddocs-decl-unalienable-01
     stem: >
@@ -122,7 +122,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 2
     objective: SS.912.CG.1.4
-    status: draft
+    status: published
 
   - id: founddocs-fed39-republic-01
     stem: >
@@ -146,7 +146,7 @@ questions:
     citation: https://guides.loc.gov/federalist-papers/text-31-40
     difficulty: 4
     objective: SS.912.CG.1.3
-    status: draft
+    status: published
 
   - id: founddocs-decl-equality-expand-01
     stem: >
@@ -171,7 +171,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 3
     objective: SS.912.CG.2.6
-    status: draft
+    status: published
 
   - id: founddocs-articles-amend-01
     stem: >
@@ -196,7 +196,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/articles-of-confederation
     difficulty: 3
     objective: SS.7.CG.1.7
-    status: draft
+    status: published
 
   - id: founddocs-billofrights-expand-01
     stem: >
@@ -221,7 +221,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
     difficulty: 2
     objective: SS.912.CG.2.6
-    status: draft
+    status: published
 
   - id: founddocs-preamble-sovereignty-01
     stem: >
@@ -245,7 +245,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/constitution-transcript
     difficulty: 2
     objective: SS.912.CG.1.4
-    status: draft
+    status: published
 
   - id: founddocs-fed10-faction-01
     stem: >
@@ -269,7 +269,7 @@ questions:
     citation: https://founders.archives.gov/documents/Madison/01-10-02-0178
     difficulty: 3
     objective: SS.912.CG.1.3
-    status: draft
+    status: published
 
   - id: founddocs-fed14-repvsdem-01
     stem: >
@@ -293,7 +293,7 @@ questions:
     citation: https://guides.loc.gov/federalist-papers/text-11-20
     difficulty: 4
     objective: SS.912.CG.1.3
-    status: draft
+    status: published
 
   - id: founddocs-fed51-ambition-01
     stem: >
@@ -318,7 +318,7 @@ questions:
     citation: https://founders.archives.gov/documents/Madison/01-10-02-0279
     difficulty: 3
     objective: SS.912.CG.1.3
-    status: draft
+    status: published
 
   - id: founddocs-english-bill-of-rights-03
     stem: >
@@ -343,7 +343,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/amendment-8/
     difficulty: 3
     objective: SS.912.CG.1.1
-    status: draft
+    status: published
 
   - id: founddocs-magna-carta-01
     stem: >
@@ -367,7 +367,7 @@ questions:
     citation: https://www.archives.gov/exhibits/featured-documents/magna-carta
     difficulty: 2
     objective: SS.912.CG.1.1
-    status: draft
+    status: published
 
   - id: founddocs-fed31-taxation-01
     stem: >
@@ -391,7 +391,7 @@ questions:
     citation: https://guides.loc.gov/federalist-papers/text-31-40
     difficulty: 5
     objective: SS.912.CG.1.3
-    status: draft
+    status: published
 
   - id: founddocs-articles-weakness-tax-08
     stem: >
@@ -416,7 +416,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/articles-of-confederation
     difficulty: 2
     objective: SS.7.CG.1.7
-    status: draft
+    status: published
 
   - id: founddocs-mayflower-compact-02
     stem: >
@@ -439,7 +439,7 @@ questions:
     citation: https://avalon.law.yale.edu/17th_century/mayflower.asp
     difficulty: 2
     objective: SS.912.CG.1.1
-    status: draft
+    status: published
 
   - id: founddocs-consent-governed-ideal-12
     stem: >
@@ -463,7 +463,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 4
     objective: SS.912.CG.1.4
-    status: draft
+    status: published
 
   - id: founddocs-northwest-ordinance-07
     stem: >
@@ -487,4 +487,4 @@ questions:
     citation: https://www.archives.gov/milestone-documents/northwest-ordinance
     difficulty: 3
     objective: SS.912.CG.1.1
-    status: draft
+    status: published

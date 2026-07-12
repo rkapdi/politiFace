@@ -26,7 +26,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/
     difficulty: 1
     objective: SS.7.CG.1.9
-    status: draft
+    status: published
 
   - id: amdem-consent-governed-001
     stem: >
@@ -50,7 +50,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 2
     objective: SS.912.C.3.1
-    status: draft
+    status: published
 
   - id: amdem-declaration-natural-rights-09
     stem: >
@@ -75,7 +75,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 3
     objective: SS.912.CG.1.2
-    status: draft
+    status: published
 
   - id: amdem-limited-government-02
     stem: >
@@ -100,7 +100,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
     difficulty: 2
     objective: SS.912.C.3.1
-    status: draft
+    status: published
 
   - id: amdem-checks-balances-07
     stem: >
@@ -125,7 +125,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/article-1/
     difficulty: 3
     objective: SS.7.CG.1.9
-    status: draft
+    status: published
 
   - id: amdem-natural-law-locke-05
     stem: >
@@ -149,7 +149,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 3
     objective: SS.7.CG.1.4
-    status: draft
+    status: published
 
   - id: amdem-roman-senate-03
     stem: >
@@ -174,7 +174,7 @@ questions:
     citation: https://www.senate.gov
     difficulty: 2
     objective: SS.7.CG.1.1
-    status: draft
+    status: published
 
   - id: amdem-federalism-11
     stem: >
@@ -199,7 +199,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/amendment-10/
     difficulty: 1
     objective: SS.912.CG.1.5
-    status: draft
+    status: published
 
   - id: amdem-supremacy-clause-03
     stem: >
@@ -223,7 +223,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/article-6/
     difficulty: 3
     objective: SS.912.CG.3.12
-    status: draft
+    status: published
 
   - id: amdem-judicial-review-origin-01
     stem: >
@@ -249,7 +249,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/marbury-v-madison
     difficulty: 2
     objective: SS.912.CG.3.8
-    status: draft
+    status: published
 
   - id: amdem-original-jurisdiction-states-05
     stem: >
@@ -274,7 +274,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/article-3/
     difficulty: 5
     objective: SS.912.CG.3.13
-    status: draft
+    status: published
 
   - id: amdem-electoral-college-electors-06
     stem: >
@@ -300,7 +300,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/article-2/
     difficulty: 3
     objective: SS.912.CG.2.9
-    status: draft
+    status: published
 
   - id: amdem-voting-age-turnout-08
     stem: >
@@ -324,7 +324,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/amendment-26/
     difficulty: 2
     objective: SS.912.CG.2.10
-    status: draft
+    status: published
 
   - id: amdem-plessy-brown-segregation-10
     stem: >
@@ -350,7 +350,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/brown-v-board-of-education
     difficulty: 3
     objective: SS.912.CG.2.5
-    status: draft
+    status: published
 
   - id: amdem-republic-advantage-08
     stem: >
@@ -375,7 +375,7 @@ questions:
     citation: https://founders.archives.gov/documents/Madison/01-10-02-0178
     difficulty: 3
     objective: SS.7.CG.3.1
-    status: draft
+    status: published
 
   - id: amdem-homestead-economic-freedom-12
     stem: >
@@ -399,7 +399,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/homestead-act
     difficulty: 3
     objective: SS.912.CG.4.1
-    status: draft
+    status: published
 
   - id: amdem-due-process-06
     stem: >
@@ -424,7 +424,7 @@ questions:
     citation: https://constitution.congress.gov/constitution/amendment-5/
     difficulty: 3
     objective: SS.7.CG.1.9
-    status: draft
+    status: published
 
   - id: amdem-rule-of-law-01
     stem: >
@@ -450,7 +450,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/constitution-transcript
     difficulty: 1
     objective: SS.912.C.3.1
-    status: draft
+    status: published
 
   - id: amdem-locke-social-contract-04
     stem: >
@@ -474,7 +474,7 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 2
     objective: SS.7.CG.1.4
-    status: draft
+    status: published
 
   - id: amdem-declaration-govt-purpose-10
     stem: >
@@ -501,4 +501,4 @@ questions:
     citation: https://www.archives.gov/founding-docs/declaration-transcript
     difficulty: 4
     objective: SS.912.CG.1.2
-    status: draft
+    status: published

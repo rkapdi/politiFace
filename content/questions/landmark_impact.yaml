@@ -25,7 +25,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/marbury-v-madison
     difficulty: 2
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-brown-board-001
     stem: >
@@ -49,7 +49,7 @@ questions:
     citation: https://www.archives.gov/milestone-documents/brown-v-board-of-education
     difficulty: 2
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-marbury-strike-01
     stem: >
@@ -73,7 +73,7 @@ questions:
     citation: https://www.oyez.org/cases/1789-1850/5us137
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-mcculloch-tax-02
     stem: >
@@ -97,7 +97,7 @@ questions:
     citation: https://www.oyez.org/cases/1789-1850/17us316
     difficulty: 3
     objective: SS.8.A.4.13
-    status: draft
+    status: published
 
   - id: landmark-plessy-separate-equal-04
     stem: >
@@ -120,7 +120,7 @@ questions:
     citation: https://www.oyez.org/cases/1850-1900/163us537
     difficulty: 2
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-engel-school-prayer-10
     stem: >
@@ -143,7 +143,7 @@ questions:
     citation: https://www.oyez.org/cases/1961/468
     difficulty: 2
     objective: SS.7.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-dred-scott-citizenship-03
     stem: >
@@ -167,7 +167,7 @@ questions:
     citation: https://www.oyez.org/cases/1850-1900/60us393
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-schenck-speech-05
     stem: >
@@ -191,7 +191,7 @@ questions:
     citation: https://www.oyez.org/cases/1900-1940/249us47
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-korematsu-exclusion-06
     stem: >
@@ -214,7 +214,7 @@ questions:
     citation: https://www.oyez.org/cases/1940-1955/323us214
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-mapp-exclusionary-08
     stem: >
@@ -238,7 +238,7 @@ questions:
     citation: https://www.oyez.org/cases/1960/236
     difficulty: 3
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-baker-districting-09
     stem: >
@@ -261,7 +261,7 @@ questions:
     citation: https://www.oyez.org/cases/1960/6
     difficulty: 4
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-brown-overturns-plessy-07
     stem: >
@@ -285,7 +285,7 @@ questions:
     citation: https://www.oyez.org/cases/1940-1955/347us483
     difficulty: 2
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-tinker-armbands-13
     stem: >
@@ -309,7 +309,7 @@ questions:
     citation: https://www.oyez.org/cases/1968/21
     difficulty: 3
     objective: SS.7.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-gideon-counsel-11
     stem: >
@@ -333,7 +333,7 @@ questions:
     citation: https://www.oyez.org/cases/1962/155
     difficulty: 2
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-miranda-rights-12
     stem: >
@@ -357,7 +357,7 @@ questions:
     citation: https://www.oyez.org/cases/1965/759
     difficulty: 1
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-nyt-pentagon-papers-01
     stem: >
@@ -383,7 +383,7 @@ questions:
     citation: https://www.oyez.org/cases/1970/1873
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-yoder-religion-02
     stem: >
@@ -409,7 +409,7 @@ questions:
     citation: https://www.oyez.org/cases/1971/70-110
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-roe-privacy-03
     stem: >
@@ -433,7 +433,7 @@ questions:
     citation: https://www.oyez.org/cases/1971/70-18
     difficulty: 3
     objective: SS.912.A.7.8
-    status: draft
+    status: published
 
   - id: landmark-us-nixon-privilege-04
     stem: >
@@ -459,7 +459,7 @@ questions:
     citation: https://www.oyez.org/cases/1973/73-1766
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published
 
   - id: landmark-texas-johnson-flag-07
     stem: >
@@ -483,4 +483,4 @@ questions:
     citation: https://www.oyez.org/cases/1988/88-155
     difficulty: 3
     objective: SS.912.CG.3.11
-    status: draft
+    status: published

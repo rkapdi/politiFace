@@ -24,8 +24,8 @@ questions:
       Representatives.
     citation: https://constitution.congress.gov/constitution/article-1/
     difficulty: 1
-    objective: null
-    status: draft
+    objective: SS.912.CG.3.3
+    status: published
 
   - id: usconst-bill-of-rights-count-001
     stem: >
@@ -46,5 +46,450 @@ questions:
       were ratified at the time.
     citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
     difficulty: 1
-    objective: null
-    status: draft
+    objective: SS.912.CG.3.2
+    status: published
+
+  - id: usconst-article5-propose-congress-01
+    stem: >
+      Under Article V, one way an amendment to the Constitution may be proposed is
+      by a vote of what fraction of both houses of Congress?
+    options:
+      - key: a
+        text: "A simple majority"
+      - key: b
+        text: "Three-fifths"
+      - key: c
+        text: "Two-thirds"
+      - key: d
+        text: "Three-fourths"
+    answer: c
+    explanation: >
+      Article V provides that Congress may propose an amendment whenever two-
+      thirds of both the House and the Senate deem it necessary. Three-fourths is
+      the fraction of states needed to ratify, not to propose, so that option
+      confuses the two stages of the process.
+    citation: https://constitution.congress.gov/constitution/article-5/
+    difficulty: 2
+    objective: SS.7.CG.3.5
+    status: published
+
+  - id: usconst-naturalization-power-05
+    stem: >
+      The Constitution gives which body the power to establish a uniform rule of
+      naturalization?
+    options:
+      - key: a
+        text: "The President"
+      - key: b
+        text: "The Supreme Court"
+      - key: c
+        text: "The individual states"
+      - key: d
+        text: "Congress"
+    answer: d
+    explanation: >
+      Article I, Section 8 grants Congress the power to establish a uniform rule
+      of naturalization, giving the national government control over how
+      immigrants become citizens. Making the rule uniform was intended to prevent
+      states from setting conflicting standards for citizenship.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 2
+    objective: SS.912.CG.2.1
+    status: published
+
+  - id: usconst-habeas-corpus-07
+    stem: >
+      The Constitution provides that the privilege of the writ of habeas corpus
+      may not be suspended except in cases of what?
+    options:
+      - key: a
+        text: "A war declared by the President"
+      - key: b
+        text: "Rebellion or invasion, when public safety requires it"
+      - key: c
+        text: "A national economic emergency"
+      - key: d
+        text: "An impeachment proceeding"
+    answer: b
+    explanation: >
+      Article I, Section 9 protects the writ of habeas corpus, which lets a
+      detained person challenge the lawfulness of the detention, and allows its
+      suspension only during rebellion or invasion when public safety requires it.
+      This safeguard against arbitrary imprisonment appears in the original
+      Constitution, before the Bill of Rights was added.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 3
+    objective: SS.912.CG.3.2
+    status: published
+
+  - id: usconst-house-terms-10
+    stem: >
+      Under Article I, members of the House of Representatives are elected to
+      terms of what length?
+    options:
+      - key: a
+        text: "One year"
+      - key: b
+        text: "Two years"
+      - key: c
+        text: "Four years"
+      - key: d
+        text: "Six years"
+    answer: b
+    explanation: >
+      Article I, Section 2 sets a two-year term for members of the House, so the
+      entire House stands for election every two years. Senators, by contrast,
+      serve six-year terms under Section 3, which is a common point of confusion.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 2
+    objective: SS.912.CG.3.3
+    status: published
+
+  - id: usconst-commander-in-chief-02
+    stem: >
+      Article II makes the President the leader of the nation's armed forces. What
+      title does the Constitution give the President in this role?
+    options:
+      - key: a
+        text: "Commander in Chief"
+      - key: b
+        text: "Secretary of Defense"
+      - key: c
+        text: "Chief Justice"
+      - key: d
+        text: "Speaker of the House"
+    answer: a
+    explanation: >
+      Article II, Section 2 states that the President shall be Commander in Chief
+      of the Army and Navy of the United States. The Secretary of Defense is a
+      Cabinet officer who answers to the President rather than a constitutional
+      title. The Chief Justice leads the judicial branch and the Speaker leads the
+      House.
+    citation: https://constitution.congress.gov/constitution/article-2/
+    difficulty: 1
+    objective: SS.912.CG.3.4
+    status: published
+
+  - id: usconst-judicial-vesting-04
+    stem: >
+      Article III vests the judicial power of the United States in the Supreme
+      Court and in which other courts?
+    options:
+      - key: a
+        text: "Any lower federal courts that Congress may establish"
+      - key: b
+        text: "The state supreme courts"
+      - key: c
+        text: "Courts created directly by the President"
+      - key: d
+        text: "Military tribunals only"
+    answer: a
+    explanation: >
+      Article III, Section 1 places the judicial power in one Supreme Court and in
+      such inferior courts as Congress may from time to time ordain and establish.
+      This means Congress, not the President, creates the lower federal courts.
+      State supreme courts are part of separate state systems, not the federal
+      judiciary created by Article III.
+    citation: https://constitution.congress.gov/constitution/article-3/
+    difficulty: 2
+    objective: SS.912.CG.3.7
+    status: published
+
+  - id: usconst-expressed-powers-07
+    stem: >
+      Powers that are specifically listed in the Constitution, such as the power
+      to coin money and to declare war, are known as what type of powers?
+    options:
+      - key: a
+        text: "Expressed (enumerated) powers"
+      - key: b
+        text: "Reserved powers"
+      - key: c
+        text: "Concurrent powers"
+      - key: d
+        text: "Implied powers"
+    answer: a
+    explanation: >
+      Expressed powers, also called enumerated powers, are those written directly
+      into the Constitution, and Article I, Section 8 lists many of them for
+      Congress, including coining money and declaring war. Implied powers are not
+      listed but are inferred from the Necessary and Proper Clause. Reserved
+      powers belong to the states, and concurrent powers are shared by both levels
+      of government.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 2
+    objective: SS.912.CG.3.6
+    status: published
+
+  - id: usconst-federal-court-tiers-10
+    stem: >
+      The federal court system is organized into three main levels. Which choice
+      lists them in order from the lowest level to the highest?
+    options:
+      - key: a
+        text: "District courts, courts of appeals, Supreme Court"
+      - key: b
+        text: "Supreme Court, district courts, courts of appeals"
+      - key: c
+        text: "Courts of appeals, district courts, Supreme Court"
+      - key: d
+        text: "Municipal courts, state courts, Supreme Court"
+    answer: a
+    explanation: >
+      The three tiers of the federal judiciary are the U.S. district courts at the
+      trial level, the U.S. courts of appeals (circuit courts) in the middle, and
+      the Supreme Court of the United States at the top. Congress created the
+      lower two tiers under the authority Article III gives it. Municipal and
+      general state courts belong to state systems, not the federal structure.
+    citation: https://constitution.congress.gov/constitution/article-3/
+    difficulty: 2
+    objective: SS.912.CG.3.10
+    status: published
+
+  - id: usconst-article5-ratify-states-02
+    stem: >
+      Once an amendment has been proposed, how many of the states must ratify it
+      before it becomes part of the Constitution?
+    options:
+      - key: a
+        text: "One-half"
+      - key: b
+        text: "Two-thirds"
+      - key: c
+        text: "Three-fourths"
+      - key: d
+        text: "All of them"
+    answer: c
+    explanation: >
+      Article V requires ratification by three-fourths of the states, acting
+      either through their legislatures or through ratifying conventions, as
+      Congress directs. Two-thirds is the threshold for proposing an amendment in
+      Congress, not for ratifying one.
+    citation: https://constitution.congress.gov/constitution/article-5/
+    difficulty: 2
+    objective: SS.7.CG.3.5
+    status: published
+
+  - id: usconst-14th-citizenship-clause-04
+    stem: >
+      The Fourteenth Amendment provides that all persons born or naturalized in
+      the United States, and subject to its jurisdiction, are what?
+    options:
+      - key: a
+        text: "Eligible to vote in every election"
+      - key: b
+        text: "Citizens of the United States and of the state where they reside"
+      - key: c
+        text: "Exempt from state taxation"
+      - key: d
+        text: "Entitled to hold federal office"
+    answer: b
+    explanation: >
+      The Citizenship Clause of the Fourteenth Amendment (1868) defines national
+      and state citizenship by birth or naturalization within United States
+      jurisdiction. Citizenship by itself does not guarantee the right to vote or
+      the right to hold office, which carry separate constitutional requirements.
+    citation: https://constitution.congress.gov/constitution/amendment-14/
+    difficulty: 1
+    objective: SS.912.CG.2.1
+    status: published
+
+  - id: usconst-14th-superseded-dredscott-06
+    stem: >
+      The Fourteenth Amendment's definition of citizenship, ratified in 1868,
+      superseded which earlier Supreme Court decision that had denied citizenship
+      to enslaved people and their descendants?
+    options:
+      - key: a
+        text: "Marbury v. Madison (1803)"
+      - key: b
+        text: "McCulloch v. Maryland (1819)"
+      - key: c
+        text: "Dred Scott v. Sandford (1857)"
+      - key: d
+        text: "Gideon v. Wainwright (1963)"
+    answer: c
+    explanation: >
+      In Dred Scott v. Sandford (1857), the Supreme Court held that people of
+      African descent could not be citizens of the United States. The Fourteenth
+      Amendment's Citizenship Clause overturned that holding by making birth or
+      naturalization in the country the basis of citizenship. Marbury dealt with
+      judicial review and Gideon with the right to counsel, so neither concerns
+      citizenship.
+    citation: https://www.archives.gov/milestone-documents/dred-scott-v-sandford
+    difficulty: 3
+    objective: SS.912.CG.2.1
+    status: published
+
+  - id: usconst-article5-senate-suffrage-03
+    stem: >
+      Article V places one explicit limit on the amendment power, providing that
+      no state may be deprived of what without its consent?
+    options:
+      - key: a
+        text: "Its equal suffrage in the Senate"
+      - key: b
+        text: "Its representation in the House"
+      - key: c
+        text: "Its electoral votes"
+      - key: d
+        text: "Its power to tax exports"
+    answer: a
+    explanation: >
+      Article V states that no state, without its consent, shall be deprived of
+      its equal suffrage in the Senate, meaning the two-senators-per-state rule is
+      effectively shielded from amendment. House representation is apportioned by
+      population and is not protected in this way.
+    citation: https://constitution.congress.gov/constitution/article-5/
+    difficulty: 5
+    objective: SS.7.CG.3.5
+    status: published
+
+  - id: usconst-5th-due-process-09
+    stem: >
+      The Fifth Amendment states that no person shall be deprived of life,
+      liberty, or property without what?
+    options:
+      - key: a
+        text: "A jury trial"
+      - key: b
+        text: "Just compensation"
+      - key: c
+        text: "Due process of law"
+      - key: d
+        text: "A grand jury indictment"
+    answer: c
+    explanation: >
+      The Due Process Clause of the Fifth Amendment guarantees that the federal
+      government cannot take a person's life, liberty, or property without due
+      process of law, meaning fair procedures. Just compensation and grand jury
+      indictment are also protections found in the Fifth Amendment, but they
+      attach to different clauses and do not complete this particular phrase.
+    citation: https://constitution.congress.gov/constitution/amendment-5/
+    difficulty: 2
+    objective: SS.912.CG.3.2
+    status: published
+
+  - id: usconst-origination-clause-11
+    stem: >
+      Article I requires that all bills for raising revenue originate in which
+      chamber of Congress?
+    options:
+      - key: a
+        text: "The Senate"
+      - key: b
+        text: "The House of Representatives"
+      - key: c
+        text: "Either chamber"
+      - key: d
+        text: "A joint revenue committee"
+    answer: b
+    explanation: >
+      The Origination Clause in Article I, Section 7 requires that revenue-raising
+      bills begin in the House of Representatives, the chamber closest to the
+      people through frequent elections. The Senate may still propose or agree to
+      amendments on such bills, but it cannot originate them.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 4
+    objective: SS.912.CG.3.3
+    status: published
+
+  - id: usconst-expostfacto-attainder-08
+    stem: >
+      Article I forbids both Congress and the states from passing bills of
+      attainder and what other kind of law?
+    options:
+      - key: a
+        text: "Ex post facto laws"
+      - key: b
+        text: "Tax laws"
+      - key: c
+        text: "Immigration laws"
+      - key: d
+        text: "Treaties"
+    answer: a
+    explanation: >
+      Article I bars both Congress (Section 9) and the states (Section 10) from
+      enacting bills of attainder, which punish a person without a trial, and ex
+      post facto laws, which criminalize an act after it was done. Together these
+      limits protect individuals from retroactive and targeted punishment by the
+      legislature.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 4
+    objective: SS.912.CG.3.2
+    status: published
+
+  - id: usconst-impeachment-house-senate-12
+    stem: >
+      Under Article I, which chamber has the sole power to impeach a federal
+      official, and which chamber conducts the trial?
+    options:
+      - key: a
+        text: "The Senate impeaches, and the House tries the case"
+      - key: b
+        text: "The House impeaches, and the Senate tries the case"
+      - key: c
+        text: "Both chambers impeach and try the case jointly"
+      - key: d
+        text: "The Supreme Court impeaches, and the Senate tries the case"
+    answer: b
+    explanation: >
+      Article I gives the House of Representatives the sole power of impeachment,
+      which is the formal accusation, and gives the Senate the sole power to try
+      the resulting case. Reversing the two chambers is the most common error, so
+      the roles must be kept distinct.
+    citation: https://constitution.congress.gov/constitution/article-1/
+    difficulty: 3
+    objective: SS.912.CG.3.3
+    status: published
+
+  - id: usconst-president-qualifications-01
+    stem: >
+      Under Article II of the U.S. Constitution, a person must meet several
+      requirements to be eligible to serve as President. Which of the following is
+      one of those requirements?
+    options:
+      - key: a
+        text: "Be at least 35 years old"
+      - key: b
+        text: "Have previously served in Congress"
+      - key: c
+        text: "Be at least 40 years old"
+      - key: d
+        text: "Hold a law degree"
+    answer: a
+    explanation: >
+      Article II sets three eligibility requirements for the presidency: a person
+      must be a natural born citizen, at least 35 years old, and a resident of the
+      United States for at least 14 years. The minimum age is 35, not 40, so that
+      distractor is close but wrong. Prior service in Congress and a law degree
+      are not constitutional requirements.
+    citation: https://constitution.congress.gov/constitution/article-2/
+    difficulty: 2
+    objective: SS.912.CG.3.4
+    status: published
+
+  - id: usconst-good-behavior-tenure-05
+    stem: >
+      Article III states that federal judges shall hold their offices during good
+      behavior. In practice, what does this provision establish?
+    options:
+      - key: a
+        text: "Judges may serve for life unless they are impeached and removed"
+      - key: b
+        text: "Judges must stand for reelection every six years"
+      - key: c
+        text: "Judges serve a single fixed ten-year term"
+      - key: d
+        text: "Judges are reappointed by each new President"
+    answer: a
+    explanation: >
+      The good behavior clause in Article III, Section 1 gives federal judges what
+      amounts to lifetime tenure, ending only through resignation, death, or
+      removal by impeachment. This independence is reinforced by a guarantee that
+      their salary cannot be reduced while in office. Federal judges are not
+      elected and are not reappointed with each new administration.
+    citation: https://constitution.congress.gov/constitution/article-3/
+    difficulty: 3
+    objective: SS.912.CG.3.7
+    status: published
