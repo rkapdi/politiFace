@@ -2,7 +2,7 @@
 #
 # United States Federal Government
 # Government graph definition: nodes and edges.
-# This file defines the MAP — the people go in deck YAML files.
+# This file defines the MAP; the people go in deck YAML files.
 #
 # Map coordinates: normalized 0.0-1.0 (x=0 is left, y=0 is top)
 # Validated by: scripts/validate_government.py on every PR
@@ -124,7 +124,7 @@ nodes:
     name: "The Senate"
     short_name: "Senate"
     description: >
-      100 senators — two per state regardless of population. Six-year terms,
+      100 senators, two per state regardless of population. Six-year terms,
       staggered so one-third face election every two years. Senate-specific
       powers include: confirming Presidential appointments, ratifying treaties
       (two-thirds majority), and serving as the jury in impeachment trials.
@@ -148,7 +148,7 @@ nodes:
     name: "House of Representatives"
     short_name: "House"
     description: >
-      435 representatives apportioned by state population. Two-year terms —
+      435 representatives apportioned by state population. Two-year terms;
       the entire House faces election every two years. House-specific powers:
       originating all revenue bills, initiating impeachment, and electing the
       President if no candidate wins an Electoral College majority.
@@ -198,8 +198,8 @@ nodes:
     description: >
       The highest federal court and final interpreter of the Constitution.
       Nine justices appointed for life by the President and confirmed by the
-      Senate. The Court's power of judicial review — ruling laws or executive
-      actions unconstitutional — was established by Marbury v. Madison (1803)
+      Senate. The Court's power of judicial review (ruling laws or executive
+      actions unconstitutional) was established by Marbury v. Madison (1803)
       and is not explicitly in the Constitution.
     node_type: judicial
     is_elected: false
@@ -344,7 +344,7 @@ concepts:
     - title: "The Filibuster"
       body: >
         In the Senate, any senator can delay or block a vote by speaking
-        indefinitely — the filibuster. To end a filibuster, 60 senators must
+        indefinitely: the filibuster. To end a filibuster, 60 senators must
         vote for cloture. This gives the minority party significant blocking
         power. Budget legislation uses reconciliation, which cannot be
         filibustered and passes with a simple majority.
