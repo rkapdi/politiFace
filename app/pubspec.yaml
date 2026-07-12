@@ -83,6 +83,9 @@ flutter:
     # source). CI fails if the two files differ — see content-ci workflow.
     - assets/content/governments/us/
     - assets/content/questions/
+    # Bundled copy of content/fcle/objectives.yaml (the 32-objective FCLE
+    # taxonomy). CI fails if the two files differ — see content-ci workflow.
+    - assets/content/fcle/
     - assets/content/people/
     - assets/content/portraits/congress/
     - assets/portraits/

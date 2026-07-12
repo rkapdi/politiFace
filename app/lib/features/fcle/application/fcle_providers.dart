@@ -110,15 +110,23 @@ class FcleAnswerRecorder {
 
 /// Builds a practice set for one domain: recently missed questions first,
 /// then never-seen ones, then anything else, shuffled within each tier.
+///
+/// When [objective] is given, the domain pool is narrowed to questions tagged
+/// with that objective code, so the blueprint's per-objective taps and the
+/// focus-next CTA practice exactly that competency.
 Future<List<FcleQuestion>> buildPracticeSet({
   required QuestionBank bank,
   required FcleAnswersDao dao,
   required FcleDomain domain,
+  String? objective,
   int count = 10,
   Random? random,
 }) async {
   final r = random ?? Random();
-  final pool = bank.byDomain[domain] ?? const <FcleQuestion>[];
+  final domainPool = bank.byDomain[domain] ?? const <FcleQuestion>[];
+  final pool = objective == null
+      ? domainPool
+      : [for (final q in domainPool) if (q.objective == objective) q];
   if (pool.isEmpty) return const [];
 
   final byId = {for (final q in pool) q.id: q};
