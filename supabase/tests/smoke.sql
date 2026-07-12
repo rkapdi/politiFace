@@ -399,5 +399,47 @@ begin
   end;
 end $$;
 
+-- ── Cohort attribution is scoped to STUDENT membership (regression) ─────────
+-- Guards migration 20260710000100_cohort_attribution_student_scope.sql:
+--   1. A student's graded activity is tagged to the cohort they joined as a
+--      student (s1 joined exactly one class).
+--   2. A faculty member's own practice is NOT attributed to the class they
+--      teach -- it stays untagged (cohort_id null) so it can't pollute that
+--      class's efficacy rollups.
+set app.test_uid = :s1_uid;
+do $$
+declare v_student_cohort uuid; n_bad int;
+begin
+  select cohort_id into v_student_cohort from public.cohort_members
+    where user_id = auth.uid() and role = 'student';
+  -- Every graded answer event s1 produced must carry that student cohort.
+  select count(*) into n_bad from public.events
+    where user_id = auth.uid() and type = 'answer'
+      and cohort_id is distinct from v_student_cohort;
+  if n_bad <> 0 then
+    raise exception 'FAIL: % student answer events not tagged to the student cohort', n_bad;
+  end if;
+  -- And the mock attempt itself.
+  if exists (select 1 from public.mock_attempts
+             where user_id = auth.uid()
+               and cohort_id is distinct from v_student_cohort) then
+    raise exception 'FAIL: mock_attempt not tagged to the student cohort';
+  end if;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare eid uuid := gen_random_uuid(); qid uuid; c uuid;
+begin
+  -- Faculty answers a published SYSTEM question (author is not 'faculty').
+  select id into qid from public.questions
+    where author is distinct from 'faculty' and stem like 'Domain 2 question 7?%';
+  perform public.submit_answer(eid, qid, 'b', now());
+  select cohort_id into c from public.events where event_id = eid;
+  if c is not null then
+    raise exception 'FAIL: faculty activity attributed to cohort % (must be null)', c;
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
