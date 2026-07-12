@@ -12,6 +12,7 @@ class TriviaShareCard extends StatelessWidget {
   const TriviaShareCard({
     required this.result,
     required this.dateLabel,
+    this.benchmark,
     super.key,
   });
 
@@ -19,6 +20,11 @@ class TriviaShareCard extends StatelessWidget {
 
   /// Pre-formatted "May 26" string. Pass the trivia date, not DateTime.now().
   final String dateLabel;
+
+  /// Optional national-stat line ("Only 11% of Americans can name…") rendered
+  /// above the footer. Null on the standalone trivia card (and in golden
+  /// tests), so the card's existing layout is unchanged when absent.
+  final String? benchmark;
 
   static const double canvasWidth = 360;
   static const double canvasHeight = 640;
@@ -52,20 +58,20 @@ class TriviaShareCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'POLITIFACE',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: EditorialPalette.ink,
                           letterSpacing: 2.4,
-                          height: 1.0,
+                          height: 1,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         'DAILY TRIVIA · ${dateLabel.toUpperCase()}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                           color: EditorialPalette.inkSubdued,
@@ -80,7 +86,6 @@ class TriviaShareCard extends StatelessWidget {
                   height: 8,
                   decoration: BoxDecoration(
                     color: accent,
-                    shape: BoxShape.rectangle,
                   ),
                 ),
               ],
@@ -105,10 +110,9 @@ class TriviaShareCard extends StatelessWidget {
                   SizedBox(
                     height: 140,
                     child: FittedBox(
-                      fit: BoxFit.contain,
                       child: Text(
                         result.archetype.emoji,
-                        style: const TextStyle(fontSize: 140, height: 1.0),
+                        style: const TextStyle(fontSize: 140, height: 1),
                       ),
                     ),
                   ),
@@ -137,7 +141,7 @@ class TriviaShareCard extends StatelessWidget {
                       fontWeight: FontWeight.w900,
                       color: scoreColor,
                       letterSpacing: -1,
-                      height: 1.0,
+                      height: 1,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
@@ -150,7 +154,7 @@ class TriviaShareCard extends StatelessWidget {
                         textAlign: TextAlign.center,
                         maxLines: 3,
                         overflow: TextOverflow.fade,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                           color: EditorialPalette.inkSubdued,
@@ -180,14 +184,33 @@ class TriviaShareCard extends StatelessWidget {
             ),
           ),
 
+          // ── Benchmark line (only when provided) ────────────────────────
+          if (benchmark != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 10),
+              child: Text(
+                benchmark!,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.fade,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  fontStyle: FontStyle.italic,
+                  color: EditorialPalette.inkSubdued,
+                  height: 1.25,
+                ),
+              ),
+            ),
+
           // ── URL footer (~15% of height) ────────────────────────────────
           Container(
             height: 1.5,
             color: EditorialPalette.rule,
             margin: const EdgeInsets.symmetric(horizontal: 24),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 14, 24, 22),
+          const Padding(
+            padding: EdgeInsets.fromLTRB(24, 14, 24, 22),
             child: Column(
               children: [
                 Text(
@@ -199,7 +222,7 @@ class TriviaShareCard extends StatelessWidget {
                     letterSpacing: 1.8,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(
                   'politiface.app',
                   style: TextStyle(
@@ -226,7 +249,8 @@ class TriviaShareCard extends StatelessWidget {
       case TriviaArchetype.civicBullshitter:
         return EditorialPalette.actionRed;
       case TriviaArchetype.humbleApprentice:
-        return EditorialPalette.ochre;
+        // The accent renders text on the light card; use text-safe ochre.
+        return EditorialPalette.ochreDeep;
     }
   }
 }

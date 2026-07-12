@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Faculty — Politiface</title>
+<meta name="description" content="Class view for educators: where your cohort is strong, where it is weak, and the printable summary. Aggregates only, never individual students.">
+<meta name="theme-color" content="#1A1A2E">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="../assets/icon.png">
+<link rel="apple-touch-icon" href="../assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  .fac { max-width: 780px; margin: 0 auto; padding: 32px 24px 64px; }
+  .fac h1 { font-family: Fraunces, serif; font-size: 30px; margin: 0 0 4px; }
+  .fac .lede { color: #5c6270; margin: 0 0 28px; }
+  .card { border: 1px solid #d9dce3; border-radius: 8px; padding: 18px;
+          margin-bottom: 16px; background: #fff; }
+  .card h2 { font-size: 16px; margin: 0 0 10px; }
+  .fac label { display: block; font-size: 13px; font-weight: 600;
+               color: #5c6270; margin: 12px 0 4px; }
+  .fac input { width: 100%; box-sizing: border-box; padding: 10px 12px;
+               border: 1px solid #c8ccd6; border-radius: 6px;
+               font: inherit; }
+  .btn { display: inline-block; margin-top: 14px; padding: 10px 18px;
+         border-radius: 6px; border: 0; background: #1A1A2E; color: #fff;
+         font: 600 13px/1 "Plus Jakarta Sans", sans-serif;
+         letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; }
+  .btn.secondary { background: #fff; color: #1A1A2E;
+                   border: 1px solid #c8ccd6; }
+  .btn[disabled] { opacity: 0.5; cursor: default; }
+  .err { color: #a3222c; font-size: 13px; margin-top: 8px; }
+  .muted { color: #8a90a0; font-size: 13px; }
+  .hidden { display: none; }
+  .row { display: flex; align-items: center; justify-content: space-between;
+         gap: 12px; }
+  .statgrid { display: grid; grid-template-columns: repeat(4, 1fr);
+              gap: 10px; }
+  .statgrid .value { font-size: 22px; font-weight: 700; }
+  .statgrid .label { color: #5c6270; font-size: 12px; }
+  @media (max-width: 620px) { .statgrid { grid-template-columns: 1fr 1fr; } }
+  .bar { height: 8px; border-radius: 4px; background: #edeff3;
+         overflow: hidden; margin-top: 6px; }
+  .bar > i { display: block; height: 100%; border-radius: 4px; }
+  .domain { margin-bottom: 14px; }
+  .domain .row b { font-size: 14px; }
+  .miss { padding: 10px 0; border-top: 1px solid #edeff3; }
+  .miss:first-of-type { border-top: 0; }
+  .miss .stem { font-size: 14px; margin: 0 0 2px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 99px;
+          background: #f4e9d8; color: #7a5817; font-size: 12px;
+          font-weight: 700; margin-left: 8px; }
+  .classlist button { width: 100%; text-align: left; margin-bottom: 8px;
+          padding: 12px 14px; border: 1px solid #d9dce3; border-radius: 6px;
+          background: #fff; font: inherit; cursor: pointer; }
+  .classlist button.active { border-color: #1A1A2E; border-width: 2px; }
+  .code { font: 700 15px/1 ui-monospace, Menlo, monospace;
+          letter-spacing: 0.2em; }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="../"><img src="../assets/icon.png" alt="Politiface logo"><b>Politiface</b></a>
+    <nav class="nav-links">
+      <a href="../privacy-policy/">Privacy</a>
+      <a href="../support/">Support</a>
+      <a class="nav-cta" href="https://github.com/rkapdi/politiFace">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="fac">
+  <h1>Faculty</h1>
+  <p class="lede">Where your class is strong, where it is weak. Cohort
+  aggregates only: no individual student activity is visible here, no
+  statistic renders for fewer than five students, and students appear
+  nowhere by name.</p>
+
+  <section id="view-unconfigured" class="card hidden">
+    <h2>Not configured yet</h2>
+    <p class="muted">This page needs the Supabase project values in
+    <code>docs/faculty/config.js</code>. If you are seeing this in
+    production, the backend has not been provisioned yet.</p>
+  </section>
+
+  <section id="view-signin" class="card hidden">
+    <h2>Sign in</h2>
+    <p class="muted">We email you a one-time code. No password.</p>
+    <div id="step-email">
+      <label for="email">Email</label>
+      <input id="email" type="email" autocomplete="email">
+      <button class="btn" id="btn-send">Send code</button>
+    </div>
+    <div id="step-code" class="hidden">
+      <label for="code">6-digit code</label>
+      <input id="code" inputmode="numeric" maxlength="6">
+      <button class="btn" id="btn-verify">Verify</button>
+    </div>
+    <p class="err hidden" id="signin-err"></p>
+  </section>
+
+  <section id="view-dash" class="hidden">
+    <div class="card">
+      <div class="row">
+        <h2>Your classes</h2>
+        <button class="btn secondary" id="btn-signout">Sign out</button>
+      </div>
+      <div class="classlist" id="classlist"></div>
+      <details>
+        <summary class="muted" style="cursor:pointer">Create a class</summary>
+        <label for="new-name">Class name</label>
+        <input id="new-name" placeholder="POS 2041, Fall">
+        <label for="new-term">Term (optional)</label>
+        <input id="new-term" placeholder="2026F">
+        <button class="btn" id="btn-create">Create class</button>
+        <p class="err hidden" id="create-err"></p>
+      </details>
+    </div>
+
+    <div id="board" class="hidden">
+      <div class="card">
+        <div class="row">
+          <h2 id="board-title"></h2>
+          <span>Join code: <span class="code" id="board-code"></span></span>
+        </div>
+        <p class="muted">Students join in the app: Class leaderboard, then
+        enter this code.</p>
+        <div class="statgrid" id="overview"></div>
+      </div>
+
+      <div class="card">
+        <h2>Readiness by FCLE domain</h2>
+        <div id="domains"></div>
+        <p class="muted hidden" id="domains-empty">Nothing to show yet.
+        Domain statistics appear once at least five students have answered
+        practice or mock questions.</p>
+      </div>
+
+      <div class="card">
+        <h2>Most missed questions</h2>
+        <div id="misses"></div>
+        <p class="muted hidden" id="misses-empty">No question has enough
+        answers yet (five students minimum per question).</p>
+      </div>
+
+      <div class="card">
+        <h2>Summary one-pager</h2>
+        <p class="muted">A printable cohort summary: adoption, engagement,
+        and mock movement. Figures are aggregates from pseudonymous
+        practice data; mocks are practice signals, not predictions of
+        official results.</p>
+        <button class="btn" id="btn-report">Open one-pager</button>
+        <p class="err hidden" id="report-err"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="./config.js"></script>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const cfg = window.POLITIFACE_SUPABASE ?? { url: "", anonKey: "" };
+const $ = (id) => document.getElementById(id);
+const show = (id, on = true) => $(id).classList.toggle("hidden", !on);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g,
+  (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+if (!cfg.url || !cfg.anonKey) {
+  show("view-unconfigured");
+} else {
+  const supabase = createClient(cfg.url, cfg.anonKey);
+  let email = "";
+  let selected = null;
+
+  const setErr = (id, msg) => {
+    $(id).textContent = msg ?? "";
+    show(id, Boolean(msg));
+  };
+
+  async function refresh() {
+    const { data: { session } } = await supabase.auth.getSession();
+    show("view-signin", !session);
+    show("view-dash", Boolean(session));
+    if (session) await loadClasses();
+  }
+
+  $("btn-send").onclick = async () => {
+    email = $("email").value.trim();
+    setErr("signin-err", null);
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) return setErr("signin-err", "Could not send the code. Check the address.");
+    show("step-email", false);
+    show("step-code");
+  };
+
+  $("btn-verify").onclick = async () => {
+    setErr("signin-err", null);
+    const { error } = await supabase.auth.verifyOtp({
+      email, token: $("code").value.trim(), type: "email",
+    });
+    if (error) return setErr("signin-err", "That code did not work. Try again.");
+    await ensureProfile();
+    await refresh();
+  };
+
+  $("btn-signout").onclick = async () => {
+    await supabase.auth.signOut();
+    selected = null;
+    show("board", false);
+    show("step-email");
+    show("step-code", false);
+    await refresh();
+  };
+
+  async function ensureProfile() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data } = await supabase.from("profiles").select("id").eq("id", user.id).maybeSingle();
+    if (data) return;
+    const adjectives = ["civic","keen","steady","bright","quiet","swift"];
+    const nouns = ["quill","gavel","ledger","compass","lantern","beacon"];
+    for (let i = 0; i < 4; i++) {
+      const handle = `${adjectives[Math.floor(Math.random()*6)]}_${nouns[Math.floor(Math.random()*6)]}_${String(Math.floor(Math.random()*10000)).padStart(4,"0")}`;
+      const { error } = await supabase.from("profiles").insert({ id: user.id, handle });
+      if (!error) return;
+    }
+  }
+
+  async function loadClasses() {
+    const { data, error } = await supabase
+      .from("cohort_members")
+      .select("cohort_id, role, joined_at, cohorts(name, term, join_code)")
+      .eq("role", "faculty")
+      .order("joined_at", { ascending: false });
+    const list = $("classlist");
+    list.innerHTML = "";
+    if (error || !data?.length) {
+      list.innerHTML = `<p class="muted">No classes yet. Create one below; students join with the code.</p>`;
+      return;
+    }
+    for (const row of data) {
+      const b = document.createElement("button");
+      const c = row.cohorts ?? {};
+      b.textContent = c.term ? `${c.name} (${c.term})` : (c.name ?? "Class");
+      b.onclick = () => selectClass(row.cohort_id, c, b);
+      list.appendChild(b);
+    }
+    if (!selected) data[0] && selectClass(data[0].cohort_id, data[0].cohorts ?? {}, list.firstChild);
+  }
+
+  async function selectClass(id, cohort, buttonEl) {
+    selected = id;
+    for (const b of $("classlist").querySelectorAll("button")) b.classList.remove("active");
+    buttonEl?.classList?.add("active");
+    $("board-title").textContent = cohort.name ?? "Class";
+    $("board-code").textContent = cohort.join_code ?? "";
+    show("board");
+    await Promise.all([loadOverview(id), loadDomains(id), loadMisses(id)]);
+  }
+
+  async function loadOverview(id) {
+    const { data } = await supabase.rpc("cohort_overview", { p_cohort: id });
+    const o = Array.isArray(data) ? data[0] : data;
+    $("overview").innerHTML = !o ? "" : [
+      [o.students, "students"],
+      [o.active_7d, "active this week"],
+      [o.answers_total, "questions answered"],
+      [o.mocks_completed, "mocks completed"],
+    ].map(([v, l]) => `<div><div class="value">${v ?? 0}</div><div class="label">${l}</div></div>`).join("");
+  }
+
+  async function loadDomains(id) {
+    const { data } = await supabase.rpc("cohort_domain_stats", { p_cohort: id });
+    const rows = data ?? [];
+    show("domains-empty", rows.length === 0);
+    $("domains").innerHTML = rows.map((d) => {
+      const pct = Math.round((d.accuracy ?? 0) * 100);
+      const color = pct >= 60 ? "#2e7d4f" : "#a3222c";
+      return `<div class="domain">
+        <div class="row"><b>${esc(d.domain_name)}</b>
+          <span style="color:${color};font-weight:700">${pct}%</span></div>
+        <div class="bar"><i style="width:${pct}%;background:${color}"></i></div>
+        <div class="muted">${d.students} students, ${d.answers} answers</div>
+      </div>`;
+    }).join("");
+  }
+
+  async function loadMisses(id) {
+    const { data } = await supabase.rpc("cohort_top_misses", { p_cohort: id });
+    const rows = data ?? [];
+    show("misses-empty", rows.length === 0);
+    $("misses").innerHTML = rows.map((m) => `<div class="miss">
+        <p class="stem">${esc(m.stem)}
+          <span class="pill">${Math.round(m.miss_rate * 100)}% missed</span></p>
+        <span class="muted">${m.students} students, ${m.attempts} attempts</span>
+      </div>`).join("");
+  }
+
+  $("btn-create").onclick = async () => {
+    setErr("create-err", null);
+    const name = $("new-name").value.trim();
+    if (name.length < 3) return setErr("create-err", "Name the class first.");
+    const { error } = await supabase.rpc("create_cohort", {
+      p_name: name, p_term: $("new-term").value.trim() || null,
+    });
+    if (error) return setErr("create-err", "Could not create the class.");
+    $("new-name").value = ""; $("new-term").value = "";
+    selected = null;
+    await loadClasses();
+  };
+
+  $("btn-report").onclick = async () => {
+    setErr("report-err", null);
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session || !selected) return;
+    const res = await fetch(
+      `${cfg.url}/functions/v1/efficacy-report?cohort_id=${selected}`,
+      { headers: { Authorization: `Bearer ${session.access_token}`, apikey: cfg.anonKey } },
+    );
+    if (!res.ok) return setErr("report-err", "No summary available yet for this class.");
+    const blob = await res.blob();
+    window.open(URL.createObjectURL(blob), "_blank");
+  };
+
+  refresh();
+}
+</script>
+</body>
+</html>

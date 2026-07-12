@@ -31,9 +31,9 @@ class CardEvaluation {
   /// elapsed days since last real review. R = (1 + t/(9S))^-1.
   /// Returns 0 if the card was never reviewed.
   double retrievabilityAt(int nowUnix) {
-    if (lastReviewedAtUnix == 0 || stability <= 0) return 0.0;
+    if (lastReviewedAtUnix == 0 || stability <= 0) return 0;
     final elapsedDays = (nowUnix - lastReviewedAtUnix) / 86400.0;
-    if (elapsedDays <= 0) return 1.0;
+    if (elapsedDays <= 0) return 1;
     return math.pow(1.0 + elapsedDays / (9.0 * stability), -1).toDouble();
   }
 }

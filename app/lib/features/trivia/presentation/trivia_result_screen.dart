@@ -159,11 +159,10 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
 
     return OverlayPortal(
       controller: _portalController,
-      overlayChildBuilder: (overlayContext) {
-        // Mount the share-card off-screen so RenderRepaintBoundary has real
-        // layout dimensions (Offstage doesn't reliably propagate
-        // constraints), but the user never sees it.
-        return Positioned(
+      // The share-card mounts off-screen so RenderRepaintBoundary has real
+      // layout dimensions (Offstage doesn't reliably propagate constraints),
+      // but the user never sees it.
+      overlayChildBuilder: (overlayContext) => Positioned(
           left: -10000,
           top: -10000,
           child: RepaintBoundary(
@@ -183,8 +182,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
               ),
             ),
           ),
-        );
-      },
+        ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -201,7 +199,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
                     .animate()
                     .scale(
                       begin: const Offset(0.4, 0.4),
-                      end: const Offset(1.0, 1.0),
+                      end: const Offset(1, 1),
                       duration: 520.ms,
                       curve: Curves.elasticOut,
                     )
@@ -339,12 +337,10 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
 /// Wordle-style text payload for iMessage / X — emoji grid, archetype,
 /// score, app pointer. Also the fallback payload when the PNG render
 /// pipeline fails.
-String _shareText(TriviaResult r) {
-  return 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
+String _shareText(TriviaResult r) => 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
       '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
-      '${r.gridEmojis.join('')}\n'
+      '${r.gridEmojis.join()}\n'
       'politiface.app';
-}
 
 Color _archetypeColor(TriviaArchetype a) {
   switch (a) {
@@ -358,4 +354,3 @@ Color _archetypeColor(TriviaArchetype a) {
       return const Color(0xFFC084FC); // purple
   }
 }
-

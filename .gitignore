@@ -103,3 +103,6 @@ coverage/
 # Claude Code per-machine permission overrides
 .claude/settings.local.json
 .gstack/
+
+# Local Claude Code worktrees (embedded checkouts, never commit)
+.claude/worktrees/

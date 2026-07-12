@@ -34,7 +34,7 @@
     <div class="doc-head">
       <span class="eyebrow">Legal</span>
       <h1>Privacy Policy</h1>
-      <p class="doc-updated">Last updated June 10, 2026</p>
+      <p class="doc-updated">Last updated July 4, 2026</p>
     </div>
     <hr class="doc-rule">
 
@@ -49,16 +49,17 @@
         <li>Cards you've reviewed and their FSRS memory state (stability, difficulty, retrievability).</li>
         <li>Trivia answers, daily round grades, and endless run history.</li>
         <li>Your streak, XP, and chapter progress.</li>
-        <li>App preferences (theme mode, notification toggle, analytics toggle).</li>
+        <li>App preferences (theme mode, notification toggle, crash-report consent).</li>
       </ul>
       <p>If you uninstall the app, all of this is deleted.</p>
 
       <h2>What is sent to third parties</h2>
-      <h3>Sentry (error reporting)</h3>
-      <p>When the app crashes or hits an unexpected error, a stack trace is sent to <a href="https://sentry.io">Sentry</a> so we can fix bugs. We have explicitly configured Sentry to <strong>never attach personal information</strong> (<code>sendDefaultPii: false</code>). The report contains the error message, the source line, and the software stack — not who you are.</p>
-      <p>Anonymous <strong>usage analytics</strong> are gated by the in-app toggle in <strong>Settings &rarr; Privacy &rarr; Anonymous usage analytics</strong> and default to off.</p>
+      <h3>Sentry (crash reporting; opt-in, off by default)</h3>
+      <p>Crash reporting is <strong>off until you turn it on</strong> in <strong>Settings &rarr; Privacy &rarr; Crash reports</strong>. If you never touch the toggle, the Sentry SDK is never even initialized and nothing is sent, ever.</p>
+      <p>If you opt in, then when the app crashes or hits an unexpected error a stack trace is sent to <a href="https://sentry.io">Sentry</a> so we can fix bugs. We have explicitly configured Sentry to <strong>never attach personal information</strong> (<code>sendDefaultPii: false</code>). The report contains the error message, the source line, and the software stack, not who you are. You can opt back out at any time with the same toggle (takes effect on the next launch).</p>
+      <p>The app has <strong>no usage analytics of any kind</strong>: no events, no identifiers, no analytics SDK. See <a href="https://github.com/rkapdi/politiFace/blob/main/VERIFIED.md">VERIFIED.md</a> for the verifiable, code-level description.</p>
       <h3>Wikimedia (Wikidata + Wikipedia)</h3>
-      <p>On first launch we may fetch politician portrait images from Wikimedia Commons and short biographical summaries from Wikipedia. These requests contain the politician's identifier — never anything about you. They follow Wikimedia's own privacy policy.</p>
+      <p>Politician portraits ship inside the app; they are not downloaded. When you open a politician's detail screen, the app fetches a short biographical summary from Wikipedia (cached on your device afterward). These requests contain the politician's identifier, never anything about you. They follow Wikimedia's own privacy policy, and the app works fully offline without them.</p>
       <h3>Apple (App Store + iOS)</h3>
       <p>Apple operates TestFlight, the App Store, and iOS. When you install or update Politiface, Apple sees that. We don't get device-specific identifiers from Apple beyond what every iOS app receives by default.</p>
 
@@ -76,7 +77,7 @@
 
       <h2>Your choices</h2>
       <ul>
-        <li><strong>Anonymous analytics:</strong> opt in or out at any time via Settings &rarr; Privacy &rarr; Anonymous usage analytics.</li>
+        <li><strong>Crash reports:</strong> opt in or out at any time via Settings &rarr; Privacy &rarr; Crash reports (off by default).</li>
         <li><strong>Notification reminders:</strong> opt in or out via Settings &rarr; Notifications &rarr; Daily review reminder, or in iOS Settings &rarr; Notifications &rarr; Politiface.</li>
         <li><strong>Reset progress:</strong> wipes all local data via Settings &rarr; Danger zone &rarr; Reset progress.</li>
         <li><strong>Uninstall:</strong> removes all local data.</li>

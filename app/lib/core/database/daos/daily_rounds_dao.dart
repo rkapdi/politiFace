@@ -10,36 +10,28 @@ part 'daily_rounds_dao.g.dart';
 @DriftAccessor(tables: [DailyRounds])
 class DailyRoundsDao extends DatabaseAccessor<AppDatabase>
     with _$DailyRoundsDaoMixin {
-  DailyRoundsDao(AppDatabase db) : super(db);
+  DailyRoundsDao(super.db);
 
   Future<DailyRoundEntry?> get({
     required String userId,
     required String dateIso,
-  }) {
-    return (select(dailyRounds)
+  }) => (select(dailyRounds)
           ..where((t) =>
-              t.userId.equals(userId) & t.dateIso.equals(dateIso)))
+              t.userId.equals(userId) & t.dateIso.equals(dateIso),))
         .getSingleOrNull();
-  }
 
   Future<List<DailyRoundEntry>> recent({
     required String userId,
     int limit = 30,
-  }) {
-    return (select(dailyRounds)
+  }) => (select(dailyRounds)
           ..where((t) => t.userId.equals(userId))
           ..orderBy([(t) => OrderingTerm.desc(t.dateIso)])
           ..limit(limit))
         .get();
-  }
 
-  Future<void> upsert(DailyRoundsCompanion entry) {
-    return into(dailyRounds).insertOnConflictUpdate(entry);
-  }
+  Future<void> upsert(DailyRoundsCompanion entry) => into(dailyRounds).insertOnConflictUpdate(entry);
 
   /// Test/debug helper: wipe all rounds for a user. Not used in app code.
-  Future<int> deleteAllForUser(String userId) {
-    return (delete(dailyRounds)..where((t) => t.userId.equals(userId)))
+  Future<int> deleteAllForUser(String userId) => (delete(dailyRounds)..where((t) => t.userId.equals(userId)))
         .go();
-  }
 }

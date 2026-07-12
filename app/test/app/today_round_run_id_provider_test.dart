@@ -10,9 +10,7 @@ import 'package:politiface/core/database/drift/app_database.dart';
 /// round straight back home ("nothing happens" loop). This provider must
 /// resolve the completed round's id so the review screen can hydrate it.
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   late AppDatabase db;
   late ProviderContainer container;
@@ -21,7 +19,7 @@ void main() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
     container = ProviderContainer(overrides: [
       databaseProvider.overrideWithValue(db),
-    ]);
+    ],);
   });
 
   tearDown(() {
@@ -38,12 +36,12 @@ void main() {
       id: 'round_2026-06-18_ch1_42',
       mode: 'round',
       completedAt: 1000,
-    ));
+    ),);
     await db.completedRunsDao.insert(CompletedRunsCompanion.insert(
       id: 'round_2026-06-18_ch1_99',
       mode: 'round',
       completedAt: 2000, // newer
-    ));
+    ),);
     expect(
       await container.read(todayRoundRunIdProvider.future),
       'round_2026-06-18_ch1_99',
@@ -56,7 +54,7 @@ void main() {
       id: 'endless_x',
       mode: 'endless',
       completedAt: 3000,
-    ));
+    ),);
     expect(await container.read(todayRoundRunIdProvider.future), isNull);
   });
 }

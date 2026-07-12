@@ -15,20 +15,18 @@ import '../domain/tier_mastery.dart';
 /// 3 = mastery) with state-aware Start/Continue/Mastered actions per tier.
 /// Tier T is locked until tier T-1 is mastered.
 class NodeDetailSheet extends ConsumerWidget {
-  const NodeDetailSheet({super.key, required this.nodeId});
+  const NodeDetailSheet({required this.nodeId, super.key});
 
   final String nodeId;
 
   /// Convenience launcher — handles the modal scaffolding so callers just
   /// say `NodeDetailSheet.show(context, ref, nodeId)`.
-  static Future<void> show(BuildContext context, String nodeId) {
-    return showModalBottomSheet<void>(
+  static Future<void> show(BuildContext context, String nodeId) => showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => NodeDetailSheet(nodeId: nodeId),
     );
-  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -38,8 +36,7 @@ class NodeDetailSheet extends ConsumerWidget {
       minChildSize: 0.35,
       maxChildSize: 0.92,
       expand: false,
-      builder: (context, scrollController) {
-        return Container(
+      builder: (context, scrollController) => Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             borderRadius:
@@ -71,8 +68,7 @@ class NodeDetailSheet extends ConsumerWidget {
               );
             },
           ),
-        );
-      },
+        ),
     );
   }
 }
@@ -133,8 +129,7 @@ class _NodeSheetBody extends ConsumerWidget {
           _TierRow(
             nodeId: node.id,
             tier: tiers[i],
-            previousTierMastered:
-                i == 0 ? true : tiers[i - 1].isMastered,
+            previousTierMastered: i == 0 || tiers[i - 1].isMastered,
             branchColor: node.branchColor,
           ),
           if (i != tiers.length - 1) const SizedBox(height: 12),
@@ -275,9 +270,9 @@ class _TierActionButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (tier.isEmpty) {
-      return OutlinedButton(
+      return const OutlinedButton(
         onPressed: null,
-        child: const Text('No content yet'),
+        child: Text('No content yet'),
       );
     }
     if (isLocked) {
@@ -324,14 +319,14 @@ class _TierActionButton extends ConsumerWidget {
     // surface them as a chooser in the sheet.
     final decks = await (db.select(db.localDecks)
           ..where((d) =>
-              d.nodeId.equals(nodeId) & d.tierOrder.equals(tier.tier))
+              d.nodeId.equals(nodeId) & d.tierOrder.equals(tier.tier),)
           ..orderBy([(d) => drift.OrderingTerm.asc(d.id)]))
         .get();
     if (decks.isEmpty) return;
     if (!context.mounted) return;
     Navigator.of(context).pop(); // close the sheet first
     ref.read(activeSessionDeckIdProvider.notifier).state = decks.first.id;
-    ref.read(activeDailyChallengeDateProvider.notifier).state = null;
+    ref.read(activeSessionCardIdsProvider.notifier).state = null;
     ref.invalidate(sessionControllerProvider);
     GoRouter.of(context).go('/session');
   }
@@ -343,8 +338,7 @@ class _BranchChip extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.18),
@@ -360,7 +354,6 @@ class _BranchChip extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class _StatePill extends StatelessWidget {

@@ -21,12 +21,12 @@ Future<void> _seedNode(
     nodeType: 'executive',
     tierOrder: 1,
     unlockRequires: Value(_encodeList(requires)),
-  ));
+  ),);
   await db.progressDao.upsert(UserNodeProgressCompanion.insert(
     nodeId: id,
     governmentId: 'g1',
     status: Value(status),
-  ));
+  ),);
 }
 
 String _encodeList(List<String> items) {
@@ -46,7 +46,7 @@ Future<void> _seedDeckWithOneCard(
     name: deckId,
     nodeId: Value(nodeId),
     updatedAt: 0,
-  ));
+  ),);
   await db.cardsDao.upsertCard(LocalCardsCompanion.insert(
     id: cardId,
     deckId: deckId,
@@ -55,7 +55,7 @@ Future<void> _seedDeckWithOneCard(
     title: 'title',
     sourceUrl: 'about:blank',
     updatedAt: 0,
-  ));
+  ),);
   await db.reviewsDao.upsertState(
     CardMemoryStatesCompanion(cardId: Value(cardId), isNew: const Value(true)),
   );
@@ -80,7 +80,7 @@ void main() {
 
     var result = await unlock.recalculate();
     expect(result.completed, isEmpty,
-        reason: 'card not yet reviewed → node stays unlocked');
+        reason: 'card not yet reviewed → node stays unlocked',);
 
     await repo.recordReview(cardId: 'c1', grade: FSRSGrade.good);
     result = await unlock.recalculate();
@@ -91,7 +91,7 @@ void main() {
 
   test('locked dependent node unlocks when prereq completes', () async {
     await _seedNode(db, id: 'n1', requires: const [], status: 'unlocked');
-    await _seedNode(db, id: 'n2', requires: const ['n1'], status: 'locked');
+    await _seedNode(db, id: 'n2', requires: const ['n1']);
     await _seedDeckWithOneCard(db, deckId: 'd1', nodeId: 'n1', cardId: 'c1');
 
     await repo.recordReview(cardId: 'c1', grade: FSRSGrade.good);
@@ -106,7 +106,7 @@ void main() {
       () async {
     await _seedNode(db, id: 'a', requires: const [], status: 'unlocked');
     await _seedNode(db, id: 'b', requires: const [], status: 'unlocked');
-    await _seedNode(db, id: 'c', requires: const ['a', 'b'], status: 'locked');
+    await _seedNode(db, id: 'c', requires: const ['a', 'b']);
     await _seedDeckWithOneCard(db, deckId: 'da', nodeId: 'a', cardId: 'ca');
     await _seedDeckWithOneCard(db, deckId: 'db', nodeId: 'b', cardId: 'cb');
 
@@ -114,7 +114,7 @@ void main() {
     final r = await unlock.recalculate();
     expect(r.completed, ['a']);
     expect(r.unlocked, isEmpty,
-        reason: 'c has two prereqs; b still incomplete');
+        reason: 'c has two prereqs; b still incomplete',);
   });
 
   test('node with no decks does not auto-complete', () async {

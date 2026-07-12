@@ -1,8 +1,13 @@
+import '../../curriculum/domain/curriculum.dart';
 import '../../trivia/domain/trivia_question.dart';
 import '../../trivia/domain/trivia_scoring.dart';
 
-/// The four phases a daily round walks through, in order.
+/// The phases a daily round walks through, in order.
 enum RoundPhase {
+  /// Readable lesson pages for today's chapter day. Skipped when the day
+  /// has no authored lessons.
+  briefing,
+
   /// 5 flashcards drawn from the current chapter. Grade each → advance.
   cards,
 
@@ -19,6 +24,8 @@ enum RoundPhase {
 extension RoundPhaseSerialization on RoundPhase {
   String get wireName {
     switch (this) {
+      case RoundPhase.briefing:
+        return 'briefing';
       case RoundPhase.cards:
         return 'cards';
       case RoundPhase.trivia:
@@ -32,6 +39,8 @@ extension RoundPhaseSerialization on RoundPhase {
 
   static RoundPhase fromWire(String s) {
     switch (s) {
+      case 'briefing':
+        return RoundPhase.briefing;
       case 'cards':
         return RoundPhase.cards;
       case 'trivia':
@@ -57,6 +66,9 @@ class RoundCard {
     this.politicianName,
     this.photoUrl,
     this.grade,
+    this.cardType = 'face',
+    this.body,
+    this.teachFirst = false,
   });
 
   /// The `LocalCards.id` this card was sampled from.
@@ -82,16 +94,29 @@ class RoundCard {
   /// 0..3 once graded; null while the card is still face-down.
   final int? grade;
 
-  RoundCard copyWith({int? grade}) {
-    return RoundCard(
+  /// 'face' or 'concept' — concept cards may render teach-first.
+  final String cardType;
+
+  /// Concept teaching prose; doubles as the revealed answer.
+  final String? body;
+
+  /// True when this concept card has never been reviewed: render the
+  /// lesson presentation ("Got it") instead of the recall flip.
+  final bool teachFirst;
+
+  bool get isConcept => cardType == 'concept';
+
+  RoundCard copyWith({int? grade}) => RoundCard(
       cardId: cardId,
       prompt: prompt,
       answer: answer,
       politicianName: politicianName,
       photoUrl: photoUrl,
       grade: grade ?? this.grade,
+      cardType: cardType,
+      body: body,
+      teachFirst: teachFirst,
     );
-  }
 }
 
 /// One trivia MCQ inside the trivia phase. The question + answer match
@@ -108,9 +133,7 @@ class RoundTrivia {
   /// Set once the user picks an option + confidence; null while pending.
   final TriviaAnswer? answer;
 
-  RoundTrivia copyWith({TriviaAnswer? answer}) {
-    return RoundTrivia(question: question, answer: answer ?? this.answer);
-  }
+  RoundTrivia copyWith({TriviaAnswer? answer}) => RoundTrivia(question: question, answer: answer ?? this.answer);
 
   bool get isAnswered => answer != null;
 }
@@ -128,6 +151,7 @@ class DailyRoundState {
     required this.phase,
     required this.cards,
     required this.trivia,
+    this.lessons = const [],
     this.result,
   });
 
@@ -148,10 +172,15 @@ class DailyRoundState {
   /// Always 10 entries (or fewer; same reason).
   final List<RoundTrivia> trivia;
 
+  /// Today's briefing lessons (chapter day scoped). Re-derived from the
+  /// curriculum on resume — not persisted — so content edits propagate.
+  final List<Lesson> lessons;
+
   /// Computed when the round enters [RoundPhase.reveal]. The
   /// existing trivia archetype scoring lives in `trivia_scoring.dart`.
   final TriviaResult? result;
 
+  bool get isBriefingPhase => phase == RoundPhase.briefing;
   bool get isCardsPhase => phase == RoundPhase.cards;
   bool get isTriviaPhase => phase == RoundPhase.trivia;
   bool get isRevealPhase => phase == RoundPhase.reveal;
@@ -195,8 +224,7 @@ class DailyRoundState {
     List<RoundCard>? cards,
     List<RoundTrivia>? trivia,
     TriviaResult? result,
-  }) {
-    return DailyRoundState(
+  }) => DailyRoundState(
       dateIso: dateIso,
       chapterId: chapterId,
       chapterTitle: chapterTitle,
@@ -206,9 +234,9 @@ class DailyRoundState {
       phase: phase ?? this.phase,
       cards: cards ?? this.cards,
       trivia: trivia ?? this.trivia,
+      lessons: lessons,
       result: result ?? this.result,
     );
-  }
 }
 
 /// Reason a round can't be started — surfaced to the UI as a structured

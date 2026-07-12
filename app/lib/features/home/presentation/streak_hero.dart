@@ -7,7 +7,7 @@ import '../../profile/data/profile_service.dart';
 /// rules separating XP / Level columns. Reads like a newspaper top-of-page
 /// nameplate rather than a gradient marketing card.
 class StreakHero extends StatelessWidget {
-  const StreakHero({super.key, required this.profile});
+  const StreakHero({required this.profile, super.key});
   final UserProfile profile;
 
   @override
@@ -70,7 +70,7 @@ class StreakHero extends StatelessWidget {
                   dayLabel,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
-                    letterSpacing: 2.0,
+                    letterSpacing: 2,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -170,7 +170,7 @@ class _Metric extends StatelessWidget {
               color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.w800,
               fontSize: 34,
-              height: 1.0,
+              height: 1,
             ),
           ),
         ),

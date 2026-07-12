@@ -191,7 +191,7 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
                   .map((p) => Offset(
                         p.dx + _MapCanvas._padding + _MapCanvas._markerSize / 2,
                         p.dy + _MapCanvas._padding,
-                      ))
+                      ),)
                   .toList();
               final centroid = _centroidOf(positions);
               if (centroid != null) {
@@ -282,7 +282,7 @@ class _MapCanvas extends ConsumerWidget {
         ..showSnackBar(SnackBar(
           content: Text(hint),
           duration: const Duration(seconds: 2),
-        ));
+        ),);
       return;
     }
     onNodeTap?.call(node.id);
@@ -309,7 +309,7 @@ class _MapCanvas extends ConsumerWidget {
         ..showSnackBar(SnackBar(
           content: Text(hint),
           duration: const Duration(seconds: 2),
-        ));
+        ),);
       return;
     }
     HapticFeedback.mediumImpact();
@@ -376,7 +376,6 @@ class _MapCanvas extends ConsumerWidget {
             branchColor: node.branchColor,
             state: state,
             tiers: tiers,
-            size: _markerSize,
             pulseT: pulse.value,
             unlockFlashT: isFlashing ? (1.0 - unlockFlash.value) : 0.0,
             hasChildren: nodeHasChildren,
@@ -394,13 +393,12 @@ class _MapCanvas extends ConsumerWidget {
                 : () => _handleNodeLongPress(context, model, node, state),
           ),
         ),
-      ));
+      ),);
     }
 
     return InteractiveViewer(
       constrained: false,
       minScale: 0.4,
-      maxScale: 2.5,
       boundaryMargin: const EdgeInsets.all(400),
       transformationController: transformationController,
       child: SizedBox(

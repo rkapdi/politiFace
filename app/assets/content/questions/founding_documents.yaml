@@ -1,0 +1,490 @@
+# FCLE domain 3: Founding Documents.
+# Starter tranche. All questions are original, grounded in primary public
+# sources. status stays draft until founder editorial review.
+
+domain: founding_documents
+questions:
+  - id: founddocs-federalist-purpose-001
+    stem: >
+      The Federalist Papers were written primarily to accomplish what goal?
+    options:
+      - key: a
+        text: To declare independence from Great Britain
+      - key: b
+        text: To persuade New Yorkers to ratify the proposed Constitution
+      - key: c
+        text: To list grievances against King George III
+      - key: d
+        text: To establish the first national bank
+    answer: b
+    explanation: >
+      Alexander Hamilton, James Madison, and John Jay published the essays
+      under the pen name Publius to urge ratification of the Constitution,
+      addressing the citizens of New York during the ratification debate.
+    citation: https://guides.loc.gov/federalist-papers/text-1-10
+    difficulty: 2
+    objective: SS.912.CG.1.3
+    status: published
+
+  - id: founddocs-articles-confederation-001
+    stem: >
+      Which document established the first national government of the United
+      States, before the Constitution?
+    options:
+      - key: a
+        text: The Articles of Confederation
+      - key: b
+        text: The Declaration of Independence
+      - key: c
+        text: The Northwest Ordinance
+      - key: d
+        text: The Virginia Plan
+    answer: a
+    explanation: >
+      The Articles of Confederation, ratified in 1781, created the first
+      national frame of government. Its weaknesses, especially the lack of
+      taxing power and a national executive, led to the Constitutional
+      Convention of 1787.
+    citation: https://www.archives.gov/milestone-documents/articles-of-confederation
+    difficulty: 2
+    objective: SS.7.CG.1.7
+    status: published
+
+  - id: founddocs-articles-notax-01
+    stem: >
+      A major structural weakness of the Articles of Confederation was that the
+      national Congress lacked the power to do what?
+    options:
+      - key: a
+        text: "Declare war on a foreign nation"
+      - key: b
+        text: "Levy and collect taxes directly from citizens"
+      - key: c
+        text: "Operate a national post office"
+      - key: d
+        text: "Negotiate treaties with other countries"
+    answer: b
+    explanation: >
+      Under the Articles, Congress could only request funds from the states and
+      had no power to tax citizens directly, leaving the national government
+      chronically short of money. Congress did hold the powers to declare war, run
+      a post office, and make treaties, so those options describe authority it
+      actually possessed.
+    citation: https://www.archives.gov/milestone-documents/articles-of-confederation
+    difficulty: 2
+    objective: SS.7.CG.1.7
+    status: published
+
+  - id: founddocs-articles-league-01
+    stem: >
+      The Articles of Confederation described the union it created among the
+      states as which of the following?
+    options:
+      - key: a
+        text: "A firm league of friendship among sovereign states"
+      - key: b
+        text: "A consolidated national republic"
+      - key: c
+        text: "A constitutional monarchy"
+      - key: d
+        text: "A perfect union governed from a single capital"
+    answer: a
+    explanation: >
+      Article III of the Articles called the arrangement a firm league of
+      friendship, and each state expressly retained its sovereignty, freedom, and
+      independence. The phrasing about a more perfect union belongs to the later
+      Constitution, not the Articles.
+    citation: https://www.archives.gov/milestone-documents/articles-of-confederation
+    difficulty: 3
+    objective: SS.912.CG.1.1
+    status: published
+
+  - id: founddocs-decl-unalienable-01
+    stem: >
+      Which ideal stated in the Declaration of Independence holds that people
+      possess rights such as life, liberty, and the pursuit of happiness that
+      governments cannot take away?
+    options:
+      - key: a
+        text: "Judicial review"
+      - key: b
+        text: "Unalienable rights"
+      - key: c
+        text: "Federalism"
+      - key: d
+        text: "Checks and balances"
+    answer: b
+    explanation: >
+      The Declaration asserts that people are endowed with unalienable rights,
+      listing life, liberty, and the pursuit of happiness, and that governments
+      exist to secure them. This ideal of inherent individual rights helped shape
+      the protections later written into the constitutional republic.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 2
+    objective: SS.912.CG.1.4
+    status: published
+
+  - id: founddocs-fed39-republic-01
+    stem: >
+      In Federalist No. 39, Madison defines a republic as a government that has
+      which of the following characteristics?
+    options:
+      - key: a
+        text: "It derives its powers from the people and is run by officials serving limited terms"
+      - key: b
+        text: "It is headed by a monarch whose powers are limited by custom"
+      - key: c
+        text: "It allows every citizen to vote directly on all laws"
+      - key: d
+        text: "It is administered by a permanent hereditary class"
+    answer: a
+    explanation: >
+      Madison defines a republic as a government that gets all of its power from
+      the people and is administered by persons holding office for limited periods
+      or during good behavior. Direct voting by all citizens describes a pure
+      democracy, not the republic Madison outlines.
+    citation: https://guides.loc.gov/federalist-papers/text-31-40
+    difficulty: 4
+    objective: SS.912.CG.1.3
+    status: published
+
+  - id: founddocs-decl-equality-expand-01
+    stem: >
+      The Declaration of Independence's assertion that all men are created equal
+      was later invoked to support which effort to expand civil rights over time?
+    options:
+      - key: a
+        text: "The movement to abolish slavery and the campaign for women's suffrage"
+      - key: b
+        text: "The creation of the Electoral College"
+      - key: c
+        text: "The establishment of the Federal Reserve System"
+      - key: d
+        text: "The ratification of the Articles of Confederation"
+    answer: a
+    explanation: >
+      Reformers such as abolitionists and suffragists pointed to the Declaration's
+      language on equality to argue that rights should be extended to more people.
+      The Electoral College, the Federal Reserve, and the Articles of
+      Confederation are governmental structures unrelated to that appeal for
+      expanded civil rights.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 3
+    objective: SS.912.CG.2.6
+    status: published
+
+  - id: founddocs-articles-amend-01
+    stem: >
+      Under the Articles of Confederation, amending the document required the
+      approval of which of the following?
+    options:
+      - key: a
+        text: "A two-thirds vote of the Confederation Congress"
+      - key: b
+        text: "Nine of the thirteen states"
+      - key: c
+        text: "All thirteen states"
+      - key: d
+        text: "A majority of the state governors"
+    answer: c
+    explanation: >
+      Article XIII required that any change be agreed to by Congress and then
+      confirmed by every one of the thirteen state legislatures, so a single state
+      could block reform. Nine states were needed to pass important ordinary
+      measures, which makes that a tempting but incorrect answer for the amendment
+      rule.
+    citation: https://www.archives.gov/milestone-documents/articles-of-confederation
+    difficulty: 3
+    objective: SS.7.CG.1.7
+    status: published
+
+  - id: founddocs-billofrights-expand-01
+    stem: >
+      The Bill of Rights, ratified in 1791, expanded the protection of individual
+      liberties primarily by doing what?
+    options:
+      - key: a
+        text: "Creating the office of the Vice President"
+      - key: b
+        text: "Adding written guarantees of individual rights such as freedom of speech and religion"
+      - key: c
+        text: "Granting Congress the power to collect taxes"
+      - key: d
+        text: "Establishing the Supreme Court"
+    answer: b
+    explanation: >
+      The first ten amendments added explicit protections for liberties like
+      speech, religion, press, and assembly, answering demands that the
+      Constitution safeguard individual rights. The Vice Presidency, the taxing
+      power, and the Supreme Court were all created in the original Constitution,
+      not by the Bill of Rights.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 2
+    objective: SS.912.CG.2.6
+    status: published
+
+  - id: founddocs-preamble-sovereignty-01
+    stem: >
+      The opening words of the Constitution, We the People, reflect which founding
+      ideal that shapes the American constitutional republic?
+    options:
+      - key: a
+        text: "Popular sovereignty"
+      - key: b
+        text: "Separation of powers"
+      - key: c
+        text: "Judicial review"
+      - key: d
+        text: "Federal supremacy"
+    answer: a
+    explanation: >
+      Beginning the Constitution with We the People expresses popular sovereignty,
+      the idea that the government's authority comes from the people themselves.
+      Separation of powers, judicial review, and federal supremacy are other
+      constitutional principles, but they are not what that phrase conveys.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.1.4
+    status: published
+
+  - id: founddocs-fed10-faction-01
+    stem: >
+      In Federalist No. 10, James Madison argued that the best way to control the
+      harmful effects of factions is to do what?
+    options:
+      - key: a
+        text: "Outlaw all political parties by statute"
+      - key: b
+        text: "Establish a large, extended republic containing many diverse interests"
+      - key: c
+        text: "Concentrate authority in a single powerful executive"
+      - key: d
+        text: "Require every adult citizen to cast a vote"
+    answer: b
+    explanation: >
+      Madison reasoned that a large republic would include so many competing
+      interests that no single faction could easily form a tyrannical majority. He
+      rejected trying to remove the causes of faction, arguing instead that its
+      effects should be controlled through the structure of an extended republic.
+    citation: https://founders.archives.gov/documents/Madison/01-10-02-0178
+    difficulty: 3
+    objective: SS.912.CG.1.3
+    status: published
+
+  - id: founddocs-fed14-repvsdem-01
+    stem: >
+      In Federalist No. 14, Madison distinguishes a republic from a pure democracy
+      chiefly by explaining that a republic does what?
+    options:
+      - key: a
+        text: "Governs through elected representatives, allowing it to extend over a large territory"
+      - key: b
+        text: "Requires all citizens to gather in one place to make decisions"
+      - key: c
+        text: "Operates without any written frame of government"
+      - key: d
+        text: "Must remain limited to small city-states"
+    answer: a
+    explanation: >
+      Madison argues in Federalist No. 14 that a republic uses representation,
+      which allows it to govern a much larger territory than a pure democracy
+      could. A pure democracy, by contrast, would require citizens to assemble in
+      person and is therefore confined to a small area.
+    citation: https://guides.loc.gov/federalist-papers/text-11-20
+    difficulty: 4
+    objective: SS.912.CG.1.3
+    status: published
+
+  - id: founddocs-fed51-ambition-01
+    stem: >
+      Federalist No. 51 argues that, to keep any one part of government from
+      dominating, ambition must be made to counteract ambition. This reasoning
+      supports which constitutional design feature?
+    options:
+      - key: a
+        text: "A national bank"
+      - key: b
+        text: "Direct democracy on every law"
+      - key: c
+        text: "Checks and balances among the branches"
+      - key: d
+        text: "A hereditary aristocracy"
+    answer: c
+    explanation: >
+      Federalist No. 51 contends that giving each branch the constitutional means
+      and personal motives to resist the others protects liberty. This is the
+      classic defense of checks and balances, in which the branches restrain one
+      another.
+    citation: https://founders.archives.gov/documents/Madison/01-10-02-0279
+    difficulty: 3
+    objective: SS.912.CG.1.3
+    status: published
+
+  - id: founddocs-english-bill-of-rights-03
+    stem: >
+      The English Bill of Rights of 1689 limited the power of the monarch and
+      guaranteed certain protections. Which later American protection reflects one
+      of its guarantees?
+    options:
+      - key: a
+        text: "The prohibition on cruel and unusual punishment"
+      - key: b
+        text: "The guarantee of a free public education"
+      - key: c
+        text: "The direct election of the president"
+      - key: d
+        text: "The right to form political parties"
+    answer: a
+    explanation: >
+      The English Bill of Rights barred excessive bail and cruel and unusual
+      punishments, language later echoed in the Eighth Amendment. Free public
+      education, direct presidential election, and party formation are not part of
+      the 1689 document.
+    citation: https://constitution.congress.gov/constitution/amendment-8/
+    difficulty: 3
+    objective: SS.912.CG.1.1
+    status: published
+
+  - id: founddocs-magna-carta-01
+    stem: >
+      The Magna Carta, agreed to in 1215, is considered a foundational influence
+      on American government primarily because it established which principle?
+    options:
+      - key: a
+        text: "That the ruler is not above the law and must govern within legal limits"
+      - key: b
+        text: "That all adult citizens have the right to vote in national elections"
+      - key: c
+        text: "That government power should be divided into three separate branches"
+      - key: d
+        text: "That church and state must be completely separated"
+    answer: a
+    explanation: >
+      The Magna Carta forced King John to accept that even the monarch was bound
+      by the law, planting the ideas of limited government and the rule of law.
+      Universal suffrage, the three-branch structure, and church-state separation
+      are later developments not found in the 1215 document.
+    citation: https://www.archives.gov/exhibits/featured-documents/magna-carta
+    difficulty: 2
+    objective: SS.912.CG.1.1
+    status: published
+
+  - id: founddocs-fed31-taxation-01
+    stem: >
+      In Federalist No. 31, Alexander Hamilton argues that the national government
+      must possess which of the following?
+    options:
+      - key: a
+        text: "A power of taxation adequate to meet its responsibilities"
+      - key: b
+        text: "The sole authority to charter every business corporation"
+      - key: c
+        text: "The power to abolish the state governments"
+      - key: d
+        text: "Command of a large standing army during peacetime"
+    answer: a
+    explanation: >
+      Reasoning from general principles, Hamilton argues that a government must
+      have a taxing power proportioned to the duties it is expected to perform.
+      The paper does not claim authority to dissolve the states or to maintain a
+      peacetime standing army, which makes those options incorrect.
+    citation: https://guides.loc.gov/federalist-papers/text-31-40
+    difficulty: 5
+    objective: SS.912.CG.1.3
+    status: published
+
+  - id: founddocs-articles-weakness-tax-08
+    stem: >
+      One major weakness of the Articles of Confederation that pushed leaders
+      toward a new constitution was that the national government could not do
+      what?
+    options:
+      - key: a
+        text: "Tax citizens directly and instead had to request money from the states"
+      - key: b
+        text: "Sign any treaties with foreign nations"
+      - key: c
+        text: "Operate a post office"
+      - key: d
+        text: "Admit new states to the union"
+    answer: a
+    explanation: >
+      Under the Articles, Congress could only ask the states for funds and could
+      not levy taxes, leaving the national government chronically short of money.
+      It could conduct foreign affairs, run a postal service, and admit states, so
+      those were not the core weakness.
+    citation: https://www.archives.gov/milestone-documents/articles-of-confederation
+    difficulty: 2
+    objective: SS.7.CG.1.7
+    status: published
+
+  - id: founddocs-mayflower-compact-02
+    stem: >
+      The Mayflower Compact of 1620 is often cited as an early example of which
+      idea later important to American government?
+    options:
+      - key: a
+        text: "Self-government based on the consent of the governed"
+      - key: b
+        text: "A national bank controlled by a central government"
+      - key: c
+        text: "The complete abolition of private property"
+      - key: d
+        text: "A permanent hereditary ruling class"
+    answer: a
+    explanation: >
+      The Pilgrims agreed to form a civil body politic and to make and obey their
+      own just laws, an early practice of government by consent. The other choices
+      describe economic or social arrangements that the Compact does not address.
+    citation: https://avalon.law.yale.edu/17th_century/mayflower.asp
+    difficulty: 2
+    objective: SS.912.CG.1.1
+    status: published
+
+  - id: founddocs-consent-governed-ideal-12
+    stem: >
+      The founding documents shaped the United States as a constitutional republic
+      largely by advancing the ideal that legitimate government does what?
+    options:
+      - key: a
+        text: "Derives its authority from the consent of the governed"
+      - key: b
+        text: "Rests on the inherited right of a royal family"
+      - key: c
+        text: "Belongs to whichever group holds the most military power"
+      - key: d
+        text: "Is controlled by a single established church"
+    answer: a
+    explanation: >
+      Documents such as the Declaration of Independence expressed that governments
+      derive their just powers from the consent of the governed, a core principle
+      of a constitutional republic. Hereditary monarchy, rule by force, and an
+      official church are the ideas the founders deliberately rejected.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 4
+    objective: SS.912.CG.1.4
+    status: published
+
+  - id: founddocs-northwest-ordinance-07
+    stem: >
+      The Northwest Ordinance of 1787 was important to the growth of the United
+      States because it did what?
+    options:
+      - key: a
+        text: "Created an orderly process for territories to become new states"
+      - key: b
+        text: "Gave the national government the power to tax citizens directly"
+      - key: c
+        text: "Created a permanent standing national army"
+      - key: d
+        text: "Established the Supreme Court"
+    answer: a
+    explanation: >
+      The Northwest Ordinance set out how territories north of the Ohio River
+      could be governed and eventually admitted as states on an equal footing with
+      the original ones. Direct taxation power, a standing army, and the Supreme
+      Court came instead from the later Constitution.
+    citation: https://www.archives.gov/milestone-documents/northwest-ordinance
+    difficulty: 3
+    objective: SS.912.CG.1.1
+    status: published

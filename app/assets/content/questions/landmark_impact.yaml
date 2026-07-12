@@ -1,0 +1,486 @@
+# FCLE domain 4: Landmark Influences and Supreme Court Cases.
+# Starter tranche. All questions are original, grounded in primary public
+# sources. status stays draft until founder editorial review.
+
+domain: landmark_impact
+questions:
+  - id: landmark-marbury-001
+    stem: >
+      Marbury v. Madison (1803) is a landmark case because it established
+      which principle?
+    options:
+      - key: a
+        text: Separate but equal
+      - key: b
+        text: Judicial review
+      - key: c
+        text: The right to remain silent
+      - key: d
+        text: One person, one vote
+    answer: b
+    explanation: >
+      In Marbury v. Madison, the Supreme Court held that it could declare an
+      act of Congress unconstitutional, establishing judicial review as a
+      power of the federal courts.
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    difficulty: 2
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-brown-board-001
+    stem: >
+      In Brown v. Board of Education (1954), the Supreme Court ruled that
+      racial segregation in public schools was what?
+    options:
+      - key: a
+        text: A matter for each state to decide
+      - key: b
+        text: Constitutional if facilities were equal
+      - key: c
+        text: Unconstitutional
+      - key: d
+        text: Permitted only in elementary schools
+    answer: c
+    explanation: >
+      Brown v. Board of Education held that separate educational facilities
+      are inherently unequal, ruling school segregation unconstitutional
+      under the Equal Protection Clause of the Fourteenth Amendment and
+      overturning Plessy v. Ferguson in public education.
+    citation: https://www.archives.gov/milestone-documents/brown-v-board-of-education
+    difficulty: 2
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-marbury-strike-01
+    stem: >
+      In Marbury v. Madison (1803), the Supreme Court for the first time in its
+      history did which of the following?
+    options:
+      - key: a
+        text: "Declared an act of Congress unconstitutional and refused to enforce it"
+      - key: b
+        text: "Ordered the desegregation of the nation's public schools"
+      - key: c
+        text: "Required states to provide lawyers to poor defendants"
+      - key: d
+        text: "Upheld the creation of a national bank against a state tax"
+    answer: a
+    explanation: >
+      In Marbury v. Madison the Court struck down part of the Judiciary Act of
+      1789 as unconstitutional, the first time it voided an act of Congress. The
+      desegregation, right-to-counsel, and national bank outcomes come from Brown,
+      Gideon, and McCulloch, not Marbury.
+    citation: https://www.oyez.org/cases/1789-1850/5us137
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-mcculloch-tax-02
+    stem: >
+      In McCulloch v. Maryland (1819), the Supreme Court ruled that the state of
+      Maryland could NOT do what?
+    options:
+      - key: a
+        text: "Tax the federal Bank of the United States"
+      - key: b
+        text: "Regulate trade that crossed its own borders"
+      - key: c
+        text: "Remove Native American nations from their lands"
+      - key: d
+        text: "Require daily prayer in its public schools"
+    answer: a
+    explanation: >
+      The Court held that Congress had the implied power to create the bank and
+      that a state could not tax a federal institution, reasoning that the power
+      to tax could be the power to destroy. This affirmed federal supremacy over
+      conflicting state action.
+    citation: https://www.oyez.org/cases/1789-1850/17us316
+    difficulty: 3
+    objective: SS.8.A.4.13
+    status: published
+
+  - id: landmark-plessy-separate-equal-04
+    stem: >
+      In Plessy v. Ferguson (1896), the Supreme Court upheld which doctrine
+      regarding racial segregation?
+    options:
+      - key: a
+        text: "Separate but equal"
+      - key: b
+        text: "One person, one vote"
+      - key: c
+        text: "Clear and present danger"
+      - key: d
+        text: "The exclusionary rule"
+    answer: a
+    explanation: >
+      The Court upheld a state law requiring segregated railroad cars, ruling that
+      separate but equal facilities did not violate the Constitution. This
+      doctrine was later overturned by Brown v. Board of Education in 1954.
+    citation: https://www.oyez.org/cases/1850-1900/163us537
+    difficulty: 2
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-engel-school-prayer-10
+    stem: >
+      In Engel v. Vitale (1962), the Supreme Court ruled that which practice
+      violated the First Amendment?
+    options:
+      - key: a
+        text: "State-sponsored prayer in public schools"
+      - key: b
+        text: "Students wearing armbands in protest"
+      - key: c
+        text: "Providing a lawyer to a poor defendant"
+      - key: d
+        text: "Searching a home with a valid warrant"
+    answer: a
+    explanation: >
+      The Court held that a prayer composed and promoted by state officials for
+      use in public schools violated the Establishment Clause of the First
+      Amendment. The government may not sponsor an official religious exercise.
+    citation: https://www.oyez.org/cases/1961/468
+    difficulty: 2
+    objective: SS.7.CG.3.11
+    status: published
+
+  - id: landmark-dred-scott-citizenship-03
+    stem: >
+      The Supreme Court's 1857 decision in Dred Scott v. Sandford held which of
+      the following?
+    options:
+      - key: a
+        text: "People of African descent could not be citizens of the United States"
+      - key: b
+        text: "Public school segregation violated the Constitution"
+      - key: c
+        text: "Separate but equal public facilities were permitted"
+      - key: d
+        text: "The federal government could not tax imported goods"
+    answer: a
+    explanation: >
+      The Court ruled that people of African descent were not and could not be
+      United States citizens and denied the claim to freedom. This holding was
+      later overturned by the Fourteenth Amendment (1868), which established
+      birthright citizenship.
+    citation: https://www.oyez.org/cases/1850-1900/60us393
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-schenck-speech-05
+    stem: >
+      In Schenck v. United States (1919), the Supreme Court ruled that free speech
+      could be limited when the speech created what?
+    options:
+      - key: a
+        text: "A clear and present danger"
+      - key: b
+        text: "A separate but equal facility"
+      - key: c
+        text: "An unreasonable search"
+      - key: d
+        text: "A violation of the right to counsel"
+    answer: a
+    explanation: >
+      The Court held that First Amendment protection of speech is not absolute and
+      could be restricted when the speech posed a clear and present danger,
+      upholding a conviction under the Espionage Act during wartime. The other
+      phrases describe unrelated legal standards from different cases.
+    citation: https://www.oyez.org/cases/1900-1940/249us47
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-korematsu-exclusion-06
+    stem: >
+      The Supreme Court's 1944 decision in Korematsu v. United States upheld which
+      wartime government action?
+    options:
+      - key: a
+        text: "The exclusion and relocation of Japanese Americans from the West Coast"
+      - key: b
+        text: "The desegregation of public transportation"
+      - key: c
+        text: "The creation of a national banking system"
+      - key: d
+        text: "A ban on state-sponsored school prayer"
+    answer: a
+    explanation: >
+      During World War II the Court upheld the constitutionality of the military
+      exclusion order that forced Japanese Americans from the West Coast. The
+      Court later repudiated this holding in 2018.
+    citation: https://www.oyez.org/cases/1940-1955/323us214
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-mapp-exclusionary-08
+    stem: >
+      In Mapp v. Ohio (1961), the Supreme Court ruled that evidence obtained
+      through an illegal search generally cannot be used where?
+    options:
+      - key: a
+        text: "In state criminal trials"
+      - key: b
+        text: "In presidential elections"
+      - key: c
+        text: "In public school prayer programs"
+      - key: d
+        text: "In disputes over interstate commerce"
+    answer: a
+    explanation: >
+      The Court extended the exclusionary rule to the states, holding that
+      evidence gathered in violation of the Fourth Amendment cannot be used in
+      state criminal courts. This protects the rights of the accused against
+      unreasonable searches and seizures.
+    citation: https://www.oyez.org/cases/1960/236
+    difficulty: 3
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-baker-districting-09
+    stem: >
+      In Baker v. Carr (1962), the Supreme Court decided that federal courts could
+      hear cases about which subject?
+    options:
+      - key: a
+        text: "The apportionment, or drawing, of legislative districts"
+      - key: b
+        text: "The right of a defendant to an attorney"
+      - key: c
+        text: "Racial segregation on railroad cars"
+      - key: d
+        text: "The power of Congress to create a national bank"
+    answer: a
+    explanation: >
+      The Court ruled that challenges to the way legislative districts are drawn
+      are justiciable, meaning federal courts may decide them. This opened the
+      door to later rulings establishing the principle of one person, one vote.
+    citation: https://www.oyez.org/cases/1960/6
+    difficulty: 4
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-brown-overturns-plessy-07
+    stem: >
+      The Supreme Court's decision in Brown v. Board of Education (1954)
+      overturned the separate but equal precedent set in which earlier case?
+    options:
+      - key: a
+        text: "Plessy v. Ferguson"
+      - key: b
+        text: "Marbury v. Madison"
+      - key: c
+        text: "McCulloch v. Maryland"
+      - key: d
+        text: "Schenck v. United States"
+    answer: a
+    explanation: >
+      Brown overturned the separate but equal doctrine established by Plessy v.
+      Ferguson (1896), relying on the Equal Protection Clause of the Fourteenth
+      Amendment. Marbury dealt with judicial review, McCulloch with federal power,
+      and Schenck with free speech.
+    citation: https://www.oyez.org/cases/1940-1955/347us483
+    difficulty: 2
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-tinker-armbands-13
+    stem: >
+      In Tinker v. Des Moines (1969), the Supreme Court ruled that public school
+      students have a right to do what?
+    options:
+      - key: a
+        text: "Engage in symbolic protest, such as wearing armbands, so long as it does not disrupt school"
+      - key: b
+        text: "Refuse to attend school entirely"
+      - key: c
+        text: "Lead official prayers over the loudspeaker"
+      - key: d
+        text: "Vote in national elections while enrolled"
+    answer: a
+    explanation: >
+      The Court held that students wearing armbands to protest the Vietnam War
+      were engaged in protected symbolic speech, famously stating that students do
+      not shed their constitutional rights at the schoolhouse gate. The protection
+      applies as long as the expression does not substantially disrupt the school.
+    citation: https://www.oyez.org/cases/1968/21
+    difficulty: 3
+    objective: SS.7.CG.3.11
+    status: published
+
+  - id: landmark-gideon-counsel-11
+    stem: >
+      In Gideon v. Wainwright (1963), the Supreme Court ruled that states must do
+      what for defendants who cannot afford one?
+    options:
+      - key: a
+        text: "Provide an attorney in criminal cases"
+      - key: b
+        text: "Read them the right to remain silent"
+      - key: c
+        text: "Allow them to skip a trial"
+      - key: d
+        text: "Grant them the right to vote"
+    answer: a
+    explanation: >
+      The Court held that the Sixth Amendment right to counsel applies to the
+      states through the Fourteenth Amendment, so states must appoint a lawyer for
+      defendants who cannot afford one in criminal cases. Reading a suspect the
+      right to remain silent comes from the later Miranda decision.
+    citation: https://www.oyez.org/cases/1962/155
+    difficulty: 2
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-miranda-rights-12
+    stem: >
+      In Miranda v. Arizona (1966), the Supreme Court required police to do what
+      before questioning a suspect held in custody?
+    options:
+      - key: a
+        text: "Inform the suspect of their rights, including the right to remain silent"
+      - key: b
+        text: "Give the suspect a printed copy of the Constitution"
+      - key: c
+        text: "Obtain a search warrant from a judge"
+      - key: d
+        text: "Hold a speedy public trial within one day"
+    answer: a
+    explanation: >
+      The Court ruled that before a custodial interrogation, police must inform a
+      suspect of certain rights, including the right to remain silent and the
+      right to an attorney, to protect against self-incrimination under the Fifth
+      Amendment. These warnings are now known as Miranda rights.
+    citation: https://www.oyez.org/cases/1965/759
+    difficulty: 1
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-nyt-pentagon-papers-01
+    stem: >
+      In New York Times Co. v. United States (1971), the federal government sought
+      a court order to stop newspapers from publishing the Pentagon Papers. How
+      did the Supreme Court rule?
+    options:
+      - key: a
+        text: "The government failed to justify prior restraint, so the newspapers were allowed to publish."
+      - key: b
+        text: "The government may censor any material it labels classified."
+      - key: c
+        text: "Newspapers must submit national security stories for approval before printing."
+      - key: d
+        text: "The First Amendment does not protect newspapers during wartime."
+    answer: a
+    explanation: >
+      The Court refused to allow prior restraint because the government did not
+      meet the heavy burden required to block publication, so the Times and the
+      Post could print the material. Prior restraint is government censorship
+      before publication and is presumed unconstitutional. Option b is wrong
+      because a classification label alone does not justify censorship.
+    citation: https://www.oyez.org/cases/1970/1873
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-yoder-religion-02
+    stem: >
+      In Wisconsin v. Yoder (1972), Amish families objected to a state law
+      requiring children to attend school until age 16. What did the Supreme Court
+      decide?
+    options:
+      - key: a
+        text: "States may never require any child to attend school."
+      - key: b
+        text: "Religious belief can never excuse a person from a law that applies to everyone."
+      - key: c
+        text: "The free exercise of religion allowed the families to end their children's formal schooling after eighth grade."
+      - key: d
+        text: "The families had to comply because education is an exclusively federal power."
+    answer: c
+    explanation: >
+      The Court held that Wisconsin's compulsory attendance law could not be
+      enforced against Amish parents whose free exercise of religion led them to
+      end formal schooling after eighth grade. The decision balanced a state's
+      interest in education against First Amendment religious liberty. It did not
+      abolish compulsory education generally, so option a is wrong.
+    citation: https://www.oyez.org/cases/1971/70-110
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-roe-privacy-03
+    stem: >
+      In Roe v. Wade (1973), the Supreme Court held that the constitutional right
+      to privacy:
+    options:
+      - key: a
+        text: "did not apply to any personal medical decision."
+      - key: b
+        text: "extended to a woman's decision to have an abortion, a ruling the Court later overturned in 2022."
+      - key: c
+        text: "belonged only to state legislatures to define."
+      - key: d
+        text: "required Congress to pass a national abortion statute."
+    answer: b
+    explanation: >
+      In 1973 the Court found a right to privacy broad enough to cover a woman's
+      decision to have an abortion. The Court later overturned that holding in
+      2022. Option c is wrong because the Court in 1973 did not leave the question
+      entirely to state legislatures.
+    citation: https://www.oyez.org/cases/1971/70-18
+    difficulty: 3
+    objective: SS.912.A.7.8
+    status: published
+
+  - id: landmark-us-nixon-privilege-04
+    stem: >
+      In United States v. Nixon (1974), President Nixon claimed executive
+      privilege to withhold secret White House tape recordings. How did the
+      Supreme Court rule?
+    options:
+      - key: a
+        text: "Executive privilege is not absolute, and the president had to turn over the tapes as evidence in a criminal case."
+      - key: b
+        text: "Executive privilege lets a president withhold any document at any time."
+      - key: c
+        text: "Courts have no authority to review a president's claims of privilege."
+      - key: d
+        text: "The tapes were protected because presidents are immune from all subpoenas."
+    answer: a
+    explanation: >
+      The Court ruled that executive privilege is not absolute and that the
+      president had to comply with a subpoena for tapes needed in a criminal
+      proceeding. The case confirmed that no person, including the president, is
+      above the judicial process. Option b overstates privilege, which the Court
+      expressly limited.
+    citation: https://www.oyez.org/cases/1973/73-1766
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published
+
+  - id: landmark-texas-johnson-flag-07
+    stem: >
+      In Texas v. Johnson (1989), the Supreme Court considered whether burning the
+      American flag during a political protest was protected. How did it rule?
+    options:
+      - key: a
+        text: "Flag burning may be banned as unprotected conduct."
+      - key: b
+        text: "Only spoken words, not actions, receive First Amendment protection."
+      - key: c
+        text: "Flag burning is a form of symbolic speech protected by the First Amendment."
+      - key: d
+        text: "States may punish any protest that offends the public."
+    answer: c
+    explanation: >
+      The Court held that burning the flag as political protest is symbolic speech
+      protected by the First Amendment, so Texas could not punish it. Symbolic
+      conduct that expresses a message can receive constitutional protection.
+      Option a is wrong because the Court found the expression protected.
+    citation: https://www.oyez.org/cases/1988/88-155
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: published

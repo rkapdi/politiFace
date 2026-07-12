@@ -161,6 +161,7 @@ class Chapter {
     required this.subtitle,
     required this.days,
     required this.itemIds,
+    this.lessons = const [],
   });
 
   final String id;
@@ -177,6 +178,45 @@ class Chapter {
   /// Curriculum item ids this chapter samples from. Each id must resolve
   /// against [Curriculum.itemById] — [CurriculumLoader] validates this.
   final List<String> itemIds;
+
+  /// Readable teaching content, the round's briefing phase. Ordered as
+  /// declared in the YAML. A chapter (or a given day) may have none —
+  /// the round then skips straight to cards.
+  final List<Lesson> lessons;
+
+  /// Lessons for a specific 1-based day of this chapter, in declaration
+  /// order.
+  List<Lesson> lessonsForDay(int day) =>
+      [for (final l in lessons) if (l.day == day) l];
+}
+
+/// A single readable lesson page — the teach step that precedes recall.
+/// Shown in the daily round's briefing phase and re-readable from the
+/// chapter sheet once encountered.
+class Lesson {
+  const Lesson({
+    required this.id,
+    required this.day,
+    required this.title,
+    required this.body,
+    this.relatedCardIds = const [],
+    this.source,
+  });
+
+  final String id;
+
+  /// 1-based day within the owning chapter this lesson briefs.
+  final int day;
+  final String title;
+
+  /// 2–4 sentences of neutral, sourced prose. Folded YAML scalar, trimmed.
+  final String body;
+
+  /// Cards the round should prefer drilling right after this briefing.
+  final List<String> relatedCardIds;
+
+  /// Citation URL (official source) backing the lesson's claims.
+  final String? source;
 }
 
 /// A top-level taxonomy bucket. Mirrors the map's existing branch structure
@@ -224,6 +264,7 @@ class CurriculumItem {
     required this.sources,
     required this.coverage,
     this.crossLinks = const [],
+    this.cardIds = const [],
   });
 
   final String id;
@@ -249,6 +290,13 @@ class CurriculumItem {
   /// Used by the map to draw cross-links between related concepts (e.g.,
   /// Federalism in Foundations + State-and-Local).
   final List<String> crossLinks;
+
+  /// Explicit [LocalCard] ids that back this item, in priority order. Lets a
+  /// `face_card` item name the exact card(s) the round should drill instead
+  /// of falling back to a random face. Concept items still resolve by
+  /// id==externalId and usually leave this empty. The content linker returns
+  /// the first active card in this list when the externalId match misses.
+  final List<String> cardIds;
 }
 
 /// Curriculum-source priority tier.

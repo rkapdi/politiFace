@@ -101,14 +101,12 @@ class _RoundReviewData {
   final List<RoundCard> cards;
   final List<RoundTrivia> trivia;
 
-  factory _RoundReviewData.fromState(DailyRoundState s) {
-    return _RoundReviewData(
+  factory _RoundReviewData.fromState(DailyRoundState s) => _RoundReviewData(
       chapterTitle: s.chapterTitle,
       chapterSubtitle: s.chapterSubtitle,
       cards: s.cards,
       trivia: s.trivia,
     );
-  }
 
   factory _RoundReviewData.fromPayload(Map<dynamic, dynamic> m) {
     final cardMaps =
@@ -124,7 +122,7 @@ class _RoundReviewData {
         politicianName: cm['politicianName'] as String?,
         photoUrl: cm['photoUrl'] as String?,
         grade: i < grades.length ? grades[i] as int? : null,
-      ));
+      ),);
     }
 
     final triviaMaps =
@@ -203,13 +201,13 @@ class _Body extends StatelessWidget {
         ],
         const SizedBox(height: 18),
         if (gradedCards.isNotEmpty) ...[
-          _SectionHeader(label: 'CARDS'),
+          const _SectionHeader(label: 'CARDS'),
           const SizedBox(height: 8),
           for (final c in gradedCards) _CardRow(card: c),
           const SizedBox(height: 18),
         ],
         if (answeredTrivia.isNotEmpty) ...[
-          _SectionHeader(label: 'TRIVIA'),
+          const _SectionHeader(label: 'TRIVIA'),
           const SizedBox(height: 8),
           for (var i = 0; i < answeredTrivia.length; i++)
             Padding(

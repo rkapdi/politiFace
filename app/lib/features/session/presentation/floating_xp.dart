@@ -5,9 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 /// child positioned above the grade buttons.
 class FloatingXp extends StatefulWidget {
   const FloatingXp({
-    super.key,
-    required this.amount,
-    required this.color,
+    required this.amount, required this.color, super.key,
   });
 
   final int amount;

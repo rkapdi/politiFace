@@ -51,9 +51,9 @@ class MemoryState {
 
   // Default state for a brand-new card
   static const initial = MemoryState(
-    difficulty: 5.0,
-    stability: 1.0,
-    retrievability: 1.0,
+    difficulty: 5,
+    stability: 1,
+    retrievability: 1,
     lapses: 0,
     reviewCount: 0,
   );
@@ -78,7 +78,7 @@ class FSRS {
   // Override with personalized weights after user has 1000+ reviews.
   static const List<double> defaultWeights = [
     0.4072, 1.1829, 3.1262, 15.4722, 7.2102, 0.5316, 1.0651, 0.0589,
-    1.5330, 0.1544, 0.9898, 1.9864, 0.1073, 0.3126, 2.2975, 0.2502, 2.9898
+    1.5330, 0.1544, 0.9898, 1.9864, 0.1073, 0.3126, 2.2975, 0.2502, 2.9898,
   ];
 
   final List<double> w;
@@ -117,7 +117,7 @@ class FSRS {
     // Clamp difficulty before using it in stability calculations: stability
     // formulas call pow(d, ...) with a non-integer exponent, which returns NaN
     // for negative d.
-    final double newD = _nextDifficulty(current.difficulty, grade).clamp(1.0, 10.0);
+    final newD = _nextDifficulty(current.difficulty, grade).clamp(1.0, 10.0);
     double newS;
 
     if (grade == FSRSGrade.again) {
@@ -157,7 +157,7 @@ class FSRS {
       nextState: MemoryState(
         difficulty: d.clamp(1.0, 10.0),
         stability: s.clamp(0.1, 36500.0),
-        retrievability: 1.0,
+        retrievability: 1,
         lapses: grade == FSRSGrade.again ? 1 : 0,
         reviewCount: 1,
       ),
@@ -168,16 +168,20 @@ class FSRS {
 
   /// Current retrievability for a card given elapsed days and stability.
   /// Use for display purposes (e.g., showing memory strength).
-  double retrievability(int elapsedDays, double stability) {
-    return _forgettingCurve(elapsedDays.toDouble(), stability);
-  }
+  double retrievability(int elapsedDays, double stability) => _forgettingCurve(elapsedDays.toDouble(), stability);
+
+  /// Retrievability at a fractional elapsed-day offset. Same forgetting curve
+  /// as [retrievability] but accepts sub-day resolution so callers can plot a
+  /// smooth decay line (e.g. the per-card retention chart).
+  double retrievabilityCurve(double elapsedDays, double stability) =>
+      _forgettingCurve(elapsedDays, stability);
 
   // ── Private: FSRS-4.5 equations ────────────────────────────────────────────
 
   // Ebbinghaus forgetting curve: R(t,S) = (1 + t/(9*S))^-1
   // Approximation of e^(-t/S) that is computationally cheaper
   double _forgettingCurve(double t, double s) {
-    if (s <= 0) return 0.0;
+    if (s <= 0) return 0;
     return pow(1.0 + t / (9.0 * s), -1).toDouble();
   }
 
@@ -192,9 +196,7 @@ class FSRS {
   double _initialStability(FSRSGrade grade) => w[grade.value];
 
   // Initial difficulty by grade
-  double _initialDifficulty(FSRSGrade grade) {
-    return w[4] - exp(w[5] * (grade.value - 1)) + 1;
-  }
+  double _initialDifficulty(FSRSGrade grade) => w[4] - exp(w[5] * (grade.value - 1)) + 1;
 
   // Next difficulty after review. Mean-reverts toward w[4].
   // grade 2 (good) = neutral. Higher = easier. Lower = harder.
@@ -205,7 +207,7 @@ class FSRS {
 
   // Stability after successful recall
   double _stabilityAfterRecall(
-    double d, double s, double r, FSRSGrade grade) {
+    double d, double s, double r, FSRSGrade grade,) {
     final hardPenalty  = grade == FSRSGrade.hard ? w[15] : 1.0;
     final easyBonus    = grade == FSRSGrade.easy ? w[16] : 1.0;
     return s * (
@@ -219,10 +221,8 @@ class FSRS {
   }
 
   // Stability after lapse (forgetting)
-  double _stabilityAfterLapse(double d, double s, double r) {
-    return w[11] *
+  double _stabilityAfterLapse(double d, double s, double r) => w[11] *
       pow(d, -w[12]) *
       (pow(s + 1.0, w[13]) - 1.0) *
       exp((1.0 - r) * w[14]);
-  }
 }

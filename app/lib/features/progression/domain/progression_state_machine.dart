@@ -53,7 +53,7 @@ class ProgressionStateMachine {
         tier: tier,
         totalCards: 0,
         passingCards: 0,
-        progressFraction: 0.0,
+        progressFraction: 0,
         isMastered: false,
       );
     }
@@ -96,7 +96,7 @@ class ProgressionStateMachine {
     if (allMastered) return NodeState.mastered;
 
     final anyTouched = populatedTiers.any((t) =>
-        t.passingCards > 0 || t.progressFraction > 0);
+        t.passingCards > 0 || t.progressFraction > 0,);
     return anyTouched ? NodeState.progress : NodeState.available;
   }
 
@@ -112,7 +112,7 @@ class ProgressionStateMachine {
   /// Mean of the three component fractions (attempts, lastGrade, recall) —
   /// this is what powers the per-tier bar before the binary "passing" flag.
   double _cardProgressTowardGate(CardEvaluation c, int nowUnix) {
-    if (c.isNew) return 0.0;
+    if (c.isNew) return 0;
     final attemptsFraction =
         (c.demonstratedAttempts / minDemonstratedAttempts).clamp(0.0, 1.0);
     final lastGradeFraction =
@@ -130,8 +130,8 @@ double cardRetrievabilityNow({
   required int lastReviewedAtUnix,
   required int nowUnix,
 }) {
-  if (lastReviewedAtUnix == 0 || stability <= 0) return 0.0;
+  if (lastReviewedAtUnix == 0 || stability <= 0) return 0;
   final elapsedDays = (nowUnix - lastReviewedAtUnix) / 86400.0;
-  if (elapsedDays <= 0) return 1.0;
+  if (elapsedDays <= 0) return 1;
   return math.pow(1.0 + elapsedDays / (9.0 * stability), -1).toDouble();
 }

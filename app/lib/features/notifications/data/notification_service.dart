@@ -70,8 +70,6 @@ class NotificationService {
           _channelId,
           'Streak reminder',
           channelDescription: 'Daily nudge so your streak survives.',
-          importance: Importance.defaultImportance,
-          priority: Priority.defaultPriority,
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,

@@ -16,7 +16,7 @@ import '../data/atlas_data_provider.dart';
 /// Tap → existing /node/:id detail route. The detail screen handles
 /// study-this-node flow; the Atlas itself is read-only.
 class AtlasCard extends StatelessWidget {
-  const AtlasCard({super.key, required this.data, required this.branchColor});
+  const AtlasCard({required this.data, required this.branchColor, super.key});
 
   final AtlasCardData data;
   final Color branchColor;
@@ -53,7 +53,6 @@ class AtlasCard extends StatelessWidget {
             borderRadius: const BorderRadius.all(Radius.circular(6)),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _PortraitWithRing(
                 photoUrl: data.photoUrl,
@@ -115,7 +114,7 @@ class _PortraitWithRing extends StatelessWidget {
   Widget build(BuildContext context) {
     const radius = 36.0;
     const ringStroke = 3.5;
-    final size = (radius + ringStroke + 2) * 2;
+    const size = (radius + ringStroke + 2) * 2;
     return SizedBox(
       width: size,
       height: size,
@@ -124,7 +123,7 @@ class _PortraitWithRing extends StatelessWidget {
         children: [
           // Mastery ring — drawn outside the avatar.
           CustomPaint(
-            size: Size(size, size),
+            size: const Size(size, size),
             painter: _MasteryRingPainter(
               fraction: masteryFraction,
               color: isLocked
@@ -228,10 +227,8 @@ class _MasteryRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _MasteryRingPainter old) {
-    return old.fraction != fraction ||
+  bool shouldRepaint(covariant _MasteryRingPainter old) => old.fraction != fraction ||
         old.color != color ||
         old.trackColor != trackColor ||
         old.stroke != stroke;
-  }
 }

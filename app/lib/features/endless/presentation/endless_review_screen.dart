@@ -118,12 +118,10 @@ class _Body extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
       itemCount: reversed.length,
       separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (context, i) {
-        return _EntryCard(
+      itemBuilder: (context, i) => _EntryCard(
           index: entries.length - i,
           entry: reversed[i],
-        );
-      },
+        ),
     );
   }
 }

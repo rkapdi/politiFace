@@ -1,0 +1,143 @@
+name: content-ci
+
+# Validates the canonical content the app actually consumes.
+#
+# Three guarantees:
+#   1. content/governments/us/government.yaml passes the structural validator
+#      (schema, unlock-graph cycles, reachability, map coordinates).
+#   2. The bundled copy the app ships (app/assets/content/governments/us/)
+#      is byte-identical to the canonical file — Flutter can only bundle
+#      assets inside the package, so the repo carries a synced copy and CI
+#      refuses drift between them.
+#   3. The FCLE question bank (content/questions/) and objectives validate:
+#      stable ids, 2-6 options, answer among option keys, https citation,
+#      explanation present, known domain/objective, house style.
+#
+# On merge to main, if the SUPABASE_DB_URL secret is configured, content is
+# ingested into Postgres under a new content_version. Idempotent: question
+# ids map to deterministic UUIDs, so student FSRS state survives edits.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'app/assets/content/**'
+      - 'scripts/validate_government.py'
+      - 'scripts/ingest_content.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/**'
+      - 'app/assets/content/**'
+      - 'scripts/validate_government.py'
+      - 'scripts/ingest_content.py'
+
+jobs:
+  validate-content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install validator dependencies
+        run: pip install pyyaml
+
+      - name: Validate government graph (canonical file)
+        run: python scripts/validate_government.py content/governments/us/government.yaml
+
+      - name: Bundled copy matches canonical content
+        run: |
+          if ! cmp -s content/governments/us/government.yaml \
+                      app/assets/content/governments/us/government.yaml; then
+            echo "::error::app/assets/content/governments/us/government.yaml is out of sync with content/governments/us/government.yaml"
+            echo "Run: cp content/governments/us/government.yaml app/assets/content/governments/us/government.yaml"
+            exit 1
+          fi
+
+      - name: Validate FCLE question bank + objectives
+        run: python scripts/ingest_content.py --check
+
+      - name: Bundled question bank matches canonical content
+        run: |
+          fail=0
+          for f in content/questions/*.yaml; do
+            if ! cmp -s "$f" "app/assets/content/questions/$(basename "$f")"; then
+              echo "::error::app/assets/content/questions/$(basename "$f") is out of sync with $f"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo "Run: cp content/questions/*.yaml app/assets/content/questions/"
+            exit 1
+          fi
+
+      - name: Bundled FCLE objectives match canonical content
+        run: |
+          if ! cmp -s content/fcle/objectives.yaml \
+                      app/assets/content/fcle/objectives.yaml; then
+            echo "::error::app/assets/content/fcle/objectives.yaml is out of sync with content/fcle/objectives.yaml"
+            echo "Run: cp content/fcle/objectives.yaml app/assets/content/fcle/objectives.yaml"
+            exit 1
+          fi
+
+      - name: Bundled atlas reference matches canonical content
+        run: |
+          fail=0
+          for f in content/atlas/*.yaml; do
+            if ! cmp -s "$f" "app/assets/content/atlas/$(basename "$f")"; then
+              echo "::error::app/assets/content/atlas/$(basename "$f") is out of sync with $f"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo "Run: cp content/atlas/*.yaml app/assets/content/atlas/"
+            exit 1
+          fi
+
+      - name: Bundled people data matches canonical content
+        run: |
+          fail=0
+          for f in content/people/*.yaml; do
+            if ! cmp -s "$f" "app/assets/content/people/$(basename "$f")"; then
+              echo "::error::app/assets/content/people/$(basename "$f") is out of sync with $f"
+              fail=1
+            fi
+          done
+          if [ "$fail" = 1 ]; then
+            echo "Run: cp content/people/*.yaml app/assets/content/people/"
+            exit 1
+          fi
+
+  ingest-content:
+    # Merge to main only. Skips quietly until the SUPABASE_DB_URL secret
+    # exists (repo settings -> secrets), so the pipeline is safe to land
+    # before the hosted project does.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate-content
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install ingest dependencies
+        run: pip install pyyaml 'psycopg[binary]'
+
+      - name: Ingest content into Supabase
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "SUPABASE_DB_URL secret not configured; skipping ingest."
+            exit 0
+          fi
+          python scripts/ingest_content.py \
+            --db "$SUPABASE_DB_URL" \
+            --version "main-${GITHUB_RUN_NUMBER}" \
+            --git-sha "$GITHUB_SHA"

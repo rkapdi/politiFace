@@ -6,9 +6,7 @@ import 'package:politiface/features/curriculum/data/curriculum_loader.dart';
 import 'package:politiface/features/curriculum/domain/curriculum.dart';
 
 void main() {
-  setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-  });
+  setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
 
   late AppDatabase db;
   late ChapterProgressService service;
@@ -80,7 +78,7 @@ void main() {
     for (final chapter in curriculum.chapters) {
       final entry = await service.currentProgress(curriculum);
       expect(entry, isNotNull,
-          reason: 'Expected to seed ${chapter.id} but got null');
+          reason: 'Expected to seed ${chapter.id} but got null',);
       expect(entry!.chapterId, chapter.id);
       for (var i = 0; i < chapter.days; i++) {
         await service.recordRoundCompletion(curriculum);
@@ -90,7 +88,7 @@ void main() {
     // the season is done.
     final endState = await service.currentProgress(curriculum);
     expect(endState, isNull,
-        reason: 'After completing all chapters, season should be done');
+        reason: 'After completing all chapters, season should be done',);
   });
 
   test('recordRoundCompletion throws when no chapter is in progress', () async {

@@ -18,7 +18,7 @@ class MasteryStars extends StatelessWidget {
     this.showLabel = false,
     this.compact = false,
   }) : assert(level != null || fillFraction != null,
-            'MasteryStars: pass either level or fillFraction');
+            'MasteryStars: pass either level or fillFraction',);
 
   /// Integer tier 0..5. Used when [fillFraction] is null.
   final int? level;

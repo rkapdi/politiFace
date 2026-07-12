@@ -42,7 +42,7 @@ class ShareCardRenderer {
     await GoogleFonts.pendingFonts(<Future<void>>[]);
 
     final context = boundaryKey.currentContext;
-    if (context == null) {
+    if (context == null || !context.mounted) {
       throw StateError(
         'ShareCardRenderer.render() called before the share-card '
         'RepaintBoundary mounted — did the OverlayPortal open?',

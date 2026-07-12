@@ -137,6 +137,35 @@ void main() {
         tags: ['golden'],
       );
     }
+
+    testWidgets('renders the benchmark line without overflow when provided',
+        (tester) async {
+      const stat = 'Only 11% of Americans can name the right to petition '
+          'the government.';
+      await tester.pumpWidget(
+        _wrap(
+          TriviaShareCard(
+            result: _fixtures[TriviaArchetype.civicScholar]!,
+            dateLabel: 'May 26',
+            benchmark: stat,
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text(stat), findsOneWidget);
+    });
+
+    testWidgets('omits the benchmark line when absent', (tester) async {
+      await tester.pumpWidget(
+        _wrap(
+          TriviaShareCard(
+            result: _fixtures[TriviaArchetype.civicScholar]!,
+            dateLabel: 'May 26',
+          ),
+        ),
+      );
+      expect(find.textContaining('Americans'), findsNothing);
+    });
   });
 
   group('formatShareCardDate', () {
@@ -157,8 +186,7 @@ void main() {
 /// Wrap the share card in the minimum scaffolding needed for layout (size,
 /// theme, MediaQuery, Directionality). The card sizes itself to 360x640;
 /// the SizedBox just gives the test viewport room.
-Widget _wrap(Widget child) {
-  return MaterialApp(
+Widget _wrap(Widget child) => MaterialApp(
     home: Scaffold(
       body: Center(
         child: SizedBox(
@@ -169,4 +197,3 @@ Widget _wrap(Widget child) {
       ),
     ),
   );
-}

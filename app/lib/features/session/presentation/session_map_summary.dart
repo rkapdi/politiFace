@@ -14,7 +14,7 @@ import '../../government/application/gov_map_data.dart';
 /// any node (e.g. unattached deck), the widget renders nothing and the
 /// summary degrades gracefully.
 class SessionMapSummary extends ConsumerStatefulWidget {
-  const SessionMapSummary({super.key, required this.reviewedCardIds});
+  const SessionMapSummary({required this.reviewedCardIds, super.key});
 
   final List<String> reviewedCardIds;
 
@@ -104,8 +104,7 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<_SessionMapData>(
+  Widget build(BuildContext context) => FutureBuilder<_SessionMapData>(
       future: _dataFuture,
       builder: (context, snap) {
         if (snap.connectionState != ConnectionState.done ||
@@ -137,7 +136,6 @@ class _SessionMapSummaryState extends ConsumerState<SessionMapSummary>
         );
       },
     );
-  }
 }
 
 class _MapCard extends StatelessWidget {
@@ -224,8 +222,7 @@ class _LabelChip extends StatelessWidget {
   final Color color;
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
+  Widget build(BuildContext context) => Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.18),
@@ -237,11 +234,10 @@ class _LabelChip extends StatelessWidget {
           color: color,
           fontSize: 10,
           fontWeight: FontWeight.w800,
-          letterSpacing: 1.0,
+          letterSpacing: 1,
         ),
       ),
     );
-  }
 }
 
 class _Footer extends StatelessWidget {
@@ -328,7 +324,7 @@ class _SessionMapPainter extends CustomPainter {
   /// Normalized-space viewport (in mapX/mapY coords) we're currently
   /// projecting onto the canvas. Lerps from full map → affected bounding box.
   Rect get _viewport {
-    final full = const Rect.fromLTRB(0.0, 0.0, 1.0, 1.0);
+    const full = Rect.fromLTRB(0, 0, 1, 1);
     final target = _affectedBoundingBox();
     if (target == null) return full;
     return Rect.lerp(full, target, zoom)!;
@@ -341,7 +337,7 @@ class _SessionMapPainter extends CustomPainter {
         .where((n) => n.mapX != null && n.mapY != null);
     if (affected.isEmpty) return null;
 
-    double minX = 1, minY = 1, maxX = 0, maxY = 0;
+    var minX = 1.0, minY = 1.0, maxX = 0.0, maxY = 0.0;
     for (final n in affected) {
       final cx = n.mapX!;
       final cy = n.mapY!;
@@ -375,17 +371,17 @@ class _SessionMapPainter extends CustomPainter {
   }
 
   Rect _nodeCanvasRect(GovNode n, Size canvas) {
-    final cx = (n.mapX ?? 0.5);
-    final cy = (n.mapY ?? 0.5);
-    final w = (n.mapWidth ?? 0.2);
-    final h = (n.mapHeight ?? 0.1);
+    final cx = n.mapX ?? 0.5;
+    final cy = n.mapY ?? 0.5;
+    final w = n.mapWidth ?? 0.2;
+    final h = n.mapHeight ?? 0.1;
     final viewport = _viewport;
     final scaleX = canvas.width / viewport.width;
     final scaleY = canvas.height / viewport.height;
     final canvasCx = (cx - viewport.left) * scaleX;
     final canvasCy = (cy - viewport.top) * scaleY;
-    final canvasW = math.max(28.0, w * scaleX * 0.85);
-    final canvasH = math.max(24.0, h * scaleY * 0.85);
+    final canvasW = math.max<double>(28, w * scaleX * 0.85);
+    final canvasH = math.max<double>(24, h * scaleY * 0.85);
     return Rect.fromCenter(
       center: Offset(canvasCx, canvasCy),
       width: canvasW,
@@ -624,7 +620,7 @@ class _SessionMapPainter extends CustomPainter {
     if (affected) {
       final label =
           (n.shortName?.isNotEmpty ?? false) ? n.shortName! : n.name;
-      final fontSize = math.max(10.0, rect.height * 0.28).clamp(10.0, 16.0);
+      final fontSize = math.max<double>(10, rect.height * 0.28).clamp(10.0, 16.0);
       final tp = TextPainter(
         text: TextSpan(
           text: label,

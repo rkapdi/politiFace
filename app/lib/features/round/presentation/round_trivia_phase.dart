@@ -19,7 +19,7 @@ import '../domain/round_state.dart';
 /// shared) so the standalone trivia flow stays untouched until the
 /// Phase 5 cutover.
 class RoundTriviaPhase extends ConsumerStatefulWidget {
-  const RoundTriviaPhase({super.key, required this.state});
+  const RoundTriviaPhase({required this.state, super.key});
   final DailyRoundState state;
 
   @override
@@ -159,8 +159,7 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
               physics: const ClampingScrollPhysics(),
               itemCount: q.options.length,
               separatorBuilder: (_, __) => const SizedBox(height: 10),
-              itemBuilder: (context, i) {
-                return _OptionTile(
+              itemBuilder: (context, i) => _OptionTile(
                   label: q.options[i],
                   selected: pendingOption == i,
                   revealMode: revealActive
@@ -171,8 +170,7 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
                         )
                       : _RevealMode.idle,
                   onTap: revealActive ? null : () => _select(i),
-                );
-              },
+                ),
             ),
           ),
           AnimatedSize(
@@ -212,8 +210,7 @@ class _ZoomablePromptAvatar extends StatelessWidget {
   final String? photoUrl;
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
         PhotoZoomModal.show(
@@ -234,7 +231,6 @@ class _ZoomablePromptAvatar extends StatelessWidget {
         ),
       ),
     );
-  }
 }
 
 class _ProgressDots extends StatelessWidget {
@@ -343,7 +339,7 @@ class _OptionTile extends StatelessWidget {
                 ),
                 if (isCorrectReveal)
                   Icon(Icons.check_circle,
-                      color: Colors.green.shade400, size: 22)
+                      color: Colors.green.shade400, size: 22,)
                 else if (isWrongReveal)
                   Icon(Icons.cancel, color: Colors.red.shade400, size: 22)
                 else if (selected)
@@ -397,7 +393,10 @@ class _ConfidenceBar extends StatelessWidget {
                     onPressed: () => onPick(c),
                     style: FilledButton.styleFrom(
                       backgroundColor: _palette[c],
-                      foregroundColor: Colors.white,
+                      // White fails AA on the ochre fill; ink passes.
+                      foregroundColor: _palette[c] == EditorialPalette.ochre
+                          ? EditorialPalette.ink
+                          : Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: const RoundedRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(4)),

@@ -402,7 +402,7 @@ class _Prompt extends StatelessWidget {
         .fade(duration: 180.ms)
         .scale(
           begin: const Offset(0.96, 0.96),
-          end: const Offset(1.0, 1.0),
+          end: const Offset(1, 1),
           duration: 180.ms,
         );
   }
@@ -592,7 +592,7 @@ class _PhotoOption extends StatelessWidget {
               if (answered && isCorrect) ...[
                 const SizedBox(height: 4),
                 Icon(Icons.check_circle,
-                    color: Colors.green.shade400, size: 18),
+                    color: Colors.green.shade400, size: 18,),
               ],
             ],
           ),
@@ -616,8 +616,7 @@ class _ZoomablePromptAvatar extends StatelessWidget {
   final String? photoUrl;
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
+  Widget build(BuildContext context) => GestureDetector(
       onTap: () {
         HapticFeedback.selectionClick();
         PhotoZoomModal.show(
@@ -632,11 +631,8 @@ class _ZoomablePromptAvatar extends StatelessWidget {
         child: ResponsiveCardAvatar(
           name: name,
           photoUrl: photoUrl,
-          factor: 0.28,
           minRadius: 80,
-          maxRadius: 140,
         ),
       ),
     );
-  }
 }

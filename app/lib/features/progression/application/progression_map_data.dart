@@ -173,7 +173,7 @@ Map<String, ProgressionMapNode> _buildNodeMap(List<GovNode> govNodes) {
     // belongs to the SAME branch (same nodeType). That keeps Senate under
     // Congress, SCOTUS under the Judicial branch root, etc. — without
     // dragging cross-branch deps (President → Congress) into the topology.
-    String parentId = _branchIdFor(node.nodeType);
+    var parentId = _branchIdFor(node.nodeType);
     for (final reqId in reqs) {
       final reqNode = byId[reqId];
       if (reqNode != null && reqNode.nodeType == node.nodeType) {

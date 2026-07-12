@@ -1,0 +1,991 @@
+updated: '2026-07-06'
+source: api.congress.gov v3 law endpoint
+congress: 119
+laws:
+- law_number: 119-100
+  title: Lulu’s Law
+  bill: S 1003
+  enacted_date: '2026-06-26'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: B001319
+    name: Sen. Britt, Katie Boyd [R-AL]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/1003
+- law_number: 119-99
+  title: ARTIST Act
+  bill: S 254
+  enacted_date: '2026-06-12'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: S001198
+    name: Sen. Sullivan, Dan [R-AK]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/254
+- law_number: 119-98
+  title: Secure America Act
+  bill: S 2
+  enacted_date: '2026-06-10'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: G000359
+    name: Sen. Graham, Lindsey [R-SC]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/2
+- law_number: 119-97
+  title: Fiscal Year 2025 Veterans Affairs Major Medical Facility Authorization Act
+  bill: S 2393
+  enacted_date: '2026-06-09'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: M000934
+    name: Sen. Moran, Jerry [R-KS]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/2393
+- law_number: 119-96
+  title: Gerald E. Connolly Esophageal Cancer Awareness Act of 2025
+  bill: HR 3490
+  enacted_date: '2026-06-09'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001078
+    name: Rep. Connolly, Gerald E. [D-VA-11]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/3490
+- law_number: 119-95
+  title: A bill to amend chapters 83 and 84 of title 5, United States Code, to authorize an
+    increase of the retirement age for members of the Capitol Police.
+  bill: S 4530
+  enacted_date: '2026-05-29'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: M000355
+    name: Sen. McConnell, Mitch [R-KY]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4530
+- law_number: 119-94
+  title: Medal of Sacrifice Act
+  bill: HR 3497
+  enacted_date: '2026-05-28'
+  origin_chamber: House
+  sponsor:
+    bioguide: M001199
+    name: Rep. Mast, Brian J. [R-FL-21]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/3497
+- law_number: 119-93
+  title: Cape Fox Land Entitlement Finalization Act of 2025
+  bill: HR 2815
+  enacted_date: '2026-05-19'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001323
+    name: Rep. Begich, Nicholas [R-AK-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2815
+- law_number: 119-92
+  title: Investing in All of America Act of 2025
+  bill: HR 2066
+  enacted_date: '2026-05-19'
+  origin_chamber: House
+  sponsor:
+    bioguide: M001204
+    name: Rep. Meuser, Daniel [R-PA-9]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2066
+- law_number: 119-91
+  title: Sloan Canyon Conservation and Lateral Pipeline Act
+  bill: HR 972
+  enacted_date: '2026-05-19'
+  origin_chamber: House
+  sponsor:
+    bioguide: T000468
+    name: Rep. Titus, Dina [D-NV-1]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/972
+- law_number: 119-90
+  title: A bill to require the Federal Energy Regulatory Commission to extend the time period
+    during which licensees are required to commence construction of certain hydropower projects.
+  bill: S 1020
+  enacted_date: '2026-05-11'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: D000618
+    name: Sen. Daines, Steve [R-MT]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/1020
+- law_number: 119-89
+  title: Rural Broadband Protection Act of 2025
+  bill: S 98
+  enacted_date: '2026-05-11'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001047
+    name: Sen. Capito, Shelley Moore [R-WV]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/98
+- law_number: 119-88
+  title: Tribal Trust Land Homeownership Act of 2025
+  bill: S 723
+  enacted_date: '2026-05-04'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: T000250
+    name: Sen. Thune, John [R-SD]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/723
+- law_number: 119-87
+  title: A bill to amend the FISA Amendments Act of 2008 to extend the authorities of title
+    VII of the Foreign Intelligence Surveillance Act of 1978, and for other purposes.
+  bill: S 4465
+  enacted_date: '2026-04-30'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001095
+    name: Sen. Cotton, Tom [R-AR]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4465
+- law_number: 119-86
+  title: Homeland Security and Further Additional Continuing Appropriations Act, 2026.
+  bill: HR 7147
+  enacted_date: '2026-04-30'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001053
+    name: Rep. Cole, Tom [R-OK-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7147
+- law_number: 119-85
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order
+    No. 7917 for Withdrawal of Federal Lands; Cook, Lake, and Saint Louis Counties, MN.
+  bill: HJRES 140
+  enacted_date: '2026-04-27'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001212
+    name: Rep. Stauber, Pete [R-MN-8]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/140
+- law_number: 119-84
+  title: To amend the FISA Amendments Act of 2008 to extend the authorities of title VII of
+    the Foreign Intelligence Surveillance Act of 1978 through April 30, 2026, and for other
+    purposes.
+  bill: HR 8322
+  enacted_date: '2026-04-18'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001189
+    name: Rep. Scott, Austin [R-GA-8]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8322
+- law_number: 119-83
+  title: Small Business Innovation and Economic Security Act
+  bill: S 3971
+  enacted_date: '2026-04-13'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: E000295
+    name: Sen. Ernst, Joni [R-IA]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/3971
+- law_number: 119-82
+  title: Holocaust Expropriated Art Recovery Act of 2025
+  bill: S 1884
+  enacted_date: '2026-04-13'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001056
+    name: Sen. Cornyn, John [R-TX]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/1884
+- law_number: 119-81
+  title: To authorize the President to award the Medal of Honor to John W. Ripley for acts
+    of valor during the Vietnam War, and for other purposes.
+  bill: HR 7211
+  enacted_date: '2026-03-26'
+  origin_chamber: House
+  sponsor:
+    bioguide: G000568
+    name: Rep. Griffith, H. Morgan [R-VA-9]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7211
+- law_number: 119-2
+  title: Nicholas Dockery Medal of Honor Act
+  bill: HR 7194
+  enacted_date: '2026-03-26'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001307
+    name: Rep. Baird, James R. [R-IN-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7194
+- law_number: 119-1
+  title: To authorize the President to award the Medal of Honor to James Capers, Jr., for
+    acts of valor as a member of the Marine Corps during the Vietnam War.
+  bill: HR 3377
+  enacted_date: '2026-03-26'
+  origin_chamber: House
+  sponsor:
+    bioguide: N000190
+    name: Rep. Norman, Ralph [R-SC-5]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/3377
+- law_number: 119-80
+  title: A bill to waive the 60-day notice requirement for the posthumous honorary promotion
+    of Captain Cody Khork, United States Army.
+  bill: S 4138
+  enacted_date: '2026-03-20'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: W000437
+    name: Sen. Wicker, Roger F. [R-MS]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4138
+- law_number: 119-79
+  title: Semiquincentennial Congressional Time Capsule Act
+  bill: S 3705
+  enacted_date: '2026-02-18'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: T000476
+    name: Sen. Tillis, Thomas [R-NC]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/3705
+- law_number: 119-78
+  title: Disapproving the action of the District of Columbia Council in approving the D.C.
+    Income and Franchise Tax Conformity and Revision Temporary Amendment Act of 2025.
+  bill: HJRES 142
+  enacted_date: '2026-02-18'
+  origin_chamber: House
+  sponsor:
+    bioguide: G000603
+    name: Rep. Gill, Brandon [R-TX-26]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/142
+- law_number: 119-68
+  title: La Paz County Solar Energy and Job Creation Act
+  bill: HR 1043
+  enacted_date: '2026-02-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: G000565
+    name: Rep. Gosar, Paul A. [R-AZ-9]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1043
+- law_number: 119-77
+  title: Ending Improper Payments to Deceased People Act
+  bill: S 269
+  enacted_date: '2026-02-10'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: K000393
+    name: Sen. Kennedy, John [R-LA]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/269
+- law_number: 119-76
+  title: Bankruptcy Administration Improvement Act of 2025
+  bill: S 3424
+  enacted_date: '2026-02-06'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001088
+    name: Sen. Coons, Christopher A. [D-DE]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/3424
+- law_number: 119-75
+  title: Consolidated Appropriations Act, 2026
+  bill: HR 7148
+  enacted_date: '2026-02-03'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001053
+    name: Rep. Cole, Tom [R-OK-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7148
+- law_number: 119-74
+  title: Commerce, Justice, Science; Energy and Water Development; and Interior and Environment
+    Appropriations Act, 2026
+  bill: HR 6938
+  enacted_date: '2026-01-23'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001053
+    name: Rep. Cole, Tom [R-OK-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6938
+- law_number: 119-73
+  title: Trafficking Survivors Relief Act
+  bill: HR 4323
+  enacted_date: '2026-01-23'
+  origin_chamber: House
+  sponsor:
+    bioguide: F000478
+    name: Rep. Fry, Russell [R-SC-7]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4323
+- law_number: 119-72
+  title: FAST VETS Act
+  bill: HR 4446
+  enacted_date: '2026-01-20'
+  origin_chamber: House
+  sponsor:
+    bioguide: D000635
+    name: Rep. Dexter, Maxine [D-OR-3]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4446
+- law_number: 119-71
+  title: VA Budget Shortfall Accountability Act
+  bill: HR 1823
+  enacted_date: '2026-01-20'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001301
+    name: Rep. Bergman, Jack [R-MI-1]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1823
+- law_number: 119-70
+  title: Disabled Veterans Housing Support Act
+  bill: HR 224
+  enacted_date: '2026-01-20'
+  origin_chamber: House
+  sponsor:
+    bioguide: D000594
+    name: Rep. De La Cruz, Monica [R-TX-15]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/224
+- law_number: 119-69
+  title: Whole Milk for Healthy Kids Act of 2025
+  bill: S 222
+  enacted_date: '2026-01-14'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: M001198
+    name: Sen. Marshall, Roger [R-KS]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/222
+- law_number: 119-67
+  title: Great Lakes Fishery Research Reauthorization Act
+  bill: S 2878
+  enacted_date: '2025-12-26'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: P000595
+    name: Sen. Peters, Gary C. [D-MI]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/2878
+- law_number: 119-66
+  title: Congressional Award Program Reauthorization Act
+  bill: S 284
+  enacted_date: '2025-12-26'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: L000571
+    name: Sen. Lummis, Cynthia M. [R-WY]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/284
+- law_number: 119-65
+  title: Save Our Seas 2.0 Amendments Act
+  bill: S 216
+  enacted_date: '2025-12-26'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: S001198
+    name: Sen. Sullivan, Dan [R-AK]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/216
+- law_number: 119-64
+  title: Disaster Related Extension of Deadlines Act
+  bill: HR 1491
+  enacted_date: '2025-12-26'
+  origin_chamber: House
+  sponsor:
+    bioguide: M001210
+    name: Rep. Murphy, Gregory F. [R-NC-3]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1491
+- law_number: 119-63
+  title: Alaska Native Vietnam Era Veterans Land Allotment Extension Act of 2025
+  bill: HR 410
+  enacted_date: '2025-12-26'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001323
+    name: Rep. Begich, Nicholas [R-AK-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/410
+- law_number: 119-62
+  title: MAPWaters Act of 2025
+  bill: HR 187
+  enacted_date: '2025-12-26'
+  origin_chamber: House
+  sponsor:
+    bioguide: M001213
+    name: Rep. Moore, Blake D. [R-UT-1]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/187
+- law_number: 119-61
+  title: Wounded Knee Massacre Memorial and Sacred Site Act
+  bill: HR 165
+  enacted_date: '2025-12-19'
+  origin_chamber: House
+  sponsor:
+    bioguide: J000301
+    name: Rep. Johnson, Dusty [R-SD-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/165
+- law_number: 119-60
+  title: National Defense Authorization Act for Fiscal Year 2026
+  bill: S 1071
+  enacted_date: '2025-12-18'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001056
+    name: Sen. Cornyn, John [R-TX]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/1071
+- law_number: 119-59
+  title: A bill to designate the facility of the United States Postal Service located at 201
+    West Oklahoma Avenue in Guthrie, Oklahoma, as the "Oscar J. Upham Post Office".
+  bill: S 2283
+  enacted_date: '2025-12-18'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: L000575
+    name: Sen. Lankford, James [R-OK]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/2283
+- law_number: 119-58
+  title: Secure Rural Schools Reauthorization Act of 2025
+  bill: S 356
+  enacted_date: '2025-12-18'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C000880
+    name: Sen. Crapo, Mike [R-ID]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/356
+- law_number: 119-57
+  title: Foundation of the Federal Bar Association Charter Amendments Act of 2025
+  bill: S 616
+  enacted_date: '2025-12-12'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: K000393
+    name: Sen. Kennedy, John [R-LA]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/616
+- law_number: 119-56
+  title: Veteran Fraud Reimbursement Act of 2025
+  bill: HR 1912
+  enacted_date: '2025-12-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001078
+    name: Rep. Connolly, Gerald E. [D-VA-11]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1912
+- law_number: 119-55
+  title: Montgomery GI Bill Selected Reserves Tuition Fairness Act of 2025
+  bill: HR 983
+  enacted_date: '2025-12-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: V000135
+    name: Rep. Van Orden, Derrick [R-WI-3]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/983
+- law_number: 119-54
+  title: Fairness for Servicemembers and their Families Act of 2025
+  bill: HR 970
+  enacted_date: '2025-12-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001159
+    name: Rep. Strickland, Marilyn [D-WA-10]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/970
+- law_number: 119-53
+  title: Miracle on Ice Congressional Gold Medal Act
+  bill: HR 452
+  enacted_date: '2025-12-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001212
+    name: Rep. Stauber, Pete [R-MN-8]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/452
+- law_number: 119-52
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Bureau of Land Management relating to Coastal Plain
+    Oil and Gas Leasing Program Record of Decision.
+  bill: HJRES 131
+  enacted_date: '2025-12-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001323
+    name: Rep. Begich, Nicholas J. [R-AK-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/131
+- law_number: 119-51
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Bureau of Land Management relating to "Buffalo Field
+    Office Record of Decision and Approved Resource Management Plan Amendment".
+  bill: HJRES 130
+  enacted_date: '2025-12-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: H001096
+    name: Rep. Hageman, Harriet M. [R-WY-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/130
+- law_number: 119-50
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Bureau of Land Management relating to "Central Yukon
+    Record of Decision and Approved Resource Management Plan".
+  bill: HJRES 106
+  enacted_date: '2025-12-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001323
+    name: Rep. Begich, Nicholas J. [R-AK-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/106
+- law_number: 119-49
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Bureau of Land Management relating to "North Dakota
+    Field Office Record of Decision and Approved Resource Management Plan".
+  bill: HJRES 105
+  enacted_date: '2025-12-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: F000482
+    name: Rep. Fedorchak, Julie [R-ND-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/105
+- law_number: 119-48
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Bureau of Land Management relating to "Miles City Field
+    Office Record of Decision and Approved Resource Management Plan Amendment".
+  bill: HJRES 104
+  enacted_date: '2025-12-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: D000634
+    name: Rep. Downing, Troy [R-MT-2]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/104
+- law_number: 119-47
+  title: A joint resolution providing for congressional disapproval under chapter 8 of title
+    5, United States Code, of the rule submitted by the Bureau of Land Management relating
+    to "National Petroleum Reserve in Alaska Integrated Activity Plan Record of Decision".
+  bill: SJRES 80
+  enacted_date: '2025-12-05'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: S001198
+    name: Sen. Sullivan, Dan [R-AK]
+  url: https://www.congress.gov/bill/119th-congress/senate-joint-resolution/80
+- law_number: 119-46
+  title: Requesting the Secretary of the Interior to authorize unique and one-time arrangements
+    for displays on the National Mall and the Washington Monument during the period beginning
+    on December 31, 2025, and ending on January 5, 2026.
+  bill: HJRES 133
+  enacted_date: '2025-12-02'
+  origin_chamber: House
+  sponsor:
+    bioguide: A000055
+    name: Rep. Aderholt, Robert B. [R-AL-4]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/133
+- law_number: 119-45
+  title: Taiwan Assurance Implementation Act
+  bill: HR 1512
+  enacted_date: '2025-12-02'
+  origin_chamber: House
+  sponsor:
+    bioguide: W000812
+    name: Rep. Wagner, Ann [R-MO-2]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1512
+- law_number: 119-44
+  title: SUPPORT for Patients and Communities Reauthorization Act of 2025
+  bill: HR 2483
+  enacted_date: '2025-12-01'
+  origin_chamber: House
+  sponsor:
+    bioguide: G000558
+    name: Rep. Guthrie, Brett [R-KY-2]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2483
+- law_number: 119-43
+  title: Medal of Honor Act
+  bill: HR 695
+  enacted_date: '2025-12-01'
+  origin_chamber: House
+  sponsor:
+    bioguide: N000026
+    name: Rep. Nehls, Troy E. [R-TX-22]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/695
+- law_number: 119-42
+  title: Veterans’ Compensation Cost-of-Living Adjustment Act of 2025
+  bill: S 2392
+  enacted_date: '2025-11-25'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: M000934
+    name: Sen. Moran, Jerry [R-KS]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/2392
+- law_number: 119-41
+  title: Bottles and Breastfeeding Equipment Screening Enhancement Act
+  bill: S 260
+  enacted_date: '2025-11-25'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: D000622
+    name: Sen. Duckworth, Tammy [D-IL]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/260
+- law_number: 119-40
+  title: Wetlands Conservation and Access Improvement Act of 2025
+  bill: HR 2316
+  enacted_date: '2025-11-25'
+  origin_chamber: House
+  sponsor:
+    bioguide: H001100
+    name: Rep. Hurd, Jeff [R-CO-3]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2316
+- law_number: 119-39
+  title: Internal Revenue Service Math and Taxpayer Help Act
+  bill: HR 998
+  enacted_date: '2025-11-25'
+  origin_chamber: House
+  sponsor:
+    bioguide: F000446
+    name: Rep. Feenstra, Randy [R-IA-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/998
+- law_number: 119-38
+  title: Epstein Files Transparency Act
+  bill: HR 4405
+  enacted_date: '2025-11-19'
+  origin_chamber: House
+  sponsor:
+    bioguide: K000389
+    name: Rep. Khanna, Ro [D-CA-17]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4405
+- law_number: 119-37
+  title: Continuing Appropriations, Agriculture, Legislative Branch, Military Construction
+    and Veterans Affairs, and Extensions Act, 2026
+  bill: HR 5371
+  enacted_date: '2025-11-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001053
+    name: Rep. Cole, Tom [R-OK-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5371
+- law_number: 119-36
+  title: Homebuyers Privacy Protection Act
+  bill: HR 2808
+  enacted_date: '2025-09-05'
+  origin_chamber: House
+  sponsor:
+    bioguide: R000612
+    name: Rep. Rose, John W. [R-TN-6]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2808
+- law_number: 119-35
+  title: To name the Department of Veterans Affairs community-based outpatient clinic in Toms
+    River, New Jersey, the Leonard G. 'Bud' Lomell, VA Clinic, and for other purposes.
+  bill: HR 2170
+  enacted_date: '2025-09-05'
+  origin_chamber: House
+  sponsor:
+    bioguide: S000522
+    name: Rep. Smith, Christopher H. [R-NJ-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2170
+- law_number: 119-34
+  title: Maintaining American Superiority by Improving Export Control Transparency Act
+  bill: HR 1316
+  enacted_date: '2025-08-19'
+  origin_chamber: House
+  sponsor:
+    bioguide: J000304
+    name: Rep. Jackson, Ronny [R-TX-13]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1316
+- law_number: 119-33
+  title: PRO Veterans Act of 2025
+  bill: S 423
+  enacted_date: '2025-08-14'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: S001198
+    name: Sen. Sullivan, Dan [R-AK]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/423
+- law_number: 119-32
+  title: ACES Act of 2025
+  bill: S 201
+  enacted_date: '2025-08-14'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: K000377
+    name: Sen. Kelly, Mark [D-AZ]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/201
+- law_number: 119-31
+  title: VA Home Loan Program Reform Act
+  bill: HR 1815
+  enacted_date: '2025-07-30'
+  origin_chamber: House
+  sponsor:
+    bioguide: V000135
+    name: Rep. Van Orden, Derrick [R-WI-3]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1815
+- law_number: 119-30
+  title: Jocelyn Nungaray National Wildlife Refuge Act
+  bill: S 1596
+  enacted_date: '2025-07-24'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001056
+    name: Sen. Cornyn, John [R-TX]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/1596
+- law_number: 119-29
+  title: Filing Relief for Natural Disasters Act
+  bill: HR 517
+  enacted_date: '2025-07-24'
+  origin_chamber: House
+  sponsor:
+    bioguide: K000392
+    name: Rep. Kustoff, David [R-TN-8]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/517
+- law_number: 119-28
+  title: Rescissions Act of 2025
+  bill: HR 4
+  enacted_date: '2025-07-24'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001176
+    name: Rep. Scalise, Steve [R-LA-1]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4
+- law_number: 119-27
+  title: GENIUS Act
+  bill: S 1582
+  enacted_date: '2025-07-18'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: H000601
+    name: Sen. Hagerty, Bill [R-TN]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/1582
+- law_number: 119-26
+  title: HALT Fentanyl Act
+  bill: S 331
+  enacted_date: '2025-07-16'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001075
+    name: Sen. Cassidy, Bill [R-LA]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/331
+- law_number: 119-25
+  title: Salem Maritime National Historical Park Redesignation and Boundary Study Act
+  bill: HR 2215
+  enacted_date: '2025-07-15'
+  origin_chamber: House
+  sponsor:
+    bioguide: M001196
+    name: Rep. Moulton, Seth [D-MA-6]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2215
+- law_number: 119-24
+  title: Apex Area Technical Corrections Act
+  bill: HR 618
+  enacted_date: '2025-07-15'
+  origin_chamber: House
+  sponsor:
+    bioguide: H001066
+    name: Rep. Horsford, Steven [D-NV-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/618
+- law_number: 119-23
+  title: Alaska Native Village Municipal Lands Restoration Act of 2025
+  bill: HR 43
+  enacted_date: '2025-07-07'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001323
+    name: Rep. Begich, Nicholas [R-AK-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/43
+- law_number: 119-22
+  title: Alaska Native Settlement Trust Eligibility Act
+  bill: HR 42
+  enacted_date: '2025-07-07'
+  origin_chamber: House
+  sponsor:
+    bioguide: B001323
+    name: Rep. Begich, Nicholas [R-AK-At Large]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/42
+- law_number: 119-21
+  title: An act to provide for reconciliation pursuant to title II of H. Con. Res. 14.
+  bill: HR 1
+  enacted_date: '2025-07-04'
+  origin_chamber: House
+  sponsor:
+    bioguide: A000375
+    name: Rep. Arrington, Jodey C. [R-TX-19]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1
+- law_number: 119-20
+  title: A joint resolution providing for congressional disapproval under chapter 8 of title
+    5, United States Code, of the rule submitted by the Environmental Protection Agency relating
+    to "Review of Final Rule Reclassification of Major Sources as Area Sources Under Section
+    112 of the Clean Air Act".
+  bill: SJRES 31
+  enacted_date: '2025-06-20'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001114
+    name: Sen. Curtis, John R. [R-UT]
+  url: https://www.congress.gov/bill/119th-congress/senate-joint-resolution/31
+- law_number: 119-19
+  title: A joint resolution providing for congressional disapproval under chapter 8 of title
+    5, United States Code, of the rule submitted by the Office of the Comptroller of the Currency
+    of the Department of the Treasury relating to the review of applications under the Bank
+    Merger Act.
+  bill: SJRES 13
+  enacted_date: '2025-06-20'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: K000393
+    name: Sen. Kennedy, John [R-LA]
+  url: https://www.congress.gov/bill/119th-congress/senate-joint-resolution/13
+- law_number: 119-18
+  title: Aerial Firefighting Enhancement Act of 2025
+  bill: S 160
+  enacted_date: '2025-06-12'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: S001232
+    name: Sen. Sheehy, Tim [R-MT]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/160
+- law_number: 119-17
+  title: Providing congressional disapproval under chapter 8 of title 5, United States Code,
+    of the rule submitted by the Environmental Protection Agency relating to "California State
+    Motor Vehicle and Engine and Nonroad Engine Pollution Control Standards; The 'Omnibus'
+    Low NOX Regulation; Waiver of Preemption; Notice of Decision".
+  bill: HJRES 89
+  enacted_date: '2025-06-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: O000019
+    name: Rep. Obernolte, Jay [R-CA-23]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/89
+- law_number: 119-16
+  title: Providing congressional disapproval under chapter 8 of title 5, United States Code,
+    of the rule submitted by the Environmental Protection Agency relating to "California State
+    Motor Vehicle and Engine Pollution Control Standards; Advanced Clean Cars II; Waiver of
+    Preemption; Notice of Decision".
+  bill: HJRES 88
+  enacted_date: '2025-06-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: J000302
+    name: Rep. Joyce, John [R-PA-13]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/88
+- law_number: 119-15
+  title: Providing congressional disapproval under chapter 8 of title 5, United States Code,
+    of the rule submitted by the Environmental Protection Agency relating to "California State
+    Motor Vehicle and Engine Pollution Control Standards; Heavy-Duty Vehicle and Engine Emission
+    Warranty and Maintenance Provisions; Advanced Clean Trucks; Zero Emission Airport Shuttle;
+    Zero-Emission Power Train Certification; Waiver of Preemption; Notice of Decision".
+  bill: HJRES 87
+  enacted_date: '2025-06-12'
+  origin_chamber: House
+  sponsor:
+    bioguide: J000307
+    name: Rep. James, John [R-MI-10]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/87
+- law_number: 119-14
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Environmental Protection Agency relating to "National
+    Emission Standards for Hazardous Air Pollutants: Rubber Tire Manufacturing".'
+  bill: HJRES 61
+  enacted_date: '2025-05-23'
+  origin_chamber: House
+  sponsor:
+    bioguide: G000568
+    name: Rep. Griffith, H. Morgan [R-VA-9]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/61
+- law_number: 119-13
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the National Park Service relating to "Glen Canyon National
+    Recreation Area: Motor Vehicles".'
+  bill: HJRES 60
+  enacted_date: '2025-05-23'
+  origin_chamber: House
+  sponsor:
+    bioguide: M001228
+    name: Rep. Maloy, Celeste [R-UT-2]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/60
+- law_number: 119-12
+  title: TAKE IT DOWN Act
+  bill: S 146
+  enacted_date: '2025-05-19'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001098
+    name: Sen. Cruz, Ted [R-TX]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/146
+- law_number: 119-9
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Office of Energy Efficiency and Renewable Energy, Department
+    of Energy relating to "Energy Conservation Program: Energy Conservation Standards for
+    Commercial Refrigerators, Freezers, and Refrigerator-Freezers".'
+  bill: HJRES 75
+  enacted_date: '2025-05-09'
+  origin_chamber: House
+  sponsor:
+    bioguide: G000601
+    name: Rep. Goldman, Craig [R-TX-12]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/75
+- law_number: 119-8
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Department of Energy relating to "Energy Conservation
+    Program for Appliance Standards: Certification Requirements, Labeling Requirements, and
+    Enforcement Provisions for Certain Consumer Products and Commercial Equipment".'
+  bill: HJRES 42
+  enacted_date: '2025-05-09'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001116
+    name: Rep. Clyde, Andrew S. [R-GA-9]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/42
+- law_number: 119-7
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Department of Energy relating to "Energy Conservation
+    Program: Energy Conservation Standards for Walk-In Coolers and Walk-In Freezers".'
+  bill: HJRES 24
+  enacted_date: '2025-05-09'
+  origin_chamber: House
+  sponsor:
+    bioguide: B000740
+    name: Rep. Bice, Stephanie I. [R-OK-5]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/24
+- law_number: 119-6
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Department of Energy relating to "Energy Conservation
+    Program: Energy Conservation Standards for Consumer Gas-fired Instantaneous Water Heaters".'
+  bill: HJRES 20
+  enacted_date: '2025-05-09'
+  origin_chamber: House
+  sponsor:
+    bioguide: P000609
+    name: Rep. Palmer, Gary J. [R-AL-6]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/20
+- law_number: 119-11
+  title: A joint resolution disapproving the rule submitted by the Bureau of Consumer Financial
+    Protection relating to "Defining Larger Participants of a Market for General-Use Digital
+    Consumer Payment Applications".
+  bill: SJRES 28
+  enacted_date: '2025-05-09'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: R000618
+    name: Sen. Ricketts, Pete [R-NE]
+  url: https://www.congress.gov/bill/119th-congress/senate-joint-resolution/28
+- law_number: 119-10
+  title: 'A joint resolution disapproving the rule submitted by the Bureau of Consumer Financial
+    Protection relating to "Overdraft Lending: Very Large Financial Institutions".'
+  bill: SJRES 18
+  enacted_date: '2025-05-09'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: S001184
+    name: Sen. Scott, Tim [R-SC]
+  url: https://www.congress.gov/bill/119th-congress/senate-joint-resolution/18
+- law_number: 119-5
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Internal Revenue Service relating to "Gross Proceeds
+    Reporting by Brokers That Regularly Provide Services Effectuating Digital Asset Sales".
+  bill: HJRES 25
+  enacted_date: '2025-04-10'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001126
+    name: Rep. Carey, Mike [R-OH-15]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/25
+- law_number: 119-4
+  title: Full-Year Continuing Appropriations and Extensions Act, 2025
+  bill: HR 1968
+  enacted_date: '2025-03-15'
+  origin_chamber: House
+  sponsor:
+    bioguide: C001053
+    name: Rep. Cole, Tom [R-OK-4]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1968
+- law_number: 119-3
+  title: A joint resolution providing for congressional disapproval under chapter 8 of title
+    5, United States Code, of the rule submitted by the Bureau of Ocean Energy Management
+    relating to "Protection of Marine Archaeological Resources".
+  bill: SJRES 11
+  enacted_date: '2025-03-14'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: K000393
+    name: Sen. Kennedy, John [R-LA]
+  url: https://www.congress.gov/bill/119th-congress/senate-joint-resolution/11
+- law_number: 119-2
+  title: 'Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Environmental Protection Agency relating to "Waste
+    Emissions Charge for Petroleum and Natural Gas Systems: Procedures for Facilitating Compliance,
+    Including Netting and Exemptions".'
+  bill: HJRES 35
+  enacted_date: '2025-03-14'
+  origin_chamber: House
+  sponsor:
+    bioguide: P000048
+    name: Rep. Pfluger, August [R-TX-11]
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/35
+- law_number: 119-1
+  title: Laken Riley Act
+  bill: S 5
+  enacted_date: '2025-01-29'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: B001319
+    name: Sen. Britt, Katie Boyd [R-AL]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5

@@ -7,6 +7,8 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../curriculum/domain/curriculum.dart';
+import '../../round/application/daily_round_controller.dart';
+import '../../session/application/session_controller.dart';
 
 /// Library-style detail sheet for a chapter in the season spine. Opens when
 /// the user taps a chapter row. Mirrors the visual language of
@@ -14,10 +16,7 @@ import '../../curriculum/domain/curriculum.dart';
 /// eyebrow + display title, sections, CTA — so the two feel like siblings.
 class ChapterInfoSheet extends ConsumerWidget {
   const ChapterInfoSheet({
-    super.key,
-    required this.chapter,
-    required this.entry,
-    required this.currentOrder,
+    required this.chapter, required this.entry, required this.currentOrder, super.key,
     this.scrollController,
   });
 
@@ -36,16 +35,14 @@ class ChapterInfoSheet extends ConsumerWidget {
     required Chapter chapter,
     required ChapterProgressEntry? entry,
     required int currentOrder,
-  }) {
-    return showModalBottomSheet<void>(
+  }) => showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Theme.of(context).colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
       ),
-      builder: (ctx) {
-        return DraggableScrollableSheet(
+      builder: (ctx) => DraggableScrollableSheet(
           initialChildSize: 0.6,
           minChildSize: 0.35,
           maxChildSize: 0.9,
@@ -56,10 +53,8 @@ class ChapterInfoSheet extends ConsumerWidget {
             currentOrder: currentOrder,
             scrollController: controller,
           ),
-        );
-      },
+        ),
     );
-  }
 
   bool get _isCompleted => entry?.completedAt != null;
   bool get _isCurrent => chapter.order == currentOrder && !_isCompleted;
@@ -67,7 +62,8 @@ class ChapterInfoSheet extends ConsumerWidget {
 
   Color _statusColor(ThemeData theme) {
     if (_isCompleted) return theme.colorScheme.brandGreen;
-    if (_isCurrent) return theme.colorScheme.brandOchre;
+    // Text-safe ochre: this color renders the status label text.
+    if (_isCurrent) return theme.colorScheme.brandOchreText;
     return theme.colorScheme.outlineVariant;
   }
 
@@ -171,7 +167,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 22),
-                _SectionHeader(label: 'PROGRESS'),
+                const _SectionHeader(label: 'PROGRESS'),
                 const SizedBox(height: 10),
                 _ProgressRow(
                   total: chapter.days,
@@ -182,9 +178,19 @@ class ChapterInfoSheet extends ConsumerWidget {
                           : 0,
                   accent: accent,
                 ),
+                if (chapter.lessons.isNotEmpty) ...[
+                  const SizedBox(height: 22),
+                  const _SectionHeader(label: 'LESSONS'),
+                  const SizedBox(height: 10),
+                  for (final lesson in chapter.lessons)
+                    _LessonRow(
+                      lesson: lesson,
+                      encountered: _lessonEncountered(lesson),
+                    ),
+                ],
                 if (branches.isNotEmpty) ...[
                   const SizedBox(height: 22),
-                  _SectionHeader(label: 'TOUCHES'),
+                  const _SectionHeader(label: 'TOUCHES'),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -220,6 +226,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                           : '/round/review',
                     );
                   },
+                  onReplay: () => _startReplay(context, ref),
                 ),
                 const SizedBox(height: 12),
               ],
@@ -227,6 +234,157 @@ class ChapterInfoSheet extends ConsumerWidget {
           ),
         ),
       ],
+    );
+  }
+
+  /// A lesson is "encountered" once its chapter day has been played:
+  /// completed chapters expose everything, the in-progress chapter exposes
+  /// days before the current one, locked chapters expose nothing.
+  bool _lessonEncountered(Lesson lesson) {
+    if (_isCompleted) return true;
+    if (_isLocked || entry == null) return false;
+    return lesson.day < entry!.dayInChapter;
+  }
+
+  /// Replay a completed chapter as a practice session over its card pool.
+  /// Grading rides the normal FSRS pipeline: due cards get real reviews,
+  /// same-day repeats route to the practice path, so replaying is always
+  /// safe for the memory model (and still earns XP).
+  Future<void> _startReplay(BuildContext context, WidgetRef ref) async {
+    final sampler = ref.read(chapterContentSamplerProvider);
+    final now = DateTime.now();
+    final today = '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
+    final sample = await sampler.sampleCards(
+      chapter: chapter,
+      count: DailyRoundController.cardsPerRound * 2,
+      // Distinct seed salt from today's round so a replay right after the
+      // daily round isn't the identical card set.
+      dateIso: '$today/replay',
+    );
+    if (!context.mounted) return;
+    if (sample.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('No cards available to replay yet.'),
+        duration: Duration(seconds: 3),
+      ),);
+      return;
+    }
+    HapticFeedback.lightImpact();
+    ref.read(activeSessionDeckIdProvider.notifier).state = null;
+    ref.read(activeSessionCardIdsProvider.notifier).state =
+        sample.cards.map((c) => c.id).toList();
+    ref.read(sessionControllerProvider.notifier).reset();
+    Navigator.of(context).pop();
+    context.go('/session');
+  }
+}
+
+/// One lesson title row. Encountered lessons get a check mark and reopen
+/// as a readable sheet; future lessons show a day chip and stay locked
+/// (no spoilers, and the briefing should be the first read).
+class _LessonRow extends StatelessWidget {
+  const _LessonRow({required this.lesson, required this.encountered});
+  final Lesson lesson;
+  final bool encountered;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final color = encountered
+        ? theme.colorScheme.onSurface
+        : theme.colorScheme.onSurfaceVariant;
+    return InkWell(
+      onTap: encountered ? () => _read(context) : null,
+      borderRadius: BorderRadius.circular(4),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            Icon(
+              encountered
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked,
+              size: 18,
+              color: encountered
+                  ? theme.colorScheme.brandGreen
+                  : theme.colorScheme.outlineVariant,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                lesson.title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight:
+                      encountered ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+            Text(
+              'DAY ${lesson.day}',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                letterSpacing: 1.2,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            if (encountered) ...[
+              const SizedBox(width: 6),
+              Icon(Icons.chevron_right,
+                  size: 16, color: theme.colorScheme.onSurfaceVariant,),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _read(BuildContext context) {
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                lesson.title,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Flexible(
+                child: SingleChildScrollView(
+                  child: Text(
+                    lesson.body,
+                    style: theme.textTheme.bodyLarge?.copyWith(height: 1.55),
+                  ),
+                ),
+              ),
+              if (lesson.source != null) ...[
+                const SizedBox(height: 14),
+                Text(
+                  'Source: ${Uri.tryParse(lesson.source!)?.host ?? lesson.source!}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -322,7 +480,7 @@ class _BranchChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: color.withOpacity(0.10),
-        border: Border.all(color: color.withOpacity(0.55), width: 1),
+        border: Border.all(color: color.withOpacity(0.55)),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
@@ -355,6 +513,7 @@ class _ChapterCta extends StatelessWidget {
     required this.playedToday,
     required this.onContinue,
     required this.onReview,
+    required this.onReplay,
   });
   final bool isCompleted;
   final bool isCurrent;
@@ -362,6 +521,7 @@ class _ChapterCta extends StatelessWidget {
   final bool playedToday;
   final VoidCallback onContinue;
   final VoidCallback onReview;
+  final VoidCallback onReplay;
 
   @override
   Widget build(BuildContext context) {
@@ -376,7 +536,7 @@ class _ChapterCta extends StatelessWidget {
         child: Row(
           children: [
             Icon(Icons.lock_outline,
-                color: theme.colorScheme.onSurfaceVariant, size: 18),
+                color: theme.colorScheme.onSurfaceVariant, size: 18,),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
@@ -392,31 +552,56 @@ class _ChapterCta extends StatelessWidget {
     }
     if (isCompleted) {
       final green = theme.colorScheme.brandGreen;
-      return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        decoration: BoxDecoration(
-          color: green.withOpacity(0.10),
-          border: Border.all(color: green.withOpacity(0.55)),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              Icons.check_circle,
-              color: green,
-              size: 20,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: green.withOpacity(0.10),
+              border: Border.all(color: green.withOpacity(0.55)),
+              borderRadius: BorderRadius.circular(6),
             ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Completed. Replay coming with History.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: green,
+                  size: 20,
                 ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    'Completed. Replay anytime — reviews always count.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            onPressed: onReplay,
+            style: FilledButton.styleFrom(
+              backgroundColor: green,
+              foregroundColor: theme.colorScheme.surface,
+              padding: const EdgeInsets.symmetric(vertical: 14),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(6)),
               ),
             ),
-          ],
-        ),
+            icon: const Icon(Icons.replay_rounded),
+            label: const Text(
+              'REPLAY THIS CHAPTER',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ),
+        ],
       );
     }
     // Current chapter — review today's round if it's already done, otherwise
