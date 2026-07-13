@@ -78,15 +78,18 @@ class MemoryStats {
 enum BrainStage {
   forming(
     label: 'Forming',
-    copy: 'Your political brain is wiring up. Keep practicing — synapses are firing.',
+    copy:
+        'Your political brain is wiring up. Keep practicing — synapses are firing.',
   ),
   crystallizing(
     label: 'Crystallizing',
-    copy: 'Memories are taking shape. Each review locks the structure in tighter.',
+    copy:
+        'Memories are taking shape. Each review locks the structure in tighter.',
   ),
   solidifying(
     label: 'Solidifying',
-    copy: 'Recall is getting durable. The civic map is etching itself into long-term memory.',
+    copy:
+        'Recall is getting durable. The civic map is etching itself into long-term memory.',
   ),
   mastered(
     label: 'Mastered',
@@ -125,18 +128,15 @@ class MemoryService {
   /// motivators for the home screen.
   Future<List<TopCardEntry>> approachingMastery({int limit = 3}) async {
     final allStates = await _db.select(_db.cardMemoryStates).get();
-    final candidates = allStates
-        .where((s) => !s.isNew)
-        .where((s) {
-          final lvl = masteryLevelFromStability(
-            isNewCard: false,
-            stability: s.stability,
-          );
-          // Strong but not yet mastered: tiers 3 and 4. (Skip ★1-2 — too far
-          // from the milestone to feel motivating.)
-          return lvl == 3 || lvl == 4;
-        })
-        .toList()
+    final candidates = allStates.where((s) => !s.isNew).where((s) {
+      final lvl = masteryLevelFromStability(
+        isNewCard: false,
+        stability: s.stability,
+      );
+      // Strong but not yet mastered: tiers 3 and 4. (Skip ★1-2 — too far
+      // from the milestone to feel motivating.)
+      return lvl == 3 || lvl == 4;
+    }).toList()
       ..sort((a, b) => b.stability.compareTo(a.stability));
     final slice = candidates.take(limit).toList();
     final cardIds = slice.map((s) => s.cardId).toList();
@@ -163,7 +163,10 @@ class MemoryService {
     // Pull every memory state, filter to reviewed cards.
     final allStates = await _db.select(_db.cardMemoryStates).get();
     final reviewed = allStates.where((s) => !s.isNew).toList();
-    final activeCardCount = await _db.cardsDao.activeCardCount();
+    // Subscribed decks only: pausing a delegation deck must not deflate
+    // brain strength. Reviewed-card stats intentionally still include
+    // paused decks; earned mastery never vanishes.
+    final activeCardCount = await _db.cardsDao.subscribedActiveCardCount();
 
     final tierCounts = List<int>.filled(6, 0);
     var totalStability = 0.0;
@@ -199,17 +202,19 @@ class MemoryService {
     for (final s in topSlice) {
       final c = byId[s.cardId];
       if (c == null) continue;
-      topCards.add(TopCardEntry(
-        id: s.cardId,
-        politicianName: c.politicianName,
-        title: c.title,
-        photoUrl: c.photoUrl,
-        stability: s.stability,
-        level: masteryLevelFromStability(
-          isNewCard: false,
+      topCards.add(
+        TopCardEntry(
+          id: s.cardId,
+          politicianName: c.politicianName,
+          title: c.title,
+          photoUrl: c.photoUrl,
           stability: s.stability,
+          level: masteryLevelFromStability(
+            isNewCard: false,
+            stability: s.stability,
+          ),
         ),
-      ),);
+      );
     }
 
     // Orbital entries — needs card metadata for every reviewed card, not just
@@ -221,18 +226,20 @@ class MemoryService {
     for (final s in reviewed) {
       final c = allById[s.cardId];
       if (c == null) continue;
-      orbits.add(OrbitalCard(
-        id: s.cardId,
-        politicianName: c.politicianName,
-        title: c.title,
-        stability: s.stability,
-        difficulty: s.difficulty,
-        lastReviewedAtUnix: s.lastReviewedAt,
-        level: masteryLevelFromStability(
-          isNewCard: false,
+      orbits.add(
+        OrbitalCard(
+          id: s.cardId,
+          politicianName: c.politicianName,
+          title: c.title,
           stability: s.stability,
+          difficulty: s.difficulty,
+          lastReviewedAtUnix: s.lastReviewedAt,
+          level: masteryLevelFromStability(
+            isNewCard: false,
+            stability: s.stability,
+          ),
         ),
-      ),);
+      );
     }
 
     return MemoryStats(

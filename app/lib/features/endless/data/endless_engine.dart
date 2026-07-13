@@ -18,7 +18,7 @@ class EndlessEngine {
   Future<List<LocalCard>> _loadPool() async {
     final cached = _pool;
     if (cached != null) return cached;
-    final cards = await _db.cardsDao.allActiveFaceCards();
+    final cards = await _db.cardsDao.subscribedActiveFaceCards();
     _pool = cards;
     return cards;
   }
@@ -46,8 +46,13 @@ class EndlessEngine {
         QuestionMode.values[_random.nextInt(QuestionMode.values.length)];
     final titleIsAnswer =
         mode == QuestionMode.titleToWho || mode == QuestionMode.photoToTitle;
+    // The same human can exist as both a curated leadership card and a
+    // delegation card, so distractors must also differ by name; a photo
+    // question must never offer two correct-looking options.
     bool eligibleDistractor(LocalCard c) =>
-        c.id != correct.id && (!titleIsAnswer || c.title != correct.title);
+        c.id != correct.id &&
+        c.politicianName != correct.politicianName &&
+        (!titleIsAnswer || c.title != correct.title);
 
     // Build 3 distractors. Prefer gender-matched cards (so "identify the male
     // senator" doesn't foil with women), then any title-safe card, then —
@@ -60,8 +65,7 @@ class EndlessEngine {
             .where((c) => eligibleDistractor(c) && c.gender == answerGender)
             .toList()
           ..shuffle(_random));
-    final titleSafe = pool.where(eligibleDistractor).toList()
-      ..shuffle(_random);
+    final titleSafe = pool.where(eligibleDistractor).toList()..shuffle(_random);
     final anyCard = pool.where((c) => c.id != correct.id).toList()
       ..shuffle(_random);
     final distractors = <LocalCard>[];

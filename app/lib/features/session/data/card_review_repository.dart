@@ -93,22 +93,26 @@ class CardReviewRepository {
         );
       }
 
-      await _db.reviewsDao.upsertState(memoryStateToCompanion(
-        cardId: cardId,
-        result: result,
-        grade: grade,
-        now: reviewAt,
-      ),);
+      await _db.reviewsDao.upsertState(
+        memoryStateToCompanion(
+          cardId: cardId,
+          result: result,
+          grade: grade,
+          now: reviewAt,
+        ),
+      );
 
-      await _db.reviewsDao.appendLog(ReviewLogsCompanion.insert(
-        cardId: cardId,
-        reviewedAt: reviewAt.millisecondsSinceEpoch ~/ 1000,
-        grade: grade.value,
-        stability: result.nextState.stability,
-        difficulty: result.nextState.difficulty,
-        retrievability: result.nextState.retrievability,
-        intervalDays: result.intervalDays,
-      ),);
+      await _db.reviewsDao.appendLog(
+        ReviewLogsCompanion.insert(
+          cardId: cardId,
+          reviewedAt: reviewAt.millisecondsSinceEpoch ~/ 1000,
+          grade: grade.value,
+          stability: result.nextState.stability,
+          difficulty: result.nextState.difficulty,
+          retrievability: result.nextState.retrievability,
+          intervalDays: result.intervalDays,
+        ),
+      );
 
       return result.nextState;
     });
@@ -135,11 +139,13 @@ class CardReviewRepository {
       // Defensive: should be unreachable (router pushes new cards to FSRS).
       return recordReview(cardId: cardId, grade: grade, now: reviewAt);
     }
-    await _db.reviewsDao.upsertState(CardMemoryStatesCompanion(
-      cardId: Value(cardId),
-      practiceCountSinceReview: Value(row.practiceCountSinceReview + 1),
-      lastGrade: Value(grade.value),
-    ),);
+    await _db.reviewsDao.upsertState(
+      CardMemoryStatesCompanion(
+        cardId: Value(cardId),
+        practiceCountSinceReview: Value(row.practiceCountSinceReview + 1),
+        lastGrade: Value(grade.value),
+      ),
+    );
     await _profile.recordReview(grade: grade, now: reviewAt);
     return memoryStateFromRow(row);
   }
@@ -160,8 +166,12 @@ class CardReviewRepository {
       return _loadForDeck(deckId, asOf, dueLimit, newLimit);
     }
 
-    final dueStates = await _db.reviewsDao.dueAt(asOf, limit: dueLimit);
-    final newStates = await _db.reviewsDao.newStates(limit: newLimit);
+    // Global path: subscription-filtered so cards from paused (unsubscribed)
+    // decks never enter the daily rotation. Deck-scoped study sessions and
+    // explicit card-id restores stay unfiltered by design.
+    final dueStates =
+        await _db.reviewsDao.dueAtSubscribed(asOf, limit: dueLimit);
+    final newStates = await _db.reviewsDao.newStatesSubscribed(limit: newLimit);
 
     final allIds = {
       ...dueStates.map((s) => s.cardId),
@@ -174,22 +184,26 @@ class CardReviewRepository {
     for (final s in dueStates) {
       final card = cardsById[s.cardId];
       if (card == null || !card.isActive) continue;
-      due.add(sessionCardFromRows(
-        card: card,
-        state: s,
-        phase: CardPhase.dueReview,
-      ),);
+      due.add(
+        sessionCardFromRows(
+          card: card,
+          state: s,
+          phase: CardPhase.dueReview,
+        ),
+      );
     }
 
     final fresh = <SessionCard>[];
     for (final s in newStates) {
       final card = cardsById[s.cardId];
       if (card == null || !card.isActive) continue;
-      fresh.add(sessionCardFromRows(
-        card: card,
-        state: s,
-        phase: CardPhase.newCard,
-      ),);
+      fresh.add(
+        sessionCardFromRows(
+          card: card,
+          state: s,
+          phase: CardPhase.newCard,
+        ),
+      );
     }
 
     return SessionCandidates(due: due, fresh: fresh);
@@ -218,19 +232,23 @@ class CardReviewRepository {
       final state = statesById[card.id];
       if (state == null || state.isNew) {
         if (fresh.length < newLimit) {
-          fresh.add(sessionCardFromRows(
-            card: card,
-            state: state,
-            phase: CardPhase.newCard,
-          ),);
+          fresh.add(
+            sessionCardFromRows(
+              card: card,
+              state: state,
+              phase: CardPhase.newCard,
+            ),
+          );
         }
       } else {
         if (due.length < dueLimit) {
-          due.add(sessionCardFromRows(
-            card: card,
-            state: state,
-            phase: CardPhase.dueReview,
-          ),);
+          due.add(
+            sessionCardFromRows(
+              card: card,
+              state: state,
+              phase: CardPhase.dueReview,
+            ),
+          );
         }
       }
     }
@@ -261,17 +279,21 @@ class CardReviewRepository {
       if (card == null) continue;
       final state = statesById[id];
       if (state == null || state.isNew) {
-        fresh.add(sessionCardFromRows(
-          card: card,
-          state: state,
-          phase: CardPhase.newCard,
-        ),);
+        fresh.add(
+          sessionCardFromRows(
+            card: card,
+            state: state,
+            phase: CardPhase.newCard,
+          ),
+        );
       } else {
-        due.add(sessionCardFromRows(
-          card: card,
-          state: state,
-          phase: CardPhase.dueReview,
-        ),);
+        due.add(
+          sessionCardFromRows(
+            card: card,
+            state: state,
+            phase: CardPhase.dueReview,
+          ),
+        );
       }
     }
     return SessionCandidates(due: due, fresh: fresh);

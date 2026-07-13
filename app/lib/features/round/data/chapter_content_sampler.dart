@@ -117,7 +117,7 @@ class ChapterContentSampler {
     // keeps the round playable during the Phase 0 authoring gap.
     if (picked.length < count && allowFallback) {
       final usedCardIds = picked.map((r) => r.card.id).toSet();
-      final pool = await _db.cardsDao.allActiveFaceCards();
+      final pool = await _db.cardsDao.subscribedActiveFaceCards();
       final available = pool.where((c) => !usedCardIds.contains(c.id)).toList()
         ..shuffle(rng);
       final needed = count - picked.length;
