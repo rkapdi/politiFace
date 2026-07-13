@@ -162,6 +162,7 @@ class Chapter {
     required this.days,
     required this.itemIds,
     this.lessons = const [],
+    this.decks = const [],
   });
 
   final String id;
@@ -184,10 +185,16 @@ class Chapter {
   /// the round then skips straight to cards.
   final List<Lesson> lessons;
 
+  /// Decks that power this chapter, in display order. May be empty for
+  /// chapters whose deck mapping predates this feature.
+  final List<ChapterDeckRef> decks;
+
   /// Lessons for a specific 1-based day of this chapter, in declaration
   /// order.
-  List<Lesson> lessonsForDay(int day) =>
-      [for (final l in lessons) if (l.day == day) l];
+  List<Lesson> lessonsForDay(int day) => [
+        for (final l in lessons)
+          if (l.day == day) l,
+      ];
 }
 
 /// A single readable lesson page — the teach step that precedes recall.
@@ -217,6 +224,29 @@ class Lesson {
 
   /// Citation URL (official source) backing the lesson's claims.
   final String? source;
+}
+
+/// A deck that powers a chapter. Declared explicitly in the curriculum
+/// YAML so the player can see a chapter's constituent decks and their
+/// progress. `id` is the deck's externalId in LocalDecks (YamlSeedService
+/// stores the Drift primary key as 'deck_<externalId>').
+class ChapterDeckRef {
+  const ChapterDeckRef({
+    required this.id,
+    required this.title,
+    this.planned = false,
+  });
+
+  /// Deck externalId, e.g. 'us-concepts-founding'.
+  final String id;
+
+  /// Display title fallback used when the deck is not seeded yet
+  /// (planned decks) or the DB row is missing.
+  final String title;
+
+  /// True when the deck content has not been authored yet. Rendered as
+  /// an "IN PRODUCTION" row; skipped by samplers and progress queries.
+  final bool planned;
 }
 
 /// A top-level taxonomy bucket. Mirrors the map's existing branch structure

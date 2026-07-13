@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
+import '../../curriculum/data/chapter_deck_progress.dart';
 import '../../curriculum/domain/curriculum.dart';
 import '../../round/application/daily_round_controller.dart';
 import '../../session/application/session_controller.dart';
@@ -16,7 +17,10 @@ import '../../session/application/session_controller.dart';
 /// eyebrow + display title, sections, CTA — so the two feel like siblings.
 class ChapterInfoSheet extends ConsumerWidget {
   const ChapterInfoSheet({
-    required this.chapter, required this.entry, required this.currentOrder, super.key,
+    required this.chapter,
+    required this.entry,
+    required this.currentOrder,
+    super.key,
     this.scrollController,
   });
 
@@ -35,14 +39,15 @@ class ChapterInfoSheet extends ConsumerWidget {
     required Chapter chapter,
     required ChapterProgressEntry? entry,
     required int currentOrder,
-  }) => showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-      ),
-      builder: (ctx) => DraggableScrollableSheet(
+  }) =>
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+        ),
+        builder: (ctx) => DraggableScrollableSheet(
           initialChildSize: 0.6,
           minChildSize: 0.35,
           maxChildSize: 0.9,
@@ -54,7 +59,7 @@ class ChapterInfoSheet extends ConsumerWidget {
             scrollController: controller,
           ),
         ),
-    );
+      );
 
   bool get _isCompleted => entry?.completedAt != null;
   bool get _isCurrent => chapter.order == currentOrder && !_isCompleted;
@@ -178,6 +183,12 @@ class ChapterInfoSheet extends ConsumerWidget {
                           : 0,
                   accent: accent,
                 ),
+                if (chapter.decks.isNotEmpty) ...[
+                  const SizedBox(height: 22),
+                  const _SectionHeader(label: 'DECKS'),
+                  const SizedBox(height: 10),
+                  _DeckSection(chapterId: chapter.id, isLocked: _isLocked),
+                ],
                 if (chapter.lessons.isNotEmpty) ...[
                   const SizedBox(height: 22),
                   const _SectionHeader(label: 'LESSONS'),
@@ -210,6 +221,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                   isCurrent: _isCurrent,
                   isLocked: _isLocked,
                   playedToday: playedToday,
+                  currentOrder: currentOrder,
                   onContinue: () {
                     Navigator.of(context).pop();
                     HapticFeedback.lightImpact();
@@ -265,10 +277,12 @@ class ChapterInfoSheet extends ConsumerWidget {
     );
     if (!context.mounted) return;
     if (sample.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('No cards available to replay yet.'),
-        duration: Duration(seconds: 3),
-      ),);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No cards available to replay yet.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
       return;
     }
     HapticFeedback.lightImpact();
@@ -303,9 +317,7 @@ class _LessonRow extends StatelessWidget {
         child: Row(
           children: [
             Icon(
-              encountered
-                  ? Icons.check_circle
-                  : Icons.radio_button_unchecked,
+              encountered ? Icons.check_circle : Icons.radio_button_unchecked,
               size: 18,
               color: encountered
                   ? theme.colorScheme.brandGreen
@@ -317,8 +329,7 @@ class _LessonRow extends StatelessWidget {
                 lesson.title,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: color,
-                  fontWeight:
-                      encountered ? FontWeight.w700 : FontWeight.w500,
+                  fontWeight: encountered ? FontWeight.w700 : FontWeight.w500,
                 ),
               ),
             ),
@@ -332,8 +343,11 @@ class _LessonRow extends StatelessWidget {
             ),
             if (encountered) ...[
               const SizedBox(width: 6),
-              Icon(Icons.chevron_right,
-                  size: 16, color: theme.colorScheme.onSurfaceVariant,),
+              Icon(
+                Icons.chevron_right,
+                size: 16,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ],
           ],
         ),
@@ -511,6 +525,7 @@ class _ChapterCta extends StatelessWidget {
     required this.isCurrent,
     required this.isLocked,
     required this.playedToday,
+    required this.currentOrder,
     required this.onContinue,
     required this.onReview,
     required this.onReplay,
@@ -519,6 +534,7 @@ class _ChapterCta extends StatelessWidget {
   final bool isCurrent;
   final bool isLocked;
   final bool playedToday;
+  final int currentOrder;
   final VoidCallback onContinue;
   final VoidCallback onReview;
   final VoidCallback onReplay;
@@ -535,12 +551,15 @@ class _ChapterCta extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(Icons.lock_outline,
-                color: theme.colorScheme.onSurfaceVariant, size: 18,),
+            Icon(
+              Icons.lock_outline,
+              color: theme.colorScheme.onSurfaceVariant,
+              size: 18,
+            ),
             const SizedBox(width: 10),
             Expanded(
               child: Text(
-                'Complete earlier chapters to unlock.',
+                'Locked. Finish Chapter $currentOrder to unlock this one.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -617,9 +636,7 @@ class _ChapterCta extends StatelessWidget {
           ),
         ),
         icon: Icon(
-          playedToday
-              ? Icons.fact_check_outlined
-              : Icons.play_arrow_rounded,
+          playedToday ? Icons.fact_check_outlined : Icons.play_arrow_rounded,
         ),
         label: Text(
           playedToday ? "REVIEW TODAY'S ROUND" : "CONTINUE TODAY'S ROUND",
@@ -628,6 +645,125 @@ class _ChapterCta extends StatelessWidget {
             letterSpacing: 1.2,
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Per-deck progress rows: the chapter's constituent decks with studied
+/// counts. Locked chapters show names only; planned decks show an
+/// IN PRODUCTION chip.
+class _DeckSection extends ConsumerWidget {
+  const _DeckSection({required this.chapterId, required this.isLocked});
+  final String chapterId;
+  final bool isLocked;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(chapterDeckProgressProvider(chapterId));
+    final decks = async.valueOrNull;
+    if (decks == null) return const SizedBox(height: 24);
+    return Column(
+      children: [
+        for (final d in decks) _DeckRow(progress: d, isLocked: isLocked),
+      ],
+    );
+  }
+}
+
+class _DeckRow extends StatelessWidget {
+  const _DeckRow({required this.progress, required this.isLocked});
+  final ChapterDeckProgress progress;
+  final bool isLocked;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final planned = progress.ref.planned || !progress.isAvailable;
+    final titleColor = planned || isLocked
+        ? theme.colorScheme.onSurfaceVariant
+        : theme.colorScheme.onSurface;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  progress.deckName,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: titleColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              if (planned)
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'IN PRODUCTION',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1.2,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                )
+              else if (!isLocked)
+                Text(
+                  '${progress.studiedCards} of ${progress.totalCards} studied',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+                )
+              else
+                Text(
+                  '${progress.totalCards} cards',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+            ],
+          ),
+          if (!planned && !isLocked) ...[
+            const SizedBox(height: 6),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(2),
+              child: LinearProgressIndicator(
+                value: progress.studiedFraction,
+                minHeight: 4,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation(
+                  theme.colorScheme.brandOchre,
+                ),
+              ),
+            ),
+            if (progress.strongCards > 0) ...[
+              const SizedBox(height: 4),
+              Text(
+                '${progress.strongCards} strong',
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.brandGreen,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ],
+          ],
+        ],
       ),
     );
   }
