@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../app/editorial_theme.dart';
 import '../../atlas/data/atlas_reference_loader.dart';
 import '../data/pulse_live_service.dart';
+import 'bill_detail_screen.dart';
 
 enum _PulseKind { order, law, bill }
 
@@ -28,6 +29,14 @@ class _PulseItem {
     required this.url,
     this.sponsorBioguide,
     this.sponsorName,
+    this.bill,
+    this.action,
+    this.originDetail,
+    this.congress,
+    this.summary,
+    this.summaryVersion,
+    this.summaryDate,
+    this.summaryTruncated = false,
   });
 
   final _PulseKind kind;
@@ -37,6 +46,19 @@ class _PulseItem {
   final String url;
   final String? sponsorBioguide;
   final String? sponsorName;
+  final String? bill; // e.g. HR 8121 (bill and law rows)
+  final String? action; // congress.gov latest-action text, verbatim
+  final String? originDetail; // law rows: "Became Public Law 119-100"
+  final int? congress;
+  final String? summary; // CRS summary carried from the bundle
+  final String? summaryVersion;
+  final String? summaryDate;
+  final bool summaryTruncated;
+
+  /// Bill and law rows with anything to show open the detail screen.
+  bool get opensDetail =>
+      kind == _PulseKind.bill ||
+      (kind == _PulseKind.law && (summary != null || congress != null));
 }
 
 final _liveProvider = FutureProvider.autoDispose<LivePulse>(
@@ -90,15 +112,32 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
         title: b.title.isEmpty ? b.bill : b.title,
         detail: '${b.bill}: ${b.action}',
         url: b.url,
+        bill: b.bill,
+        action: b.action,
+        congress: b.congress,
+        summary: b.summary,
+        summaryVersion: b.summaryVersion,
+        summaryDate: b.summaryDate,
+        summaryTruncated: b.summaryTruncated,
       ),
   };
   for (final b in live.bills) {
+    // Live wins on freshness, but a bundled CRS summary carries forward
+    // so going online never deletes a summary.
+    final prior = billsById[b.bill];
     billsById[b.bill] = _PulseItem(
       kind: _PulseKind.bill,
       date: b.actionDate,
       title: b.title.isEmpty ? b.bill : b.title,
       detail: '${b.bill}: ${b.action}',
       url: b.url,
+      bill: b.bill,
+      action: b.action,
+      congress: b.congress ?? prior?.congress,
+      summary: prior?.summary,
+      summaryVersion: prior?.summaryVersion,
+      summaryDate: prior?.summaryDate,
+      summaryTruncated: prior?.summaryTruncated ?? false,
     );
   }
 
@@ -113,6 +152,13 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
         url: l.url,
         sponsorBioguide: l.sponsorBioguide,
         sponsorName: l.sponsorName,
+        bill: l.bill,
+        originDetail: 'Became Public Law ${l.lawNumber}',
+        congress: reference.lawsCongress,
+        summary: l.summary,
+        summaryVersion: l.summaryVersion,
+        summaryDate: l.summaryDate,
+        summaryTruncated: l.summaryTruncated,
       ),
     ...billsById.values,
   ]..sort((a, b) => b.date.compareTo(a.date));
@@ -273,10 +319,32 @@ class _PulseTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 10),
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
-        onTap: () => launchUrl(
-          Uri.parse(item.url),
-          mode: LaunchMode.externalApplication,
-        ),
+        onTap: () {
+          if (item.opensDetail) {
+            HapticFeedback.lightImpact();
+            context.push(
+              '/pulse/bill',
+              extra: BillDetailArgs(
+                bill: item.bill ?? '',
+                congress: item.congress,
+                title: item.title,
+                action: item.kind == _PulseKind.bill ? (item.action ?? '') : '',
+                actionDate: item.date,
+                url: item.url,
+                originDetail: item.originDetail,
+                summary: item.summary,
+                summaryVersion: item.summaryVersion,
+                summaryDate: item.summaryDate,
+                summaryTruncated: item.summaryTruncated,
+              ),
+            );
+            return;
+          }
+          launchUrl(
+            Uri.parse(item.url),
+            mode: LaunchMode.externalApplication,
+          );
+        },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
           decoration: BoxDecoration(
@@ -315,6 +383,14 @@ class _PulseTile extends StatelessWidget {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
+                  if (item.opensDetail) ...[
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ],
                 ],
               ),
               const SizedBox(height: 6),

@@ -134,3 +134,14 @@ Purcell only ever sees polished content (still true; his pass was endorsement, n
 deferring it costs nothing). Dawood's student's-eye read still happens, it just happens on
 published content and any fix ships as an edit. Ids are stable, so live corrections are safe.
 Hook: "Process is a tool, not a ritual. We wrote a three-reviewer flow, then shipped on one, because the calendar is also a reviewer."
+
+**Bill summaries with zero editorial voice: CRS or nothing.**
+Why: The Pulse needed a "what does this bill actually do" layer, and the obvious move
+(write our own plain-language blurbs, or have an LLM do it) is the one thing a nonpartisan
+civic tool cannot do on live legislation. So the new bill detail screen shows the
+Congressional Research Service summary verbatim (public domain, attributed, version-dated),
+the congress.gov latest action verbatim, and a link to the official record. Truncation for
+the offline bundle cuts at a paragraph boundary and says so; that is a size decision, not
+an editorial one. The only "interpretation" is tappable Atlas vocabulary terms, which reuse
+definitions already reviewed and cited. No verdicts, no pros/cons, no derived stages.
+Hook: "The feature is a summary engine that refuses to summarize. Congress's own research arm writes the words; we just make them tappable."
