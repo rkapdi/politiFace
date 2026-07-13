@@ -14,7 +14,8 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('crash reporting defaults to OFF — the opt-in privacy posture', () async {
+  test('crash reporting defaults to OFF — the opt-in privacy posture',
+      () async {
     expect(await settings.crashReportsEnabled(), false);
   });
 
@@ -32,5 +33,23 @@ void main() {
     await settings.setCrashReportsEnabled(true);
     await settings.resetProgress();
     expect(await settings.crashReportsEnabled(), false);
+  });
+
+  test('sound effects default to ON when the preference is unset', () async {
+    expect(await settings.soundEffectsEnabled(), true);
+  });
+
+  test('sound effects toggle round-trips', () async {
+    await settings.setSoundEffectsEnabled(false);
+    expect(await settings.soundEffectsEnabled(), false);
+
+    await settings.setSoundEffectsEnabled(true);
+    expect(await settings.soundEffectsEnabled(), true);
+  });
+
+  test('resetProgress reverts sound effects to the default ON', () async {
+    await settings.setSoundEffectsEnabled(false);
+    await settings.resetProgress();
+    expect(await settings.soundEffectsEnabled(), true);
   });
 }

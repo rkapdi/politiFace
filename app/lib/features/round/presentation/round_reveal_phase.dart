@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../benchmark/domain/benchmark.dart';
 import '../../trivia/domain/trivia_scoring.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
@@ -28,7 +29,9 @@ import '../domain/round_state.dart';
 /// and showing a snackbar — never silent.
 class RoundRevealPhase extends ConsumerStatefulWidget {
   const RoundRevealPhase({
-    required this.state, required this.onDone, super.key,
+    required this.state,
+    required this.onDone,
+    super.key,
   });
 
   final DailyRoundState state;
@@ -111,6 +114,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
 
   Future<void> _onDone() async {
     HapticFeedback.lightImpact();
+    ref.read(soundServiceProvider).play(SoundEffect.complete);
     widget.onDone();
   }
 
@@ -142,27 +146,27 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
     return OverlayPortal(
       controller: _portalController,
       overlayChildBuilder: (overlayContext) => Positioned(
-          left: -10000,
-          top: -10000,
-          child: RepaintBoundary(
-            key: _boundaryKey,
-            child: SizedBox(
-              width: TriviaShareCard.canvasWidth,
-              height: TriviaShareCard.canvasHeight,
-              child: MediaQuery(
-                data: const MediaQueryData(),
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: TriviaShareCard(
-                    result: result,
-                    dateLabel: formatShareCardDate(_todayIso),
-                    benchmark: benchmark?.stat,
-                  ),
+        left: -10000,
+        top: -10000,
+        child: RepaintBoundary(
+          key: _boundaryKey,
+          child: SizedBox(
+            width: TriviaShareCard.canvasWidth,
+            height: TriviaShareCard.canvasHeight,
+            child: MediaQuery(
+              data: const MediaQueryData(),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: TriviaShareCard(
+                  result: result,
+                  dateLabel: formatShareCardDate(_todayIso),
+                  benchmark: benchmark?.stat,
                 ),
               ),
             ),
           ),
         ),
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -391,10 +395,11 @@ class _BenchmarkCallout extends StatelessWidget {
   }
 }
 
-String _shareText(TriviaResult r) => 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
-      '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
-      '${r.gridEmojis.join()}\n'
-      'politiface.app';
+String _shareText(TriviaResult r) =>
+    'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
+    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
+    '${r.gridEmojis.join()}\n'
+    'politiface.app';
 
 Color _archetypeColor(TriviaArchetype a, ColorScheme cs) {
   switch (a) {

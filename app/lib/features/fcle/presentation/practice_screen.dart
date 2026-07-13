@@ -15,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../application/fcle_providers.dart';
 import '../domain/fcle_question.dart';
 
@@ -67,6 +68,11 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       _chosenKey = key;
       if (correct) _correct++;
     });
+    // Sound first, then the announcement: both non-blocking, and the short
+    // quiet effect mixes under the utterance.
+    ref
+        .read(soundServiceProvider)
+        .play(correct ? SoundEffect.correct : SoundEffect.incorrect);
     // Screen-reader users hear the verdict without hunting for the icons.
     unawaited(
       SemanticsService.announce(

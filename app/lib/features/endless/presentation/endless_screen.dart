@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/audio/sound_service.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../../shared/widgets/photo_zoom_modal.dart';
@@ -42,8 +43,18 @@ class _EndlessScreenState extends ConsumerState<EndlessScreen> {
   String get _todayLabel {
     final now = DateTime.now();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[now.month - 1]} ${now.day}';
   }
@@ -189,8 +200,7 @@ class _EndlessScreenState extends ConsumerState<EndlessScreen> {
               return AppEmptyView(
                 icon: Icons.layers_outlined,
                 title: 'Not enough cards yet',
-                body:
-                    'Endless needs at least 4 cards in the pool. Add more '
+                body: 'Endless needs at least 4 cards in the pool. Add more '
                     'content or sit tight — V1.1 will have a lot more.',
                 action: FilledButton(
                   onPressed: () => context.go('/'),
@@ -230,19 +240,18 @@ class _EndlessView extends ConsumerWidget {
               onTap: (idx) async {
                 if (answered) return;
                 HapticFeedback.lightImpact();
-                await ref
-                    .read(endlessControllerProvider.notifier)
-                    .answer(idx);
+                await ref.read(endlessControllerProvider.notifier).answer(idx);
                 final correct = idx == q.correctIndex;
                 if (correct) {
                   HapticFeedback.mediumImpact();
                 } else {
                   HapticFeedback.heavyImpact();
                 }
+                ref.read(soundServiceProvider).play(
+                      correct ? SoundEffect.correct : SoundEffect.incorrect,
+                    );
                 await Future<void>.delayed(const Duration(milliseconds: 700));
-                await ref
-                    .read(endlessControllerProvider.notifier)
-                    .advance();
+                await ref.read(endlessControllerProvider.notifier).advance();
               },
             ),
             const SizedBox(height: 8),
@@ -397,10 +406,7 @@ class _Prompt extends StatelessWidget {
         const SizedBox(height: 16),
         body,
       ],
-    )
-        .animate(key: ValueKey(question.correct.id))
-        .fade(duration: 180.ms)
-        .scale(
+    ).animate(key: ValueKey(question.correct.id)).fade(duration: 180.ms).scale(
           begin: const Offset(0.96, 0.96),
           end: const Offset(1, 1),
           duration: 180.ms,
@@ -444,8 +450,8 @@ class _Options extends StatelessWidget {
     final mode = question.mode;
     // For photo-output formats, render a 2×2 grid of avatars; otherwise a
     // vertical stack of text buttons.
-    final isPhotoGrid = mode == QuestionMode.nameToPhoto ||
-        mode == QuestionMode.titleToWho;
+    final isPhotoGrid =
+        mode == QuestionMode.nameToPhoto || mode == QuestionMode.titleToWho;
     if (isPhotoGrid) {
       return GridView.count(
         crossAxisCount: 2,
@@ -591,8 +597,11 @@ class _PhotoOption extends StatelessWidget {
               ),
               if (answered && isCorrect) ...[
                 const SizedBox(height: 4),
-                Icon(Icons.check_circle,
-                    color: Colors.green.shade400, size: 18,),
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.green.shade400,
+                  size: 18,
+                ),
               ],
             ],
           ),
@@ -617,22 +626,22 @@ class _ZoomablePromptAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        PhotoZoomModal.show(
-          context,
-          heroTag: heroTag,
-          name: name,
-          photoUrl: photoUrl,
-        );
-      },
-      child: Hero(
-        tag: heroTag,
-        child: ResponsiveCardAvatar(
-          name: name,
-          photoUrl: photoUrl,
-          minRadius: 80,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          PhotoZoomModal.show(
+            context,
+            heroTag: heroTag,
+            name: name,
+            photoUrl: photoUrl,
+          );
+        },
+        child: Hero(
+          tag: heroTag,
+          child: ResponsiveCardAvatar(
+            name: name,
+            photoUrl: photoUrl,
+            minRadius: 80,
+          ),
         ),
-      ),
-    );
+      );
 }

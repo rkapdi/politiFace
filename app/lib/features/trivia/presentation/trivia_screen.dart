@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/audio/sound_service.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../../shared/widgets/photo_zoom_modal.dart';
 import '../../shared/widgets/state_views.dart';
@@ -96,6 +97,14 @@ class _QuestionViewState extends ConsumerState<_QuestionView> {
     }
     HapticFeedback.lightImpact();
 
+    // Gesture-synchronous: the reveal state is set right here at the tap;
+    // the 750ms timer below only commits the answer.
+    ref.read(soundServiceProvider).play(
+          pending == q.correctIndex
+              ? SoundEffect.correct
+              : SoundEffect.incorrect,
+        );
+
     setState(() {
       _revealing = true;
       _revealCorrectIndex = q.correctIndex;
@@ -167,24 +176,24 @@ class _QuestionViewState extends ConsumerState<_QuestionView> {
                 itemCount: q.options.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (context, i) => _OptionTile(
-                    label: q.options[i],
-                    selected: pending == i,
-                    revealMode: revealActive
-                        ? _revealModeFor(
-                            i,
-                            correctIndex: _revealCorrectIndex!,
-                            pickedIndex: _revealPickedIndex,
-                          )
-                        : _RevealMode.idle,
-                    onTap: revealActive
-                        ? null
-                        : () {
-                            HapticFeedback.selectionClick();
-                            ref
-                                .read(triviaControllerProvider.notifier)
-                                .selectAnswer(i);
-                          },
-                  ),
+                  label: q.options[i],
+                  selected: pending == i,
+                  revealMode: revealActive
+                      ? _revealModeFor(
+                          i,
+                          correctIndex: _revealCorrectIndex!,
+                          pickedIndex: _revealPickedIndex,
+                        )
+                      : _RevealMode.idle,
+                  onTap: revealActive
+                      ? null
+                      : () {
+                          HapticFeedback.selectionClick();
+                          ref
+                              .read(triviaControllerProvider.notifier)
+                              .selectAnswer(i);
+                        },
+                ),
               ),
             ),
             // Confidence picker — appears once an answer is selected. This
@@ -230,26 +239,26 @@ class _ZoomablePromptAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-      onTap: () {
-        HapticFeedback.selectionClick();
-        PhotoZoomModal.show(
-          context,
-          heroTag: heroTag,
-          name: name,
-          photoUrl: photoUrl,
-        );
-      },
-      child: Hero(
-        tag: heroTag,
-        child: ResponsiveCardAvatar(
-          name: name,
-          photoUrl: photoUrl,
-          factor: 0.24,
-          minRadius: 64,
-          maxRadius: 110,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          PhotoZoomModal.show(
+            context,
+            heroTag: heroTag,
+            name: name,
+            photoUrl: photoUrl,
+          );
+        },
+        child: Hero(
+          tag: heroTag,
+          child: ResponsiveCardAvatar(
+            name: name,
+            photoUrl: photoUrl,
+            factor: 0.24,
+            minRadius: 64,
+            maxRadius: 110,
+          ),
         ),
-      ),
-    );
+      );
 }
 
 class _ProgressDots extends StatelessWidget {
@@ -345,19 +354,22 @@ class _OptionTile extends StatelessWidget {
                   child: Text(
                     label,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight:
-                          (selected || isCorrectReveal || isWrongReveal)
-                              ? FontWeight.w800
-                              : FontWeight.w600,
-                      color: isRevealing && revealMode == _RevealMode.neutralReveal
-                          ? theme.colorScheme.onSurface.withOpacity(0.55)
-                          : null,
+                      fontWeight: (selected || isCorrectReveal || isWrongReveal)
+                          ? FontWeight.w800
+                          : FontWeight.w600,
+                      color:
+                          isRevealing && revealMode == _RevealMode.neutralReveal
+                              ? theme.colorScheme.onSurface.withOpacity(0.55)
+                              : null,
                     ),
                   ),
                 ),
                 if (isCorrectReveal)
-                  Icon(Icons.check_circle,
-                      color: Colors.green.shade400, size: 22,)
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green.shade400,
+                    size: 22,
+                  )
                 else if (isWrongReveal)
                   Icon(Icons.cancel, color: Colors.red.shade400, size: 22)
                 else if (selected)
@@ -426,8 +438,7 @@ class _ConfidenceBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (c != TriviaConfidence.values.last)
-                  const SizedBox(width: 8),
+                if (c != TriviaConfidence.values.last) const SizedBox(width: 8),
               ],
             ],
           ),
