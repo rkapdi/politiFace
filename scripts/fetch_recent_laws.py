@@ -3,7 +3,9 @@
 
 Source: api.congress.gov v3 law endpoint, plus one bill-detail call per
 law for the sponsor (which cross-links each law to its sponsor's Atlas
-person page). Output content/atlas/recent_laws.yaml, deterministic
+person page). The 50 most recently enacted laws also get their newest
+CRS summary from the /summaries endpoint (public domain, Congressional
+Research Service). Output content/atlas/recent_laws.yaml, deterministic
 (newest first), bundled for offline reference.
 
 Requires CONGRESS_GOV_API_KEY in the environment.
@@ -24,6 +26,8 @@ from datetime import date
 from pathlib import Path
 
 import yaml
+
+from fetch_recent_bills import fetch_summary
 
 REPO = Path(__file__).resolve().parent.parent
 OUT = REPO / "content" / "atlas" / "recent_laws.yaml"
@@ -99,15 +103,40 @@ def main() -> None:
 
     laws.sort(key=lambda x: (x["enacted_date"] or "", x["law_number"] or ""),
               reverse=True)
+
+    # CRS summaries for the 50 most recently enacted laws only, keeping
+    # the bundled file inside its budget.
+    for i, law in enumerate(laws[:50]):
+        parts = (law.get("bill") or "").split()
+        if len(parts) != 2:
+            continue
+        summary = fetch_summary(key, args.congress, parts[0], parts[1])
+        if summary is not None:
+            law["summary"] = summary["text"]
+            law["summary_version"] = summary["version"]
+            law["summary_date"] = summary["date"]
+            law["summary_truncated"] = summary["truncated"]
+        if (i + 1) % 25 == 0:
+            print(f"  {i + 1}/{min(len(laws), 50)} law summaries fetched")
+        time.sleep(0.15)
+
     doc = {
         "updated": date.today().isoformat(),
-        "source": "api.congress.gov v3 law endpoint",
+        "source": ("api.congress.gov v3 law endpoint; summaries from the "
+                   "/summaries endpoint, written by the Congressional "
+                   "Research Service"),
         "congress": args.congress,
         "laws": laws,
     }
     OUT.write_text(yaml.safe_dump(doc, sort_keys=False, allow_unicode=True,
                                   width=88))
-    print(f"wrote {len(laws)} public laws to {OUT}")
+    size = OUT.stat().st_size
+    if size > 256_000:
+        print(f"ERROR: {OUT} is {size / 1024:.0f} KB, over the 256 KB "
+              "bundle budget; lower the summary count or cap.",
+              file=sys.stderr)
+        sys.exit(1)
+    print(f"wrote {len(laws)} public laws to {OUT} ({size / 1024:.0f} KB)")
 
 
 if __name__ == "__main__":
