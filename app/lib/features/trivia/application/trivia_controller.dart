@@ -47,21 +47,23 @@ class TriviaState {
     List<TriviaAnswer>? answers,
     int? pendingAnswerIndex,
     bool clearPending = false,
-  }) => TriviaState(
-      questions: questions ?? this.questions,
-      answers: answers ?? this.answers,
-      pendingAnswerIndex:
-          clearPending ? null : (pendingAnswerIndex ?? this.pendingAnswerIndex),
-    );
+  }) =>
+      TriviaState(
+        questions: questions ?? this.questions,
+        answers: answers ?? this.answers,
+        pendingAnswerIndex: clearPending
+            ? null
+            : (pendingAnswerIndex ?? this.pendingAnswerIndex),
+      );
 }
 
 class TriviaController extends AsyncNotifier<TriviaState> {
   @override
   Future<TriviaState> build() async {
     final db = ref.read(databaseProvider);
-    final cards = await db.cardsDao.allActiveFaceCards();
-    final questions = const TriviaGenerator()
-        .generate(date: DateTime.now(), cards: cards);
+    final cards = await db.cardsDao.subscribedActiveFaceCards();
+    final questions =
+        const TriviaGenerator().generate(date: DateTime.now(), cards: cards);
     return TriviaState(
       questions: questions,
       answers: const [],
@@ -106,36 +108,38 @@ class TriviaController extends AsyncNotifier<TriviaState> {
     try {
       final db = ref.read(databaseProvider);
       final result = s.result;
-      await db.completedRunsDao.insert(CompletedRunsCompanion.insert(
-        id: _newRunId('trivia'),
-        mode: 'trivia',
-        completedAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-        score: Value(result.totalScore),
-        correctCount: Value(result.correctCount),
-        totalCount: Value(result.totalQuestions),
-        summary: Value(result.archetype.name),
-        payload: Value(jsonEncode(_serializeAnswers(s.answers))),
-      ),);
+      await db.completedRunsDao.insert(
+        CompletedRunsCompanion.insert(
+          id: _newRunId('trivia'),
+          mode: 'trivia',
+          completedAt: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          score: Value(result.totalScore),
+          correctCount: Value(result.correctCount),
+          totalCount: Value(result.totalQuestions),
+          summary: Value(result.archetype.name),
+          payload: Value(jsonEncode(_serializeAnswers(s.answers))),
+        ),
+      );
     } catch (_) {
       // Swallow — we never want a history-write to crash the result screen.
     }
   }
 
   List<Map<String, dynamic>> _serializeAnswers(List<TriviaAnswer> answers) => [
-      for (final a in answers)
-        {
-          'question': {
-            'cardId': a.question.cardId,
-            'format': a.question.format.name,
-            'prompt': a.question.prompt,
-            'photoUrl': a.question.photoUrl,
-            'options': a.question.options,
-            'correctIndex': a.question.correctIndex,
+        for (final a in answers)
+          {
+            'question': {
+              'cardId': a.question.cardId,
+              'format': a.question.format.name,
+              'prompt': a.question.prompt,
+              'photoUrl': a.question.photoUrl,
+              'options': a.question.options,
+              'correctIndex': a.question.correctIndex,
+            },
+            'answerIndex': a.answerIndex,
+            'confidence': a.confidence.name,
           },
-          'answerIndex': a.answerIndex,
-          'confidence': a.confidence.name,
-        },
-    ];
+      ];
 
   String _newRunId(String mode) {
     final epoch = DateTime.now().millisecondsSinceEpoch;

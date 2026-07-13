@@ -134,9 +134,10 @@ class ChapterContentSampler {
           picked.add(_ResolvedItem(itemId: null, card: card));
         }
       }
-      // Stage 2: global face-card pool (pre-existing behavior).
+      // Stage 2: global face-card pool, filtered to subscribed decks so
+      // paused delegation decks never flood the fallback.
       if (picked.length < count) {
-        final pool = await _db.cardsDao.allActiveFaceCards();
+        final pool = await _db.cardsDao.subscribedActiveFaceCards();
         final available = pool
             .where((c) => !usedCardIds.contains(c.id))
             .toList()

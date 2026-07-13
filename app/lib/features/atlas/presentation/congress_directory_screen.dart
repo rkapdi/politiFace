@@ -10,7 +10,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/content/us_states.dart';
 import '../../../core/database/drift/app_database.dart';
+import '../../decks/application/deck_providers.dart';
+import '../../decks/presentation/deck_browser_screen.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../application/people_providers.dart';
 
@@ -67,7 +70,50 @@ class _CongressDirectoryScreenState
       // Remember it: this is the "your delegation" personalization.
       await ref.read(databaseProvider).metaDao.set(kHomeStateMetaKey, state);
       ref.read(homeStateTickProvider.notifier).state++;
+      await _maybePromptDelegation(state);
     }
+  }
+
+  /// One-time prompt to add the just-picked home state's delegation deck.
+  /// Shown at most once per state, and only while that deck is unsubscribed.
+  Future<void> _maybePromptDelegation(String state) async {
+    final db = ref.read(databaseProvider);
+    final deck = await db.decksDao.deckById(delegationDeckId(state));
+    if (deck == null || deck.isSubscribed) return;
+    final promptKey = 'decks.delegation_prompted.$state';
+    if (await db.metaDao.get(promptKey) != null) return;
+    await db.metaDao.set(promptKey, '1');
+    if (!mounted) return;
+    final add = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Practice your delegation?'),
+        content: Text(
+          'Add the ${usStateName(state)} delegation (${deck.cardCount} '
+          'members) to your daily reviews. You can change this anytime '
+          'under Decks.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Not now'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Add deck'),
+          ),
+        ],
+      ),
+    );
+    if (add != true || !mounted) return;
+    await setDeckSubscribed(ref, deckId: deck.id, subscribed: true);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(kDeckAddedSnackBar),
+        duration: Duration(seconds: 3),
+      ),
+    );
   }
 
   @override
@@ -125,7 +171,11 @@ class _CongressDirectoryScreenState
                     ),
                     const SizedBox(width: 8),
                   ],
-                  for (final party in ['Democrat', 'Republican', 'Independent']) ...[
+                  for (final party in [
+                    'Democrat',
+                    'Republican',
+                    'Independent',
+                  ]) ...[
                     ChoiceChip(
                       label: Text(party),
                       selected: filter.party == party,

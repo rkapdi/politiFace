@@ -7,6 +7,7 @@ import '../features/atlas/presentation/person_screen.dart';
 import '../features/atlas/presentation/politician_detail_screen.dart';
 import '../features/atlas/presentation/recent_laws_screen.dart';
 import '../features/atlas/presentation/vocabulary_screen.dart';
+import '../features/decks/presentation/deck_browser_screen.dart';
 import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
 import '../features/endless/presentation/endless_screen.dart';
@@ -93,6 +94,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         GoRoute(
           path: '/settings',
           builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: '/decks',
+          builder: (context, state) => const DeckBrowserScreen(),
         ),
         GoRoute(
           path: '/endless',

@@ -7,4 +7,6 @@ mixin _$ReviewsDaoMixin on DatabaseAccessor<AppDatabase> {
   $CardMemoryStatesTable get cardMemoryStates =>
       attachedDatabase.cardMemoryStates;
   $ReviewLogsTable get reviewLogs => attachedDatabase.reviewLogs;
+  $LocalCardsTable get localCards => attachedDatabase.localCards;
+  $LocalDecksTable get localDecks => attachedDatabase.localDecks;
 }

@@ -78,6 +78,11 @@ class SettingsScreen extends ConsumerWidget {
             onChanged: (m) => ref.read(themeModeProvider.notifier).set(m),
           ),
           const Divider(height: 32),
+          ListTile(
+            leading: const Icon(Icons.style_outlined),
+            title: const Text('Decks'),
+            subtitle: const Text('Choose what shows up in your daily practice'),
+            onTap: () => context.push('/decks'),
           _SectionHeader(text: 'Sound', theme: theme),
           SwitchListTile(
             title: const Text('Sound effects'),

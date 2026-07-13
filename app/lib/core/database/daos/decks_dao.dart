@@ -17,6 +17,24 @@ class DecksDao extends DatabaseAccessor<AppDatabase> with _$DecksDaoMixin {
       (select(localDecks)..where((d) => d.externalId.equals(externalId)))
           .getSingleOrNull();
 
+  Future<LocalDeck?> deckById(String id) =>
+      (select(localDecks)..where((d) => d.id.equals(id))).getSingleOrNull();
+
+  Future<List<LocalDeck>> decksByCategory(String category) =>
+      (select(localDecks)
+            ..where((d) => d.category.equals(category))
+            ..orderBy([(d) => OrderingTerm.asc(d.name)]))
+          .get();
+
+  /// Flip a deck's subscription flag. Pure preference write: card rows and
+  /// FSRS memory state are untouched, so unsubscribe pauses (never deletes).
+  Future<int> setSubscribed({
+    required String deckId,
+    required bool subscribed,
+  }) =>
+      (update(localDecks)..where((d) => d.id.equals(deckId)))
+          .write(LocalDecksCompanion(isSubscribed: Value(subscribed)));
+
   Future<void> upsertDeck(LocalDecksCompanion deck) =>
       into(localDecks).insertOnConflictUpdate(deck);
 
