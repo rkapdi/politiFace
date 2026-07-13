@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../domain/round_state.dart';
 
@@ -41,32 +42,28 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
   void _reveal() {
     if (_revealed) return;
     HapticFeedback.lightImpact();
+    ref.read(soundServiceProvider).play(SoundEffect.flip);
     setState(() => _revealedCardId = _card.cardId);
   }
 
   Future<void> _grade(int grade) async {
     HapticFeedback.lightImpact();
     final idx = _index;
-    await ref
-        .read(dailyRoundControllerProvider.notifier)
-        .gradeCard(idx, grade);
+    await ref.read(dailyRoundControllerProvider.notifier).gradeCard(idx, grade);
   }
 
   Future<void> _gotIt() async {
     // Teach-first concept: a single acknowledge grades 'good' through the
     // normal pipeline (it's the card's first review, so FSRS schedules it).
     HapticFeedback.lightImpact();
-    await ref
-        .read(dailyRoundControllerProvider.notifier)
-        .gradeCard(_index, 2);
+    await ref.read(dailyRoundControllerProvider.notifier).gradeCard(_index, 2);
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final total = widget.state.cards.length;
-    final completed =
-        widget.state.cards.where((c) => c.grade != null).length;
+    final completed = widget.state.cards.where((c) => c.grade != null).length;
     final progress = total == 0 ? 0.0 : completed / total;
 
     if (_card.teachFirst && _card.grade == null) {
@@ -124,13 +121,29 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
             child: _revealed
                 ? Row(
                     children: [
-                      Expanded(child: _gradeBtn('AGAIN', 0, EditorialPalette.actionRed)),
+                      Expanded(
+                        child: _gradeBtn(
+                          'AGAIN',
+                          0,
+                          EditorialPalette.actionRed,
+                        ),
+                      ),
                       const SizedBox(width: 8),
-                      Expanded(child: _gradeBtn('HARD', 1, EditorialPalette.ochre)),
+                      Expanded(
+                        child: _gradeBtn('HARD', 1, EditorialPalette.ochre),
+                      ),
                       const SizedBox(width: 8),
-                      Expanded(child: _gradeBtn('GOOD', 2, EditorialPalette.civicGreen)),
+                      Expanded(
+                        child: _gradeBtn(
+                          'GOOD',
+                          2,
+                          EditorialPalette.civicGreen,
+                        ),
+                      ),
                       const SizedBox(width: 8),
-                      Expanded(child: _gradeBtn('EASY', 3, EditorialPalette.civicNavy)),
+                      Expanded(
+                        child: _gradeBtn('EASY', 3, EditorialPalette.civicNavy),
+                      ),
                     ],
                   )
                 : SizedBox(
@@ -147,22 +160,22 @@ class _RoundCardsPhaseState extends ConsumerState<RoundCardsPhase> {
   }
 
   Widget _gradeBtn(String label, int grade, Color color) => FilledButton(
-      onPressed: () => _grade(grade),
-      style: FilledButton.styleFrom(
-        backgroundColor: color,
-        // White fails AA on the ochre fill (2.4:1); ink passes (7.15:1).
-        foregroundColor: color == EditorialPalette.ochre
-            ? EditorialPalette.ink
-            : Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        textStyle: const TextStyle(
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1,
-          fontSize: 12,
+        onPressed: () => _grade(grade),
+        style: FilledButton.styleFrom(
+          backgroundColor: color,
+          // White fails AA on the ochre fill (2.4:1); ink passes (7.15:1).
+          foregroundColor: color == EditorialPalette.ochre
+              ? EditorialPalette.ink
+              : Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          textStyle: const TextStyle(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1,
+            fontSize: 12,
+          ),
         ),
-      ),
-      child: Text(label),
-    );
+        child: Text(label),
+      );
 }
 
 class _CardFront extends StatelessWidget {
@@ -268,7 +281,10 @@ class _CardBack extends StatelessWidget {
 /// don't have to widen the session module's public API for one consumer.
 class _FlipCard extends StatelessWidget {
   const _FlipCard({
-    required this.revealed, required this.front, required this.back, super.key,
+    required this.revealed,
+    required this.front,
+    required this.back,
+    super.key,
   });
 
   final bool revealed;
@@ -277,29 +293,32 @@ class _FlipCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TweenAnimationBuilder<double>(
-      // begin = end on remount — prevents the flash-of-back-side bug the
-      // session screen also fixed by keying the flip card.
-      tween: Tween<double>(begin: revealed ? 1.0 : 0.0, end: revealed ? 1.0 : 0.0),
-      duration: const Duration(milliseconds: 480),
-      curve: Curves.easeInOutCubic,
-      builder: (context, value, _) {
-        final showingFront = value < 0.5;
-        final angle = value * math.pi;
-        return Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.0015)
-            ..rotateY(angle),
-          child: showingFront
-              ? front
-              : Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()..rotateY(math.pi),
-                  child: back,
-                ),
-        );
-      },
-    );
+        // begin = end on remount — prevents the flash-of-back-side bug the
+        // session screen also fixed by keying the flip card.
+        tween: Tween<double>(
+          begin: revealed ? 1.0 : 0.0,
+          end: revealed ? 1.0 : 0.0,
+        ),
+        duration: const Duration(milliseconds: 480),
+        curve: Curves.easeInOutCubic,
+        builder: (context, value, _) {
+          final showingFront = value < 0.5;
+          final angle = value * math.pi;
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.0015)
+              ..rotateY(angle),
+            child: showingFront
+                ? front
+                : Transform(
+                    alignment: Alignment.center,
+                    transform: Matrix4.identity()..rotateY(math.pi),
+                    child: back,
+                  ),
+          );
+        },
+      );
 }
 
 /// First encounter with a concept card: a lesson presentation, not a quiz.
@@ -333,8 +352,7 @@ class _TeachCard extends StatelessWidget {
               value: progress.clamp(0.0, 1.0),
               minHeight: 4,
               backgroundColor: theme.colorScheme.surfaceContainerHigh,
-              valueColor:
-                  AlwaysStoppedAnimation(theme.colorScheme.brandOchre),
+              valueColor: AlwaysStoppedAnimation(theme.colorScheme.brandOchre),
             ),
           ),
           const SizedBox(height: 6),
@@ -354,7 +372,9 @@ class _TeachCard extends StatelessWidget {
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 4,),
+                      horizontal: 14,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: EditorialPalette.civicGreen,
                       borderRadius: BorderRadius.circular(2),
@@ -370,9 +390,7 @@ class _TeachCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 18),
                   Text(
-                    card.answer == card.body
-                        ? card.prompt
-                        : card.prompt,
+                    card.answer == card.body ? card.prompt : card.prompt,
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w900,
                       height: 1.15,

@@ -15,6 +15,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../app/editorial_theme.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
 import '../domain/mock_engine.dart';
 import 'fcle_share_card.dart';
@@ -38,15 +39,33 @@ class _MockResultScreenState extends ConsumerState<MockResultScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _portalController.show();
+      if (!mounted) return;
+      _portalController.show();
+      // Milestone chime on a pass only; a fail stays silent (the visual
+      // and copy carry it). Skipped under VoiceOver so the chime never
+      // lands on top of the screen announcement.
+      final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
+      if (widget.result.passed && !a11y) {
+        ref.read(soundServiceProvider).play(SoundEffect.milestone);
+      }
     });
   }
 
   String get _todayLabel {
     final now = DateTime.now();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[now.month - 1]} ${now.day}';
   }

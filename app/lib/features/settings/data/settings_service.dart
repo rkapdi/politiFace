@@ -10,6 +10,7 @@ class SettingsService {
 
   static const _kReminders = 'settings.daily_reminder';
   static const _kThemeMode = 'settings.theme_mode';
+  static const _kSoundEffects = 'settings.sound_effects';
 
   /// Key is read directly in main.dart before Sentry init — keep in sync.
   static const kCrashReports = 'settings.crash_reports';
@@ -29,6 +30,13 @@ class SettingsService {
   Future<void> setCrashReportsEnabled(bool value) =>
       _db.metaDao.set(kCrashReports, value ? '1' : '0');
 
+  /// Default ON: any value other than the explicit '0' means enabled.
+  Future<bool> soundEffectsEnabled() async =>
+      (await _db.metaDao.get(_kSoundEffects)) != '0';
+
+  Future<void> setSoundEffectsEnabled(bool value) =>
+      _db.metaDao.set(_kSoundEffects, value ? '1' : '0');
+
   /// Persisted ThemeMode. Defaults to system when unset so first-launch
   /// users get whatever their phone is on.
   Future<ThemeMode> themeMode() async {
@@ -43,7 +51,8 @@ class SettingsService {
     }
   }
 
-  Future<void> setThemeMode(ThemeMode mode) => _db.metaDao.set(_kThemeMode, _wireName(mode));
+  Future<void> setThemeMode(ThemeMode mode) =>
+      _db.metaDao.set(_kThemeMode, _wireName(mode));
 
   String _wireName(ThemeMode m) {
     switch (m) {

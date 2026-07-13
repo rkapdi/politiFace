@@ -6,14 +6,14 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../../core/sync/supabase_config.dart';
 import '../../notifications/data/notification_service.dart';
 import '../data/settings_service.dart';
 import 'account_section.dart';
 
 const _githubUrl = 'https://github.com/rkapdi/politiFace';
-const _licenseUrl =
-    'https://github.com/rkapdi/politiFace/blob/main/LICENSE';
+const _licenseUrl = 'https://github.com/rkapdi/politiFace/blob/main/LICENSE';
 const _privacyUrl = 'https://rkapdi.github.io/politiFace/privacy-policy/';
 
 /// Runtime app version string, read once at first access. Format: "1.1.0 (2)".
@@ -22,7 +22,9 @@ final appVersionProvider = FutureProvider<String>((ref) async {
   return '${info.version} (${info.buildNumber})';
 });
 
-final settingsServiceProvider = Provider<SettingsService>((ref) => SettingsService(ref.watch(databaseProvider)));
+final settingsServiceProvider = Provider<SettingsService>(
+  (ref) => SettingsService(ref.watch(databaseProvider)),
+);
 
 final remindersEnabledProvider = FutureProvider<bool>((ref) async {
   final settings = ref.watch(settingsServiceProvider);
@@ -39,7 +41,9 @@ final remindersEnabledProvider = FutureProvider<bool>((ref) async {
   return true;
 });
 
-final crashReportsEnabledProvider = FutureProvider<bool>((ref) async => ref.watch(settingsServiceProvider).crashReportsEnabled());
+final crashReportsEnabledProvider = FutureProvider<bool>(
+  (ref) async => ref.watch(settingsServiceProvider).crashReportsEnabled(),
+);
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -71,15 +75,30 @@ class SettingsScreen extends ConsumerWidget {
           _SectionHeader(text: 'Appearance', theme: theme),
           _ThemeModePicker(
             value: ref.watch(themeModeProvider),
-            onChanged: (m) =>
-                ref.read(themeModeProvider.notifier).set(m),
+            onChanged: (m) => ref.read(themeModeProvider.notifier).set(m),
+          ),
+          const Divider(height: 32),
+          _SectionHeader(text: 'Sound', theme: theme),
+          SwitchListTile(
+            title: const Text('Sound effects'),
+            subtitle: const Text(
+              'Soft feedback sounds during rounds and practice. '
+              'They follow your ringer switch.',
+            ),
+            value: ref.watch(soundEnabledProvider),
+            onChanged: (v) async {
+              await ref.read(soundEnabledProvider.notifier).set(v);
+              // Toggle-ON preview: gesture-synchronous and self-describing.
+              if (v) ref.read(soundServiceProvider).play(SoundEffect.correct);
+            },
           ),
           const Divider(height: 32),
           _SectionHeader(text: 'Notifications', theme: theme),
           SwitchListTile(
             title: const Text('Daily review reminder'),
             subtitle: const Text(
-                "We'll nudge you at 7 PM so your streak doesn't break.",),
+              "We'll nudge you at 7 PM so your streak doesn't break.",
+            ),
             value: reminders,
             onChanged: (v) async {
               if (v) {
@@ -87,11 +106,14 @@ class SettingsScreen extends ConsumerWidget {
                     await NotificationService.instance.requestPermission();
                 if (!granted) {
                   if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text(
-                        'Permission denied. Enable in iOS Settings → Notifications.',),
-                    duration: Duration(seconds: 3),
-                  ),);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Permission denied. Enable in iOS Settings → Notifications.',
+                      ),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
                   return;
                 }
                 await NotificationService.instance.scheduleDailyReminder();
@@ -149,7 +171,8 @@ class SettingsScreen extends ConsumerWidget {
               style: TextStyle(color: theme.colorScheme.error),
             ),
             subtitle: const Text(
-                'Wipes streak, XP, reviews, and onboarding. Content stays.',),
+              'Wipes streak, XP, reviews, and onboarding. Content stays.',
+            ),
             onTap: () => _confirmReset(context, ref),
           ),
           const SizedBox(height: 32),
@@ -181,7 +204,8 @@ class SettingsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
             style: TextButton.styleFrom(
-                foregroundColor: Theme.of(ctx).colorScheme.error,),
+              foregroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             child: const Text('Reset'),
           ),
         ],
@@ -194,10 +218,12 @@ class SettingsScreen extends ConsumerWidget {
     ref.invalidate(remindersEnabledProvider);
     ref.invalidate(crashReportsEnabledProvider);
     if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Progress wiped. Restart the app to re-seed.'),
-      duration: Duration(seconds: 3),
-    ),);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Progress wiped. Restart the app to re-seed.'),
+        duration: Duration(seconds: 3),
+      ),
+    );
     context.go('/');
   }
 }
@@ -306,14 +332,14 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: Text(
-        text.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.primary,
-          letterSpacing: 1,
-          fontWeight: FontWeight.w600,
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Text(
+          text.toUpperCase(),
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.primary,
+            letterSpacing: 1,
+            fontWeight: FontWeight.w600,
+          ),
         ),
-      ),
-    );
+      );
 }
