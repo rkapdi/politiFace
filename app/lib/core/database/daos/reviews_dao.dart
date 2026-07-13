@@ -20,9 +20,11 @@ class ReviewsDao extends DatabaseAccessor<AppDatabase> with _$ReviewsDaoMixin {
 
   Future<List<CardMemoryState>> dueAt(int unixSeconds, {int limit = 50}) =>
       (select(cardMemoryStates)
-            ..where((s) =>
-                s.isNew.equals(false) &
-                s.nextReviewAt.isSmallerOrEqualValue(unixSeconds),)
+            ..where(
+              (s) =>
+                  s.isNew.equals(false) &
+                  s.nextReviewAt.isSmallerOrEqualValue(unixSeconds),
+            )
             ..orderBy([(s) => OrderingTerm.asc(s.nextReviewAt)])
             ..limit(limit))
           .get();

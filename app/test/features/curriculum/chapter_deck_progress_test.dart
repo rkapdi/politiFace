@@ -57,7 +57,7 @@ void main() {
     await seedDeck();
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
-    // card_0: reviewed an hour ago with high stability — studied + strong.
+    // card_0: reviewed an hour ago with high stability; studied + strong.
     await db.reviewsDao.upsertState(
       CardMemoryStatesCompanion(
         cardId: const Value('card_0'),
@@ -67,7 +67,7 @@ void main() {
         reviewCount: const Value(1),
       ),
     );
-    // card_1: reviewed 400 days ago with low stability — studied, not
+    // card_1: reviewed 400 days ago with low stability; studied, not
     // strong (retrievability has decayed far below the threshold).
     await db.reviewsDao.upsertState(
       CardMemoryStatesCompanion(
@@ -78,7 +78,7 @@ void main() {
         reviewCount: const Value(1),
       ),
     );
-    // card_2: never encountered (no state row) — neither.
+    // card_2: never encountered (no state row); neither.
 
     final chapter = chapterWithDecks(
       const [
@@ -99,9 +99,10 @@ void main() {
     final chapter = chapterWithDecks(
       const [
         ChapterDeckRef(
-            id: 'us-concepts-lawmaking',
-            title: 'Lawmaking Concepts',
-            planned: true,),
+          id: 'us-concepts-lawmaking',
+          title: 'Lawmaking Concepts',
+          planned: true,
+        ),
       ],
     );
     final result = await service.forChapter(chapter);
