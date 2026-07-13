@@ -28,7 +28,9 @@ import '../domain/round_state.dart';
 /// and showing a snackbar — never silent.
 class RoundRevealPhase extends ConsumerStatefulWidget {
   const RoundRevealPhase({
-    required this.state, required this.onDone, super.key,
+    required this.state,
+    required this.onDone,
+    super.key,
   });
 
   final DailyRoundState state;
@@ -142,27 +144,27 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
     return OverlayPortal(
       controller: _portalController,
       overlayChildBuilder: (overlayContext) => Positioned(
-          left: -10000,
-          top: -10000,
-          child: RepaintBoundary(
-            key: _boundaryKey,
-            child: SizedBox(
-              width: TriviaShareCard.canvasWidth,
-              height: TriviaShareCard.canvasHeight,
-              child: MediaQuery(
-                data: const MediaQueryData(),
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: TriviaShareCard(
-                    result: result,
-                    dateLabel: formatShareCardDate(_todayIso),
-                    benchmark: benchmark?.stat,
-                  ),
+        left: -10000,
+        top: -10000,
+        child: RepaintBoundary(
+          key: _boundaryKey,
+          child: SizedBox(
+            width: TriviaShareCard.canvasWidth,
+            height: TriviaShareCard.canvasHeight,
+            child: MediaQuery(
+              data: const MediaQueryData(),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: TriviaShareCard(
+                  result: result,
+                  dateLabel: formatShareCardDate(_todayIso),
+                  benchmark: benchmark?.stat,
                 ),
               ),
             ),
           ),
         ),
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -244,6 +246,11 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
                     .fade(delay: 1060.ms, duration: 420.ms),
               ],
               const Spacer(),
+              if (widget.state.isFinalDay)
+                _ChapterCompleteBanner(
+                  chapterTitle: widget.state.chapterTitle,
+                  nextChapterTitle: widget.state.nextChapterTitle,
+                ),
               SizedBox(
                 width: double.infinity,
                 child: FilledButton.icon(
@@ -391,10 +398,63 @@ class _BenchmarkCallout extends StatelessWidget {
   }
 }
 
-String _shareText(TriviaResult r) => 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
-      '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
-      '${r.gridEmojis.join()}\n'
-      'politiface.app';
+/// Shown only on a chapter's final day: the unlock moment that makes the
+/// season feel sequential instead of silently rolling over.
+class _ChapterCompleteBanner extends StatelessWidget {
+  const _ChapterCompleteBanner({
+    required this.chapterTitle,
+    required this.nextChapterTitle,
+  });
+  final String chapterTitle;
+  final String? nextChapterTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final green = theme.colorScheme.brandGreen;
+    final body = nextChapterTitle != null
+        ? 'You closed out $chapterTitle. $nextChapterTitle unlocks with tomorrow\'s round.'
+        : 'You closed out $chapterTitle. That was the final chapter of the season.';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: green.withOpacity(0.10),
+        border: Border.all(color: green.withOpacity(0.55)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.flag_rounded, color: green, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CHAPTER COMPLETE',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: green,
+                    letterSpacing: 1.6,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(body, style: theme.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _shareText(TriviaResult r) =>
+    'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
+    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
+    '${r.gridEmojis.join()}\n'
+    'politiface.app';
 
 Color _archetypeColor(TriviaArchetype a, ColorScheme cs) {
   switch (a) {

@@ -39,8 +39,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
 
   ChapterProgressService get _progressService =>
       ref.read(chapterProgressServiceProvider);
-  ChapterContentSampler get _sampler =>
-      ref.read(chapterContentSamplerProvider);
+  ChapterContentSampler get _sampler => ref.read(chapterContentSamplerProvider);
   CardReviewRepository get _reviewRepository =>
       ref.read(cardReviewRepositoryProvider);
   AppDatabase get _db => ref.read(databaseProvider);
@@ -101,22 +100,26 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         // Teach-first: a never-reviewed concept renders as a lesson with
         // "Got it"; afterwards the recall prompt fronts the flip card.
         final memory = await _db.reviewsDao.stateFor(c.id);
-        cards.add(RoundCard(
-          cardId: c.id,
-          prompt: c.recallPrompt ?? c.politicianName,
-          answer: c.body ?? c.title,
-          cardType: 'concept',
-          body: c.body,
-          teachFirst: memory?.isNew ?? true,
-        ),);
+        cards.add(
+          RoundCard(
+            cardId: c.id,
+            prompt: c.recallPrompt ?? c.politicianName,
+            answer: c.body ?? c.title,
+            cardType: 'concept',
+            body: c.body,
+            teachFirst: memory?.isNew ?? true,
+          ),
+        );
       } else {
-        cards.add(RoundCard(
-          cardId: c.id,
-          prompt: '${c.politicianName} · ${c.title}',
-          answer: c.oneLiner ?? c.title,
-          politicianName: c.politicianName,
-          photoUrl: c.photoUrl,
-        ),);
+        cards.add(
+          RoundCard(
+            cardId: c.id,
+            prompt: '${c.politicianName} · ${c.title}',
+            answer: c.oneLiner ?? c.title,
+            politicianName: c.politicianName,
+            photoUrl: c.photoUrl,
+          ),
+        );
       }
     }
     final triviaQuestions = const TriviaGenerator()
@@ -138,6 +141,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       cards: cards,
       trivia: trivia,
       lessons: lessons,
+      nextChapterTitle: curriculum.chapterAfter(chapter.id)?.title,
     );
 
     await _persist(initial, startedAt: now);
@@ -273,26 +277,30 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       // but possible — backgrounded, reloaded, replayed) inserts a fresh
       // history row instead of upserting over the original.
       final salt = math.Random().nextInt(1 << 32);
-      await _db.completedRunsDao.insert(CompletedRunsCompanion.insert(
-        id: 'round_${s.dateIso}_${s.chapterId}_$salt',
-        mode: 'round',
-        completedAt: completedAt,
-        score: Value(result?.totalScore),
-        correctCount: Value(correct),
-        totalCount: Value(total),
-        summary: Value(s.chapterTitle),
-        payload: Value(jsonEncode({
-          'dateIso': s.dateIso,
-          'chapterId': s.chapterId,
-          'chapterTitle': s.chapterTitle,
-          'dayInChapter': s.dayInChapter,
-          'daysInChapter': s.daysInChapter,
-          'cards': _serializeCards(s.cards),
-          'grades': s.cards.map((c) => c.grade).toList(),
-          'trivia': _serializeTrivia(s.trivia),
-          'answers': _serializeAnswers(s.trivia),
-        }),),
-      ),);
+      await _db.completedRunsDao.insert(
+        CompletedRunsCompanion.insert(
+          id: 'round_${s.dateIso}_${s.chapterId}_$salt',
+          mode: 'round',
+          completedAt: completedAt,
+          score: Value(result?.totalScore),
+          correctCount: Value(correct),
+          totalCount: Value(total),
+          summary: Value(s.chapterTitle),
+          payload: Value(
+            jsonEncode({
+              'dateIso': s.dateIso,
+              'chapterId': s.chapterId,
+              'chapterTitle': s.chapterTitle,
+              'dayInChapter': s.dayInChapter,
+              'daysInChapter': s.daysInChapter,
+              'cards': _serializeCards(s.cards),
+              'grades': s.cards.map((c) => c.grade).toList(),
+              'trivia': _serializeTrivia(s.trivia),
+              'answers': _serializeAnswers(s.trivia),
+            }),
+          ),
+        ),
+      );
     } catch (_) {
       // Swallow — history-write failures must not block round completion.
     }
@@ -313,20 +321,22 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
     final startedAtValue = startedAt ?? existing?.startedAt ?? now;
     final completedAtValue = completedAt ?? existing?.completedAt;
 
-    await _db.dailyRoundsDao.upsert(DailyRoundsCompanion(
-      userId: const Value(_userId),
-      dateIso: Value(s.dateIso),
-      chapterId: Value(s.chapterId),
-      dayInChapter: Value(s.dayInChapter),
-      cardIdsJson: Value(jsonEncode(_serializeCards(s.cards))),
-      triviaJson: Value(jsonEncode(_serializeTrivia(s.trivia))),
-      gradesJson: Value(jsonEncode(s.cards.map((c) => c.grade).toList())),
-      answersJson: Value(jsonEncode(_serializeAnswers(s.trivia))),
-      phase: Value(s.phase.wireName),
-      startedAt: Value(startedAtValue),
-      completedAt: Value(completedAtValue),
-      updatedAt: Value(now),
-    ),);
+    await _db.dailyRoundsDao.upsert(
+      DailyRoundsCompanion(
+        userId: const Value(_userId),
+        dateIso: Value(s.dateIso),
+        chapterId: Value(s.chapterId),
+        dayInChapter: Value(s.dayInChapter),
+        cardIdsJson: Value(jsonEncode(_serializeCards(s.cards))),
+        triviaJson: Value(jsonEncode(_serializeTrivia(s.trivia))),
+        gradesJson: Value(jsonEncode(s.cards.map((c) => c.grade).toList())),
+        answersJson: Value(jsonEncode(_serializeAnswers(s.trivia))),
+        phase: Value(s.phase.wireName),
+        startedAt: Value(startedAtValue),
+        completedAt: Value(completedAtValue),
+        updatedAt: Value(now),
+      ),
+    );
   }
 
   Future<DailyRoundState> _deserialize(
@@ -339,29 +349,30 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         'Persisted round references unknown chapter ${row.chapterId}.',
       );
     }
-    final cardData =
-        (jsonDecode(row.cardIdsJson) as List<dynamic>).cast<Map<dynamic, dynamic>>();
+    final cardData = (jsonDecode(row.cardIdsJson) as List<dynamic>)
+        .cast<Map<dynamic, dynamic>>();
     final grades = jsonDecode(row.gradesJson) as List<dynamic>;
     final cards = <RoundCard>[];
     for (var i = 0; i < cardData.length; i++) {
       final m = cardData[i];
-      cards.add(RoundCard(
-        cardId: m['cardId'] as String,
-        prompt: m['prompt'] as String,
-        answer: m['answer'] as String,
-        politicianName: m['politicianName'] as String?,
-        photoUrl: m['photoUrl'] as String?,
-        grade: i < grades.length ? grades[i] as int? : null,
-        // Pre-v9 rows lack these keys — default to face-card behavior.
-        cardType: (m['cardType'] as String?) ?? 'face',
-        body: m['body'] as String?,
-        teachFirst: (m['teachFirst'] as bool?) ?? false,
-      ),);
+      cards.add(
+        RoundCard(
+          cardId: m['cardId'] as String,
+          prompt: m['prompt'] as String,
+          answer: m['answer'] as String,
+          politicianName: m['politicianName'] as String?,
+          photoUrl: m['photoUrl'] as String?,
+          grade: i < grades.length ? grades[i] as int? : null,
+          // Pre-v9 rows lack these keys — default to face-card behavior.
+          cardType: (m['cardType'] as String?) ?? 'face',
+          body: m['body'] as String?,
+          teachFirst: (m['teachFirst'] as bool?) ?? false,
+        ),
+      );
     }
-    final triviaData =
-        (jsonDecode(row.triviaJson) as List<dynamic>).cast<Map<dynamic, dynamic>>();
-    final answerData =
-        jsonDecode(row.answersJson) as List<dynamic>;
+    final triviaData = (jsonDecode(row.triviaJson) as List<dynamic>)
+        .cast<Map<dynamic, dynamic>>();
+    final answerData = jsonDecode(row.answersJson) as List<dynamic>;
     final trivia = <RoundTrivia>[];
     for (var i = 0; i < triviaData.length; i++) {
       final q = _deserializeQuestion(triviaData[i]);
@@ -380,7 +391,10 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
 
     final phase = RoundPhaseSerialization.fromWire(row.phase);
     final result = phase == RoundPhase.reveal || phase == RoundPhase.done
-        ? summarize(trivia.where((t) => t.answer != null).map((t) => t.answer!).toList())
+        ? summarize(trivia
+            .where((t) => t.answer != null)
+            .map((t) => t.answer!)
+            .toList(),)
         : null;
 
     return DailyRoundState(
@@ -394,56 +408,58 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       cards: cards,
       trivia: trivia,
       lessons: chapter.lessonsForDay(row.dayInChapter),
+      nextChapterTitle: curriculum.chapterAfter(chapter.id)?.title,
       result: result,
     );
   }
 
   List<Map<String, dynamic>> _serializeCards(List<RoundCard> cards) => [
-      for (final c in cards)
-        {
-          'cardId': c.cardId,
-          'prompt': c.prompt,
-          'answer': c.answer,
-          'politicianName': c.politicianName,
-          'photoUrl': c.photoUrl,
-          'cardType': c.cardType,
-          'body': c.body,
-          'teachFirst': c.teachFirst,
-        },
-    ];
+        for (final c in cards)
+          {
+            'cardId': c.cardId,
+            'prompt': c.prompt,
+            'answer': c.answer,
+            'politicianName': c.politicianName,
+            'photoUrl': c.photoUrl,
+            'cardType': c.cardType,
+            'body': c.body,
+            'teachFirst': c.teachFirst,
+          },
+      ];
 
   List<Map<String, dynamic>> _serializeTrivia(List<RoundTrivia> trivia) => [
-      for (final t in trivia) _serializeQuestion(t.question),
-    ];
+        for (final t in trivia) _serializeQuestion(t.question),
+      ];
 
   Map<String, dynamic> _serializeQuestion(TriviaQuestion q) => {
-      'cardId': q.cardId,
-      'format': q.format.name,
-      'prompt': q.prompt,
-      'photoUrl': q.photoUrl,
-      'options': q.options,
-      'correctIndex': q.correctIndex,
-    };
+        'cardId': q.cardId,
+        'format': q.format.name,
+        'prompt': q.prompt,
+        'photoUrl': q.photoUrl,
+        'options': q.options,
+        'correctIndex': q.correctIndex,
+      };
 
-  TriviaQuestion _deserializeQuestion(Map<dynamic, dynamic> m) => TriviaQuestion(
-      cardId: m['cardId'] as String,
-      format: TriviaFormat.values.firstWhere((f) => f.name == m['format']),
-      prompt: m['prompt'] as String,
-      photoUrl: m['photoUrl'] as String?,
-      options: (m['options'] as List<dynamic>).cast<String>(),
-      correctIndex: m['correctIndex'] as int,
-    );
+  TriviaQuestion _deserializeQuestion(Map<dynamic, dynamic> m) =>
+      TriviaQuestion(
+        cardId: m['cardId'] as String,
+        format: TriviaFormat.values.firstWhere((f) => f.name == m['format']),
+        prompt: m['prompt'] as String,
+        photoUrl: m['photoUrl'] as String?,
+        options: (m['options'] as List<dynamic>).cast<String>(),
+        correctIndex: m['correctIndex'] as int,
+      );
 
   List<Map<String, dynamic>?> _serializeAnswers(List<RoundTrivia> trivia) => [
-      for (final t in trivia)
-        if (t.answer == null)
-          null
-        else
-          {
-            'optionIdx': t.answer!.answerIndex,
-            'confidence': t.answer!.confidence.name,
-          },
-    ];
+        for (final t in trivia)
+          if (t.answer == null)
+            null
+          else
+            {
+              'optionIdx': t.answer!.answerIndex,
+              'confidence': t.answer!.confidence.name,
+            },
+      ];
 
   TriviaResult _emptyResult() => summarize(const []);
 
