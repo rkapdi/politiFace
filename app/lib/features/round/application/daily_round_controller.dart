@@ -391,10 +391,12 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
 
     final phase = RoundPhaseSerialization.fromWire(row.phase);
     final result = phase == RoundPhase.reveal || phase == RoundPhase.done
-        ? summarize(trivia
-            .where((t) => t.answer != null)
-            .map((t) => t.answer!)
-            .toList(),)
+        ? summarize(
+            trivia
+                .where((t) => t.answer != null)
+                .map((t) => t.answer!)
+                .toList(),
+          )
         : null;
 
     return DailyRoundState(

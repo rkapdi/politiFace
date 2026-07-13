@@ -104,8 +104,10 @@ class CurriculumLoader {
     );
   }
 
-  List<ChapterDeckRef> _parseDeckRefs(Object? raw,
-      {required String chapterId,}) {
+  List<ChapterDeckRef> _parseDeckRefs(
+    Object? raw, {
+    required String chapterId,
+  }) {
     if (raw == null) return const [];
     if (raw is! List) {
       throw CurriculumLoadException(
@@ -204,8 +206,10 @@ class CurriculumLoader {
     );
   }
 
-  ConceptNode _parseConceptNode(Map<dynamic, dynamic> raw,
-      {required String branchId,}) {
+  ConceptNode _parseConceptNode(
+    Map<dynamic, dynamic> raw, {
+    required String branchId,
+  }) {
     final id = _requiredString(raw, 'id', context: 'concept_node($branchId)');
     final items = (raw['items'] as List<dynamic>?) ?? const [];
     return ConceptNode(
@@ -218,8 +222,10 @@ class CurriculumLoader {
     );
   }
 
-  CurriculumItem _parseItem(Map<dynamic, dynamic> raw,
-      {required String nodeId,}) {
+  CurriculumItem _parseItem(
+    Map<dynamic, dynamic> raw, {
+    required String nodeId,
+  }) {
     final id = _requiredString(raw, 'id', context: 'item($nodeId)');
     return CurriculumItem(
       id: id,
@@ -312,8 +318,11 @@ class CurriculumLoader {
 
   // ── Field helpers ─────────────────────────────────────────────────────
 
-  String _requiredString(Map<dynamic, dynamic> raw, String key,
-      {required String context,}) {
+  String _requiredString(
+    Map<dynamic, dynamic> raw,
+    String key, {
+    required String context,
+  }) {
     final v = raw[key];
     if (v is! String || v.isEmpty) {
       throw CurriculumLoadException(
@@ -323,8 +332,11 @@ class CurriculumLoader {
     return v;
   }
 
-  int _requiredInt(Map<dynamic, dynamic> raw, String key,
-      {required String context,}) {
+  int _requiredInt(
+    Map<dynamic, dynamic> raw,
+    String key, {
+    required String context,
+  }) {
     final v = raw[key];
     if (v is! int) {
       throw CurriculumLoadException(

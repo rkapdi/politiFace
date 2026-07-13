@@ -62,7 +62,8 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
 });
 
 final profileServiceProvider = Provider<ProfileService>(
-    (ref) => ProfileService(ref.watch(databaseProvider)),);
+  (ref) => ProfileService(ref.watch(databaseProvider)),
+);
 
 final cardReviewRepositoryProvider = Provider<CardReviewRepository>(
   (ref) => CardReviewRepository(
@@ -82,10 +83,12 @@ final profileProvider = FutureProvider<UserProfile>((ref) async {
 final sessionTickProvider = StateProvider<int>((ref) => 0);
 
 final nodeUnlockServiceProvider = Provider<NodeUnlockService>(
-    (ref) => NodeUnlockService(ref.watch(databaseProvider)),);
+  (ref) => NodeUnlockService(ref.watch(databaseProvider)),
+);
 
 final pendingSessionStoreProvider = Provider<PendingSessionStore>(
-    (ref) => PendingSessionStore(ref.watch(databaseProvider)),);
+  (ref) => PendingSessionStore(ref.watch(databaseProvider)),
+);
 
 /// Initial route, set in main() based on the onboarding flag.
 final initialRouteProvider = Provider<String>((ref) => '/');
@@ -93,7 +96,8 @@ final initialRouteProvider = Provider<String>((ref) => '/');
 /// Controls MaterialApp.themeMode. Defaults to system on first launch; the
 /// Settings screen flips it and persists the choice via SettingsService.
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
-    (ref) => ThemeModeNotifier(ref.read(databaseProvider)),);
+  (ref) => ThemeModeNotifier(ref.read(databaseProvider)),
+);
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier(this._db) : super(ThemeMode.system) {
@@ -126,7 +130,8 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
 }
 
 final routerProvider = Provider<GoRouter>(
-    (ref) => buildRouter(initialLocation: ref.read(initialRouteProvider)),);
+  (ref) => buildRouter(initialLocation: ref.read(initialRouteProvider)),
+);
 
 // Null = global session (FSRS-driven across all decks).
 // Set by NodeDetailScreen before navigating to /session.
@@ -155,7 +160,8 @@ final curriculumLoaderProvider =
 /// Parsed `us_civics.yaml`. Loaded once per app launch; cached for the
 /// lifetime of the Riverpod scope.
 final curriculumProvider = FutureProvider<Curriculum>(
-    (ref) async => ref.watch(curriculumLoaderProvider).load(),);
+  (ref) async => ref.watch(curriculumLoaderProvider).load(),
+);
 
 /// Parsed national civics-knowledge benchmarks shown at round end.
 final benchmarkLoaderProvider =
@@ -166,7 +172,8 @@ final benchmarksProvider = FutureProvider<Benchmarks>(
 );
 
 final chapterProgressServiceProvider = Provider<ChapterProgressService>(
-    (ref) => ChapterProgressService(ref.watch(databaseProvider)),);
+  (ref) => ChapterProgressService(ref.watch(databaseProvider)),
+);
 
 final chapterDeckProgressServiceProvider = Provider<ChapterDeckProgressService>(
   (ref) => ChapterDeckProgressService(ref.watch(databaseProvider)),
@@ -184,7 +191,8 @@ final chapterDeckProgressProvider = FutureProvider.autoDispose
 });
 
 final contentLinkerProvider = Provider<ContentLinker>(
-    (ref) => ContentLinker(ref.watch(databaseProvider)),);
+  (ref) => ContentLinker(ref.watch(databaseProvider)),
+);
 
 /// The user's current in-progress chapter entry, or null when the season is
 /// done. Returns null while [curriculumProvider] is still loading.
@@ -218,7 +226,8 @@ final branchInfoLibraryProvider =
 // ── Wikipedia bio service + per-card bio stream ─────────────────────────────
 
 final wikipediaBioServiceProvider = Provider<WikipediaBioService>(
-    (ref) => WikipediaBioService(ref.watch(databaseProvider)),);
+  (ref) => WikipediaBioService(ref.watch(databaseProvider)),
+);
 
 /// Reactive bio for a single card. Subscribes to PoliticianBios row
 /// updates so the screen rebuilds when a fetch completes. Also triggers
@@ -244,7 +253,8 @@ final chapterContentSamplerProvider = Provider<ChapterContentSampler>(
 /// one on first read for the current date.
 final dailyRoundControllerProvider =
     AsyncNotifierProvider<DailyRoundController, DailyRoundState>(
-        DailyRoundController.new,);
+  DailyRoundController.new,
+);
 
 /// Lightweight check: has today's round been completed yet? Reads the
 /// `daily_rounds` DAO directly so home can render a "Played" badge
