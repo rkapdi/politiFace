@@ -150,3 +150,14 @@ audience framing ("if you're a college student..."), never computed from persona
 refuse to collect. Sequenced post-launch: CRS summaries + tooltips first, reviewed explainers
 after.
 Hook: "Users asked us to rate new laws. We're building the layer that explains them instead, because the day your civics app has opinions is the day it stops being a civics app."
+
+**Bill summaries with zero editorial voice: CRS or nothing.**
+Why: The Pulse needed a "what does this bill actually do" layer, and the obvious move
+(write our own plain-language blurbs, or have an LLM do it) is the one thing a nonpartisan
+civic tool cannot do on live legislation. So the new bill detail screen shows the
+Congressional Research Service summary verbatim (public domain, attributed, version-dated),
+the congress.gov latest action verbatim, and a link to the official record. Truncation for
+the offline bundle cuts at a paragraph boundary and says so; that is a size decision, not
+an editorial one. The only "interpretation" is tappable Atlas vocabulary terms, which reuse
+definitions already reviewed and cited. No verdicts, no pros/cons, no derived stages.
+Hook: "The feature is a summary engine that refuses to summarize. Congress's own research arm writes the words; we just make them tappable."
