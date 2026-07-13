@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Politiface — Know the people who run the country</title>
-<meta name="description" content="Politiface teaches you the names, roles, and structure of the U.S. government — by face. A spaced-repetition memory engine, confidence-scored trivia, and a searchable Atlas. Private by design. Federal core free, forever.">
+<title>Politiface: Civics practice that sticks</title>
+<meta name="description" content="Politiface is supplemental civics practice students choose: a cited 80-question FCLE practice bank, full-length mock exams, readiness by domain, and a searchable Atlas covering every member of Congress. Nonpartisan, citation-backed, open source.">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:title" content="Politiface — Know the people who run the country">
-<meta property="og:description" content="Learn the names, roles, and structure of the U.S. government — by face. Spaced-repetition memory, confidence-scored trivia, a searchable Atlas. Private by design.">
+<meta property="og:title" content="Politiface: Civics practice that sticks">
+<meta property="og:description" content="A cited FCLE practice bank, full-length mock exams, readiness by domain, and an Atlas covering every member of Congress. Nonpartisan, citation-backed, open source.">
 <meta property="og:image" content="assets/icon.png">
 <meta property="og:url" content="https://rkapdi.github.io/politiFace/">
 <meta name="twitter:card" content="summary">
@@ -31,7 +31,7 @@
   .hero h1{font-family:var(--serif);font-weight:700;font-size:clamp(2.5rem,5.4vw,4.1rem);line-height:1.04;letter-spacing:-.02em;margin:18px 0 0;text-wrap:balance}
   .hero h1 .accent{color:#fff;position:relative}
   .hero h1 .accent::after{content:"";display:inline-block;width:.42em;height:.42em;background:var(--red);border-radius:50%;margin-left:.12em;vertical-align:.55em}
-  .lede{font-size:1.16rem;color:var(--cream-muted);margin-top:22px;max-width:34ch}
+  .lede{font-size:1.16rem;color:var(--cream-muted);margin-top:22px;max-width:36ch}
   .cta-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:34px}
   .hero-meta{margin-top:22px;font-size:.9rem;color:var(--cream-muted)}
   .hero-meta b{color:var(--gold);font-weight:700}
@@ -83,7 +83,7 @@
   .shot p{color:var(--cream-muted);font-size:.96rem;margin-top:6px;padding:0 6px}
   @media(max-width:820px){.shots{grid-template-columns:1fr;gap:48px;max-width:300px;margin:0 auto}}
 
-  /* score explainer */
+  /* FCLE explainer (reuses the score layout language) */
   .score{background:var(--paper-2)}
   .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
   .score-list{list-style:none;margin-top:26px;display:flex;flex-direction:column;gap:20px}
@@ -97,6 +97,7 @@
   .arch .dot{width:11px;height:11px;border-radius:50%;flex:none}
   .arch b{font-family:var(--serif);font-size:1.12rem}
   .arch span{color:var(--muted);font-size:.92rem;margin-left:auto;text-align:right}
+  .fine-print{margin-top:26px;font-size:.86rem;color:var(--muted);max-width:52ch}
   @media(max-width:820px){.score-grid{grid-template-columns:1fr;gap:40px}}
 
   /* CTA */
@@ -112,6 +113,8 @@
     .feat-grid .card:nth-child(2){animation-delay:.07s}
     .feat-grid .card:nth-child(3){animation-delay:.14s}
     .feat-grid .card:nth-child(4){animation-delay:.21s}
+    .feat-grid .card:nth-child(5){animation-delay:.28s}
+    .feat-grid .card:nth-child(6){animation-delay:.35s}
     .shots .shot:nth-child(2){animation-delay:.08s}
     .shots .shot:nth-child(3){animation-delay:.16s}
   }
@@ -125,7 +128,9 @@
     <a class="brand" href="#top"><img src="assets/icon.png" alt="Politiface logo"><b>Politiface</b></a>
     <nav class="nav-links">
       <a href="#features">Features</a>
+      <a href="#fcle">FCLE</a>
       <a href="#showcase">Screens</a>
+      <a href="faculty/">Faculty</a>
       <a href="privacy-policy/">Privacy</a>
       <a href="support/">Support</a>
       <a class="nav-cta" href="https://github.com/rkapdi/politiFace">GitHub</a>
@@ -137,18 +142,18 @@
 <section class="hero" id="top" style="padding:0">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <span class="eyebrow">Civics, learned by face</span>
-      <h1>Know the people who <span class="accent">run the country</span></h1>
-      <p class="lede">Politiface teaches you the names, roles, and structure of the U.S. government — five minutes a day, tuned to your memory.</p>
+      <span class="eyebrow">Civics practice that sticks</span>
+      <h1>Practice the civics exam. Learn the whole <span class="accent">government</span></h1>
+      <p class="lede">Politiface is supplemental practice students choose: a cited FCLE question bank, full-length mock exams, and a living reference covering every member of Congress. Five minutes a day, tuned to your memory.</p>
       <div class="cta-row">
-        <!-- Swap for the official "Download on the App Store" badge + link once the listing is live -->
-        <span class="badge-store" role="img" aria-label="Coming soon to the App Store">
+        <!-- Swap in the App Store listing URL (apps.apple.com/app/id...) to make this badge a link -->
+        <span class="badge-store" role="img" aria-label="Now on the App Store">
           <svg viewBox="0 0 384 512" fill="#111" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-          <span><span class="small">Coming soon to the</span><span class="big">App Store</span></span>
+          <span><span class="small">Now on the</span><span class="big">App Store</span></span>
         </span>
         <a class="ghost-link" href="https://github.com/rkapdi/politiFace">View the source &rarr;</a>
       </div>
-      <p class="hero-meta">Free, forever for the <b>federal civics core</b> &middot; iPhone, iOS 14+ &middot; Works offline</p>
+      <p class="hero-meta">Free core, <b>no signup wall</b> &middot; iPhone, iOS 14+ &middot; Study content works offline</p>
     </div>
     <div class="phones">
       <div class="phone back"><img src="assets/screens/result.png" alt="Civic Scholar result screen" loading="lazy"></div>
@@ -161,11 +166,11 @@
 <div class="trust">
   <div class="wrap">
     <ul>
-      <li>No account</li>
-      <li>No tracking</li>
-      <li>Works offline</li>
+      <li>No signup wall</li>
+      <li>Nonpartisan</li>
+      <li>Every fact cited</li>
       <li>Open source &middot; MIT</li>
-      <li>Data stays on your device</li>
+      <li>Data-minimal by design</li>
     </ul>
   </div>
 </div>
@@ -174,31 +179,64 @@
 <section class="features" id="features">
   <div class="wrap">
     <div class="sec-head reveal">
-      <span class="eyebrow">Built to make it stick</span>
-      <h2>Not flashcards. A memory engine.</h2>
-      <p>Politiface combines a proven spaced-repetition algorithm with a game that bets on what you actually know.</p>
+      <span class="eyebrow">What's inside</span>
+      <h2>A study tool, a reference, and a live civic feed.</h2>
+      <p>Politiface pairs a proven spaced-repetition engine with cited practice questions and a reference layer that stays current with the government it describes.</p>
     </div>
     <div class="feat-grid">
       <div class="card reveal">
-        <div class="glyph g-red">R</div>
-        <h3>Spaced-repetition memory</h3>
-        <p>Powered by FSRS — the algorithm behind Anki. Politiface predicts when you're about to forget a face and surfaces it just before you do. Every review tightens the schedule.</p>
+        <div class="glyph g-red">F</div>
+        <h3>FCLE practice bank</h3>
+        <p>80 practice questions across the exam's four competencies, each one written from primary public sources and citation-backed. Weak-area practice targets the domains you miss most.</p>
       </div>
       <div class="card reveal">
-        <div class="glyph g-navy">%</div>
-        <h3>Confidence-scored trivia</h3>
-        <p>Lock in how sure you are — Guess, Pretty Sure, or 100%. Get rewarded for being calibrated and punished for bluffing. End each run with one of four archetypes.</p>
+        <div class="glyph g-navy">80</div>
+        <h3>Mock FCLE and readiness</h3>
+        <p>Take a full-length mock exam with the same structure as the real thing, then see readiness broken down by domain. The built-in exam blueprint maps all 32 official objectives.</p>
       </div>
       <div class="card reveal">
         <div class="glyph g-gold">A</div>
         <h3>The Atlas</h3>
-        <p>Every Cabinet secretary, Supreme Court Justice, and congressional leader — browsable, searchable, and grouped by branch. A living map of who holds power.</p>
+        <p>All 537 members of Congress with offline profiles, plus executive orders from the Federal Register, recent laws, and a cited civics vocabulary. Browsable, searchable, sourced.</p>
       </div>
       <div class="card reveal">
-        <div class="glyph g-green">&#10003;</div>
-        <h3>Private by design</h3>
-        <p>No sign-up, no email, no political profiling. Your streak, progress, and review history live in a local database on your phone. We collect no personal data.</p>
+        <div class="glyph g-green">P</div>
+        <h3>The Pulse</h3>
+        <p>A live civic feed of what the government is actually doing: new executive orders, bills moving through Congress, and laws as they are signed. Facts, not takes.</p>
       </div>
+      <div class="card reveal">
+        <div class="glyph g-navy">#</div>
+        <h3>Class leaderboards</h3>
+        <p>Join your class with a code and compete on the same board. Finish a run, share your score, and challenge a friend to beat it.</p>
+      </div>
+      <div class="card reveal">
+        <div class="glyph g-red">R</div>
+        <h3>Spaced-repetition memory</h3>
+        <p>Powered by FSRS, the algorithm behind Anki. Politiface predicts when you are about to forget something and surfaces it just before you do. Every review tightens the schedule.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FCLE EXPLAINER ============ -->
+<section class="score" id="fcle">
+  <div class="wrap score-grid">
+    <div class="reveal">
+      <span class="eyebrow">The Florida Civic Literacy Examination</span>
+      <h2 class="serif" style="font-size:clamp(1.9rem,3.4vw,2.6rem);line-height:1.1;letter-spacing:-.02em;margin-top:12px">Practice built around the real exam blueprint.</h2>
+      <ul class="score-list">
+        <li><span class="num">1</span><div><h4>Practice by competency</h4><p>Cited questions organized under the exam's four competencies and the 32 official objectives behind them.</p></div></li>
+        <li><span class="num">2</span><div><h4>Take a Mock FCLE</h4><p>A full-length run with the same domain mix as the real exam, so nothing on test day is a surprise format.</p></div></li>
+        <li><span class="num">3</span><div><h4>See where you stand</h4><p>A readiness view for each domain shows what is solid and what needs work, and weak-area practice takes you straight there.</p></div></li>
+      </ul>
+      <p class="fine-print">Politiface is independent, supplemental practice that students choose. It is not affiliated with, or endorsed by, the Florida Department of Education or the official examination.</p>
+    </div>
+    <div class="score-card reveal">
+      <div class="eyebrow" style="color:var(--muted);margin-bottom:14px">The four competencies</div>
+      <div class="arch"><span class="dot" style="background:var(--red)"></span><b>American Democracy</b><span>Principles and participation</span></div>
+      <div class="arch"><span class="dot" style="background:var(--navy-accent)"></span><b>U.S. Constitution</b><span>Structure and amendments</span></div>
+      <div class="arch"><span class="dot" style="background:var(--gold)"></span><b>Founding Documents</b><span>The ideas underneath</span></div>
+      <div class="arch"><span class="dot" style="background:var(--green)"></span><b>Landmark Cases</b><span>Decisions that shaped the law</span></div>
     </div>
   </div>
 </section>
@@ -209,13 +247,13 @@
     <div class="sec-head reveal">
       <span class="eyebrow">A look inside</span>
       <h2>Learn it, test it, watch it stick.</h2>
-      <p>A daily round teaches five faces, then ten confidence-scored questions. The Memory tab shows your knowledge crystallizing in real time.</p>
+      <p>A daily round teaches a handful of faces and facts, then quizzes you with confidence-scored questions. The Memory tab shows your knowledge crystallizing in real time.</p>
     </div>
     <div class="shots">
       <div class="shot reveal">
         <div class="frame"><img src="assets/screens/reveal.png" alt="Daily Trivia answer reveal" loading="lazy"></div>
         <h4>Daily Trivia</h4>
-        <p>Instant reveal on every answer — green when you nail it.</p>
+        <p>Instant reveal on every answer, green when you nail it.</p>
       </div>
       <div class="shot reveal">
         <div class="frame"><img src="assets/screens/memory.png" alt="Brain Strength memory screen" loading="lazy"></div>
@@ -231,37 +269,15 @@
   </div>
 </section>
 
-<!-- ============ SCORE EXPLAINER ============ -->
-<section class="score" id="score">
-  <div class="wrap score-grid">
-    <div class="reveal">
-      <span class="eyebrow">The confidence score</span>
-      <h2 class="serif" style="font-size:clamp(1.9rem,3.4vw,2.6rem);line-height:1.1;letter-spacing:-.02em;margin-top:12px">Knowing isn't enough.<br>Know that you know.</h2>
-      <ul class="score-list">
-        <li><span class="num">1</span><div><h4>Answer</h4><p>Pick who you think it is from four options.</p></div></li>
-        <li><span class="num">2</span><div><h4>Commit</h4><p>Lock in your confidence: Guess, Pretty Sure, or 100%.</p></div></li>
-        <li><span class="num">3</span><div><h4>Get scored on calibration</h4><p>Wrong + 100% costs you 10. Right + Guess earns 5. Bluffing has a price.</p></div></li>
-      </ul>
-    </div>
-    <div class="score-card reveal">
-      <div class="eyebrow" style="color:var(--muted);margin-bottom:14px">Your archetype, four ways</div>
-      <div class="arch"><span class="dot" style="background:var(--green)"></span><b>Civic Scholar</b><span>High score, well-calibrated</span></div>
-      <div class="arch"><span class="dot" style="background:var(--gold)"></span><b>Lucky Guesser</b><span>Right, but not sure why</span></div>
-      <div class="arch"><span class="dot" style="background:var(--red)"></span><b>Civic Bluffer</b><span>Confident and wrong</span></div>
-      <div class="arch"><span class="dot" style="background:var(--navy-accent)"></span><b>Humble Apprentice</b><span>Cautious, still learning</span></div>
-    </div>
-  </div>
-</section>
-
 <!-- ============ CTA ============ -->
 <section class="cta">
   <div class="wrap">
-    <h2 class="reveal">Learn your government,<br>five minutes a day.</h2>
-    <p class="reveal">The federal civics core is free, forever. No account, no tracking — just you and the people who run the country.</p>
+    <h2 class="reveal">Study smarter,<br>five minutes a day.</h2>
+    <p class="reveal">The civics core is free. No signup wall, no tracking, no takes: just cited facts, honest practice, and a memory engine that makes them stick.</p>
     <div class="cta-row reveal">
-      <span class="badge-store" role="img" aria-label="Coming soon to the App Store">
+      <span class="badge-store" role="img" aria-label="Now on the App Store">
         <svg viewBox="0 0 384 512" fill="#111" aria-hidden="true"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
-        <span><span class="small">Coming soon to the</span><span class="big">App Store</span></span>
+        <span><span class="small">Now on the</span><span class="big">App Store</span></span>
       </span>
       <a class="ghost-link" href="https://github.com/rkapdi/politiFace">Star it on GitHub &rarr;</a>
     </div>
@@ -274,16 +290,17 @@
     <div class="foot-grid">
       <div class="foot-brand">
         <a class="brand" href="#top"><img src="assets/icon.png" alt=""><b>Politiface</b></a>
-        <p>A local-first civics learning app. Learn the names, roles, and structure of the U.S. government — by face.</p>
+        <p>Nonpartisan civic education: cited practice questions, a searchable Atlas of the U.S. government, and a memory engine that makes it stick.</p>
       </div>
       <div class="foot-col">
         <h5>Product</h5>
         <a href="#features">Features</a>
+        <a href="#fcle">FCLE practice</a>
         <a href="#showcase">Screens</a>
-        <a href="#score">Confidence score</a>
       </div>
       <div class="foot-col">
         <h5>Support</h5>
+        <a href="faculty/">For faculty</a>
         <a href="privacy-policy/">Privacy Policy</a>
         <a href="support/">Support</a>
       </div>
@@ -295,7 +312,7 @@
     </div>
     <div class="foot-bottom">
       <span>&copy; 2026 Rissalat Kapdi</span>
-      <span>Built local-first &middot; Hosted on GitHub Pages</span>
+      <span>Nonpartisan, cited, open source &middot; Hosted on GitHub Pages</span>
     </div>
   </div>
 </footer>
