@@ -70,15 +70,20 @@ void main() {
     ''');
     // Streak / XP / settings / seed flags — all live in sync_meta on v7.
     raw.execute(
-        "INSERT INTO sync_meta (key, value) VALUES ('profile.streak_count', '42')",);
+      "INSERT INTO sync_meta (key, value) VALUES ('profile.streak_count', '42')",
+    );
     raw.execute(
-        "INSERT INTO sync_meta (key, value) VALUES ('profile.streak_last_review_date', '2026-06-10')",);
+      "INSERT INTO sync_meta (key, value) VALUES ('profile.streak_last_review_date', '2026-06-10')",
+    );
     raw.execute(
-        "INSERT INTO sync_meta (key, value) VALUES ('profile.xp_total', '1337')",);
+      "INSERT INTO sync_meta (key, value) VALUES ('profile.xp_total', '1337')",
+    );
     raw.execute(
-        "INSERT INTO sync_meta (key, value) VALUES ('yaml_seed_v3_done', '1')",);
+      "INSERT INTO sync_meta (key, value) VALUES ('yaml_seed_v3_done', '1')",
+    );
     raw.execute(
-        "INSERT INTO sync_meta (key, value) VALUES ('settings.theme_mode', 'dark')",);
+      "INSERT INTO sync_meta (key, value) VALUES ('settings.theme_mode', 'dark')",
+    );
     raw.execute('''
       INSERT INTO chapter_progress
         (season_id, chapter_id, day_in_chapter, rounds_completed, started_at,
@@ -144,7 +149,9 @@ void main() {
     // ── Streak / XP / settings / seed flags survive the table rename ───
     expect(await db.metaDao.get('profile.streak_count'), '42');
     expect(
-        await db.metaDao.get('profile.streak_last_review_date'), '2026-06-10',);
+      await db.metaDao.get('profile.streak_last_review_date'),
+      '2026-06-10',
+    );
     expect(await db.metaDao.get('profile.xp_total'), '1337');
     expect(await db.metaDao.get('yaml_seed_v3_done'), '1');
     expect(await db.metaDao.get('settings.theme_mode'), 'dark');
@@ -168,7 +175,8 @@ void main() {
     // ── Schema change applied ───────────────────────────────────────────
     final tables = (await db
             .customSelect(
-                "SELECT name FROM sqlite_master WHERE type = 'table'",)
+              "SELECT name FROM sqlite_master WHERE type = 'table'",
+            )
             .get())
         .map((r) => r.read<String>('name'))
         .toSet();
@@ -179,7 +187,7 @@ void main() {
     final version = (await db.customSelect('PRAGMA user_version').get())
         .single
         .read<int>('user_version');
-    expect(version, 13);
+    expect(version, 14);
 
     // v10 sync outbox exists and starts empty.
     expect(tables, contains('outbox_events'));
@@ -192,12 +200,18 @@ void main() {
     expect(tables, contains('people'));
 
     // v9 concept-card columns exist with safe defaults on migrated rows.
-    final cardCols = (await db
-            .customSelect('PRAGMA table_info(local_cards)')
-            .get())
-        .map((r) => r.read<String>('name'))
-        .toSet();
+    final cardCols =
+        (await db.customSelect('PRAGMA table_info(local_cards)').get())
+            .map((r) => r.read<String>('name'))
+            .toSet();
     expect(cardCols, containsAll(['card_type', 'body', 'recall_prompt']));
+
+    // v14 deck subscription columns exist with safe defaults.
+    final deckCols =
+        (await db.customSelect('PRAGMA table_info(local_decks)').get())
+            .map((r) => r.read<String>('name'))
+            .toSet();
+    expect(deckCols, containsAll(['is_subscribed', 'category']));
   });
 
   test('fresh install (onCreate) gets the v8 schema directly', () async {
@@ -209,7 +223,8 @@ void main() {
 
     final tables = (await db
             .customSelect(
-                "SELECT name FROM sqlite_master WHERE type = 'table'",)
+              "SELECT name FROM sqlite_master WHERE type = 'table'",
+            )
             .get())
         .map((r) => r.read<String>('name'))
         .toSet();
