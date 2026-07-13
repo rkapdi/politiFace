@@ -10,10 +10,17 @@ class DecksDao extends DatabaseAccessor<AppDatabase> with _$DecksDaoMixin {
 
   Future<List<LocalDeck>> allDecks() => select(localDecks).get();
 
-  Future<List<LocalDeck>> decksByNodeId(String nodeId) => (select(localDecks)..where((d) => d.nodeId.equals(nodeId))).get();
+  Future<List<LocalDeck>> decksByNodeId(String nodeId) =>
+      (select(localDecks)..where((d) => d.nodeId.equals(nodeId))).get();
 
-  Future<void> upsertDeck(LocalDecksCompanion deck) => into(localDecks).insertOnConflictUpdate(deck);
+  Future<LocalDeck?> deckByExternalId(String externalId) =>
+      (select(localDecks)..where((d) => d.externalId.equals(externalId)))
+          .getSingleOrNull();
 
-  Future<int> setDeckNodeId({required String deckId, required String nodeId}) => (update(localDecks)..where((d) => d.id.equals(deckId)))
-        .write(LocalDecksCompanion(nodeId: Value(nodeId)));
+  Future<void> upsertDeck(LocalDecksCompanion deck) =>
+      into(localDecks).insertOnConflictUpdate(deck);
+
+  Future<int> setDeckNodeId({required String deckId, required String nodeId}) =>
+      (update(localDecks)..where((d) => d.id.equals(deckId)))
+          .write(LocalDecksCompanion(nodeId: Value(nodeId)));
 }
