@@ -5,14 +5,17 @@ import '../drift/app_database.dart';
 part 'government_dao.g.dart';
 
 @DriftAccessor(tables: [GovNodes, GovEdges])
-class GovernmentDao extends DatabaseAccessor<AppDatabase> with _$GovernmentDaoMixin {
+class GovernmentDao extends DatabaseAccessor<AppDatabase>
+    with _$GovernmentDaoMixin {
   GovernmentDao(super.db);
 
   Future<List<GovNode>> nodes() => select(govNodes).get();
 
-  Future<void> upsertNode(GovNodesCompanion node) => into(govNodes).insertOnConflictUpdate(node);
+  Future<void> upsertNode(GovNodesCompanion node) =>
+      into(govNodes).insertOnConflictUpdate(node);
 
   Future<List<GovEdge>> edges() => select(govEdges).get();
 
-  Future<void> upsertEdge(GovEdgesCompanion edge) => into(govEdges).insertOnConflictUpdate(edge);
+  Future<void> upsertEdge(GovEdgesCompanion edge) =>
+      into(govEdges).insertOnConflictUpdate(edge);
 }

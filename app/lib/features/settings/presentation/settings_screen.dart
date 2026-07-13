@@ -83,6 +83,8 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Decks'),
             subtitle: const Text('Choose what shows up in your daily practice'),
             onTap: () => context.push('/decks'),
+          ),
+          const Divider(height: 32),
           _SectionHeader(text: 'Sound', theme: theme),
           SwitchListTile(
             title: const Text('Sound effects'),
@@ -135,7 +137,7 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Crash reports'),
             subtitle: const Text(
                 'Off by default. Sends anonymous crash reports so we can fix '
-                'bugs — never what you review. Takes effect on next launch.'),
+                'bugs, never what you review. Takes effect on next launch.'),
             value: crashReports,
             onChanged: (v) async {
               await settings.setCrashReportsEnabled(v);

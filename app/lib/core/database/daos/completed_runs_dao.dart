@@ -12,10 +12,11 @@ class CompletedRunsDao extends DatabaseAccessor<AppDatabase>
     with _$CompletedRunsDaoMixin {
   CompletedRunsDao(super.db);
 
-  Future<void> insert(CompletedRunsCompanion entry) => into(completedRuns).insertOnConflictUpdate(entry);
+  Future<void> insert(CompletedRunsCompanion entry) =>
+      into(completedRuns).insertOnConflictUpdate(entry);
 
-  Future<CompletedRunEntry?> byId(String id) => (select(completedRuns)..where((t) => t.id.equals(id)))
-        .getSingleOrNull();
+  Future<CompletedRunEntry?> byId(String id) =>
+      (select(completedRuns)..where((t) => t.id.equals(id))).getSingleOrNull();
 
   /// Most recent first. Filter by mode if provided.
   Future<List<CompletedRunEntry>> recent({
@@ -33,6 +34,6 @@ class CompletedRunsDao extends DatabaseAccessor<AppDatabase>
     return q.get();
   }
 
-  Future<int> deleteAllForUser(String userId) => (delete(completedRuns)..where((t) => t.userId.equals(userId)))
-        .go();
+  Future<int> deleteAllForUser(String userId) =>
+      (delete(completedRuns)..where((t) => t.userId.equals(userId))).go();
 }
