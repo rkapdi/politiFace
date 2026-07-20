@@ -38,6 +38,10 @@ class RecentLaw {
     required this.url,
     this.sponsorBioguide,
     this.sponsorName,
+    this.summary,
+    this.summaryVersion,
+    this.summaryDate,
+    this.summaryTruncated = false,
   });
 
   final String lawNumber; // e.g. 119-100
@@ -47,6 +51,10 @@ class RecentLaw {
   final String url; // congress.gov
   final String? sponsorBioguide; // cross-link to the person page
   final String? sponsorName;
+  final String? summary; // CRS summary, plain text, capped by the fetcher
+  final String? summaryVersion; // e.g. "Public Law"
+  final String? summaryDate; // ISO yyyy-mm-dd
+  final bool summaryTruncated;
 }
 
 class RecentBillAction {
@@ -56,6 +64,11 @@ class RecentBillAction {
     required this.actionDate,
     required this.action,
     required this.url,
+    this.congress,
+    this.summary,
+    this.summaryVersion,
+    this.summaryDate,
+    this.summaryTruncated = false,
   });
 
   final String bill; // e.g. HR 8121
@@ -63,6 +76,11 @@ class RecentBillAction {
   final String actionDate;
   final String action; // the latest-action line from congress.gov
   final String url;
+  final int? congress; // e.g. 119
+  final String? summary; // CRS summary, plain text, capped by the fetcher
+  final String? summaryVersion; // e.g. "Introduced in House"
+  final String? summaryDate; // ISO yyyy-mm-dd
+  final bool summaryTruncated;
 }
 
 class CivicTerm {
@@ -144,15 +162,17 @@ class AtlasReferenceLoader {
         final number = o['eo_number'];
         final url = o['url'];
         if (number is! int || url is! String) continue;
-        orders.add(ExecutiveOrder(
-          number: number,
-          title: (o['title'] as String? ?? '').trim(),
-          president: o['president'] as String? ?? '',
-          signingDate: o['signing_date'] as String? ?? '',
-          url: url,
-          federalRegisterCitation: o['federal_register_citation'] as String?,
-          abstractText: o['abstract'] as String?,
-        ),);
+        orders.add(
+          ExecutiveOrder(
+            number: number,
+            title: (o['title'] as String? ?? '').trim(),
+            president: o['president'] as String? ?? '',
+            signingDate: o['signing_date'] as String? ?? '',
+            url: url,
+            federalRegisterCitation: o['federal_register_citation'] as String?,
+            abstractText: o['abstract'] as String?,
+          ),
+        );
       }
     }
 
@@ -160,13 +180,15 @@ class AtlasReferenceLoader {
     if (vocabDoc is YamlMap) {
       for (final t in (vocabDoc['terms'] as YamlList? ?? YamlList())
           .whereType<YamlMap>()) {
-        terms.add(CivicTerm(
-          id: t['id'] as String,
-          term: (t['term'] as String).trim(),
-          definition: (t['definition'] as String).trim(),
-          citation: t['citation'] as String,
-          domain: t['domain'] as String?,
-        ),);
+        terms.add(
+          CivicTerm(
+            id: t['id'] as String,
+            term: (t['term'] as String).trim(),
+            definition: (t['definition'] as String).trim(),
+            citation: t['citation'] as String,
+            domain: t['domain'] as String?,
+          ),
+        );
       }
     }
     terms.sort((a, b) => a.term.toLowerCase().compareTo(b.term.toLowerCase()));
@@ -176,16 +198,22 @@ class AtlasReferenceLoader {
       for (final l in (lawsDoc['laws'] as YamlList? ?? YamlList())
           .whereType<YamlMap>()) {
         final sponsor = l['sponsor'];
-        laws.add(RecentLaw(
-          lawNumber: l['law_number']?.toString() ?? '',
-          title: (l['title'] as String? ?? '').trim(),
-          bill: l['bill'] as String? ?? '',
-          enactedDate: l['enacted_date']?.toString() ?? '',
-          url: l['url'] as String? ?? '',
-          sponsorBioguide:
-              sponsor is YamlMap ? sponsor['bioguide'] as String? : null,
-          sponsorName: sponsor is YamlMap ? sponsor['name'] as String? : null,
-        ),);
+        laws.add(
+          RecentLaw(
+            lawNumber: l['law_number']?.toString() ?? '',
+            title: (l['title'] as String? ?? '').trim(),
+            bill: l['bill'] as String? ?? '',
+            enactedDate: l['enacted_date']?.toString() ?? '',
+            url: l['url'] as String? ?? '',
+            sponsorBioguide:
+                sponsor is YamlMap ? sponsor['bioguide'] as String? : null,
+            sponsorName: sponsor is YamlMap ? sponsor['name'] as String? : null,
+            summary: (l['summary'] as String?)?.trim(),
+            summaryVersion: l['summary_version'] as String?,
+            summaryDate: l['summary_date']?.toString(),
+            summaryTruncated: l['summary_truncated'] == true,
+          ),
+        );
       }
     }
 
@@ -193,13 +221,20 @@ class AtlasReferenceLoader {
     if (billsDoc is YamlMap) {
       for (final b in (billsDoc['bills'] as YamlList? ?? YamlList())
           .whereType<YamlMap>()) {
-        bills.add(RecentBillAction(
-          bill: b['bill'] as String? ?? '',
-          title: (b['title'] as String? ?? '').trim(),
-          actionDate: b['action_date']?.toString() ?? '',
-          action: (b['action'] as String? ?? '').trim(),
-          url: b['url'] as String? ?? '',
-        ),);
+        bills.add(
+          RecentBillAction(
+            bill: b['bill'] as String? ?? '',
+            title: (b['title'] as String? ?? '').trim(),
+            actionDate: b['action_date']?.toString() ?? '',
+            action: (b['action'] as String? ?? '').trim(),
+            url: b['url'] as String? ?? '',
+            congress: b['congress'] as int?,
+            summary: (b['summary'] as String?)?.trim(),
+            summaryVersion: b['summary_version'] as String?,
+            summaryDate: b['summary_date']?.toString(),
+            summaryTruncated: b['summary_truncated'] == true,
+          ),
+        );
       }
     }
 

@@ -26,13 +26,15 @@ class FcleAnswersDao extends DatabaseAccessor<AppDatabase>
     required bool inMock,
     required int answeredAt,
   }) =>
-      into(fcleAnswers).insert(FcleAnswersCompanion.insert(
-        questionId: questionId,
-        domain: domain,
-        correct: correct,
-        inMock: Value(inMock),
-        answeredAt: answeredAt,
-      ),);
+      into(fcleAnswers).insert(
+        FcleAnswersCompanion.insert(
+          questionId: questionId,
+          domain: domain,
+          correct: correct,
+          inMock: Value(inMock),
+          answeredAt: answeredAt,
+        ),
+      );
 
   /// Rolling accuracy for one domain over the last [rollingWindow] answers,
   /// or null when the domain has no history yet.
@@ -78,8 +80,10 @@ class FcleAnswersDao extends DatabaseAccessor<AppDatabase>
 
   /// Question ids answered incorrectly more recently than correctly:
   /// the weak-area practice pool, most recently missed first.
-  Future<List<String>> missedQuestionIds(String domain,
-      {int limit = 50,}) async {
+  Future<List<String>> missedQuestionIds(
+    String domain, {
+    int limit = 50,
+  }) async {
     final rows = await (select(fcleAnswers)
           ..where((t) => t.domain.equals(domain))
           ..orderBy([(t) => OrderingTerm.desc(t.answeredAt)]))

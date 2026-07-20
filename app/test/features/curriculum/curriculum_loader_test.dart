@@ -1,6 +1,55 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/features/curriculum/data/curriculum_loader.dart';
 import 'package:politiface/features/curriculum/domain/curriculum.dart';
+
+/// Serves an in-memory YAML string as the curriculum asset so decks-block
+/// parse cases can run without touching the bundled file.
+class _StringBundle extends CachingAssetBundle {
+  _StringBundle(this.content);
+  final String content;
+
+  @override
+  Future<ByteData> load(String key) async =>
+      ByteData.sublistView(Uint8List.fromList(utf8.encode(content)));
+}
+
+/// Minimal valid curriculum with one chapter; [decksBlock] is spliced in
+/// (indented under the chapter) or omitted when empty.
+String _curriculumYaml({String decksBlock = ''}) => '''
+version: 1
+locale: en-US
+season:
+  id: s1
+  title: Season
+  subtitle: Sub
+  total_chapters: 1
+  estimated_days: 1
+branches:
+  - id: b1
+    title: Branch
+    color: ochre
+    concept_nodes:
+      - id: n1
+        title: Node
+        items:
+          - id: item.a
+            prompt: Prompt
+            tier: core
+            sources: [U]
+            coverage: face_card
+chapters:
+  - id: c1
+    order: 1
+    title: Chapter
+    subtitle: Sub
+    days: 1
+$decksBlock
+    item_ids:
+      - item.a
+''';
 
 void main() {
   // Loads the real bundled YAML — exercises the actual asset path and
@@ -36,8 +85,11 @@ void main() {
       ]),
     );
     for (final branch in curriculum.branches) {
-      expect(branch.conceptNodes, isNotEmpty,
-          reason: 'branch ${branch.id} has no concept nodes',);
+      expect(
+        branch.conceptNodes,
+        isNotEmpty,
+        reason: 'branch ${branch.id} has no concept nodes',
+      );
     }
   });
 
@@ -48,8 +100,11 @@ void main() {
     final curriculum = await CurriculumLoader().load();
     for (final chapter in curriculum.chapters) {
       for (final id in chapter.itemIds) {
-        expect(curriculum.itemById(id), isNotNull,
-            reason: 'chapter ${chapter.id} references missing item $id',);
+        expect(
+          curriculum.itemById(id),
+          isNotNull,
+          reason: 'chapter ${chapter.id} references missing item $id',
+        );
       }
     }
   });
@@ -66,15 +121,21 @@ void main() {
         .where((e) => e.value.length > 1)
         .map((e) => '${e.key} -> ${e.value.join(", ")}')
         .toList();
-    expect(duplicates, isEmpty,
-        reason: 'curriculum items assigned to multiple chapters: $duplicates',);
+    expect(
+      duplicates,
+      isEmpty,
+      reason: 'curriculum items assigned to multiple chapters: $duplicates',
+    );
 
     final orphans = curriculum.allItems
         .where((i) => !itemToChapters.containsKey(i.id))
         .map((i) => i.id)
         .toList();
-    expect(orphans, isEmpty,
-        reason: 'curriculum items not assigned to any chapter: $orphans',);
+    expect(
+      orphans,
+      isEmpty,
+      reason: 'curriculum items not assigned to any chapter: $orphans',
+    );
   });
 
   test('chapterAfter walks the season in order, returns null past the end',
@@ -90,8 +151,7 @@ void main() {
     expect(curriculum.chapterAfter(last.id), isNull);
   });
 
-  test('chapterForItem returns the owning chapter for known items',
-      () async {
+  test('chapterForItem returns the owning chapter for known items', () async {
     final curriculum = await CurriculumLoader().load();
     // decl.purpose lives in Chapter 1 (First Principles).
     final ch = curriculum.chapterForItem('decl.purpose');
@@ -110,8 +170,11 @@ void main() {
   test('every item has at least one source attribution', () async {
     final curriculum = await CurriculumLoader().load();
     for (final item in curriculum.allItems) {
-      expect(item.sources, isNotEmpty,
-          reason: 'item ${item.id} has no source attribution',);
+      expect(
+        item.sources,
+        isNotEmpty,
+        reason: 'item ${item.id} has no source attribution',
+      );
     }
   });
 
@@ -130,10 +193,85 @@ void main() {
       // Every related card id must be a curriculum item of this chapter —
       // that is the linker convention (card id == item id).
       for (final cardId in lesson.relatedCardIds) {
-        expect(ch1.itemIds, contains(cardId),
-            reason: 'lesson ${lesson.id} references $cardId',);
+        expect(
+          ch1.itemIds,
+          contains(cardId),
+          reason: 'lesson ${lesson.id} references $cardId',
+        );
       }
     }
+  });
+
+  // ── Chapter deck refs (chapter journey) ───────────────────────────────
+
+  test('chapter decks list parses ids, titles, and planned flag', () async {
+    final loader = CurriculumLoader(
+      bundle: _StringBundle(
+        _curriculumYaml(
+          decksBlock: '''
+    decks:
+      - id: deck-one
+        title: "Deck One"
+      - id: deck-two
+        title: "Deck Two"
+        status: planned
+''',
+        ),
+      ),
+    );
+    final curriculum = await loader.load();
+    final decks = curriculum.chapters.single.decks;
+    expect(decks, hasLength(2));
+    expect(decks[0].id, 'deck-one');
+    expect(decks[0].title, 'Deck One');
+    expect(decks[0].planned, isFalse);
+    expect(decks[1].id, 'deck-two');
+    expect(decks[1].planned, isTrue);
+  });
+
+  test('decks entry missing title throws CurriculumLoadException', () async {
+    final loader = CurriculumLoader(
+      bundle: _StringBundle(
+        _curriculumYaml(
+          decksBlock: '''
+    decks:
+      - id: deck-one
+''',
+        ),
+      ),
+    );
+    expect(loader.load, throwsA(isA<CurriculumLoadException>()));
+  });
+
+  test('duplicate deck id in one chapter throws', () async {
+    final loader = CurriculumLoader(
+      bundle: _StringBundle(
+        _curriculumYaml(
+          decksBlock: '''
+    decks:
+      - id: deck-one
+        title: "Deck One"
+      - id: deck-one
+        title: "Deck One Again"
+''',
+        ),
+      ),
+    );
+    expect(loader.load, throwsA(isA<CurriculumLoadException>()));
+  });
+
+  test('chapter without decks yields an empty list', () async {
+    final loader = CurriculumLoader(bundle: _StringBundle(_curriculumYaml()));
+    final curriculum = await loader.load();
+    expect(curriculum.chapters.single.decks, isEmpty);
+  });
+
+  test('bundled YAML declares ch1 and ch3 deck mappings', () async {
+    final curriculum = await CurriculumLoader().load();
+    final ch1 = curriculum.chapterById('ch1.first-principles')!;
+    expect(ch1.decks.map((d) => d.id).toList(), ['us-concepts-founding']);
+    final ch3 = curriculum.chapterById('ch3.three-branches')!;
+    expect(ch3.decks, hasLength(7));
   });
 
   test('chapters without lessons parse fine (lessons optional)', () async {
@@ -150,13 +288,19 @@ void main() {
       for (final lesson in ch.lessons) {
         expect(lesson.body, isNotEmpty);
         expect(lesson.body, isNot(endsWith('\n')));
-        expect(lesson.day, inInclusiveRange(1, ch.days),
-            reason: '${lesson.id} day ${lesson.day} outside ${ch.id}',);
+        expect(
+          lesson.day,
+          inInclusiveRange(1, ch.days),
+          reason: '${lesson.id} day ${lesson.day} outside ${ch.id}',
+        );
         // related_cards must name items belonging to this chapter (the
         // briefing drills what it just taught).
         for (final cardId in lesson.relatedCardIds) {
-          expect(ch.itemIds, contains(cardId),
-              reason: 'lesson ${lesson.id} references $cardId not in ${ch.id}',);
+          expect(
+            ch.itemIds,
+            contains(cardId),
+            reason: 'lesson ${lesson.id} references $cardId not in ${ch.id}',
+          );
         }
         // Every lesson cites a source.
         expect(lesson.source, isNotNull, reason: '${lesson.id} has no source');

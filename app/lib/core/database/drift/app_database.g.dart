@@ -1632,6 +1632,24 @@ class $LocalDecksTable extends LocalDecks
   late final GeneratedColumn<int> updatedAt = GeneratedColumn<int>(
       'updated_at', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _isSubscribedMeta =
+      const VerificationMeta('isSubscribed');
+  @override
+  late final GeneratedColumn<bool> isSubscribed = GeneratedColumn<bool>(
+      'is_subscribed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_subscribed" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _categoryMeta =
+      const VerificationMeta('category');
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+      'category', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('curated'));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -1644,7 +1662,9 @@ class $LocalDecksTable extends LocalDecks
         isPremium,
         status,
         cardCount,
-        updatedAt
+        updatedAt,
+        isSubscribed,
+        category
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1713,6 +1733,16 @@ class $LocalDecksTable extends LocalDecks
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('is_subscribed')) {
+      context.handle(
+          _isSubscribedMeta,
+          isSubscribed.isAcceptableOrUnknown(
+              data['is_subscribed']!, _isSubscribedMeta));
+    }
+    if (data.containsKey('category')) {
+      context.handle(_categoryMeta,
+          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+    }
     return context;
   }
 
@@ -1744,6 +1774,10 @@ class $LocalDecksTable extends LocalDecks
           .read(DriftSqlType.int, data['${effectivePrefix}card_count'])!,
       updatedAt: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}updated_at'])!,
+      isSubscribed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_subscribed'])!,
+      category: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
     );
   }
 
@@ -1765,6 +1799,8 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
   final String status;
   final int cardCount;
   final int updatedAt;
+  final bool isSubscribed;
+  final String category;
   const LocalDeck(
       {required this.id,
       this.nodeId,
@@ -1776,7 +1812,9 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
       required this.isPremium,
       required this.status,
       required this.cardCount,
-      required this.updatedAt});
+      required this.updatedAt,
+      required this.isSubscribed,
+      required this.category});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1797,6 +1835,8 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
     map['status'] = Variable<String>(status);
     map['card_count'] = Variable<int>(cardCount);
     map['updated_at'] = Variable<int>(updatedAt);
+    map['is_subscribed'] = Variable<bool>(isSubscribed);
+    map['category'] = Variable<String>(category);
     return map;
   }
 
@@ -1818,6 +1858,8 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
       status: Value(status),
       cardCount: Value(cardCount),
       updatedAt: Value(updatedAt),
+      isSubscribed: Value(isSubscribed),
+      category: Value(category),
     );
   }
 
@@ -1836,6 +1878,8 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
       status: serializer.fromJson<String>(json['status']),
       cardCount: serializer.fromJson<int>(json['cardCount']),
       updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      isSubscribed: serializer.fromJson<bool>(json['isSubscribed']),
+      category: serializer.fromJson<String>(json['category']),
     );
   }
   @override
@@ -1853,6 +1897,8 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
       'status': serializer.toJson<String>(status),
       'cardCount': serializer.toJson<int>(cardCount),
       'updatedAt': serializer.toJson<int>(updatedAt),
+      'isSubscribed': serializer.toJson<bool>(isSubscribed),
+      'category': serializer.toJson<String>(category),
     };
   }
 
@@ -1867,7 +1913,9 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
           bool? isPremium,
           String? status,
           int? cardCount,
-          int? updatedAt}) =>
+          int? updatedAt,
+          bool? isSubscribed,
+          String? category}) =>
       LocalDeck(
         id: id ?? this.id,
         nodeId: nodeId.present ? nodeId.value : this.nodeId,
@@ -1881,6 +1929,8 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
         status: status ?? this.status,
         cardCount: cardCount ?? this.cardCount,
         updatedAt: updatedAt ?? this.updatedAt,
+        isSubscribed: isSubscribed ?? this.isSubscribed,
+        category: category ?? this.category,
       );
   LocalDeck copyWithCompanion(LocalDecksCompanion data) {
     return LocalDeck(
@@ -1899,6 +1949,10 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
       status: data.status.present ? data.status.value : this.status,
       cardCount: data.cardCount.present ? data.cardCount.value : this.cardCount,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isSubscribed: data.isSubscribed.present
+          ? data.isSubscribed.value
+          : this.isSubscribed,
+      category: data.category.present ? data.category.value : this.category,
     );
   }
 
@@ -1915,14 +1969,28 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
           ..write('isPremium: $isPremium, ')
           ..write('status: $status, ')
           ..write('cardCount: $cardCount, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isSubscribed: $isSubscribed, ')
+          ..write('category: $category')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, nodeId, governmentId, externalId, name,
-      description, tierOrder, isPremium, status, cardCount, updatedAt);
+  int get hashCode => Object.hash(
+      id,
+      nodeId,
+      governmentId,
+      externalId,
+      name,
+      description,
+      tierOrder,
+      isPremium,
+      status,
+      cardCount,
+      updatedAt,
+      isSubscribed,
+      category);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1937,7 +2005,9 @@ class LocalDeck extends DataClass implements Insertable<LocalDeck> {
           other.isPremium == this.isPremium &&
           other.status == this.status &&
           other.cardCount == this.cardCount &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.isSubscribed == this.isSubscribed &&
+          other.category == this.category);
 }
 
 class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
@@ -1952,6 +2022,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
   final Value<String> status;
   final Value<int> cardCount;
   final Value<int> updatedAt;
+  final Value<bool> isSubscribed;
+  final Value<String> category;
   final Value<int> rowid;
   const LocalDecksCompanion({
     this.id = const Value.absent(),
@@ -1965,6 +2037,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
     this.status = const Value.absent(),
     this.cardCount = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSubscribed = const Value.absent(),
+    this.category = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   LocalDecksCompanion.insert({
@@ -1979,6 +2053,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
     this.status = const Value.absent(),
     this.cardCount = const Value.absent(),
     required int updatedAt,
+    this.isSubscribed = const Value.absent(),
+    this.category = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         externalId = Value(externalId),
@@ -1996,6 +2072,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
     Expression<String>? status,
     Expression<int>? cardCount,
     Expression<int>? updatedAt,
+    Expression<bool>? isSubscribed,
+    Expression<String>? category,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2010,6 +2088,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
       if (status != null) 'status': status,
       if (cardCount != null) 'card_count': cardCount,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (isSubscribed != null) 'is_subscribed': isSubscribed,
+      if (category != null) 'category': category,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2026,6 +2106,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
       Value<String>? status,
       Value<int>? cardCount,
       Value<int>? updatedAt,
+      Value<bool>? isSubscribed,
+      Value<String>? category,
       Value<int>? rowid}) {
     return LocalDecksCompanion(
       id: id ?? this.id,
@@ -2039,6 +2121,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
       status: status ?? this.status,
       cardCount: cardCount ?? this.cardCount,
       updatedAt: updatedAt ?? this.updatedAt,
+      isSubscribed: isSubscribed ?? this.isSubscribed,
+      category: category ?? this.category,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2079,6 +2163,12 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<int>(updatedAt.value);
     }
+    if (isSubscribed.present) {
+      map['is_subscribed'] = Variable<bool>(isSubscribed.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2099,6 +2189,8 @@ class LocalDecksCompanion extends UpdateCompanion<LocalDeck> {
           ..write('status: $status, ')
           ..write('cardCount: $cardCount, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('isSubscribed: $isSubscribed, ')
+          ..write('category: $category, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9237,6 +9329,8 @@ typedef $$LocalDecksTableCreateCompanionBuilder = LocalDecksCompanion Function({
   Value<String> status,
   Value<int> cardCount,
   required int updatedAt,
+  Value<bool> isSubscribed,
+  Value<String> category,
   Value<int> rowid,
 });
 typedef $$LocalDecksTableUpdateCompanionBuilder = LocalDecksCompanion Function({
@@ -9251,6 +9345,8 @@ typedef $$LocalDecksTableUpdateCompanionBuilder = LocalDecksCompanion Function({
   Value<String> status,
   Value<int> cardCount,
   Value<int> updatedAt,
+  Value<bool> isSubscribed,
+  Value<String> category,
   Value<int> rowid,
 });
 
@@ -9295,6 +9391,12 @@ class $$LocalDecksTableFilterComposer
 
   ColumnFilters<int> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isSubscribed => $composableBuilder(
+      column: $table.isSubscribed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnFilters(column));
 }
 
 class $$LocalDecksTableOrderingComposer
@@ -9339,6 +9441,13 @@ class $$LocalDecksTableOrderingComposer
 
   ColumnOrderings<int> get updatedAt => $composableBuilder(
       column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isSubscribed => $composableBuilder(
+      column: $table.isSubscribed,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get category => $composableBuilder(
+      column: $table.category, builder: (column) => ColumnOrderings(column));
 }
 
 class $$LocalDecksTableAnnotationComposer
@@ -9382,6 +9491,12 @@ class $$LocalDecksTableAnnotationComposer
 
   GeneratedColumn<int> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isSubscribed => $composableBuilder(
+      column: $table.isSubscribed, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
 }
 
 class $$LocalDecksTableTableManager extends RootTableManager<
@@ -9418,6 +9533,8 @@ class $$LocalDecksTableTableManager extends RootTableManager<
             Value<String> status = const Value.absent(),
             Value<int> cardCount = const Value.absent(),
             Value<int> updatedAt = const Value.absent(),
+            Value<bool> isSubscribed = const Value.absent(),
+            Value<String> category = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               LocalDecksCompanion(
@@ -9432,6 +9549,8 @@ class $$LocalDecksTableTableManager extends RootTableManager<
             status: status,
             cardCount: cardCount,
             updatedAt: updatedAt,
+            isSubscribed: isSubscribed,
+            category: category,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -9446,6 +9565,8 @@ class $$LocalDecksTableTableManager extends RootTableManager<
             Value<String> status = const Value.absent(),
             Value<int> cardCount = const Value.absent(),
             required int updatedAt,
+            Value<bool> isSubscribed = const Value.absent(),
+            Value<String> category = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               LocalDecksCompanion.insert(
@@ -9460,6 +9581,8 @@ class $$LocalDecksTableTableManager extends RootTableManager<
             status: status,
             cardCount: cardCount,
             updatedAt: updatedAt,
+            isSubscribed: isSubscribed,
+            category: category,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

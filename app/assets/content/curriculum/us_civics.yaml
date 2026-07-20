@@ -52,6 +52,12 @@ chapters:
     title: The Founding
     subtitle: Declaration, founders, Constitution origin.
     days: 2
+    # decks: the constituent decks that power this chapter. id = deck
+    # externalId under assets/content/decks/. status: planned marks decks
+    # not yet authored (ch4-6 backlog).
+    decks:
+      - id: us-concepts-founding
+        title: "Founding Concepts"
     item_ids:
       - decl.purpose
       - decl.unalienable-rights
@@ -132,6 +138,9 @@ chapters:
     title: The Constitution
     subtitle: Bill of Rights, separation of powers, federalism.
     days: 3
+    decks:
+      - id: us-concepts-constitution
+        title: "Constitution Concepts"
     item_ids:
       - const.supreme-law
       - const.amendment-process
@@ -217,6 +226,21 @@ chapters:
     title: Three Branches
     subtitle: Congress, President, Supreme Court — who's in each.
     days: 3
+    decks:
+      - id: us-concepts-branches
+        title: "Three Branches Concepts"
+      - id: us-legislative-congress
+        title: "Congressional Leadership"
+      - id: us-legislative-senate
+        title: "Senate Leadership"
+      - id: us-executive-presidency
+        title: "The Presidency"
+      - id: us-executive-cabinet
+        title: "The Cabinet"
+      - id: us-executive-eop
+        title: "Executive Office of the President"
+      - id: us-judicial-scotus
+        title: "Supreme Court Justices"
     item_ids:
       - leg.bicameral
       - leg.senate-basics
@@ -303,6 +327,13 @@ chapters:
     title: How Laws Get Made
     subtitle: From bill to vote to veto to law.
     days: 3
+    # NOTE for the ch4-6 authoring task: when these decks are authored,
+    # their meta.id MUST match these ids and the `status: planned` line
+    # is removed.
+    decks:
+      - id: us-concepts-lawmaking
+        title: "Lawmaking Concepts"
+        status: planned
     item_ids:
       - leg.enumerated-powers
       - leg.elastic-clause
@@ -359,6 +390,10 @@ chapters:
     title: Your Rights
     subtitle: Free speech, due process, landmark Supreme Court cases.
     days: 3
+    decks:
+      - id: us-concepts-rights-cases
+        title: "Rights and Landmark Cases"
+        status: planned
     item_ids:
       - case.marbury
       - case.mcculloch
@@ -414,6 +449,10 @@ chapters:
     title: Voting & You
     subtitle: Parties, elections, civic duty, civil rights.
     days: 4
+    decks:
+      - id: us-concepts-participation
+        title: "Voting and Participation"
+        status: planned
     item_ids:
       - sl.governor
       - sl.state-powers

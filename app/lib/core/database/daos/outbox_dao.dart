@@ -24,18 +24,16 @@ class OutboxDao extends DatabaseAccessor<AppDatabase> with _$OutboxDaoMixin {
 
   /// Oldest deliverable events first, so server-side ordering follows
   /// client-side ordering.
-  Future<List<OutboxEvent>> pending({int limit = 50}) =>
-      (select(outboxEvents)
-            ..where((t) => t.tries.isSmallerThanValue(maxTries))
-            ..orderBy([(t) => OrderingTerm.asc(t.createdAt)])
-            ..limit(limit))
-          .get();
+  Future<List<OutboxEvent>> pending({int limit = 50}) => (select(outboxEvents)
+        ..where((t) => t.tries.isSmallerThanValue(maxTries))
+        ..orderBy([(t) => OrderingTerm.asc(t.createdAt)])
+        ..limit(limit))
+      .get();
 
   Future<void> markDelivered(String eventId) =>
       (delete(outboxEvents)..where((t) => t.eventId.equals(eventId))).go();
 
-  Future<void> recordFailure(String eventId, String error) =>
-      customStatement(
+  Future<void> recordFailure(String eventId, String error) => customStatement(
         'UPDATE outbox_events SET tries = tries + 1, last_error = ? '
         'WHERE event_id = ?',
         [error, eventId],

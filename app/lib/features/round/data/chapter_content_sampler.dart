@@ -113,16 +113,38 @@ class ChapterContentSampler {
     picked.addAll(resolved.take(count - picked.length));
 
     // If the chapter resolved fewer cards than asked for and we're allowed
-    // to fall back, top up from any active card not already picked. This
-    // keeps the round playable during the Phase 0 authoring gap.
+    // to fall back, top up in two stages. This keeps the round playable
+    // during the Phase 0 authoring gap.
     if (picked.length < count && allowFallback) {
       final usedCardIds = picked.map((r) => r.card.id).toSet();
-      final pool = await _db.cardsDao.allActiveFaceCards();
-      final available = pool.where((c) => !usedCardIds.contains(c.id)).toList()
-        ..shuffle(rng);
-      final needed = count - picked.length;
-      for (final card in available.take(needed)) {
-        picked.add(_ResolvedItem(itemId: null, card: card));
+      // Stage 1: the chapter's own declared decks, so fallback content still
+      // belongs to the story the player is inside.
+      for (final ref in chapter.decks) {
+        if (picked.length >= count) break;
+        if (ref.planned) continue;
+        final deck = await _db.decksDao.deckByExternalId(ref.id);
+        if (deck == null) continue;
+        final deckCards = await _db.cardsDao.cardsByDeckId(deck.id);
+        final candidates = deckCards
+            .where((c) => c.isActive && !usedCardIds.contains(c.id))
+            .toList()
+          ..shuffle(rng);
+        for (final card in candidates.take(count - picked.length)) {
+          usedCardIds.add(card.id);
+          picked.add(_ResolvedItem(itemId: null, card: card));
+        }
+      }
+      // Stage 2: global face-card pool, filtered to subscribed decks so
+      // paused delegation decks never flood the fallback.
+      if (picked.length < count) {
+        final pool = await _db.cardsDao.subscribedActiveFaceCards();
+        final available = pool
+            .where((c) => !usedCardIds.contains(c.id))
+            .toList()
+          ..shuffle(rng);
+        for (final card in available.take(count - picked.length)) {
+          picked.add(_ResolvedItem(itemId: null, card: card));
+        }
       }
     }
 

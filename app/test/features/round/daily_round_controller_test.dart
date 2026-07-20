@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,9 +15,11 @@ void main() {
 
   setUp(() {
     db = AppDatabase.forTesting(NativeDatabase.memory());
-    container = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-    ],);
+    container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+      ],
+    );
   });
 
   tearDown(() {
@@ -26,25 +29,28 @@ void main() {
 
   Future<void> seedDeck(int count) async {
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-    await db.into(db.localDecks).insert(LocalDecksCompanion.insert(
-          id: 'd',
-          externalId: 'd',
-          name: 'd',
-          updatedAt: now,
-        ),);
-    for (var i = 0; i < count; i++) {
-      await db.into(db.localCards).insert(LocalCardsCompanion.insert(
-            id: 'c$i',
-            deckId: 'd',
-            externalId: 'c${i}_ext',
-            politicianName: 'Politician $i',
-            title: 'Title $i',
-            sourceUrl: '',
+    await db.into(db.localDecks).insert(
+          LocalDecksCompanion.insert(
+            id: 'd',
+            externalId: 'd',
+            name: 'd',
             updatedAt: now,
-          ),);
+          ),
+        );
+    for (var i = 0; i < count; i++) {
+      await db.into(db.localCards).insert(
+            LocalCardsCompanion.insert(
+              id: 'c$i',
+              deckId: 'd',
+              externalId: 'c${i}_ext',
+              politicianName: 'Politician $i',
+              title: 'Title $i',
+              sourceUrl: '',
+              updatedAt: now,
+            ),
+          );
     }
   }
-
 
   /// Builds today's round and walks through the briefing phase (chapter 1
   /// day 1 has authored lessons, so new rounds open on briefing).
@@ -59,11 +65,13 @@ void main() {
 
   test('new round opens in briefing with the day-1 lessons', () async {
     await seedDeck(20);
-    final state =
-        await container.read(dailyRoundControllerProvider.future);
+    final state = await container.read(dailyRoundControllerProvider.future);
     expect(state.phase, RoundPhase.briefing);
-    expect(state.lessons, isNotEmpty,
-        reason: 'chapter 1 day 1 has authored lessons',);
+    expect(
+      state.lessons,
+      isNotEmpty,
+      reason: 'chapter 1 day 1 has authored lessons',
+    );
     expect(state.lessons.every((l) => l.day == 1), isTrue);
   });
 
@@ -73,30 +81,37 @@ void main() {
     await container
         .read(dailyRoundControllerProvider.notifier)
         .completeBriefing();
-    expect(container.read(dailyRoundControllerProvider).value!.phase,
-        RoundPhase.cards,);
+    expect(
+      container.read(dailyRoundControllerProvider).value!.phase,
+      RoundPhase.cards,
+    );
 
     // Resume in a fresh container: phase survives as cards (briefing done).
-    final container2 = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-    ],);
+    final container2 = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+      ],
+    );
     addTearDown(container2.dispose);
-    final hydrated =
-        await container2.read(dailyRoundControllerProvider.future);
+    final hydrated = await container2.read(dailyRoundControllerProvider.future);
     expect(hydrated.phase, RoundPhase.cards);
-    expect(hydrated.lessons, isNotEmpty,
-        reason: 'lessons re-derive from curriculum on resume',);
+    expect(
+      hydrated.lessons,
+      isNotEmpty,
+      reason: 'lessons re-derive from curriculum on resume',
+    );
   });
 
   test('resume mid-briefing stays in briefing', () async {
     await seedDeck(20);
     await container.read(dailyRoundControllerProvider.future);
-    final container2 = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-    ],);
+    final container2 = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+      ],
+    );
     addTearDown(container2.dispose);
-    final hydrated =
-        await container2.read(dailyRoundControllerProvider.future);
+    final hydrated = await container2.read(dailyRoundControllerProvider.future);
     expect(hydrated.phase, RoundPhase.briefing);
   });
 
@@ -113,8 +128,7 @@ void main() {
 
   test('build resumes a persisted round mid-cards-phase', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     await buildPastBriefing(container);
 
     // Grade two cards, then dispose and rebuild a fresh container that
@@ -123,12 +137,13 @@ void main() {
     await notifier.gradeCard(0, 2);
     await notifier.gradeCard(1, 3);
 
-    final container2 = ProviderContainer(overrides: [
-      databaseProvider.overrideWithValue(db),
-    ],);
+    final container2 = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+      ],
+    );
     addTearDown(container2.dispose);
-    final hydrated =
-        await container2.read(dailyRoundControllerProvider.future);
+    final hydrated = await container2.read(dailyRoundControllerProvider.future);
 
     expect(hydrated.phase, RoundPhase.cards);
     expect(hydrated.cards[0].grade, 2);
@@ -138,8 +153,7 @@ void main() {
 
   test('grading the last card flips to trivia phase', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     final initial = await buildPastBriefing(container);
 
     for (var i = 0; i < initial.cards.length; i++) {
@@ -152,8 +166,7 @@ void main() {
   test('answering the last trivia flips to reveal phase with a result',
       () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     final initial = await buildPastBriefing(container);
 
     // Burn through the cards phase to reach trivia.
@@ -171,11 +184,9 @@ void main() {
     expect(after.result!.totalQuestions, mid.trivia.length);
   });
 
-  test('completeRound advances phase to done + advances chapter day',
-      () async {
+  test('completeRound advances phase to done + advances chapter day', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     final initial = await buildPastBriefing(container);
 
     for (var i = 0; i < initial.cards.length; i++) {
@@ -200,8 +211,7 @@ void main() {
 
   test('gradeCard outside cards phase is a no-op', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     final initial = await buildPastBriefing(container);
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
@@ -209,14 +219,16 @@ void main() {
     // Now in trivia phase. Grading again should be ignored.
     await notifier.gradeCard(0, 0);
     final after = container.read(dailyRoundControllerProvider).value!;
-    expect(after.cards[0].grade, 2,
-        reason: 'gradeCard should not overwrite once past cards phase',);
+    expect(
+      after.cards[0].grade,
+      2,
+      reason: 'gradeCard should not overwrite once past cards phase',
+    );
   });
 
   test('answerTrivia is no-op until cards phase completes', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     await buildPastBriefing(container);
 
     await notifier.answerTrivia(0, 1, TriviaConfidence.certain);
@@ -227,8 +239,7 @@ void main() {
 
   test('completeRound throws when called before reveal phase', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     await container.read(dailyRoundControllerProvider.future);
 
     expect(notifier.completeRound, throwsStateError);
@@ -238,8 +249,7 @@ void main() {
     await seedDeck(20);
     await buildPastBriefing(container);
 
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     await notifier.gradeCard(0, 1);
 
     // Re-read; should be the same state (no rebuild because provider is
@@ -248,39 +258,100 @@ void main() {
     expect(again.cards[0].grade, 1);
   });
 
-  test('gradeCard routes through FSRS pipeline + ticks profile XP',
-      () async {
+  test('fresh round on chapter 1 carries the next chapter title', () async {
     await seedDeck(20);
-    final notifier =
-        container.read(dailyRoundControllerProvider.notifier);
+    final state = await container.read(dailyRoundControllerProvider.future);
+    final curriculum = await container.read(curriculumProvider.future);
+    expect(
+      state.nextChapterTitle,
+      curriculum.chapterAfter('ch1.first-principles')!.title,
+    );
+    expect(
+      state.isFinalDay,
+      isFalse,
+      reason: 'chapter 1 day 1 of 2 is not the final day',
+    );
+  });
+
+  test('fresh round on the last chapter has a null nextChapterTitle', () async {
+    await seedDeck(20);
+    final curriculum = await container.read(curriculumProvider.future);
+    // Mark every chapter but the last completed so the controller seeds
+    // the season's final chapter.
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    for (final chapter
+        in curriculum.chapters.take(curriculum.chapters.length - 1)) {
+      await db.chapterProgressDao.upsert(
+        ChapterProgressCompanion(
+          userId: const Value('local-user'),
+          seasonId: Value(curriculum.season.id),
+          chapterId: Value(chapter.id),
+          dayInChapter: Value(chapter.days),
+          roundsCompleted: Value(chapter.days),
+          startedAt: Value(now),
+          completedAt: Value(now),
+          updatedAt: Value(now),
+        ),
+      );
+    }
+    final state = await container.read(dailyRoundControllerProvider.future);
+    expect(state.chapterId, curriculum.chapters.last.id);
+    expect(state.nextChapterTitle, isNull);
+  });
+
+  test('isFinalDay flips true when dayInChapter reaches daysInChapter', () {
+    DailyRoundState stateAtDay(int day) => DailyRoundState(
+          dateIso: '2026-07-12',
+          chapterId: 'chX',
+          chapterTitle: 'T',
+          chapterSubtitle: 'S',
+          dayInChapter: day,
+          daysInChapter: 3,
+          phase: RoundPhase.cards,
+          cards: const [],
+          trivia: const [],
+        );
+    expect(stateAtDay(2).isFinalDay, isFalse);
+    expect(stateAtDay(3).isFinalDay, isTrue);
+  });
+
+  test('gradeCard routes through FSRS pipeline + ticks profile XP', () async {
+    await seedDeck(20);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
     final initial = await buildPastBriefing(container);
     final firstCardId = initial.cards.first.cardId;
 
     // Profile starts empty (no XP, streak 0).
-    final beforeProfile =
-        await container.read(profileServiceProvider).load();
+    final beforeProfile = await container.read(profileServiceProvider).load();
     expect(beforeProfile.xpTotal, 0);
     expect(beforeProfile.streakDays, 0);
 
     // Card memory state starts new (no row yet).
-    final beforeMemory =
-        await db.reviewsDao.stateFor(firstCardId);
+    final beforeMemory = await db.reviewsDao.stateFor(firstCardId);
     expect(beforeMemory, isNull);
 
     await notifier.gradeCard(0, 2); // FSRSGrade.good
 
     // After grading: FSRS state should exist + reviewCount = 1.
     final afterMemory = await db.reviewsDao.stateFor(firstCardId);
-    expect(afterMemory, isNotNull,
-        reason: 'gradeCard should have created a CardMemoryStates row',);
+    expect(
+      afterMemory,
+      isNotNull,
+      reason: 'gradeCard should have created a CardMemoryStates row',
+    );
     expect(afterMemory!.reviewCount, greaterThanOrEqualTo(1));
 
     // Profile should have advanced — XP added + streak hits 1.
-    final afterProfile =
-        await container.read(profileServiceProvider).load();
-    expect(afterProfile.xpTotal, greaterThan(0),
-        reason: 'Profile XP should increment via recordReview',);
-    expect(afterProfile.streakDays, 1,
-        reason: 'Streak should tick on the first review of the day',);
+    final afterProfile = await container.read(profileServiceProvider).load();
+    expect(
+      afterProfile.xpTotal,
+      greaterThan(0),
+      reason: 'Profile XP should increment via recordReview',
+    );
+    expect(
+      afterProfile.streakDays,
+      1,
+      reason: 'Streak should tick on the first review of the day',
+    );
   });
 }

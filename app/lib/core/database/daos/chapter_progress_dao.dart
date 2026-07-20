@@ -18,12 +18,15 @@ class ChapterProgressDao extends DatabaseAccessor<AppDatabase>
   Future<ChapterProgressEntry?> getInProgress({
     required String userId,
     required String seasonId,
-  }) => (select(chapterProgress)
-          ..where((t) =>
-              t.userId.equals(userId) &
-              t.seasonId.equals(seasonId) &
-              t.completedAt.isNull(),))
-        .getSingleOrNull();
+  }) =>
+      (select(chapterProgress)
+            ..where(
+              (t) =>
+                  t.userId.equals(userId) &
+                  t.seasonId.equals(seasonId) &
+                  t.completedAt.isNull(),
+            ))
+          .getSingleOrNull();
 
   /// Returns the specific chapter entry if it exists (in-progress OR
   /// completed). Used by [insertOrAdvance] to decide insert vs. update.
@@ -31,12 +34,15 @@ class ChapterProgressDao extends DatabaseAccessor<AppDatabase>
     required String userId,
     required String seasonId,
     required String chapterId,
-  }) => (select(chapterProgress)
-          ..where((t) =>
-              t.userId.equals(userId) &
-              t.seasonId.equals(seasonId) &
-              t.chapterId.equals(chapterId),))
-        .getSingleOrNull();
+  }) =>
+      (select(chapterProgress)
+            ..where(
+              (t) =>
+                  t.userId.equals(userId) &
+                  t.seasonId.equals(seasonId) &
+                  t.chapterId.equals(chapterId),
+            ))
+          .getSingleOrNull();
 
   /// Returns all entries for this user + season, ordered by startedAt
   /// ascending. Used by the home-screen Season Spine widget to render
@@ -44,16 +50,19 @@ class ChapterProgressDao extends DatabaseAccessor<AppDatabase>
   Future<List<ChapterProgressEntry>> listForSeason({
     required String userId,
     required String seasonId,
-  }) => (select(chapterProgress)
-          ..where((t) =>
-              t.userId.equals(userId) & t.seasonId.equals(seasonId),)
-          ..orderBy([(t) => OrderingTerm.asc(t.startedAt)]))
-        .get();
+  }) =>
+      (select(chapterProgress)
+            ..where(
+              (t) => t.userId.equals(userId) & t.seasonId.equals(seasonId),
+            )
+            ..orderBy([(t) => OrderingTerm.asc(t.startedAt)]))
+          .get();
 
-  Future<void> upsert(ChapterProgressCompanion entry) => into(chapterProgress).insertOnConflictUpdate(entry);
+  Future<void> upsert(ChapterProgressCompanion entry) =>
+      into(chapterProgress).insertOnConflictUpdate(entry);
 
   /// Test/debug helper: wipe all chapter progress for a user. Not used in
   /// app code — exposed for tests that need a clean slate between cases.
-  Future<int> deleteAllForUser(String userId) => (delete(chapterProgress)..where((t) => t.userId.equals(userId)))
-        .go();
+  Future<int> deleteAllForUser(String userId) =>
+      (delete(chapterProgress)..where((t) => t.userId.equals(userId))).go();
 }

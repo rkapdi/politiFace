@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../government/application/gov_map_data.dart';
 import '../../government/application/node_detail_data.dart';
 import '../application/session_controller.dart';
@@ -30,6 +31,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     // the confetti emits before the screen is settled and particles
     // sometimes hang at the top instead of raining down.
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      // Screen-appear sound: skipped under VoiceOver so the chime never
+      // lands on top of the screen announcement.
+      final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
+      if (!a11y) {
+        ref.read(soundServiceProvider).play(SoundEffect.complete);
+      }
       Future.delayed(const Duration(milliseconds: 250), () {
         if (mounted) _confetti.play();
       });
@@ -52,7 +60,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
     final completed = state?.completed ?? 0;
     final correct = state?.correct ?? 0;
     final again = state?.again ?? 0;
-    final accuracyPct = completed == 0 ? 0 : ((correct / completed) * 100).round();
+    final accuracyPct =
+        completed == 0 ? 0 : ((correct / completed) * 100).round();
     final isPerfect = completed > 0 && again == 0;
     final reviewedCardIds = state?.reviewedCardIds ?? const <String>[];
 
@@ -102,8 +111,9 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                                 ),
                                 const SizedBox(height: 20),
                                 _Row(
-                                    label: 'Cards reviewed',
-                                    value: '$completed',),
+                                  label: 'Cards reviewed',
+                                  value: '$completed',
+                                ),
                                 const SizedBox(height: 12),
                                 _Row(label: 'Correct', value: '$correct'),
                                 const SizedBox(height: 12),
@@ -111,13 +121,20 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                                 if (profile != null) ...[
                                   const Divider(height: 28),
                                   _Row(
-                                      label: 'Streak',
-                                      value:
-                                          '${profile.streakDays} day${profile.streakDays == 1 ? "" : "s"}',),
+                                    label: 'Streak',
+                                    value:
+                                        '${profile.streakDays} day${profile.streakDays == 1 ? "" : "s"}',
+                                  ),
                                   const SizedBox(height: 12),
-                                  _Row(label: 'XP', value: '${profile.xpTotal}'),
+                                  _Row(
+                                    label: 'XP',
+                                    value: '${profile.xpTotal}',
+                                  ),
                                   const SizedBox(height: 12),
-                                  _Row(label: 'Level', value: '${profile.level}'),
+                                  _Row(
+                                    label: 'Level',
+                                    value: '${profile.level}',
+                                  ),
                                 ],
                               ],
                             ),
@@ -144,9 +161,8 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                       onPressed: () {
                         ref.read(activeSessionDeckIdProvider.notifier).state =
                             null;
-                        ref
-                            .read(activeSessionCardIdsProvider.notifier)
-                            .state = null;
+                        ref.read(activeSessionCardIdsProvider.notifier).state =
+                            null;
                         ref.read(sessionControllerProvider.notifier).reset();
                         ref.invalidate(govMapDataProvider);
                         ref.invalidate(nodeDetailProvider);
@@ -207,42 +223,41 @@ class _AccuracyRing extends StatelessWidget {
       duration: const Duration(milliseconds: 900),
       curve: Curves.easeOutCubic,
       builder: (context, value, _) => SizedBox(
-          width: 140,
-          height: 140,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 140,
-                height: 140,
-                child: CircularProgressIndicator(
-                  value: value / 100,
-                  strokeWidth: 10,
-                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
-                  valueColor:
-                      AlwaysStoppedAnimation(_ringColor(value, theme)),
+        width: 140,
+        height: 140,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 140,
+              height: 140,
+              child: CircularProgressIndicator(
+                value: value / 100,
+                strokeWidth: 10,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                valueColor: AlwaysStoppedAnimation(_ringColor(value, theme)),
+              ),
+            ),
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${value.round()}%',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${value.round()}%',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                Text(
+                  'accuracy',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
-                  Text(
-                    'accuracy',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
+      ),
     );
   }
 

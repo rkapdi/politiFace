@@ -14,6 +14,7 @@ import '../features/atlas/data/branch_info_loader.dart';
 import '../features/atlas/data/wikipedia_bio_service.dart';
 import '../features/benchmark/data/benchmark_loader.dart';
 import '../features/benchmark/domain/benchmark.dart';
+import '../features/curriculum/data/chapter_deck_progress.dart';
 import '../features/curriculum/data/chapter_progress_service.dart';
 import '../features/curriculum/data/content_linker.dart';
 import '../features/curriculum/data/curriculum_loader.dart';
@@ -40,10 +41,11 @@ final fsrsProvider = Provider<FSRS>((ref) => const FSRS());
 
 /// Null when the build carries no backend config or the user is signed out
 /// of everything Supabase. All sync features no-op through this null.
-final authServiceProvider = Provider<AuthService?>((ref) =>
-    SupabaseConfig.isConfigured
-        ? AuthService(Supabase.instance.client)
-        : null,);
+final authServiceProvider = Provider<AuthService?>(
+  (ref) => SupabaseConfig.isConfigured
+      ? AuthService(Supabase.instance.client)
+      : null,
+);
 
 final authStateProvider = StreamProvider<AuthState>((ref) {
   final auth = ref.watch(authServiceProvider);
@@ -59,13 +61,17 @@ final syncEngineProvider = Provider<SyncEngine>((ref) {
   return SyncEngine(ref.watch(databaseProvider), transport);
 });
 
-final profileServiceProvider = Provider<ProfileService>((ref) => ProfileService(ref.watch(databaseProvider)));
+final profileServiceProvider = Provider<ProfileService>(
+  (ref) => ProfileService(ref.watch(databaseProvider)),
+);
 
-final cardReviewRepositoryProvider = Provider<CardReviewRepository>((ref) => CardReviewRepository(
+final cardReviewRepositoryProvider = Provider<CardReviewRepository>(
+  (ref) => CardReviewRepository(
     ref.watch(databaseProvider),
     ref.watch(fsrsProvider),
     ref.watch(profileServiceProvider),
-  ),);
+  ),
+);
 
 final profileProvider = FutureProvider<UserProfile>((ref) async {
   // Watching the session controller forces a refetch after every review.
@@ -76,17 +82,22 @@ final profileProvider = FutureProvider<UserProfile>((ref) async {
 /// Bumped by SessionController after each grade so [profileProvider] refetches.
 final sessionTickProvider = StateProvider<int>((ref) => 0);
 
-final nodeUnlockServiceProvider = Provider<NodeUnlockService>((ref) => NodeUnlockService(ref.watch(databaseProvider)));
+final nodeUnlockServiceProvider = Provider<NodeUnlockService>(
+  (ref) => NodeUnlockService(ref.watch(databaseProvider)),
+);
 
-final pendingSessionStoreProvider = Provider<PendingSessionStore>((ref) => PendingSessionStore(ref.watch(databaseProvider)));
+final pendingSessionStoreProvider = Provider<PendingSessionStore>(
+  (ref) => PendingSessionStore(ref.watch(databaseProvider)),
+);
 
 /// Initial route, set in main() based on the onboarding flag.
 final initialRouteProvider = Provider<String>((ref) => '/');
 
 /// Controls MaterialApp.themeMode. Defaults to system on first launch; the
 /// Settings screen flips it and persists the choice via SettingsService.
-final themeModeProvider =
-    StateNotifierProvider<ThemeModeNotifier, ThemeMode>((ref) => ThemeModeNotifier(ref.read(databaseProvider)));
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
+  (ref) => ThemeModeNotifier(ref.read(databaseProvider)),
+);
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier(this._db) : super(ThemeMode.system) {
@@ -118,7 +129,9 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-final routerProvider = Provider<GoRouter>((ref) => buildRouter(initialLocation: ref.read(initialRouteProvider)));
+final routerProvider = Provider<GoRouter>(
+  (ref) => buildRouter(initialLocation: ref.read(initialRouteProvider)),
+);
 
 // Null = global session (FSRS-driven across all decks).
 // Set by NodeDetailScreen before navigating to /session.
@@ -141,11 +154,14 @@ final cardRevealedProvider = StateProvider<bool>((ref) => false);
 
 // ── Curriculum (chapter-aware daily round) ──────────────────────────────────
 
-final curriculumLoaderProvider = Provider<CurriculumLoader>((_) => CurriculumLoader());
+final curriculumLoaderProvider =
+    Provider<CurriculumLoader>((_) => CurriculumLoader());
 
 /// Parsed `us_civics.yaml`. Loaded once per app launch; cached for the
 /// lifetime of the Riverpod scope.
-final curriculumProvider = FutureProvider<Curriculum>((ref) async => ref.watch(curriculumLoaderProvider).load());
+final curriculumProvider = FutureProvider<Curriculum>(
+  (ref) async => ref.watch(curriculumLoaderProvider).load(),
+);
 
 /// Parsed national civics-knowledge benchmarks shown at round end.
 final benchmarkLoaderProvider =
@@ -155,10 +171,28 @@ final benchmarksProvider = FutureProvider<Benchmarks>(
   (ref) async => ref.watch(benchmarkLoaderProvider).load(),
 );
 
-final chapterProgressServiceProvider =
-    Provider<ChapterProgressService>((ref) => ChapterProgressService(ref.watch(databaseProvider)));
+final chapterProgressServiceProvider = Provider<ChapterProgressService>(
+  (ref) => ChapterProgressService(ref.watch(databaseProvider)),
+);
 
-final contentLinkerProvider = Provider<ContentLinker>((ref) => ContentLinker(ref.watch(databaseProvider)));
+final chapterDeckProgressServiceProvider = Provider<ChapterDeckProgressService>(
+  (ref) => ChapterDeckProgressService(ref.watch(databaseProvider)),
+);
+
+/// Per-deck progress for one chapter (keyed by chapter id). Refetches
+/// when [sessionTickProvider] bumps so grading updates the sheet live.
+final chapterDeckProgressProvider = FutureProvider.autoDispose
+    .family<List<ChapterDeckProgress>, String>((ref, chapterId) async {
+  ref.watch(sessionTickProvider);
+  final curriculum = await ref.watch(curriculumProvider.future);
+  final chapter = curriculum.chapterById(chapterId);
+  if (chapter == null) return const [];
+  return ref.watch(chapterDeckProgressServiceProvider).forChapter(chapter);
+});
+
+final contentLinkerProvider = Provider<ContentLinker>(
+  (ref) => ContentLinker(ref.watch(databaseProvider)),
+);
 
 /// The user's current in-progress chapter entry, or null when the season is
 /// done. Returns null while [curriculumProvider] is still loading.
@@ -186,11 +220,14 @@ final seasonProgressProvider =
 
 // ── Atlas branch info (library blurbs) ──────────────────────────────────────
 
-final branchInfoLibraryProvider = FutureProvider<BranchInfoLibrary>((ref) => BranchInfoLoader().load());
+final branchInfoLibraryProvider =
+    FutureProvider<BranchInfoLibrary>((ref) => BranchInfoLoader().load());
 
 // ── Wikipedia bio service + per-card bio stream ─────────────────────────────
 
-final wikipediaBioServiceProvider = Provider<WikipediaBioService>((ref) => WikipediaBioService(ref.watch(databaseProvider)));
+final wikipediaBioServiceProvider = Provider<WikipediaBioService>(
+  (ref) => WikipediaBioService(ref.watch(databaseProvider)),
+);
 
 /// Reactive bio for a single card. Subscribes to PoliticianBios row
 /// updates so the screen rebuilds when a fetch completes. Also triggers
@@ -205,15 +242,19 @@ final politicianBioProvider =
 
 // ── Daily Round (chapter-aware ritual) ──────────────────────────────────────
 
-final chapterContentSamplerProvider = Provider<ChapterContentSampler>((ref) => ChapterContentSampler(
+final chapterContentSamplerProvider = Provider<ChapterContentSampler>(
+  (ref) => ChapterContentSampler(
     ref.watch(databaseProvider),
     ref.watch(contentLinkerProvider),
-  ),);
+  ),
+);
 
 /// The active round for today. Loads existing (mid-flight) or creates a new
 /// one on first read for the current date.
 final dailyRoundControllerProvider =
-    AsyncNotifierProvider<DailyRoundController, DailyRoundState>(DailyRoundController.new);
+    AsyncNotifierProvider<DailyRoundController, DailyRoundState>(
+  DailyRoundController.new,
+);
 
 /// Lightweight check: has today's round been completed yet? Reads the
 /// `daily_rounds` DAO directly so home can render a "Played" badge

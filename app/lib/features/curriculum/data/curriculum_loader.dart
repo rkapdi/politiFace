@@ -15,8 +15,7 @@ class CurriculumLoader {
 
   final AssetBundle _bundle;
 
-  static const String _assetPath =
-      'assets/content/curriculum/us_civics.yaml';
+  static const String _assetPath = 'assets/content/curriculum/us_civics.yaml';
 
   Future<Curriculum> load() async {
     final raw = await _bundle.loadString(_assetPath);
@@ -101,11 +100,46 @@ class CurriculumLoader {
       days: days,
       itemIds: _stringList(raw['item_ids'], 'chapter[$id].item_ids'),
       lessons: _parseLessons(raw['lessons'], chapterId: id, chapterDays: days),
+      decks: _parseDeckRefs(raw['decks'], chapterId: id),
     );
   }
 
-  List<Lesson> _parseLessons(Object? raw,
-      {required String chapterId, required int chapterDays,}) {
+  List<ChapterDeckRef> _parseDeckRefs(
+    Object? raw, {
+    required String chapterId,
+  }) {
+    if (raw == null) return const [];
+    if (raw is! List) {
+      throw CurriculumLoadException(
+        'chapter[$chapterId].decks: must be a list, got ${raw.runtimeType}.',
+      );
+    }
+    final refs = <ChapterDeckRef>[];
+    final seen = <String>{};
+    for (final entry in raw) {
+      if (entry is! Map) continue;
+      final id = _requiredString(entry, 'id', context: 'deck($chapterId)');
+      if (!seen.add(id)) {
+        throw CurriculumLoadException(
+          'chapter[$chapterId]: duplicate deck id "$id".',
+        );
+      }
+      refs.add(
+        ChapterDeckRef(
+          id: id,
+          title: _requiredString(entry, 'title', context: 'deck[$id]'),
+          planned: (entry['status'] as String?) == 'planned',
+        ),
+      );
+    }
+    return refs;
+  }
+
+  List<Lesson> _parseLessons(
+    Object? raw, {
+    required String chapterId,
+    required int chapterDays,
+  }) {
     if (raw == null) return const []; // lessons are optional per chapter
     if (raw is! List) {
       throw CurriculumLoadException(
@@ -129,19 +163,20 @@ class CurriculumLoader {
           '1..$chapterDays.',
         );
       }
-      lessons.add(Lesson(
-        id: id,
-        day: day,
-        title: _requiredString(entry, 'title', context: 'lesson[$id]'),
-        body:
-            _requiredString(entry, 'body', context: 'lesson[$id]').trim(),
-        relatedCardIds: _stringList(
-          entry['related_cards'],
-          'lesson[$id].related_cards',
-          allowMissing: true,
+      lessons.add(
+        Lesson(
+          id: id,
+          day: day,
+          title: _requiredString(entry, 'title', context: 'lesson[$id]'),
+          body: _requiredString(entry, 'body', context: 'lesson[$id]').trim(),
+          relatedCardIds: _stringList(
+            entry['related_cards'],
+            'lesson[$id].related_cards',
+            allowMissing: true,
+          ),
+          source: entry['source'] as String?,
         ),
-        source: entry['source'] as String?,
-      ),);
+      );
     }
     return lessons;
   }
@@ -171,7 +206,10 @@ class CurriculumLoader {
     );
   }
 
-  ConceptNode _parseConceptNode(Map<dynamic, dynamic> raw, {required String branchId}) {
+  ConceptNode _parseConceptNode(
+    Map<dynamic, dynamic> raw, {
+    required String branchId,
+  }) {
     final id = _requiredString(raw, 'id', context: 'concept_node($branchId)');
     final items = (raw['items'] as List<dynamic>?) ?? const [];
     return ConceptNode(
@@ -184,7 +222,10 @@ class CurriculumLoader {
     );
   }
 
-  CurriculumItem _parseItem(Map<dynamic, dynamic> raw, {required String nodeId}) {
+  CurriculumItem _parseItem(
+    Map<dynamic, dynamic> raw, {
+    required String nodeId,
+  }) {
     final id = _requiredString(raw, 'id', context: 'item($nodeId)');
     return CurriculumItem(
       id: id,
@@ -192,10 +233,16 @@ class CurriculumLoader {
       tier: _parseTier(raw['tier'], itemId: id),
       sources: _parseSources(raw['sources'], itemId: id),
       coverage: _parseCoverage(raw['coverage'], itemId: id),
-      crossLinks: _stringList(raw['cross_links'], 'item[$id].cross_links',
-          allowMissing: true,),
-      cardIds: _stringList(raw['card_ids'], 'item[$id].card_ids',
-          allowMissing: true,),
+      crossLinks: _stringList(
+        raw['cross_links'],
+        'item[$id].cross_links',
+        allowMissing: true,
+      ),
+      cardIds: _stringList(
+        raw['card_ids'],
+        'item[$id].card_ids',
+        allowMissing: true,
+      ),
     );
   }
 
@@ -271,7 +318,11 @@ class CurriculumLoader {
 
   // ── Field helpers ─────────────────────────────────────────────────────
 
-  String _requiredString(Map<dynamic, dynamic> raw, String key, {required String context}) {
+  String _requiredString(
+    Map<dynamic, dynamic> raw,
+    String key, {
+    required String context,
+  }) {
     final v = raw[key];
     if (v is! String || v.isEmpty) {
       throw CurriculumLoadException(
@@ -281,7 +332,11 @@ class CurriculumLoader {
     return v;
   }
 
-  int _requiredInt(Map<dynamic, dynamic> raw, String key, {required String context}) {
+  int _requiredInt(
+    Map<dynamic, dynamic> raw,
+    String key, {
+    required String context,
+  }) {
     final v = raw[key];
     if (v is! int) {
       throw CurriculumLoadException(
@@ -291,8 +346,11 @@ class CurriculumLoader {
     return v;
   }
 
-  List<String> _stringList(Object? raw, String context,
-      {bool allowMissing = false,}) {
+  List<String> _stringList(
+    Object? raw,
+    String context, {
+    bool allowMissing = false,
+  }) {
     if (raw == null) {
       if (allowMissing) return const [];
       throw CurriculumLoadException('$context: missing.');

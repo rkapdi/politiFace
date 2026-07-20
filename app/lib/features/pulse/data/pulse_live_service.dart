@@ -40,6 +40,7 @@ class LiveBillAction {
     required this.actionDate,
     required this.action,
     required this.url,
+    this.congress,
   });
 
   final String bill;
@@ -47,6 +48,22 @@ class LiveBillAction {
   final String actionDate;
   final String action;
   final String url;
+  final int? congress;
+}
+
+/// A CRS bill summary served by the `pulse` Edge Function.
+class LiveBillSummary {
+  const LiveBillSummary({
+    required this.text,
+    required this.version,
+    required this.date,
+    required this.truncated,
+  });
+
+  final String text;
+  final String version; // e.g. "Introduced in House"
+  final String date; // ISO yyyy-mm-dd
+  final bool truncated;
 }
 
 class LivePulse {
@@ -69,8 +86,7 @@ class PulseLiveService {
     final request = await _client.getUrl(uri)
       ..headers.set(HttpHeaders.userAgentHeader, _userAgent);
     headers?.forEach(request.headers.set);
-    final response =
-        await request.close().timeout(const Duration(seconds: 12));
+    final response = await request.close().timeout(const Duration(seconds: 12));
     if (response.statusCode != 200) {
       throw HttpException('HTTP ${response.statusCode}', uri: uri);
     }
@@ -99,8 +115,7 @@ class PulseLiveService {
           LiveOrder(
             number: int.parse(r['executive_order_number'].toString()),
             title: (r['title'] as String? ?? '').trim(),
-            president:
-                ((r['president'] as Map?)?['name'] as String?) ?? '',
+            president: ((r['president'] as Map?)?['name'] as String?) ?? '',
             signingDate: r['signing_date'] as String? ?? '',
             url: r['html_url'] as String? ?? '',
           ),
@@ -112,10 +127,13 @@ class PulseLiveService {
   Future<List<LiveBillAction>> fetchRecentBills() async {
     if (!SupabaseConfig.isConfigured) return const [];
     final uri = Uri.parse('${SupabaseConfig.url}/functions/v1/pulse');
-    final data = await _getJson(uri, headers: {
-      'apikey': SupabaseConfig.anonKey,
-      'authorization': 'Bearer ${SupabaseConfig.anonKey}',
-    },) as Map<String, dynamic>;
+    final data = await _getJson(
+      uri,
+      headers: {
+        'apikey': SupabaseConfig.anonKey,
+        'authorization': 'Bearer ${SupabaseConfig.anonKey}',
+      },
+    ) as Map<String, dynamic>;
     return [
       for (final b in data['bills'] as List? ?? const [])
         LiveBillAction(
@@ -124,8 +142,40 @@ class PulseLiveService {
           actionDate: b['action_date'] as String? ?? '',
           action: (b['action'] as String? ?? '').trim(),
           url: b['url'] as String? ?? '',
+          congress: b['congress'] as int?,
         ),
     ];
+  }
+
+  /// One bill's CRS summary via the backend proxy. Returns null when no
+  /// backend is configured or congress.gov has no summary yet.
+  Future<LiveBillSummary?> fetchBillSummary({
+    required int congress,
+    required String type,
+    required String number,
+  }) async {
+    if (!SupabaseConfig.isConfigured) return null;
+    final uri = Uri.parse(
+      '${SupabaseConfig.url}/functions/v1/pulse'
+      '?bill=$congress/${type.toLowerCase()}/$number',
+    );
+    final data = await _getJson(
+      uri,
+      headers: {
+        'apikey': SupabaseConfig.anonKey,
+        'authorization': 'Bearer ${SupabaseConfig.anonKey}',
+      },
+    ) as Map<String, dynamic>;
+    final summary = data['summary'];
+    if (summary is! Map) return null;
+    final text = (summary['text'] as String? ?? '').trim();
+    if (text.isEmpty) return null;
+    return LiveBillSummary(
+      text: text,
+      version: summary['version'] as String? ?? '',
+      date: summary['date'] as String? ?? '',
+      truncated: summary['truncated'] == true,
+    );
   }
 
   /// Everything live that is reachable right now. Sources fail

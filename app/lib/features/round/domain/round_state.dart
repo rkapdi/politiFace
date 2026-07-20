@@ -107,16 +107,16 @@ class RoundCard {
   bool get isConcept => cardType == 'concept';
 
   RoundCard copyWith({int? grade}) => RoundCard(
-      cardId: cardId,
-      prompt: prompt,
-      answer: answer,
-      politicianName: politicianName,
-      photoUrl: photoUrl,
-      grade: grade ?? this.grade,
-      cardType: cardType,
-      body: body,
-      teachFirst: teachFirst,
-    );
+        cardId: cardId,
+        prompt: prompt,
+        answer: answer,
+        politicianName: politicianName,
+        photoUrl: photoUrl,
+        grade: grade ?? this.grade,
+        cardType: cardType,
+        body: body,
+        teachFirst: teachFirst,
+      );
 }
 
 /// One trivia MCQ inside the trivia phase. The question + answer match
@@ -133,7 +133,8 @@ class RoundTrivia {
   /// Set once the user picks an option + confidence; null while pending.
   final TriviaAnswer? answer;
 
-  RoundTrivia copyWith({TriviaAnswer? answer}) => RoundTrivia(question: question, answer: answer ?? this.answer);
+  RoundTrivia copyWith({TriviaAnswer? answer}) =>
+      RoundTrivia(question: question, answer: answer ?? this.answer);
 
   bool get isAnswered => answer != null;
 }
@@ -152,6 +153,7 @@ class DailyRoundState {
     required this.cards,
     required this.trivia,
     this.lessons = const [],
+    this.nextChapterTitle,
     this.result,
   });
 
@@ -176,9 +178,18 @@ class DailyRoundState {
   /// curriculum on resume — not persisted — so content edits propagate.
   final List<Lesson> lessons;
 
+  /// Title of the chapter after this one, or null on the season's last
+  /// chapter. Derived from the curriculum on build/resume like [lessons];
+  /// not persisted.
+  final String? nextChapterTitle;
+
   /// Computed when the round enters [RoundPhase.reveal]. The
   /// existing trivia archetype scoring lives in `trivia_scoring.dart`.
   final TriviaResult? result;
+
+  /// True when today's round is the last day of its chapter; completing it
+  /// marks the chapter complete and unlocks the next one.
+  bool get isFinalDay => dayInChapter >= daysInChapter;
 
   bool get isBriefingPhase => phase == RoundPhase.briefing;
   bool get isCardsPhase => phase == RoundPhase.cards;
@@ -224,19 +235,21 @@ class DailyRoundState {
     List<RoundCard>? cards,
     List<RoundTrivia>? trivia,
     TriviaResult? result,
-  }) => DailyRoundState(
-      dateIso: dateIso,
-      chapterId: chapterId,
-      chapterTitle: chapterTitle,
-      chapterSubtitle: chapterSubtitle,
-      dayInChapter: dayInChapter,
-      daysInChapter: daysInChapter,
-      phase: phase ?? this.phase,
-      cards: cards ?? this.cards,
-      trivia: trivia ?? this.trivia,
-      lessons: lessons,
-      result: result ?? this.result,
-    );
+  }) =>
+      DailyRoundState(
+        dateIso: dateIso,
+        chapterId: chapterId,
+        chapterTitle: chapterTitle,
+        chapterSubtitle: chapterSubtitle,
+        dayInChapter: dayInChapter,
+        daysInChapter: daysInChapter,
+        phase: phase ?? this.phase,
+        cards: cards ?? this.cards,
+        trivia: trivia ?? this.trivia,
+        lessons: lessons,
+        nextChapterTitle: nextChapterTitle,
+        result: result ?? this.result,
+      );
 }
 
 /// Reason a round can't be started — surfaced to the UI as a structured

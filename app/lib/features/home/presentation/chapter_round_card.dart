@@ -62,6 +62,8 @@ class ChapterRoundCard extends ConsumerWidget {
       playedToday: played,
       reviewRunId: ref.watch(todayRoundRunIdProvider).value,
       totalChapters: curriculum.season.totalChapters,
+      nextChapterTitle: curriculum.chapterAfter(chapter.id)?.title,
+      roundsCompleted: progress.roundsCompleted,
     );
   }
 }
@@ -75,6 +77,8 @@ class _ActiveChapterCard extends StatelessWidget {
     required this.playedToday,
     required this.reviewRunId,
     required this.totalChapters,
+    required this.nextChapterTitle,
+    required this.roundsCompleted,
   });
 
   final Chapter chapter;
@@ -83,6 +87,14 @@ class _ActiveChapterCard extends StatelessWidget {
   final String? reviewRunId;
   final int totalChapters;
 
+  /// Title of the chapter after this one, or null on the season's last
+  /// chapter. Drives the final-day unlock line.
+  final String? nextChapterTitle;
+
+  /// Rounds completed inside this chapter. Zero right after a chapter
+  /// unlocks, which drives the "first round arrives tomorrow" copy.
+  final int roundsCompleted;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -90,6 +102,14 @@ class _ActiveChapterCard extends StatelessWidget {
         ? 0.0
         : ((dayInChapter - (playedToday ? 0 : 1)) / chapter.days)
             .clamp(0.0, 1.0);
+    final isFinalDay = dayInChapter >= chapter.days;
+    final statusLine = playedToday
+        ? (roundsCompleted == 0
+            ? 'Chapter unlocked. Your first round here arrives tomorrow.'
+            : 'Round complete. Next chapter day unlocks tomorrow.')
+        : (isFinalDay && nextChapterTitle != null
+            ? "Final day of this chapter. $nextChapterTitle unlocks after today's round."
+            : "Today's round · 5 cards + 10-question trivia · ≈ 4 min");
 
     return Container(
       decoration: BoxDecoration(
@@ -144,6 +164,24 @@ class _ActiveChapterCard extends StatelessWidget {
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Builder(
+                  builder: (context) {
+                    final lessons = chapter.lessonsForDay(dayInChapter);
+                    final focus = lessons.isEmpty
+                        ? 'Review and reinforcement'
+                        : lessons.map((l) => l.title).join(' · ');
+                    return Text(
+                      'Today: $focus',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    );
+                  },
+                ),
                 const SizedBox(height: 14),
                 Row(
                   children: [
@@ -180,9 +218,7 @@ class _ActiveChapterCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 14),
                 Text(
-                  playedToday
-                      ? 'Round complete. Next chapter day unlocks tomorrow.'
-                      : "Today's round · 5 cards + 10-question trivia · ≈ 4 min",
+                  statusLine,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -215,8 +251,7 @@ class _ActiveChapterCard extends StatelessWidget {
                           icon: const Icon(Icons.play_arrow_rounded, size: 20),
                           label: const Text("PLAY TODAY'S ROUND"),
                           style: FilledButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
                         ),
                 ),

@@ -55,8 +55,7 @@ class PeopleDao extends DatabaseAccessor<AppDatabase> with _$PeopleDaoMixin {
 
   Future<int> count() async {
     final c = countAll();
-    final row =
-        await (selectOnly(people)..addColumns([c])).getSingle();
+    final row = await (selectOnly(people)..addColumns([c])).getSingle();
     return row.read(c) ?? 0;
   }
 
