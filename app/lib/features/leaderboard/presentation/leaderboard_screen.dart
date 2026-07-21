@@ -1,9 +1,10 @@
 // lib/features/leaderboard/presentation/leaderboard_screen.dart
 //
-// Class leaderboard. Three states: signed out (point to Settings), signed
-// in with no class (join by code), in a class (ranked pseudonymous
-// handles, own row highlighted). Multiple classes get a simple chip
-// switcher. Scores are server-authoritative; this screen only reads.
+// Class leaderboard. Three states: signed out (inline sign-in, then
+// straight into the join view), signed in with no class (join by code),
+// in a class (ranked pseudonymous handles, own row highlighted).
+// Multiple classes get a simple chip switcher. Scores are
+// server-authoritative; this screen only reads.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/sync/sign_in_sheet.dart';
 import '../application/leaderboard_providers.dart';
 import '../data/leaderboard_api.dart';
 
@@ -31,13 +33,24 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
     ref.watch(authStateProvider);
 
     Widget body;
-    if (auth == null || !auth.isSignedIn) {
+    if (auth == null) {
+      // Unconfigured build: the feature is dark, nothing to sign in to.
+      body = const _CenteredNote(
+        icon: Icons.wifi_off,
+        text: 'Class leaderboards are not available in this build.',
+      );
+    } else if (!auth.isSignedIn) {
       body = _CenteredNote(
         icon: Icons.person_outline,
-        text: 'Sign in (Settings, then Account) to join your class and '
-            'see its leaderboard.',
-        actionLabel: 'OPEN SETTINGS',
-        onAction: () => context.push('/settings'),
+        text: 'Your professor shares a class code. Sign in with your '
+            'email, then enter the code right here.',
+        actionLabel: 'SIGN IN',
+        onAction: () async {
+          await showSignInSheet(context, auth);
+          // Auth state listeners rebuild this screen into the join view;
+          // drain anything queued from a previous signed-in run.
+          await ref.read(syncEngineProvider).flush();
+        },
       );
     } else {
       final cohorts = ref.watch(myCohortsProvider);
