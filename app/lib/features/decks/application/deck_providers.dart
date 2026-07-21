@@ -3,10 +3,13 @@
 // State for the deck browser: curated and delegation deck lists, the
 // home-state pin, and the single write path for subscription toggles.
 
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
+import '../../../core/sync/app_state_sync.dart';
 import '../../atlas/application/people_providers.dart';
 
 /// Bumped on every subscription toggle so deck lists refetch.
@@ -79,4 +82,19 @@ Future<void> setDeckSubscribed(
       .setSubscribed(deckId: deckId, subscribed: subscribed);
   ref.read(deckSubscriptionTickProvider.notifier).state++;
   ref.read(sessionTickProvider.notifier).state++;
+
+  // Cross-device sync: subscriptions ride the app_state upsert. Fire and
+  // forget; a toggle never waits on the network, and signed-out builds
+  // no-op inside pushAppState.
+  final sync = ref.read(syncEngineProvider);
+  if (sync.isActive) {
+    final db = ref.read(databaseProvider);
+    final curriculumFuture = ref.read(curriculumProvider.future);
+    unawaited(() async {
+      try {
+        final curriculum = await curriculumFuture;
+        await pushAppState(db: db, sync: sync, curriculum: curriculum);
+      } catch (_) {}
+    }());
+  }
 }

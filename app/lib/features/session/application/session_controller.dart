@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/sync/app_state_sync.dart';
 import '../data/pending_session_store.dart';
 import '../domain/fsrs_algorithm.dart';
 import '../domain/session_queue.dart';
@@ -26,12 +27,12 @@ class SessionState {
   final int correct;
   final int again;
   final bool isComplete;
-  final String? deckId;             // null = global / FSRS-driven
-  final List<int> gradeHistory;     // FSRSGrade.value sequence
-  final List<String> reviewedCardIds; // every card graded this session, in order
+  final String? deckId; // null = global / FSRS-driven
+  final List<int> gradeHistory; // FSRSGrade.value sequence
+  final List<String>
+      reviewedCardIds; // every card graded this session, in order
 
-  double get accuracy =>
-      completed == 0 ? 0.0 : correct / completed;
+  double get accuracy => completed == 0 ? 0.0 : correct / completed;
 
   SessionState copyWith({
     SessionCard? currentCard,
@@ -42,18 +43,20 @@ class SessionState {
     bool? isComplete,
     List<int>? gradeHistory,
     List<String>? reviewedCardIds,
-  }) => SessionState(
-      queue: queue,
-      currentCard: clearCurrentCard ? null : (currentCard ?? this.currentCard),
-      totalPlanned: totalPlanned,
-      completed: completed ?? this.completed,
-      correct: correct ?? this.correct,
-      again: again ?? this.again,
-      isComplete: isComplete ?? this.isComplete,
-      deckId: deckId,
-      gradeHistory: gradeHistory ?? this.gradeHistory,
-      reviewedCardIds: reviewedCardIds ?? this.reviewedCardIds,
-    );
+  }) =>
+      SessionState(
+        queue: queue,
+        currentCard:
+            clearCurrentCard ? null : (currentCard ?? this.currentCard),
+        totalPlanned: totalPlanned,
+        completed: completed ?? this.completed,
+        correct: correct ?? this.correct,
+        again: again ?? this.again,
+        isComplete: isComplete ?? this.isComplete,
+        deckId: deckId,
+        gradeHistory: gradeHistory ?? this.gradeHistory,
+        reviewedCardIds: reviewedCardIds ?? this.reviewedCardIds,
+      );
 }
 
 class SessionController extends AsyncNotifier<SessionState> {
@@ -198,6 +201,21 @@ class SessionController extends AsyncNotifier<SessionState> {
       try {
         await ref.read(nodeUnlockServiceProvider).recalculate();
       } catch (_) {}
+
+      // Cross-device sync: free-explore XP settles at session end, so one
+      // app_state upsert per completed session (never per grade). isActive
+      // is checked first so signed-out and unconfigured builds do nothing.
+      final sync = ref.read(syncEngineProvider);
+      if (sync.isActive) {
+        try {
+          final curriculum = await ref.read(curriculumProvider.future);
+          await pushAppState(
+            db: ref.read(databaseProvider),
+            sync: sync,
+            curriculum: curriculum,
+          );
+        } catch (_) {}
+      }
     }
 
     _gradeInFlight = false;
@@ -213,17 +231,19 @@ class SessionController extends AsyncNotifier<SessionState> {
       s.currentCard!.cardId,
       ...s.queue.snapshot().map((c) => c.cardId),
     ];
-    await store.save(PendingSessionSnapshot(
-      deckId: s.deckId,
-      pendingCardIds: pending,
-      completed: s.completed,
-      correct: s.correct,
-      again: s.again,
-      totalPlanned: s.totalPlanned,
-      gradeHistory: s.gradeHistory,
-      reviewedCardIds: s.reviewedCardIds,
-      savedAtUnix: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-    ),);
+    await store.save(
+      PendingSessionSnapshot(
+        deckId: s.deckId,
+        pendingCardIds: pending,
+        completed: s.completed,
+        correct: s.correct,
+        again: s.again,
+        totalPlanned: s.totalPlanned,
+        gradeHistory: s.gradeHistory,
+        reviewedCardIds: s.reviewedCardIds,
+        savedAtUnix: DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      ),
+    );
   }
 
   void reset() {
