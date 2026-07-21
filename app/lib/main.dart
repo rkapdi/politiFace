@@ -8,9 +8,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'app/politiface_app.dart';
 import 'app/providers.dart';
 import 'core/database/drift/app_database.dart';
+import 'core/sync/restore_service.dart';
 import 'core/sync/supabase_config.dart';
 import 'core/sync/sync_engine.dart';
 import 'features/atlas/data/people_seed_service.dart';
+import 'features/curriculum/data/curriculum_loader.dart';
 import 'features/government/data/government_seed_service.dart';
 import 'features/notifications/data/notification_service.dart';
 import 'features/session/data/delegation_deck_service.dart';
@@ -82,8 +84,19 @@ Future<void> _bootstrap(AppDatabase db) async {
   // signed in; no-ops otherwise). Fire-and-forget: launch never waits on
   // the network.
   if (SupabaseConfig.isConfigured) {
+    final client = Supabase.instance.client;
+    final engine = SyncEngine(db, SupabaseTransport(client));
+    unawaited(engine.flush());
+    // Cross-device restore on cold start: only when already signed in, at
+    // most once per 6 hours (AppMeta 'sync.last_pull'). Fire-and-forget and
+    // internally fail-safe, so launch never waits or breaks on it.
     unawaited(
-      SyncEngine(db, SupabaseTransport(Supabase.instance.client)).flush(),
+      RestoreService(
+        db: db,
+        api: SupabaseRestoreApi(client),
+        sync: engine,
+        loadCurriculum: () => CurriculumLoader().load(),
+      ).maybeRestoreOnColdStart(),
     );
   }
 

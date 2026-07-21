@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
+import '../../../core/sync/app_state_sync.dart';
 import '../../curriculum/data/chapter_progress_service.dart';
 import '../../curriculum/domain/curriculum.dart';
 import '../../session/data/card_review_repository.dart';
@@ -260,6 +261,17 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
 
     // Efficacy plumbing counterpart to the session_start in _createNewRound.
     unawaited(ref.read(syncEngineProvider).enqueueSessionEnd());
+
+    // Cross-device sync: chapter position and XP settle here, so one
+    // app_state upsert per completed round (never per XP tick). No-op when
+    // signed out or unconfigured.
+    unawaited(
+      pushAppState(
+        db: _db,
+        sync: ref.read(syncEngineProvider),
+        curriculum: curriculum,
+      ),
+    );
 
     // Force any chapter-aware UI to refetch.
     ref.read(sessionTickProvider.notifier).state++;

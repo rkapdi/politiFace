@@ -131,7 +131,8 @@ void main() {
     expect(await db.outboxDao.pendingCount(), 0);
   });
 
-  test('offline degradation: answers queue with the attempt id, finalize '
+  test(
+      'offline degradation: answers queue with the attempt id, finalize '
       'queues and the local tally is flagged pendingSync', () async {
     final b = bank();
     final api = FakeMockApi(assembly: assemblyFor(b))
@@ -160,8 +161,10 @@ void main() {
     // The outbox carries both answers (with the attempt id) and the
     // deferred finalize, in FIFO order.
     await engine.flush();
-    expect(transport.delivered.map((e) => e.type).toList(),
-        ['answer', 'answer', 'mock_finalize'],);
+    expect(
+      transport.delivered.map((e) => e.type).toList(),
+      ['answer', 'answer', 'mock_finalize'],
+    );
     expect(transport.delivered[0].attemptId, 'attempt-1');
     expect(transport.delivered[2].attemptId, 'attempt-1');
   });
@@ -230,4 +233,8 @@ class _RecordingSignedInTransport implements SyncTransport {
   Future<void> sendSessionEvent(OutboxEvent e) => _send(e);
   @override
   Future<void> sendMockFinalize(OutboxEvent e) => _send(e);
+  @override
+  Future<void> upsertCardState(OutboxEvent e) => _send(e);
+  @override
+  Future<void> upsertAppState(OutboxEvent e) => _send(e);
 }

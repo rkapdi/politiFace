@@ -82,6 +82,25 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     return (select(localCards)..where((c) => c.id.isIn(ids))).get();
   }
 
+  /// Cards matched by their stable content (external) ids. Chunked so a
+  /// large restore pull never overflows SQLite's bound-variable limit.
+  Future<List<LocalCard>> cardsByExternalIds(List<String> externalIds) async {
+    if (externalIds.isEmpty) return const [];
+    const chunkSize = 500;
+    final out = <LocalCard>[];
+    for (var i = 0; i < externalIds.length; i += chunkSize) {
+      final end = i + chunkSize > externalIds.length
+          ? externalIds.length
+          : i + chunkSize;
+      final chunk = externalIds.sublist(i, end);
+      out.addAll(
+        await (select(localCards)..where((c) => c.externalId.isIn(chunk)))
+            .get(),
+      );
+    }
+    return out;
+  }
+
   Future<List<LocalCard>> cardsByDeckId(String deckId) => (select(localCards)
         ..where((c) => c.deckId.equals(deckId) & c.isActive.equals(true))
         ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))

@@ -15,8 +15,8 @@ class UserProfile {
   final String? lastReviewDate; // YYYY-MM-DD
   final int xpTotal;
   final int level;
-  final int xpInLevel;       // 0..xpForNextLevel
-  final int xpForNextLevel;  // amount needed to hit next level
+  final int xpInLevel; // 0..xpForNextLevel
+  final int xpForNextLevel; // amount needed to hit next level
 
   static const empty = UserProfile(
     streakDays: 0,
@@ -34,9 +34,11 @@ class ProfileService {
   ProfileService(this._db);
   final AppDatabase _db;
 
-  static const _kStreak = 'profile.streak_count';
-  static const _kLastReview = 'profile.streak_last_review_date';
-  static const _kXp = 'profile.xp_total';
+  // Public: RestoreService and the app-state sync payload read/write the
+  // same rows when merging cross-device progress.
+  static const kStreak = 'profile.streak_count';
+  static const kLastReview = 'profile.streak_last_review_date';
+  static const kXp = 'profile.xp_total';
 
   // XP per grade. Tuned to make a 5-card daily session worth ~50xp on Goods.
   static const xpForAgain = 2;
@@ -45,9 +47,9 @@ class ProfileService {
   static const xpForEasy = 14;
 
   Future<UserProfile> load() async {
-    final streak = int.tryParse(await _db.metaDao.get(_kStreak) ?? '') ?? 0;
-    final lastDate = await _db.metaDao.get(_kLastReview);
-    final xp = int.tryParse(await _db.metaDao.get(_kXp) ?? '') ?? 0;
+    final streak = int.tryParse(await _db.metaDao.get(kStreak) ?? '') ?? 0;
+    final lastDate = await _db.metaDao.get(kLastReview);
+    final xp = int.tryParse(await _db.metaDao.get(kXp) ?? '') ?? 0;
     return _profileFromRaw(streak: streak, lastDate: lastDate, xp: xp);
   }
 
@@ -59,20 +61,24 @@ class ProfileService {
     final reviewedAt = now ?? DateTime.now();
     final today = _dateKey(reviewedAt);
 
-    var streak = int.tryParse(await _db.metaDao.get(_kStreak) ?? '') ?? 0;
-    final lastDate = await _db.metaDao.get(_kLastReview);
-    var xp = int.tryParse(await _db.metaDao.get(_kXp) ?? '') ?? 0;
+    var streak = int.tryParse(await _db.metaDao.get(kStreak) ?? '') ?? 0;
+    final lastDate = await _db.metaDao.get(kLastReview);
+    var xp = int.tryParse(await _db.metaDao.get(kXp) ?? '') ?? 0;
 
     if (lastDate != today) {
       // First review of a new calendar day.
-      streak = _nextStreak(previousDate: lastDate, today: today, currentStreak: streak);
+      streak = _nextStreak(
+        previousDate: lastDate,
+        today: today,
+        currentStreak: streak,
+      );
     }
 
     xp += xpForGrade(grade);
 
-    await _db.metaDao.set(_kStreak, streak.toString());
-    await _db.metaDao.set(_kLastReview, today);
-    await _db.metaDao.set(_kXp, xp.toString());
+    await _db.metaDao.set(kStreak, streak.toString());
+    await _db.metaDao.set(kLastReview, today);
+    await _db.metaDao.set(kXp, xp.toString());
 
     return _profileFromRaw(streak: streak, lastDate: today, xp: xp);
   }
@@ -109,7 +115,9 @@ class ProfileService {
 
   /// Triangular leveling — Level N requires N * 100 XP within that level.
   /// Level 1 → 0..100, Level 2 → 100..300, Level 3 → 300..600, etc.
-  static (int level, int xpInLevel, int xpForNextLevel) _levelBreakdown(int xp) {
+  static (int level, int xpInLevel, int xpForNextLevel) _levelBreakdown(
+    int xp,
+  ) {
     var remaining = xp;
     var level = 1;
     while (true) {
@@ -149,7 +157,8 @@ class ProfileService {
 
   static String _yesterdayOf(String today) {
     final parts = today.split('-');
-    final dt = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+    final dt =
+        DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
     final y = dt.subtract(const Duration(days: 1));
     return _dateKey(y);
   }
