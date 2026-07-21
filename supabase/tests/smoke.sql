@@ -498,5 +498,41 @@ begin
   end if;
 end $$;
 
+
+-- ── Cross-device state: own-rows only (regression for 20260721000100) ───────
+set app.test_uid = :s1_uid;
+do $$
+begin
+  insert into public.card_states (user_id, card_id, stability, difficulty, reps, last_reviewed_at)
+  values (auth.uid(), 'us-pres-washington', 3.2, 5.1, 4, now());
+  insert into public.card_states (user_id, card_id, stability, difficulty, reps, last_reviewed_at)
+  values (auth.uid(), 'us-pres-washington', 4.0, 5.0, 5, now())
+  on conflict (user_id, card_id) do update
+    set stability = excluded.stability, reps = excluded.reps,
+        last_reviewed_at = excluded.last_reviewed_at, updated_at = now();
+  if (select reps from public.card_states
+      where user_id = auth.uid() and card_id = 'us-pres-washington') <> 5 then
+    raise exception 'FAIL: card_states upsert did not apply';
+  end if;
+  insert into public.user_app_state (user_id, chapter_number, day_in_chapter, xp, deck_subscriptions)
+  values (auth.uid(), 3, 2, 480, '{"us-delegation-fl": true}'::jsonb)
+  on conflict (user_id) do update set xp = excluded.xp, updated_at = now();
+end $$;
+
+set app.test_uid = :s2_uid;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.card_states;
+  if n <> 0 then raise exception 'FAIL: outsider sees % card_states rows', n; end if;
+  select count(*) into n from public.user_app_state;
+  if n <> 0 then raise exception 'FAIL: outsider sees % user_app_state rows', n; end if;
+  begin
+    insert into public.card_states (user_id, card_id) values (gen_random_uuid(), 'evil');
+    raise exception 'FAIL: outsider wrote another user''s card state';
+  exception when insufficient_privilege or check_violation then null;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
