@@ -13,7 +13,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
-import '../../../core/sync/sign_in_sheet.dart';
+import '../../../features/settings/presentation/account_section.dart';
 import '../application/leaderboard_providers.dart';
 import '../data/leaderboard_api.dart';
 
@@ -45,12 +45,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         text: 'Your professor shares a class code. Sign in with your '
             'email, then enter the code right here.',
         actionLabel: 'SIGN IN',
-        onAction: () async {
-          await showSignInSheet(context, auth);
-          // Auth state listeners rebuild this screen into the join view;
-          // drain anything queued from a previous signed-in run.
-          await ref.read(syncEngineProvider).flush();
-        },
+        // The shared routine flushes the outbox and restores this
+        // account's progress; auth listeners rebuild into the join view.
+        onAction: () => showAccountSignInSheet(context, ref),
       );
     } else {
       final cohorts = ref.watch(myCohortsProvider);
