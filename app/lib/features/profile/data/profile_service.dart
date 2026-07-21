@@ -68,7 +68,10 @@ class ProfileService {
     if (lastDate != today) {
       // First review of a new calendar day.
       streak = _nextStreak(
-          previousDate: lastDate, today: today, currentStreak: streak);
+        previousDate: lastDate,
+        today: today,
+        currentStreak: streak,
+      );
     }
 
     xp += xpForGrade(grade);
@@ -113,7 +116,8 @@ class ProfileService {
   /// Triangular leveling — Level N requires N * 100 XP within that level.
   /// Level 1 → 0..100, Level 2 → 100..300, Level 3 → 300..600, etc.
   static (int level, int xpInLevel, int xpForNextLevel) _levelBreakdown(
-      int xp) {
+    int xp,
+  ) {
     var remaining = xp;
     var level = 1;
     while (true) {

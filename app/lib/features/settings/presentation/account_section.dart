@@ -11,6 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/sync/auth_service.dart';
+import '../../decks/application/deck_providers.dart';
 
 final profileHandleProvider = FutureProvider<String?>((ref) async {
   ref.watch(authStateProvider);
@@ -18,6 +19,46 @@ final profileHandleProvider = FutureProvider<String?>((ref) async {
   if (auth == null || !auth.isSignedIn) return null;
   return auth.profileHandle();
 });
+
+/// Opens the email-OTP sign-in sheet and, when the user signs in, restores
+/// any progress the account already carries (cross-device sync). Shared by
+/// the Settings account row and the post-session nudge card. Safe to call
+/// anywhere: no-ops on unconfigured builds and never throws.
+Future<void> showAccountSignInSheet(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final auth = ref.read(authServiceProvider);
+  if (auth == null) return;
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  await showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    builder: (_) => Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
+      child: _SignInSheet(auth: auth),
+    ),
+  );
+  ref.invalidate(profileHandleProvider);
+  if (!auth.isSignedIn) return; // sheet dismissed without signing in
+  // Deliver anything recorded while signed out was dropped by design;
+  // this drains events from any previous signed-in run.
+  await ref.read(syncEngineProvider).flush();
+  // Pull this account's progress and merge it into the local database.
+  final summary = await ref.read(restoreServiceProvider).restoreNow();
+  // Refresh everything that renders streak/XP/chapter/deck state.
+  ref.read(sessionTickProvider.notifier).state++;
+  ref.read(deckSubscriptionTickProvider.notifier).state++;
+  if (summary.cardsRestored > 0) {
+    messenger?.showSnackBar(
+      SnackBar(
+        content: Text('Progress restored: ${summary.cardsRestored} cards.'),
+      ),
+    );
+  }
+}
 
 class AccountSection extends ConsumerWidget {
   const AccountSection({super.key});
@@ -33,10 +74,11 @@ class AccountSection extends ConsumerWidget {
         leading: const Icon(Icons.person_outline),
         title: const Text('Sign in'),
         subtitle: const Text(
-          'Optional. Backs up progress and unlocks class leaderboards.',
+          'Optional. Keeps your progress on all your devices and unlocks '
+          'class leaderboards.',
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showSignInSheet(context, ref, auth),
+        onTap: () => showAccountSignInSheet(context, ref),
       );
     }
 
@@ -44,7 +86,7 @@ class AccountSection extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.person),
       title: Text(handle ?? 'Signed in'),
-      subtitle: const Text('Progress syncs when you play.'),
+      subtitle: const Text('Progress syncs across your devices.'),
       trailing: TextButton(
         onPressed: () async {
           await auth.signOut();
@@ -53,27 +95,6 @@ class AccountSection extends ConsumerWidget {
         child: const Text('SIGN OUT'),
       ),
     );
-  }
-
-  Future<void> _showSignInSheet(
-    BuildContext context,
-    WidgetRef ref,
-    AuthService auth,
-  ) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: _SignInSheet(auth: auth),
-      ),
-    );
-    ref.invalidate(profileHandleProvider);
-    // Deliver anything recorded while signed out was dropped by design;
-    // this drains events from any previous signed-in run.
-    await ref.read(syncEngineProvider).flush();
   }
 }
 

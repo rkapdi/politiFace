@@ -35,8 +35,11 @@ class _RecordingTransport implements SyncTransport {
   Future<void> upsertAppState(OutboxEvent e) => _send(e);
 }
 
-Future<void> _seedCard(AppDatabase db, String id,
-    {bool newState = true}) async {
+Future<void> _seedCard(
+  AppDatabase db,
+  String id, {
+  bool newState = true,
+}) async {
   await db.decksDao.upsertDeck(
     LocalDecksCompanion.insert(
       id: 'deck-$id',
