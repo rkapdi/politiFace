@@ -1,4 +1,4 @@
-updated: '2026-07-06'
+updated: '2026-07-21'
 source: unitedstates/congress-legislators (public domain); committee names from committees-current.yaml
 people:
 - id: A000055
@@ -287,7 +287,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 5
+    rank: 4
     title: null
   - code: HSED
     name: House Committee on Education and Workforce
@@ -547,7 +547,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 15
+    rank: 14
     title: null
   - code: HSBU
     name: House Committee on the Budget
@@ -583,7 +583,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 15
+    rank: 14
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/A000381
@@ -1083,11 +1083,11 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 7
+    rank: 6
     title: null
   - code: SSEV
     name: Senate Committee on Environment and Public Works
-    rank: 9
+    rank: 8
     title: null
   - code: SSRA
     name: Senate Committee on Rules and Administration
@@ -1185,7 +1185,7 @@ people:
     title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 9
+    rank: 8
     title: null
   - code: SSFI
     name: Senate Committee on Finance
@@ -1668,7 +1668,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 11
+    rank: 10
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/B001281
@@ -2799,7 +2799,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 7
+    rank: 6
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
@@ -2876,11 +2876,11 @@ people:
   committees:
   - code: HSVR
     name: House Committee on Veterans' Affairs
-    rank: 7
+    rank: 6
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 12
+    rank: 11
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/B001315
@@ -3034,11 +3034,11 @@ people:
     title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 11
+    rank: 10
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 12
+    rank: 11
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/B001319
@@ -3098,14 +3098,14 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 17
-    title: null
-  - code: HSJU
-    name: House Committee on the Judiciary
-    rank: 24
+    rank: 18
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
+    rank: 24
+    title: null
+  - code: HSJU
+    name: House Committee on the Judiciary
     rank: 25
     title: null
   citations:
@@ -3170,7 +3170,11 @@ people:
   committees:
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 16
+    rank: 15
+    title: null
+  - code: HSFA
+    name: House Committee on Foreign Affairs
+    rank: 25
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -3210,7 +3214,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 24
+    rank: 23
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/B001325
@@ -3238,7 +3242,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 23
+    rank: 22
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/B001326
@@ -3682,7 +3686,7 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 3
+    rank: 2
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/C000880
@@ -3870,7 +3874,7 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 8
+    rank: 7
     title: null
   - code: SSCM
     name: Senate Committee on Commerce, Science, and Transportation
@@ -4174,12 +4178,12 @@ people:
     name: United States Senate Caucus on International Narcotics Control
     rank: 1
     title: Chairman
-  - code: SSFI
-    name: Senate Committee on Finance
-    rank: 3
-    title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
+    rank: 2
+    title: null
+  - code: SSFI
+    name: Senate Committee on Finance
     rank: 3
     title: null
   - code: JSTX
@@ -4192,7 +4196,7 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 6
+    rank: 5
     title: null
   - code: SSFR
     name: Senate Committee on Foreign Relations
@@ -4284,11 +4288,11 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 3
+    rank: 2
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 14
+    rank: 13
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/C001059
@@ -4376,7 +4380,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 8
+    rank: 7
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/C001061
@@ -5406,7 +5410,7 @@ people:
     title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 5
+    rank: 4
     title: null
   - code: SSFR
     name: Senate Committee on Foreign Relations
@@ -5710,7 +5714,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 25
+    rank: 24
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/C001112
@@ -5970,7 +5974,7 @@ people:
     title: null
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 15
+    rank: 14
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/C001117
@@ -6252,7 +6256,7 @@ people:
   committees:
   - code: HSHM
     name: House Committee on Homeland Security
-    rank: 13
+    rank: 14
     title: null
   - code: HSIF
     name: House Committee on Energy and Commerce
@@ -6389,7 +6393,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 12
+    rank: 11
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
@@ -6427,7 +6431,7 @@ people:
   committees:
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 11
+    rank: 10
     title: null
   - code: HSED
     name: House Committee on Education and Workforce
@@ -6535,7 +6539,7 @@ people:
   committees:
   - code: HSVR
     name: House Committee on Veterans' Affairs
-    rank: 10
+    rank: 9
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -7003,7 +7007,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 10
+    rank: 9
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -7952,7 +7956,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 8
+    rank: 7
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
@@ -8002,7 +8006,7 @@ people:
   committees:
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 23
+    rank: 22
     title: null
   - code: HSAP
     name: House Committee on Appropriations
@@ -8064,12 +8068,12 @@ people:
     district: 3
     party: Democrat
   committees:
-  - code: HSII
-    name: House Committee on Natural Resources
-    rank: 9
-    title: null
   - code: HSVR
     name: House Committee on Veterans' Affairs
+    rank: 8
+    title: null
+  - code: HSII
+    name: House Committee on Natural Resources
     rank: 9
     title: null
   citations:
@@ -8618,7 +8622,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 22
+    rank: 21
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/F000110
@@ -8882,7 +8886,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 10
+    rank: 9
     title: null
   - code: HSSY
     name: House Committee on Science, Space, and Technology
@@ -9092,7 +9096,7 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 13
+    rank: 12
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/F000463
@@ -9202,7 +9206,7 @@ people:
   name: Russ Fulcher
   first: Russ
   last: Fulcher
-  birthday: '1973-07-19'
+  birthday: '1962-03-09'
   wikidata: Q7381134
   chamber: house
   state: ID
@@ -9688,7 +9692,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 19
+    rank: 18
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
@@ -9780,11 +9784,11 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 20
+    rank: 21
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 27
+    rank: 26
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/F000484
@@ -9809,91 +9813,17 @@ people:
     state: GA
     district: 14
     party: Republican
-  committees: []
+  committees:
+  - code: HSSM
+    name: House Committee on Small Business
+    rank: 14
+    title: null
+  - code: HSPW
+    name: House Committee on Transportation and Infrastructure
+    rank: 35
+    title: null
   citations:
   - https://bioguide.congress.gov/search/bio/F000485
-- id: G000359
-  name: Lindsey Graham
-  first: Lindsey
-  last: Graham
-  birthday: '1955-07-09'
-  wikidata: Q22212
-  chamber: senate
-  state: SC
-  district: null
-  party: Republican
-  current_term:
-    start: '2021-01-03'
-    end: '2027-01-03'
-    url: https://www.lgraham.senate.gov/public
-  terms:
-  - type: rep
-    start: '1995-01-04'
-    end: '1997-01-03'
-    state: SC
-    district: 3
-    party: Republican
-  - type: rep
-    start: '1997-01-07'
-    end: '1999-01-03'
-    state: SC
-    district: 3
-    party: Republican
-  - type: rep
-    start: '1999-01-06'
-    end: '2001-01-03'
-    state: SC
-    district: 3
-    party: Republican
-  - type: rep
-    start: '2001-01-03'
-    end: '2003-01-03'
-    state: SC
-    district: 3
-    party: Republican
-  - type: sen
-    start: '2003-01-07'
-    end: '2009-01-03'
-    state: SC
-    district: null
-    party: Republican
-  - type: sen
-    start: '2009-01-06'
-    end: '2015-01-03'
-    state: SC
-    district: null
-    party: Republican
-  - type: sen
-    start: '2015-01-06'
-    end: '2021-01-03'
-    state: SC
-    district: null
-    party: Republican
-  - type: sen
-    start: '2021-01-03'
-    end: '2027-01-03'
-    state: SC
-    district: null
-    party: Republican
-  committees:
-  - code: SSBU
-    name: Senate Committee on the Budget
-    rank: 1
-    title: Chairman
-  - code: SSJU
-    name: Senate Committee on the Judiciary
-    rank: 2
-    title: null
-  - code: SSAP
-    name: Senate Committee on Appropriations
-    rank: 4
-    title: null
-  - code: SSEV
-    name: Senate Committee on Environment and Public Works
-    rank: 5
-    title: null
-  citations:
-  - https://bioguide.congress.gov/search/bio/G000359
 - id: G000386
   name: Chuck Grassley
   first: Charles
@@ -9980,12 +9910,12 @@ people:
     name: Senate Committee on the Judiciary
     rank: 1
     title: Chairman
-  - code: SSFI
-    name: Senate Committee on Finance
-    rank: 2
-    title: null
   - code: SSBU
     name: Senate Committee on the Budget
+    rank: 1
+    title: null
+  - code: SSFI
+    name: Senate Committee on Finance
     rank: 2
     title: null
   - code: JSTX
@@ -10190,11 +10120,11 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 7
+    rank: 6
     title: null
   - code: HSHM
     name: House Committee on Homeland Security
-    rank: 14
+    rank: 15
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000553
@@ -10721,7 +10651,7 @@ people:
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
-    rank: 18
+    rank: 19
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000576
@@ -10773,7 +10703,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 14
+    rank: 13
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000581
@@ -10829,7 +10759,7 @@ people:
     title: null
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 13
+    rank: 12
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000583
@@ -10985,7 +10915,7 @@ people:
     title: null
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 19
+    rank: 18
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000587
@@ -11438,7 +11368,7 @@ people:
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
-    rank: 23
+    rank: 24
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
@@ -11468,6 +11398,10 @@ people:
     district: 2
     party: Democrat
   committees:
+  - code: HSVR
+    name: House Committee on Veterans' Affairs
+    rank: 11
+    title: null
   - code: HSSM
     name: House Committee on Small Business
     rank: 11
@@ -11506,7 +11440,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 17
+    rank: 16
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000605
@@ -11563,9 +11497,45 @@ people:
     state: CA
     district: 1
     party: Republican
-  committees: []
+  committees:
+  - code: HSSY
+    name: House Committee on Science, Space, and Technology
+    rank: 22
+    title: null
+  - code: HSFA
+    name: House Committee on Foreign Affairs
+    rank: 28
+    title: null
+  - code: HSPW
+    name: House Committee on Transportation and Infrastructure
+    rank: 36
+    title: null
   citations:
   - https://bioguide.congress.gov/search/bio/G000607
+- id: G000608
+  name: Darline Graham
+  first: Darline
+  last: Graham Nordone
+  birthday: '1964-06-12'
+  wikidata: Q140537772
+  chamber: senate
+  state: SC
+  district: null
+  party: Republican
+  current_term:
+    start: '2026-07-14'
+    end: '2027-01-03'
+    url: https://www.dgraham.senate.gov
+  terms:
+  - type: sen
+    start: '2026-07-14'
+    end: '2027-01-03'
+    state: SC
+    district: null
+    party: Republican
+  committees: []
+  citations:
+  - https://bioguide.congress.gov/search/bio/G000608
 - id: H000273
   name: John W. Hickenlooper
   first: John
@@ -11646,7 +11616,7 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 11
+    rank: 10
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/H000601
@@ -12024,7 +11994,7 @@ people:
     title: Ranking Member
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 9
+    rank: 8
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/H001047
@@ -12216,7 +12186,7 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 6
+    rank: 5
     title: null
   - code: SSEG
     name: Senate Committee on Energy and Natural Resources
@@ -12627,13 +12597,13 @@ people:
     name: Senate Committee on Rules and Administration
     rank: 6
     title: null
+  - code: SSAP
+    name: Senate Committee on Appropriations
+    rank: 9
+    title: null
   - code: SSEG
     name: Senate Committee on Energy and Natural Resources
     rank: 9
-    title: null
-  - code: SSAP
-    name: Senate Committee on Appropriations
-    rank: 10
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/H001079
@@ -12679,7 +12649,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 6
+    rank: 5
     title: null
   - code: HSED
     name: House Committee on Education and Workforce
@@ -12861,12 +12831,12 @@ people:
     name: Senate Committee on Homeland Security and Governmental Affairs
     rank: 5
     title: null
-  - code: SSSB
-    name: Senate Committee on Small Business and Entrepreneurship
-    rank: 6
-    title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
+    rank: 5
+    title: null
+  - code: SSSB
+    name: Senate Committee on Small Business and Entrepreneurship
     rank: 6
     title: null
   - code: SSHR
@@ -13287,11 +13257,11 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 18
+    rank: 19
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
-    rank: 20
+    rank: 21
     title: null
   - code: HSAG
     name: House Committee on Agriculture
@@ -13359,7 +13329,7 @@ people:
     title: null
   - code: SSEV
     name: Senate Committee on Environment and Public Works
-    rank: 10
+    rank: 9
     title: null
   - code: SSHR
     name: Senate Committee on Health, Education, Labor, and Pensions
@@ -13371,7 +13341,7 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 15
+    rank: 14
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/H001104
@@ -13727,7 +13697,7 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 4
+    rank: 3
     title: null
   - code: SPAG
     name: Senate Special Committee on Aging
@@ -13861,6 +13831,10 @@ people:
     name: House Committee on Appropriations
     rank: 10
     title: null
+  - code: HSHM
+    name: House Committee on Homeland Security
+    rank: 18
+    title: null
   citations:
   - https://bioguide.congress.gov/search/bio/J000295
 - id: J000298
@@ -13919,7 +13893,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 17
+    rank: 16
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/J000298
@@ -14232,11 +14206,11 @@ people:
   committees:
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 12
+    rank: 11
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 15
+    rank: 14
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/J000309
@@ -14276,7 +14250,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 20
+    rank: 19
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/J000310
@@ -15216,15 +15190,15 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 8
+    rank: 7
     title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 8
+    rank: 7
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 9
+    rank: 8
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/K000393
@@ -15455,7 +15429,7 @@ people:
   committees:
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 13
+    rank: 12
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
@@ -15490,7 +15464,19 @@ people:
     state: CA
     district: 3
     party: Independent
-  committees: []
+  committees:
+  - code: HSED
+    name: House Committee on Education and Workforce
+    rank: 13
+    title: null
+  - code: HSJU
+    name: House Committee on the Judiciary
+    rank: 18
+    title: null
+  - code: HSPW
+    name: House Committee on Transportation and Infrastructure
+    rank: 21
+    title: null
   citations:
   - https://bioguide.congress.gov/search/bio/K000401
 - id: K000402
@@ -15527,7 +15513,7 @@ people:
     title: null
   - code: HSVR
     name: House Committee on Veterans' Affairs
-    rank: 8
+    rank: 7
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/K000402
@@ -15563,7 +15549,7 @@ people:
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 33
+    rank: 32
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/K000403
@@ -15599,7 +15585,7 @@ people:
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 32
+    rank: 31
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/K000404
@@ -15635,11 +15621,11 @@ people:
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
-    rank: 19
+    rank: 20
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 31
+    rank: 30
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/K000405
@@ -16243,7 +16229,7 @@ people:
     title: null
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 6
+    rank: 5
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/L000562
@@ -16577,14 +16563,14 @@ people:
     title: Chairman
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 4
-    title: null
-  - code: SSFR
-    name: Senate Committee on Foreign Relations
-    rank: 7
+    rank: 3
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
+    rank: 6
+    title: null
+  - code: SSFR
+    name: Senate Committee on Foreign Relations
     rank: 7
     title: null
   citations:
@@ -17185,13 +17171,13 @@ people:
     district: 12
     party: Democrat
   committees:
-  - code: HSGO
-    name: House Committee on Oversight and Government Reform
-    rank: 10
-    title: null
   - code: HSED
     name: House Committee on Education and Workforce
     rank: 14
+    title: null
+  - code: HSJU
+    name: House Committee on the Judiciary
+    rank: 19
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/L000602
@@ -17265,7 +17251,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 18
+    rank: 17
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/L000606
@@ -17293,7 +17279,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 24
+    rank: 23
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/L000607
@@ -17629,7 +17615,7 @@ people:
     title: Ranking Member
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 4
+    rank: 3
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M000312
@@ -17833,7 +17819,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 16
+    rank: 15
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M000687
@@ -17963,7 +17949,7 @@ people:
     title: Chairman
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 5
+    rank: 4
     title: null
   - code: SSCM
     name: Senate Committee on Commerce, Science, and Transportation
@@ -19161,12 +19147,12 @@ people:
     district: null
     party: Republican
   committees:
-  - code: SSHR
-    name: Senate Committee on Health, Education, Labor, and Pensions
-    rank: 5
-    title: null
   - code: SSBU
     name: Senate Committee on the Budget
+    rank: 4
+    title: null
+  - code: SSHR
+    name: Senate Committee on Health, Education, Labor, and Pensions
     rank: 5
     title: null
   - code: SSAF
@@ -19800,7 +19786,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 11
+    rank: 10
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
@@ -19880,7 +19866,7 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 14
+    rank: 15
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -19926,7 +19912,7 @@ people:
     title: null
   - code: HSVR
     name: House Committee on Veterans' Affairs
-    rank: 5
+    rank: 4
     title: null
   - code: HSBU
     name: House Committee on the Budget
@@ -19968,7 +19954,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 28
+    rank: 27
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001222
@@ -20259,11 +20245,11 @@ people:
     title: null
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 16
+    rank: 17
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 26
+    rank: 25
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001230
@@ -20295,7 +20281,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 22
+    rank: 21
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001231
@@ -20327,7 +20313,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 23
+    rank: 22
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001232
@@ -20355,7 +20341,7 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 19
+    rank: 20
     title: null
   - code: HSAG
     name: House Committee on Agriculture
@@ -20395,7 +20381,7 @@ people:
     title: null
   - code: HSVR
     name: House Committee on Veterans' Affairs
-    rank: 11
+    rank: 10
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001234
@@ -20483,7 +20469,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 18
+    rank: 17
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
@@ -20519,7 +20505,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 21
+    rank: 20
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001238
@@ -20587,7 +20573,7 @@ people:
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 29
+    rank: 28
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001240
@@ -20623,7 +20609,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 18
+    rank: 17
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001241
@@ -20659,7 +20645,7 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 10
+    rank: 9
     title: null
   - code: SSBK
     name: Senate Committee on Banking, Housing, and Urban Affairs
@@ -20755,7 +20741,7 @@ people:
     title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 12
+    rank: 11
     title: null
   - code: SSAS
     name: Senate Committee on Armed Services
@@ -20789,6 +20775,10 @@ people:
     name: House Committee on Science, Space, and Technology
     rank: 17
     title: null
+  - code: HSGO
+    name: House Committee on Oversight and Government Reform
+    rank: 19
+    title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001245
 - id: M001246
@@ -20812,7 +20802,15 @@ people:
     state: NJ
     district: 11
     party: Democrat
-  committees: []
+  committees:
+  - code: HSSM
+    name: House Committee on Small Business
+    rank: 12
+    title: null
+  - code: HSHM
+    name: House Committee on Homeland Security
+    rank: 13
+    title: null
   citations:
   - https://bioguide.congress.gov/search/bio/M001246
 - id: N000002
@@ -21854,7 +21852,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 19
+    rank: 18
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/O000176
@@ -21882,15 +21880,15 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 15
+    rank: 16
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
-    rank: 21
+    rank: 22
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 34
+    rank: 33
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/O000177
@@ -22422,7 +22420,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 24
+    rank: 23
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/P000597
@@ -22615,6 +22613,10 @@ people:
   - code: HSAP
     name: House Committee on Appropriations
     rank: 12
+    title: null
+  - code: HSFA
+    name: House Committee on Foreign Affairs
+    rank: 24
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/P000607
@@ -22962,7 +22964,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 16
+    rank: 15
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
@@ -23000,7 +23002,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 21
+    rank: 20
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/P000620
@@ -23064,7 +23066,7 @@ people:
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 35
+    rank: 34
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/P000622
@@ -23882,7 +23884,7 @@ people:
     title: null
   - code: SSAP
     name: Senate Committee on Appropriations
-    rank: 14
+    rank: 13
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/R000605
@@ -24220,12 +24222,12 @@ people:
     district: 3
     party: Democrat
   committees:
-  - code: HSHM
-    name: House Committee on Homeland Security
-    rank: 6
-    title: null
   - code: HSVR
     name: House Committee on Veterans' Affairs
+    rank: 5
+    title: null
+  - code: HSHM
+    name: House Committee on Homeland Security
     rank: 6
     title: null
   citations:
@@ -24264,14 +24266,14 @@ people:
     title: null
   - code: SSEV
     name: Senate Committee on Environment and Public Works
-    rank: 7
-    title: null
-  - code: SSBK
-    name: Senate Committee on Banking, Housing, and Urban Affairs
-    rank: 9
+    rank: 6
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
+    rank: 8
+    title: null
+  - code: SSBK
+    name: Senate Committee on Banking, Housing, and Urban Affairs
     rank: 9
     title: null
   citations:
@@ -24306,7 +24308,7 @@ people:
   committees:
   - code: HSED
     name: House Committee on Education and Workforce
-    rank: 13
+    rank: 14
     title: null
   - code: HSIF
     name: House Committee on Energy and Commerce
@@ -24374,7 +24376,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 13
+    rank: 12
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/R000621
@@ -24406,7 +24408,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 21
+    rank: 20
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/R000622
@@ -26444,7 +26446,7 @@ people:
     title: null
   - code: HSFA
     name: House Committee on Foreign Affairs
-    rank: 22
+    rank: 21
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/S001190
@@ -26672,6 +26674,10 @@ people:
     district: null
     party: Republican
   committees:
+  - code: SSEV
+    name: Senate Committee on Environment and Public Works
+    rank: 5
+    title: null
   - code: SSVA
     name: Senate Committee on Veterans' Affairs
     rank: 5
@@ -26682,10 +26688,6 @@ people:
     title: null
   - code: SSCM
     name: Senate Committee on Commerce, Science, and Transportation
-    rank: 6
-    title: null
-  - code: SSEV
-    name: Senate Committee on Environment and Public Works
     rank: 6
     title: null
   citations:
@@ -27064,14 +27066,14 @@ people:
     district: 4
     party: Democrat
   committees:
+  - code: HSFA
+    name: House Committee on Foreign Affairs
+    rank: 9
+    title: null
   - code: HSZS
     name: House Select Committee on the Strategic Competition Between the United States and
       the Chinese Communist Party
     rank: 9
-    title: null
-  - code: HSFA
-    name: House Committee on Foreign Affairs
-    rank: 10
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
@@ -27388,7 +27390,7 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 11
+    rank: 10
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/S001217
@@ -27622,7 +27624,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 13
+    rank: 12
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -27664,7 +27666,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 9
+    rank: 8
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/S001226
@@ -27694,12 +27696,12 @@ people:
     name: Joint Economic Committee
     rank: 1
     title: Vice Chairman
-  - code: SSCM
-    name: Senate Committee on Commerce, Science, and Transportation
-    rank: 10
-    title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
+    rank: 9
+    title: null
+  - code: SSCM
+    name: Senate Committee on Commerce, Science, and Transportation
     rank: 10
     title: null
   - code: SSAS
@@ -27736,7 +27738,7 @@ people:
     title: null
   - code: HSJU
     name: House Committee on the Judiciary
-    rank: 22
+    rank: 23
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -27766,13 +27768,9 @@ people:
     district: 6
     party: Republican
   committees:
-  - code: HSFA
-    name: House Committee on Foreign Affairs
-    rank: 23
-    title: null
-  - code: HSPW
-    name: House Committee on Transportation and Infrastructure
-    rank: 28
+  - code: HSAP
+    name: House Committee on Appropriations
+    rank: 35
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/S001229
@@ -27808,7 +27806,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 14
+    rank: 13
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/S001230
@@ -27840,7 +27838,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 17
+    rank: 16
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/S001231
@@ -28784,7 +28782,7 @@ people:
     title: null
   - code: SSJU
     name: Senate Committee on the Judiciary
-    rank: 7
+    rank: 6
     title: null
   - code: SSFI
     name: Senate Committee on Finance
@@ -28938,7 +28936,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 17
+    rank: 16
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
@@ -29033,7 +29031,7 @@ people:
     title: null
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 18
+    rank: 17
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/T000486
@@ -29065,14 +29063,14 @@ people:
     district: 2
     party: Democrat
   committees:
+  - code: HSAG
+    name: House Committee on Agriculture
+    rank: 10
+    title: null
   - code: HSZS
     name: House Select Committee on the Strategic Competition Between the United States and
       the Chinese Communist Party
     rank: 10
-    title: null
-  - code: HSAG
-    name: House Committee on Agriculture
-    rank: 11
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -29114,7 +29112,7 @@ people:
     title: null
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 16
+    rank: 15
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/T000488
@@ -29146,7 +29144,7 @@ people:
     title: null
   - code: HSPW
     name: House Committee on Transportation and Infrastructure
-    rank: 30
+    rank: 29
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/T000490
@@ -29570,7 +29568,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 12
+    rank: 11
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/V000130
@@ -29804,7 +29802,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 14
+    rank: 13
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -29836,7 +29834,7 @@ people:
   committees:
   - code: HSAG
     name: House Committee on Agriculture
-    rank: 20
+    rank: 19
     title: null
   - code: HSAS
     name: House Committee on Armed Services
@@ -30110,7 +30108,7 @@ people:
     title: null
   - code: SSEV
     name: Senate Committee on Environment and Public Works
-    rank: 8
+    rank: 7
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/W000437
@@ -30272,7 +30270,7 @@ people:
   committees:
   - code: HSBA
     name: House Committee on Financial Services
-    rank: 20
+    rank: 19
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/W000788
@@ -30515,6 +30513,10 @@ people:
   - code: HSAP
     name: House Committee on Appropriations
     rank: 7
+    title: null
+  - code: HSFA
+    name: House Committee on Foreign Affairs
+    rank: 23
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/W000797
@@ -31603,7 +31605,7 @@ people:
     title: null
   - code: HSGO
     name: House Committee on Oversight and Government Reform
-    rank: 19
+    rank: 18
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/W000831
@@ -31705,10 +31707,6 @@ people:
     district: 2
     party: Republican
   committees:
-  - code: HSPW
-    name: House Committee on Transportation and Infrastructure
-    rank: 21
-    title: null
   - code: HSWM
     name: House Committee on Ways and Means
     rank: 23

@@ -1,7 +1,109 @@
-updated: '2026-07-06'
-source: api.congress.gov v3 law endpoint
+updated: '2026-07-21'
+source: api.congress.gov v3 law endpoint; summaries from the /summaries endpoint, written
+  by the Congressional Research Service
 congress: 119
 laws:
+- law_number: 119-102
+  title: Emergency Conservation Program Improvement Act of 2025
+  bill: S 629
+  enacted_date: '2026-07-12'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: F000463
+    name: Sen. Fischer, Deb [R-NE]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/629
+  summary: 'Emergency Conservation Program Improvement Act of 2025
+
+
+    This bill revises the Emergency Conservation Program (ECP) and the Emergency Forest Restoration
+    Program (EFRP) to expand eligibility for payments to agricultural producers and owners
+    of forest land impacted by natural disasters. The bill also provides additional options
+    to receive an advance on cost-sharing payments before carrying out emergency measures.
+
+
+    The bill expands advance ECP payments to include the replacement, repair, or restoration
+    of farmland or conservation structures requiring an immediate response. Producers may
+    receive an advance on cost-sharing payments for 75% of the cost of the replacement and
+    50% of the cost of the repair or restoration. Current law limits advance payments to 25%
+    of the cost of the repair or replacement of fencing.
+
+
+    Under EFRP, the bill allows owners of nonindustrial private forest land impacted by a
+    natural disaster to receive an advance on cost-sharing payments for up to 75% of the cost
+    of the emergency measures. Currently, advance payments are not available under the program.
+
+
+    ECP and EFRP recipients must use the funds within 180 days after the funds are disbursed.
+    This provides additional time to ECP recipients who currently must use the funds within
+    60 days.
+
+
+    The bill also expands eligibility for payments under the programs to include emergency
+    measures to address damages caused by (1) a wildfire that is not caused naturally, if
+    the damage is caused by the spread of the wildfire due to natural causes; and (2) a wildfire
+    that is caused by the federal government.'
+  summary_version: Introduced in Senate
+  summary_date: '2025-02-19'
+  summary_truncated: false
+- law_number: 119-101
+  title: 21st Century ROAD to Housing Act
+  bill: HR 6644
+  enacted_date: '2026-07-11'
+  origin_chamber: House
+  sponsor:
+    bioguide: H001072
+    name: Rep. Hill, J. French [R-AR-2]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6644
+  summary: 'Housing for the 21st Century Act
+
+
+    This bill revises federal housing programs, including by expanding available financing
+    for affordable housing and providing grants for planning and community development activities.
+
+
+    For example, the bill increases the statutory maximum loan limits for mortgage insurance
+    programs administered by the Federal Housing Administration for multifamily homes and
+    requires the use of a more specific inflation index for such loans.
+
+
+    The bill also increases the maximum eligible income for the Department of Housing and
+    Urban Development''s (HUD''s) HOME Investment Partnerships Program (grants to states and
+    localities to support housing for low-income households) and establishes a grant program
+    to assist regional, state, and local entities with strategies to support affordable housing.
+
+
+    In addition, the bill
+
+
+    exempts certain housing-related activities from the environmental review process, including
+    certain construction, improvement, or rehabilitation of residential buildings;
+
+
+    excludes veterans'' disability benefits from being considered as income for purposes of
+    determining eligibility for the Veterans Affairs Supportive Housing (VASH) program;
+
+
+    establishes a pilot program to provide grants to public housing agencies (PHAs) and other
+    owners of federally assisted housing to test the efficacy of temperature sensors to support
+    compliance with temperature requirements;
+
+
+    eliminates the requirement that manufactured homes must be constructed with a permanent
+    chassis; and
+
+
+    authorizes HUD to conduct performance reviews of organizations that provide housing counseling
+    services.
+
+
+    The bill also expands oversight of HUD and PHAs, such as by requiring PHAs to post information
+    about contracts on their websites.
+
+
+    For more information about this bill, see CRS Report R48849.'
+  summary_version: Reported to House
+  summary_date: '2026-01-15'
+  summary_truncated: false
 - law_number: 119-100
   title: Lulu’s Law
   bill: S 1003
@@ -11,6 +113,20 @@ laws:
     bioguide: B001319
     name: Sen. Britt, Katie Boyd [R-AL]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/1003
+  summary: 'Lulu’s Law
+
+
+    This act requires the Federal Communications Commission to issue an order explicitly permitting
+    the transmission of wireless emergency alerts to mobile phones in the event of a shark
+    attack.
+
+
+    (Under current regulations, authorized government authorities are permitted to send wireless
+    emergency alerts regarding public safety emergencies, including severe weather, missing
+    children, and other threats to life or property.)'
+  summary_version: Public Law
+  summary_date: '2026-06-26'
+  summary_truncated: false
 - law_number: 119-99
   title: ARTIST Act
   bill: S 254
@@ -20,6 +136,20 @@ laws:
     bioguide: S001198
     name: Sen. Sullivan, Dan [R-AK]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/254
+  summary: 'Alaska’s Right to Ivory Sales and Tradition Act or the ARTIST Act
+
+
+    This act prohibits states from imposing bans on marine mammal products produced by Alaska
+    Natives.
+
+
+    Specifically, states may not prohibit the interstate commerce, importation, sale, transfer,
+    trade, barter, or possession of marine mammal ivory, marine mammal bone, or baleen legally
+    produced by an Alaska Native as an authentic Alaska Native article of handicrafts and
+    clothing.'
+  summary_version: Public Law
+  summary_date: '2026-06-12'
+  summary_truncated: false
 - law_number: 119-98
   title: Secure America Act
   bill: S 2
@@ -29,6 +159,61 @@ laws:
     bioguide: G000359
     name: Sen. Graham, Lindsey [R-SC]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/2
+  summary: 'Secure America Act
+
+
+    This act provides $70 billion in funding to the Department of Homeland Security (DHS),
+    U.S. Customs and Border Protection (CBP), and U.S. Immigration and Customs Enforcement
+    (ICE) through FY2029 for immigration enforcement, border security, and related activities.
+
+
+    It is known as a reconciliation bill and includes legislation submitted by certain congressional
+    committees pursuant to provisions in the FY2026 congressional budget resolution (S. Con.
+    Res. 33) that directed the committees to submit legislation to the House or Senate Budget
+    Committee that will increase the deficit. (Reconciliation bills are considered by Congress
+    using expedited legislative procedures that prevent a filibuster and restrict amendments
+    in the Senate.)
+
+
+    TITLE I--COMMITTEE ON HOMELAND SECURITY AND GOVERNMENTAL AFFAIRS
+
+
+    (Sec. 101) This section provides funding for CBP to hire, pay, train, and equip Border
+    Patrol agents and Border Patrol support personnel to conduct functions other than immigration
+    enforcement and customs functions.
+
+
+    The funds provided by this section may not be used to recruit, hire, or train personnel
+    for the duties of processing coordinators after October 31, 2028.
+
+
+    (Sec. 102) This section provides funding to ICE for (1) hiring, paying, training, and
+    equipping Homeland Security Investigations (HIS) agents and support personnel; and (2)
+    other necessary expenses for HSI’s mission support and operations and maintenance.
+
+
+    It also requires specified funds to be used to hire, pay, and equip additional child exploitation
+    investigators and forensics analysts for certain HSI offices to (1) support the identification
+    and rescue of victims of child sexual exploitation and abuse, and (2) train such personnel
+    and state and local law enforcement regarding identifying victims of child sexual exploitation
+    and abuse.
+
+
+    The funds provided by this section must be used for functions other than those related
+    to HSI’s immigration enforcement and customs enforcement missions.
+
+
+    (Sec. 103) This section provides funding to CBP for border security, technology, and screening,
+    including
+
+
+    procurement and integration of new nonintrusive inspection equipment and associated civil
+    works (e.g., artificial intelligence, machine learning, and other innovative technologies)
+    and other mission support to combat the entry or exit of illicit narcotics at ports of
+    entry and along the southwest, northern, and maritime borders;'
+  summary_version: Public Law
+  summary_date: '2026-06-10'
+  summary_truncated: true
 - law_number: 119-97
   title: Fiscal Year 2025 Veterans Affairs Major Medical Facility Authorization Act
   bill: S 2393
@@ -38,6 +223,19 @@ laws:
     bioguide: M000934
     name: Sen. Moran, Jerry [R-KS]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/2393
+  summary: 'Fiscal Year 2025 Veterans Affairs Major Medical Facility Authorization Act
+
+
+    This act authorizes the Department of Veterans Affairs to carry out a major medical facility
+    project in St. Louis, Missouri, during FY2026.
+
+
+    The act specifies the maximum amount that may be spent on the project and details that
+    the project consists of the construction of a new bed tower, clinical building expansion,
+    consolidated administrative building and warehouse, utility plant, and parking garages.'
+  summary_version: Public Law
+  summary_date: '2026-06-09'
+  summary_truncated: false
 - law_number: 119-96
   title: Gerald E. Connolly Esophageal Cancer Awareness Act of 2025
   bill: HR 3490
@@ -47,6 +245,17 @@ laws:
     bioguide: C001078
     name: Rep. Connolly, Gerald E. [D-VA-11]
   url: https://www.congress.gov/bill/119th-congress/house-bill/3490
+  summary: 'Esophageal Cancer Awareness Act
+
+
+    This bill requires the Government Accountability Office to report to Congress on (1) the
+    impact of esophageal cancer-related health care spending under the Federal Employees Health
+    Benefits Program (FEHBP) for federal employees and retirees diagnosed with esophageal
+    cancer, and (2) how often FEHBP participants with a high risk of esophageal cancer undergo
+    screenings according to established guidelines.'
+  summary_version: Introduced in House
+  summary_date: '2025-05-19'
+  summary_truncated: false
 - law_number: 119-95
   title: A bill to amend chapters 83 and 84 of title 5, United States Code, to authorize an
     increase of the retirement age for members of the Capitol Police.
@@ -57,6 +266,22 @@ laws:
     bioguide: M000355
     name: Sen. McConnell, Mitch [R-KY]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/4530
+  summary: 'This act authorizes the Capitol Police Board to increase the mandatory retirement
+    age for a member of the Capitol Police to up to age 62 when the board determines such
+    waiver is in the public interest.
+
+
+    Under current law, members of the Capitol Police are generally subject to mandatory retirement
+    at (1) age 57; or (2) upon completing 20 years of service if the member is older than
+    57. Previously, a waiver from the board would authorize a member to continue working until
+    age 60.
+
+
+    The act authorizes the board to issue a waiver specifying a retirement age between 57
+    and 62.'
+  summary_version: Public Law
+  summary_date: '2026-05-29'
+  summary_truncated: false
 - law_number: 119-94
   title: Medal of Sacrifice Act
   bill: HR 3497
@@ -66,6 +291,33 @@ laws:
     bioguide: M001199
     name: Rep. Mast, Brian J. [R-FL-21]
   url: https://www.congress.gov/bill/119th-congress/house-bill/3497
+  summary: 'Medal of Sacrifice Act of 2025
+
+
+    This act directs the President to issue a medal of sacrifice for eligible law enforcement
+    officers and first responders who are killed in the line of duty.
+
+
+    The act also directs the President to establish a commission on the medal of sacrifice
+    and appoint its members. The act sets forth responsibilities of the commission, including
+    to advise on the design of the medal and determine how the medal will be presented.
+
+
+    Under the act, eligible law enforcement officers and first responders include federal,
+    state, local, tribal, or territorial law enforcement officers or first responders who
+    are not subject to an official act of wrongdoing (e.g., a determination that the officer
+    or first responder acted outside the scope of their duties or in a manner that was not
+    in accordance with official policies or procedures).
+
+
+    A law enforcement officer or first responder who is subject to an official act of wrongdoing
+    is generally not eligible for the medal of sacrifice. However, in the case of such an
+    officer or first responder, the act requires the commission to investigate the circumstances
+    surrounding the officer or first responder''s cause of death and issue a final determination
+    on their eligibility.'
+  summary_version: Public Law
+  summary_date: '2026-05-28'
+  summary_truncated: false
 - law_number: 119-93
   title: Cape Fox Land Entitlement Finalization Act of 2025
   bill: HR 2815
@@ -75,6 +327,35 @@ laws:
     bioguide: B001323
     name: Rep. Begich, Nicholas [R-AK-At Large]
   url: https://www.congress.gov/bill/119th-congress/house-bill/2815
+  summary: 'Cape Fox Land Entitlement Finalization Act of 2025
+
+
+    This act waives a statutory core township selection requirement for the Cape Fox Corporation
+    and allows Cape Fox to receive other lands to fulfill its remaining land entitlement.
+    Cape Fox is an Alaska Native village corporation for the Alaska Native village of Saxman,
+    Alaska.
+
+
+    Specifically, the act states that Cape Fox shall not be required to receive its previously
+    selected land of approximately 185 acres located within the township in which the Alaska
+    Native village of Saxman, Alaska, is located. Instead, the act allows Cape Fox to receive
+    land outside of Cape Fox''s current exterior selection boundary upon written notice of
+    the new selection to the Department of the Interior.
+
+
+    In particular, if Cape Fox submits written notice of its selection of approximately 180
+    acres of surface land within the Tongass National Forest in Alaska to Interior within
+    90 days of the act''s enactment, then Interior must convey the federal land to Cape Fox.
+    Upon conveyance of the surface estate of the federal land to Cape Fox, Interior must convey
+    the subsurface estate of the federal land to Sealaska Corporation (the Alaska Native regional
+    corporation representing southeastern Alaska).
+
+
+    The act reserves a public access easement on the federal land conveyed to Cape Fox and
+    Sealaska.'
+  summary_version: Public Law
+  summary_date: '2026-05-19'
+  summary_truncated: false
 - law_number: 119-92
   title: Investing in All of America Act of 2025
   bill: HR 2066
@@ -84,6 +365,32 @@ laws:
     bioguide: M001204
     name: Rep. Meuser, Daniel [R-PA-9]
   url: https://www.congress.gov/bill/119th-congress/house-bill/2066
+  summary: 'Investing in All of America Act of 2025
+
+
+    This bill modifies the limit on the amount of financing available to a Small Business
+    Investment Company (SBIC) from the Small Business Administration (SBA). It also expands
+    the definition of private capital with respect to SBICs.
+
+
+    Specifically, the bill reduces the maximum outstanding financing available to an SBIC
+    from 300% to 200% of the SBIC''s private capital. The bill increases from $350 million
+    to $475 million the maximum financing available to two or more commonly controlled SBICs
+    that make quarterly or semiannual interest payments.
+
+
+    The bill also expands the amounts that may be excluded from the calculation of the financing
+    limit to include the amounts an SBIC invests in (1) rural areas, (2) certain technology
+    categories, or (3) small manufacturers. The bill revises the cap on such excluded amounts
+    to the lesser of $125 million or the aggregate of 50% of the private capital of the SBIC.
+
+
+    Additionally, the bill expands what is considered the private capital of an SBIC to include
+    funds obtained from the business revenue of additional government-sponsored corporations
+    and funds invested by the trust or endowment of a college or university.'
+  summary_version: Reported to House
+  summary_date: '2025-08-15'
+  summary_truncated: false
 - law_number: 119-91
   title: Sloan Canyon Conservation and Lateral Pipeline Act
   bill: HR 972
@@ -93,6 +400,39 @@ laws:
     bioguide: T000468
     name: Rep. Titus, Dina [D-NV-1]
   url: https://www.congress.gov/bill/119th-congress/house-bill/972
+  summary: 'Sloan Canyon Conservation and Lateral Pipeline Act
+
+
+    This act expands the boundaries of the Sloan Canyon National Conservation Area in Clark
+    County, Nevada, and grants rights-of-way through the conservation area and other land
+    administered by the Bureau of Land Management (BLM) for the construction of a water transmission
+    pipeline and related facilities.
+
+
+    Specifically, the act requires the BLM to grant certain rights-of-way to the Southern
+    Nevada Water Authority (SNWA) for the purposes of (1) performing geotechnical investigations
+    within the rights-of-way, and (2) constructing and operating a water pipeline and related
+    facilities.
+
+
+    The rights-of-way may not be located through or under areas designated as wilderness,
+    and construction of the pipeline may not permanently adversely affect surface resources
+    within the conservation area. The BLM may place other reasonable terms and conditions
+    on the issuance of rights-of-way as necessary to protect the conservation area’s resources.
+
+
+    In tunneling the water pipeline, SNWA may excavate and dispose of sand, gravel, minerals,
+    and other materials as needed. The BLM must enter into a memorandum of understanding with
+    SNWA to identify federal land on which SNWA may dispose of such materials.
+
+
+    The act also adds approximately 9,290 acres of land to the conservation area. This expansion
+    of the conservation area is subject to valid existing rights (e.g., utility transmission
+    rights), must not preclude authorized activities within existing rights-of-way or corridors,
+    and must not preclude the BLM from authorizing new utility rights-of-way.'
+  summary_version: Public Law
+  summary_date: '2026-05-19'
+  summary_truncated: false
 - law_number: 119-90
   title: A bill to require the Federal Energy Regulatory Commission to extend the time period
     during which licensees are required to commence construction of certain hydropower projects.
@@ -103,6 +443,19 @@ laws:
     bioguide: D000618
     name: Sen. Daines, Steve [R-MT]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/1020
+  summary: 'This act authorizes the Federal Energy Regulatory Commission (FERC) to extend
+    construction deadlines for hydropower projects that were issued a license before March
+    13, 2020. FERC is authorized, upon the request of the licensees, to extend the deadline
+    for beginning construction on such projects an additional six years beyond the eight-year
+    extension FERC is authorized to provide under current law. The extension must consist
+    of no more than three consecutive two-year periods.
+
+
+    The act also provides that FERC may reinstate certain expired licenses for projects with
+    construction deadlines extended under this act, effective as of the date they expire.'
+  summary_version: Public Law
+  summary_date: '2026-05-11'
+  summary_truncated: false
 - law_number: 119-89
   title: Rural Broadband Protection Act of 2025
   bill: S 98
@@ -112,6 +465,35 @@ laws:
     bioguide: C001047
     name: Sen. Capito, Shelley Moore [R-WV]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/98
+  summary: 'Rural Broadband Protection Act of 2025
+
+
+    This act requires the Federal Communications Commission (FCC) to vet the qualifications
+    of applicants for certain funding programs that support affordable broadband deployment
+    in high-cost areas (e.g., rural communities).
+
+
+    Specifically, the FCC must develop a vetting process for applicants seeking funding under
+    high-cost universal service programs for the deployment of a broadband-capable network
+    and the provision of supported services over the network. The FCC must require applicants
+    to submit a proposal that contains sufficient detail and documentation for the FCC to
+    ascertain that the applicant possesses the technical, financial, and operational capabilities
+    related to the proposed deployment and has a reasonable business plan. The FCC must evaluate
+    applications against reasonable and well-established standards and must consider each
+    applicant’s history of compliance with the requirements of other government broadband
+    funding programs.
+
+
+    The FCC must establish this vetting process through a rulemaking proceeding. After the
+    rule is finalized, funds may only be awarded to applicants that satisfy the standards
+    established therein.
+
+
+    Finally, the FCC must set financial penalties for applicants that default in some manner
+    during the evaluation process before they are authorized to begin receiving support.'
+  summary_version: Public Law
+  summary_date: '2026-05-11'
+  summary_truncated: false
 - law_number: 119-88
   title: Tribal Trust Land Homeownership Act of 2025
   bill: S 723
@@ -121,6 +503,36 @@ laws:
     bioguide: T000250
     name: Sen. Thune, John [R-SD]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/723
+  summary: 'Tribal Trust Land Homeownership Act of 2025
+
+
+    This act sets forth requirements for the processing of a proposed residential leasehold
+    mortgage, business leasehold mortgage, land mortgage, or right-of-way document by the
+    Bureau of Indian Affairs (BIA). The BIA must notify lenders upon receipt of such documentation,
+    perform a preliminary review of such documents not later than 10 days after receipt, and
+    approve or disapprove of such documents within 20 or 30 days, depending on the type of
+    application.
+
+
+    Additionally, the act sets forth requirements for the BIA regarding (1) response times
+    for the completion of certified title status reports, (2) notification of delays in processing,
+    and (3) the form of notices and delivery of certain reports.
+
+
+    The act also provides relevant federal agencies and Indian tribes with read-only access
+    to the Trust Asset and Accounting Management System maintained by the BIA.
+
+
+    The Government Accountability Office must report on digitizing documents for the purpose
+    of streamlining and expediting the completion of mortgage packages for residential mortgages
+    on Indian land.
+
+
+    Finally, the act establishes within the BIA''s Division of Real Estate Services the position
+    of Realty Ombudsman.'
+  summary_version: Public Law
+  summary_date: '2026-05-04'
+  summary_truncated: false
 - law_number: 119-87
   title: A bill to amend the FISA Amendments Act of 2008 to extend the authorities of title
     VII of the Foreign Intelligence Surveillance Act of 1978, and for other purposes.
@@ -131,6 +543,29 @@ laws:
     bioguide: C001095
     name: Sen. Cotton, Tom [R-AR]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/4465
+  summary: 'This act extends the authorities of Title VII of the Foreign Intelligence Surveillance
+    Act (FISA) until June 12, 2026.
+
+
+    Title VII of FISA generally addresses electronic surveillance and other methods of acquiring
+    foreign intelligence information that are directed at targets outside the United States.
+    Title VII includes surveillance under Section 702, which concerns acquiring communications
+    of non-U.S. persons believed to be outside the United States to obtain foreign intelligence
+    information. Information about U.S. persons may incidentally be acquired by this type
+    of surveillance and subsequently queried (searched) under certain circumstances.
+
+
+    For additional information see
+
+
+    CRS In Focus, IF11451 Foreign Intelligence Surveillance Act (FISA); and
+
+
+    CRS Report, R48592 FISA Section 702 and the 2024 Reforming Intelligence and Securing America
+    Act.'
+  summary_version: Public Law
+  summary_date: '2026-04-30'
+  summary_truncated: false
 - law_number: 119-86
   title: Homeland Security and Further Additional Continuing Appropriations Act, 2026.
   bill: HR 7147
@@ -140,6 +575,29 @@ laws:
     bioguide: C001053
     name: Rep. Cole, Tom [R-OK-4]
   url: https://www.congress.gov/bill/119th-congress/house-bill/7147
+  summary: 'Further Additional Continuing Appropriations Act, 2026
+
+
+    This bill provides continuing FY2026 appropriations to the Department of Homeland Security
+    (DHS) through May 22, 2026. It is known as a continuing resolution (CR) and ends the partial
+    DHS shutdown that began on February 14, 2026, due to a lapse in appropriations for DHS.
+
+
+    The CR generally funds most DHS agencies and programs at the FY2025 levels through the
+    earlier of May 22, 2026, or the enactment of the FY2026 DHS appropriations act.
+
+
+    The bill also authorizes back pay, in accordance with current law, for federal employees
+    who were affected by the partial DHS shutdown.
+
+
+    Finally, the bill ratifies and approves certain obligations that were incurred during
+    the partial DHS shutdown, including obligations incurred to maintain the essential level
+    of activity to protect life and property and bring about an orderly termination of government
+    functions.'
+  summary_version: House agreed to Senate amendment
+  summary_date: '2026-03-27'
+  summary_truncated: false
 - law_number: 119-85
   title: Providing for congressional disapproval under chapter 8 of title 5, United States
     Code, of the rule submitted by the Bureau of Land Management relating to Public Land Order
@@ -151,6 +609,19 @@ laws:
     bioguide: S001212
     name: Rep. Stauber, Pete [R-MN-8]
   url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/140
+  summary: This joint resolution opens approximately 225,504 acres of National Forest System
+    lands in Cook, Lake, and Saint Louis Counties in Minnesota to mineral and geothermal leasing.
+    Specifically, the joint resolution nullifies Public Land Order 7917, which withdrew such
+    land from mineral and geothermal leasing for 20 years beginning in 2023. The Bureau of
+    Land Management issued the order to protect and preserve the Rainy River Watershed, the
+    Boundary Waters Canoe Area Wilderness, the Boundary Waters Canoe Area Wilderness Mining
+    Protection Area, and the 1854 Ceded Territory of the Lake Superior Chippewa from potential
+    adverse effects of mineral and geothermal exploration and development. The joint resolution
+    removes such protections and allows such land to be leased for the exploration and development
+    of minerals and geothermal energy.
+  summary_version: Public Law
+  summary_date: '2026-04-27'
+  summary_truncated: false
 - law_number: 119-84
   title: To amend the FISA Amendments Act of 2008 to extend the authorities of title VII of
     the Foreign Intelligence Surveillance Act of 1978 through April 30, 2026, and for other
@@ -171,6 +642,37 @@ laws:
     bioguide: E000295
     name: Sen. Ernst, Joni [R-IA]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/3971
+  summary: 'Small Business Innovation and Economic Security Act
+
+
+    This act reauthorizes through FY2031 and modifies the Small Business Innovation Research
+    (SBIR) program, the Small Business Technology Transfer (STTR) program, and related pilot
+    programs. (The SBIR and STTR programs are administered by various federal agencies and
+    provide competitive awards for domestic small businesses to conduct research and development
+    projects that have the potential for commercialization.)
+
+
+    Specifically, the act expands the requirements for federal agencies administering these
+    programs to evaluate the security risks of the small businesses that apply for awards
+    under the programs. If an agency denies an application for security reasons, the agency
+    must provide the small business with the basis for such determination.
+
+
+    Further, each agency must set a maximum number of proposals per fiscal year that a small
+    business concern may submit in response to Phase I and Phase II solicitations.
+
+
+    The act expands the training requirements for agencies'' contracting officers and acquisition
+    workforce with respect to Phase III (commercialization of technologies) awards under the
+    SBIR and STTR programs.
+
+
+    The act also establishes strategic breakthrough allocations for critical technology areas.
+    These are additional Phase II SBIR and STTR awards to small businesses that demonstrate
+    an effective technology and receive matching funds.'
+  summary_version: Public Law
+  summary_date: '2026-04-13'
+  summary_truncated: false
 - law_number: 119-82
   title: Holocaust Expropriated Art Recovery Act of 2025
   bill: S 1884
@@ -180,6 +682,47 @@ laws:
     bioguide: C001056
     name: Sen. Cornyn, John [R-TX]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/1884
+  summary: 'Holocaust Expropriated Art Recovery Act of 2025
+
+
+    This act permanently extends and expands judicial authority under the Holocaust Expropriated
+    Art Recovery Act of 2016. The law allows and establishes procedures for civil claims and
+    causes of action to recover artwork and other property lost between 1933 and 1945 because
+    of Nazi persecution.
+
+
+    Among the changes, the act removes the deadline for filing civil claims or causes of action.
+    Currently, the filing deadline is December 31, 2026. (Claims must still be filed within
+    six years of the claimant''s discovery of the property in question.)
+
+
+    The act permits courts to exercise jurisdiction over civil claims or causes of action
+    against a foreign state without regard to the nationality or citizenship of the alleged
+    victim. The art or property at issue must still have a connection to the foreign state''s
+    commercial activities in the United States.
+
+
+    Additionally, the act authorizes nationwide service of process, which allows courts to
+    exercise personal jurisdiction over defendants in any judicial district where they may
+    be found, reside, have an agent, or transact business.
+
+
+    Finally, the act limits the defenses that may be asserted against civil claims or causes
+    of action, including by prohibiting
+
+
+    defenses based on the passage of time, including equitable defenses such as laches (i.e.,
+    unreasonable delays); and
+
+
+    discretionary bases for dismissal that are unrelated to the merits of the claim, including
+    international comity (i.e., deference to the laws of other countries).
+
+
+    These changes apply to pending and future civil claims or causes of action.'
+  summary_version: Public Law
+  summary_date: '2026-04-13'
+  summary_truncated: false
 - law_number: 119-81
   title: To authorize the President to award the Medal of Honor to John W. Ripley for acts
     of valor during the Vietnam War, and for other purposes.
@@ -190,6 +733,12 @@ laws:
     bioguide: G000568
     name: Rep. Griffith, H. Morgan [R-VA-9]
   url: https://www.congress.gov/bill/119th-congress/house-bill/7211
+  summary: This bill authorizes the President to award the Medal of Honor to John W. Ripley
+    for his acts of valor on April 2, 1972, as a member of the Marine Corps during the Vietnam
+    War, for which he was previously awarded the Navy Cross.
+  summary_version: Passed Senate
+  summary_date: '2026-03-03'
+  summary_truncated: false
 - law_number: 119-2
   title: Nicholas Dockery Medal of Honor Act
   bill: HR 7194
@@ -199,6 +748,16 @@ laws:
     bioguide: B001307
     name: Rep. Baird, James R. [R-IN-4]
   url: https://www.congress.gov/bill/119th-congress/house-bill/7194
+  summary: 'Nicholas Dockery Medal of Honor Act
+
+
+    This bill authorizes the President to award the Medal of Honor to Nicholas Dockery (formerly
+    known as Kareem N. Dockery), for his acts of valor on October 2, 2012, as a member of
+    the Army while serving in Afghanistan, for which he was previously awarded the Silver
+    Star.'
+  summary_version: Passed Senate
+  summary_date: '2026-03-03'
+  summary_truncated: false
 - law_number: 119-1
   title: To authorize the President to award the Medal of Honor to James Capers, Jr., for
     acts of valor as a member of the Marine Corps during the Vietnam War.
@@ -209,6 +768,12 @@ laws:
     bioguide: N000190
     name: Rep. Norman, Ralph [R-SC-5]
   url: https://www.congress.gov/bill/119th-congress/house-bill/3377
+  summary: This act authorizes the President to award the Medal of Honor to James Capers,
+    Jr. for his acts of valor as a member of the Marine Corps during the Vietnam War from
+    March 31 through April 3, 1967, for which he was previously awarded the Silver Star.
+  summary_version: Public Law
+  summary_date: '2026-03-26'
+  summary_truncated: false
 - law_number: 119-80
   title: A bill to waive the 60-day notice requirement for the posthumous honorary promotion
     of Captain Cody Khork, United States Army.
@@ -219,6 +784,11 @@ laws:
     bioguide: W000437
     name: Sen. Wicker, Roger F. [R-MS]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/4138
+  summary: This act allows for the posthumous honorary promotion of Captain Cody Khork to
+    the rank of major in the Army without the required 60-day notice to Congress.
+  summary_version: Public Law
+  summary_date: '2026-03-20'
+  summary_truncated: false
 - law_number: 119-79
   title: Semiquincentennial Congressional Time Capsule Act
   bill: S 3705
@@ -228,6 +798,29 @@ laws:
     bioguide: T000476
     name: Sen. Tillis, Thomas [R-NC]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/3705
+  summary: 'Semiquincentennial Congressional Time Capsule Act
+
+
+    This act requires the Architect of the Capitol to create a congressional time capsule
+    in honor of the 250th anniversary of the Declaration of Independence to be buried in the
+    Capitol Visitor Center on or before July 4, 2026.
+
+
+    The time capsule shall contain a joint letter from congressional leadership (the Speaker
+    and Minority Leader of the House of Representatives and the Majority and Minority Leaders
+    of the Senate) and such other contents as they shall determine.
+
+
+    The act directs the Architect of the Capitol to also install a plaque about the time capsule,
+    subject to the approval of the Committee on House Administration of the House and the
+    Committee on Rules and Administration of the Senate.
+
+
+    The time capsule shall be sealed until July 4, 2276. On that date, the Speaker of the
+    House and the Senate Majority Leader shall present the time capsule to the 244th Congress.'
+  summary_version: Public Law
+  summary_date: '2026-02-18'
+  summary_truncated: false
 - law_number: 119-78
   title: Disapproving the action of the District of Columbia Council in approving the D.C.
     Income and Franchise Tax Conformity and Revision Temporary Amendment Act of 2025.
@@ -238,6 +831,47 @@ laws:
     bioguide: G000603
     name: Rep. Gill, Brandon [R-TX-26]
   url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/142
+  summary: 'This joint resolution reinstates provisions of District of Columbia (DC) tax law
+    to conform with federal tax law.
+
+
+    As background, DC generally automatically adopts changes to federal tax law (known as
+    rolling conformity). Therefore, upon enactment of the 2025 reconciliation act (commonly
+    known as the One Big Beautiful Bill Act), many of its tax provisions became DC law. DC
+    subsequently enacted its own legislation (the DC Income and Franchise Tax Conformity and
+    Revision Temporary Amendment Act of 2025) that decoupled DC tax law from these federal
+    provisions.
+
+
+    This joint resolution nullifies the DC legislation, thereby generally realigning DC tax
+    law with the tax provisions of the 2025 reconciliation act.
+
+
+    Specifically, the joint resolution reinstates for DC provisions that
+
+
+    • increase the higher basic standard deduction;
+
+    • increase deductible charitable cash contributions (for taxpayers who take the standard
+    deduction);
+
+    • establish a $6,000 tax deduction for taxpayers 65 years and older;
+
+    • allow a tax deduction of qualified tips, qualified overtime pay, and qualified car loan
+    interest;
+
+    • authorize an elective 100% depreciation allowance for nonresidential real property;
+    and
+
+    • authorize businesses to deduct 100% of research and experimental costs retroactive to
+    tax year 2022.
+
+
+    The DC legislation also amended several other provisions of DC tax law, including restoring
+    the DC child tax credit. The joint resolution negates these changes.'
+  summary_version: Public Law
+  summary_date: '2026-02-18'
+  summary_truncated: false
 - law_number: 119-68
   title: La Paz County Solar Energy and Job Creation Act
   bill: HR 1043
@@ -247,6 +881,44 @@ laws:
     bioguide: G000565
     name: Rep. Gosar, Paul A. [R-AZ-9]
   url: https://www.congress.gov/bill/119th-congress/house-bill/1043
+  summary: 'La Paz County Solar Energy and Job Creation Act
+
+
+    This act directs the Department of the Interior, after receiving a request from La Paz
+    County, Arizona, to convey approximately 3,400 acres of identified land managed by the
+    Bureau of Land Management to the county for fair market value.
+
+
+    Interior must exclude from the conveyance any federal land that contains significant cultural,
+    environmental, wildlife, or recreational resources.
+
+
+    As a condition of the conveyance, La Paz County and any subsequent owner must
+
+
+    make good faith efforts to avoid disturbing tribal artifacts;
+
+
+    minimize impacts on tribal artifacts if they are disturbed;
+
+
+    coordinate with the Colorado River Indian Tribes Tribal Historic Preservation Office to
+    identify artifacts of cultural and historic significance; and
+
+
+    allow tribal representatives to rebury unearthed artifacts at, or near, where they were
+    discovered.
+
+
+    The federal land is withdrawn from the operation of U.S. mining and mineral leasing laws,
+    and thus the land is not available for new mining claims, new mineral or geothermal leases,
+    nor sales of mineral materials.
+
+
+    The county must pay all costs related to the conveyance.'
+  summary_version: Public Law
+  summary_date: '2025-12-29'
+  summary_truncated: false
 - law_number: 119-77
   title: Ending Improper Payments to Deceased People Act
   bill: S 269
@@ -256,6 +928,30 @@ laws:
     bioguide: K000393
     name: Sen. Kennedy, John [R-LA]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/269
+  summary: 'Ending Improper Payments to Deceased People Act
+
+
+    This act permanently allows the Department of the Treasury to access certain death records
+    maintained by the Social Security Administration (SSA) to help prevent and recover improper
+    payments (e.g., payments to deceased individuals). The act also establishes evidentiary
+    requirements the SSA must meet before identifying an individual as deceased.
+
+
+    Current law requires the SSA to share its Death Master File with the Do Not Pay system
+    maintained by Treasury for three years. The act makes this requirement permanent. Treasury
+    must enter into an agreement with the SSA related to Treasury''s share of the cost of
+    state death data.
+
+
+    The act also prohibits the SSA from recording a death in the master file unless the SSA
+    has clear and convincing evidence that the individual should be presumed deceased. If
+    an individual is incorrectly identified as deceased and provides the SSA with supporting
+    documentation, the SSA may notify certain agencies that have access to the master file,
+    including Treasury and federal or state agencies that provide or disburse federally funded
+    benefits.'
+  summary_version: Public Law
+  summary_date: '2026-02-10'
+  summary_truncated: false
 - law_number: 119-76
   title: Bankruptcy Administration Improvement Act of 2025
   bill: S 3424
@@ -265,6 +961,28 @@ laws:
     bioguide: C001088
     name: Sen. Coons, Christopher A. [D-DE]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/3424
+  summary: 'Bankruptcy Administration Improvement Act of 2025
+
+
+    This act makes several changes to the administration of bankruptcy cases, particularly
+    by increasing amounts received by certain trustees, extending the sunset date of various
+    fees, and extending the term of specified bankruptcy judgeships.
+
+
+    (Sec. 3) The act increases the amounts paid out of fees to the trustee in Chapter 7 (liquidation)
+    cases.
+
+
+    (Sec. 4) The act extends for an additional five years the fees paid quarterly to the U.S.
+    trustee in Chapter 11 (reorganization) cases. The act also increases the fee percentage
+    for cases with large disbursements, subject to limitations.
+
+
+    (Sec. 5) Finally, temporary bankruptcy judgeships in various districts are extended for
+    an additional five years.'
+  summary_version: Public Law
+  summary_date: '2026-02-06'
+  summary_truncated: false
 - law_number: 119-75
   title: Consolidated Appropriations Act, 2026
   bill: HR 7148
@@ -274,6 +992,126 @@ laws:
     bioguide: C001053
     name: Rep. Cole, Tom [R-OK-4]
   url: https://www.congress.gov/bill/119th-congress/house-bill/7148
+  summary: 'Consolidated Appropriations Act, 2026
+
+
+    This bill provides appropriations to several federal departments and agencies for the
+    remainder of FY2026 and provides continuing FY2026 appropriations for the Department of
+    Homeland Security (DHS) through February 13, 2026. It also extends various expiring programs
+    and authorities.
+
+
+    Specifically, the bill includes 5 of the 12 regular FY2026 appropriations bills:
+
+
+    the Department of Defense Appropriations Act, 2026;
+
+
+    the Departments of Labor, Health and Human Services, and Education, and Related Agencies
+    Appropriations Act, 2026;
+
+
+    the Transportation, Housing and Urban Development, and Related Agencies Appropriations
+    Act, 2026;
+
+
+    the Financial Services and General Government Appropriations Act, 2026; and
+
+
+    the National Security, Department of State, and Related Programs Appropriations Act, 2026.
+
+
+    The departments, agencies, and activities funded in the bill include
+
+
+    the Department of Defense,
+
+
+    the Department of Labor,
+
+
+    the Department of Health and Human Services,
+
+
+    the Department of Education,
+
+
+    the Department of Transportation,
+
+
+    the Department of Housing and Urban Development,
+
+
+    the Department of the Treasury,
+
+
+    the Executive Office of the President,
+
+
+    the judiciary,
+
+
+    the District of Columbia,
+
+
+    the Department of State and related programs,
+
+
+    the administration and oversight of foreign assistance programs,
+
+
+    bilateral economic assistance,
+
+
+    international security assistance,
+
+
+    multilateral assistance,
+
+
+    export and investment assistance, and
+
+
+    several related and independent agencies.
+
+
+    In addition, the bill includes a continuing resolution (CR) that provides continuing FY2026
+    appropriations to DHS through the earlier of February 13, 2026, or the enactment of the
+    DHS appropriations act. The CR funds most DHS programs and activities at the FY2025 levels.
+
+
+    The bill also extends several expiring programs and authorities, including
+
+
+    the U.S. Grain Standards Act;
+
+
+    the Commodity Futures Trading Commission’s whistleblower program;
+
+
+    the National Flood Insurance Program;
+
+
+    the Forest Service''s participation in the Agriculture Conservation Experienced Services
+    Program;
+
+
+    the Transportation Security Administration’s Reimbursable Screening Services Program;
+
+
+    the Motor Carrier Safety Advisory Committee;
+
+
+    several authorities and programs related to cybersecurity;
+
+
+    the technology modernization fund and board;
+
+
+    the U.S. Parole Commission;'
+  summary_version: House agreed to Senate amendment
+  summary_date: '2026-02-03'
+  summary_truncated: true
 - law_number: 119-74
   title: Commerce, Justice, Science; Energy and Water Development; and Interior and Environment
     Appropriations Act, 2026
@@ -284,6 +1122,69 @@ laws:
     bioguide: C001053
     name: Rep. Cole, Tom [R-OK-4]
   url: https://www.congress.gov/bill/119th-congress/house-bill/6938
+  summary: 'Commerce, Justice, Science; Energy and Water Development; and Interior and Environment
+    Appropriations Act, 2026
+
+
+    This bill provides FY2026 appropriations to several federal departments and agencies for
+    activities and programs related to commerce, law enforcement, science, energy and water
+    development, public lands, and the environment.
+
+
+    Specifically, the bill includes 3 of the 12 regular FY2026 appropriations bills:
+
+
+    the Commerce, Justice, Science, and Related Agencies Appropriations Act, 2026;
+
+
+    the Energy and Water Development and Related Agencies Appropriations Act, 2026; and
+
+
+    the Department of the Interior, Environment, and Related Agencies Appropriations Act,
+    2026.
+
+
+    The departments, agencies, and activities funded in the bill include
+
+
+    the Department of Commerce,
+
+
+    the Department of Justice,
+
+
+    the National Aeronautics and Space Administration (NASA),
+
+
+    the National Science Foundation,
+
+
+    U.S. Army Corps of Engineers civil works projects,
+
+
+    the Department of Energy,
+
+
+    the Department of the Interior,
+
+
+    the Environmental Protection Agency,
+
+
+    the Forest Service,
+
+
+    the Indian Health Service, and
+
+
+    several related and independent agencies.
+
+
+    The bill also sets forth requirements and restrictions for using funds provided by this
+    and other appropriations acts.'
+  summary_version: Introduced in House
+  summary_date: '2026-01-06'
+  summary_truncated: false
 - law_number: 119-73
   title: Trafficking Survivors Relief Act
   bill: HR 4323
@@ -293,6 +1194,39 @@ laws:
     bioguide: F000478
     name: Rep. Fry, Russell [R-SC-7]
   url: https://www.congress.gov/bill/119th-congress/house-bill/4323
+  summary: 'Trafficking Survivors Relief Act
+
+
+    This act establishes a process to vacate convictions and expunge arrest records for certain
+    criminal offenses committed by victims of human trafficking that directly result from
+    or relate to having been a trafficking victim.
+
+
+    It defines the offenses eligible to be vacated or expunged and sets forth procedures for
+    filing a motion.
+
+
+    The Government Accountability Office must assess the impact of this process, including
+    the number of human trafficking survivors who file motions to vacate convictions or expunge
+    records.
+
+
+    Under the act, U.S. Attorneys'' Offices must report to the Department of Justice (DOJ)
+    on the number of motions to vacate convictions or expunge arrest records that are filed.
+    Additionally, the DOJ must report to Congress on professional training received by U.S.
+    Attorneys on indicators of human trafficking during the preceding 12-month period.
+
+
+    The act permits certain grants for legal representation to be used to seek post-conviction
+    relief.
+
+
+    Finally, the act allows a defendant to establish, as a defense, that the offenses were
+    committed under duress by demonstrating that he or she was a victim of human trafficking
+    at the time of the offense.'
+  summary_version: Public Law
+  summary_date: '2026-01-23'
+  summary_truncated: false
 - law_number: 119-72
   title: FAST VETS Act
   bill: HR 4446
@@ -302,6 +1236,28 @@ laws:
     bioguide: D000635
     name: Rep. Dexter, Maxine [D-OR-3]
   url: https://www.congress.gov/bill/119th-congress/house-bill/4446
+  summary: 'Focused Assistance and Skills Training for Veterans'' Employment and Transition
+    Success Act or the FAST VETS Act
+
+
+    This act establishes conditions under which a veteran''s individualized vocational rehabilitation
+    plan (under the Veteran Readiness and Employment program) must be redeveloped. The program
+    provides job training and employment-related services to veterans with service-connected
+    disabilities.
+
+
+    Currently, the Department of Veterans Affairs (VA) must formulate and annually review
+    an individualized vocational rehabilitation plan for veterans who have a serious employment
+    handicap and have a reasonably feasible vocational goal.
+
+
+    The act provides that such plan must be redeveloped with the veteran if the VA determines
+    the achievement of the long-range rehabilitation goals for the veteran are no longer feasible
+    due to changes in the employment handicap of the veteran and are more likely under a different
+    plan.'
+  summary_version: Public Law
+  summary_date: '2026-01-20'
+  summary_truncated: false
 - law_number: 119-71
   title: VA Budget Shortfall Accountability Act
   bill: HR 1823
@@ -311,6 +1267,18 @@ laws:
     bioguide: B001301
     name: Rep. Bergman, Jack [R-MI-1]
   url: https://www.congress.gov/bill/119th-congress/house-bill/1823
+  summary: 'VA Budget Shortfall Accountability Act
+
+
+    This act requires the Government Accountability Office (GAO) to review and report on the
+    circumstances and causes of the shortfall in funding of the Veterans Benefits Administration
+    for FY2024 and the expected shortfall in funding of the Veterans Health Administration
+    in FY2025. The Department of Veterans Affairs must submit such GAO report to Congress.
+    For each of the five fiscal years following the date of enactment of this act, GAO must
+    conduct subsequent reviews and reports regarding the funding of the VA.'
+  summary_version: Public Law
+  summary_date: '2026-01-20'
+  summary_truncated: false
 - law_number: 119-70
   title: Disabled Veterans Housing Support Act
   bill: HR 224
@@ -320,6 +1288,27 @@ laws:
     bioguide: D000594
     name: Rep. De La Cruz, Monica [R-TX-15]
   url: https://www.congress.gov/bill/119th-congress/house-bill/224
+  summary: 'Disabled Veterans Housing Support Act
+
+
+    This act excludes compensation received for a military service-connected disability from
+    a veteran''s income when determining eligibility for assistance under the Community Development
+    Block Grant (CDBG) program.
+
+
+    The CDBG program provides grants to urban communities for development activities focused
+    on revitalizing neighborhoods, economic development, and providing improved community
+    facilities and services.
+
+
+    Additionally, the Government Accountability Office must report on how service-connected
+    disability compensation is treated when determining eligibility for all programs administered
+    by the Department of Housing and Urban Development. This includes identifying instances
+    where the treatment of such compensation is inconsistent with the requirement under this
+    act.'
+  summary_version: Public Law
+  summary_date: '2026-01-20'
+  summary_truncated: false
 - law_number: 119-69
   title: Whole Milk for Healthy Kids Act of 2025
   bill: S 222
@@ -329,6 +1318,49 @@ laws:
     bioguide: M001198
     name: Sen. Marshall, Roger [R-KS]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/222
+  summary: 'Whole Milk for Healthy Kids Act of 2025
+
+
+    This act revises requirements for milk provided by the National School Lunch Program of
+    the Department of Agriculture (USDA) to allow schools to offer students whole and reduced-fat
+    milk. The act also requires that local school food service personnel receive annual training
+    and certification on food allergies.
+
+
+    The act permits schools to offer students whole, reduced-fat (2%), low-fat (1%), and fat-free
+    flavored and unflavored milk. The milk that is offered may be organic or nonorganic. Currently,
+    USDA regulations require milk to be fat-free or low-fat and allow milk to be flavored
+    or unflavored. The act also removes the requirement that schools participating in the
+    program must provide milk that is consistent with the most recent Dietary Guidelines for
+    Americans.
+
+
+    The act also expands the nondairy beverages that are included in the program by allowing
+    schools to offer all students nondairy beverages that are nutritionally equivalent to
+    fluid milk and that meet nutritional standards established by USDA.
+
+
+    Further, schools currently must provide a substitute for fluid milk, on receipt of a written
+    statement from a licensed physician, for students whose disability restricts their diet.
+    Under the act, a parent or legal guardian may also provide the written statement.
+
+
+    In addition, the act excludes fluid milk from the saturated fat content calculation for
+    school meals. Currently, schools participating in the program must provide meals that
+    meet certain nutrition requirements; USDA regulations require that the average saturated
+    fat content of the meals offered must be less than 10% of the total calories. Under the
+    act, milk fat included in any fluid milk provided by the program must not be considered
+    saturated fat for the purposes of measuring compliance with USDA regulations.
+
+
+    Finally, the program''s mandatory training and certification for local school food service
+    personnel must include a module on food allergies, including information on the best practices
+    to prevent, recognize, and respond to food-related allergic reactions. Food service personnel
+    must receive an annual certification to demonstrate competence in the food allergies training
+    and other training modules that are provided.'
+  summary_version: Public Law
+  summary_date: '2026-01-14'
+  summary_truncated: false
 - law_number: 119-67
   title: Great Lakes Fishery Research Reauthorization Act
   bill: S 2878
@@ -338,6 +1370,17 @@ laws:
     bioguide: P000595
     name: Sen. Peters, Gary C. [D-MI]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/2878
+  summary: 'Great Lakes Fishery Research Reauthorization Act
+
+
+    This act reauthorizes through FY2030 research and monitoring conducted by the U.S. Geological
+    Survey in support of binational fisheries within the Great Lakes Basin. This research
+    is completed through the Great Lakes Science Center and may involve invasive species science,
+    studies on fishery resources, and the use of biological assessment tools and other capabilities
+    to support fishery management decisions.'
+  summary_version: Public Law
+  summary_date: '2025-12-26'
+  summary_truncated: false
 - law_number: 119-66
   title: Congressional Award Program Reauthorization Act
   bill: S 284
@@ -347,6 +1390,28 @@ laws:
     bioguide: L000571
     name: Sen. Lummis, Cynthia M. [R-WY]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/284
+  summary: 'Congressional Award Program Reauthorization Act
+
+
+    This act reauthorizes through FY2028 the Congressional Award Board, the board that administers
+    the Congressional Award Program, and modifies program medals.
+
+
+    (The program, established by law in 1979, awards medals to youth ages 14 to 23 who satisfy
+    standards of achievement set by the board. The program aims to promote initiative, achievement,
+    and excellence among youth in the areas of public service, personal development, and physical
+    fitness.)
+
+
+    The act removes a requirement for program medals to consist of gold-plate over bronze,
+    rhodium over bronze, or bronze.
+
+
+    The reauthorization is effective as if enacted on October 1, 2023 (the date on which a
+    prior reauthorization expired).'
+  summary_version: Public Law
+  summary_date: '2025-12-26'
+  summary_truncated: false
 - law_number: 119-65
   title: Save Our Seas 2.0 Amendments Act
   bill: S 216
@@ -356,6 +1421,40 @@ laws:
     bioguide: S001198
     name: Sen. Sullivan, Dan [R-AK]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/216
+  summary: 'Save Our Seas 2.0 Amendments Act
+
+
+    This bill reauthorizes and modifies administration of Marine Debris Program (MDP) activities
+    and the Marine Debris Foundation. (The program and the foundation support efforts to assess,
+    prevent, and otherwise address marine debris and its adverse impacts on the U.S. economy,
+    the marine environment, and navigation safety.)
+
+
+    First, the bill reauthorizes the National Oceanic and Atmospheric Administration''s (NOAA''s)
+    Marine Debris Program through FY2029. The bill authorizes NOAA to provide contributions
+    for MDP project costs on an in-kind basis in an amount that NOAA determines represents
+    the value it derives from the project. The bill also authorizes NOAA to enter into agreements
+    other than cooperative agreements, contracts, and grant agreements for projects.
+
+
+    Next, the bill modifies requirements for the Marine Debris Foundation and reauthorizes
+    it for FY2025. Among other changes, the bill designates the current Chief Operating Officer
+    (i.e., the first officer or employee appointed by the board) as the Chief Executive Officer
+    (CEO) and specifies that the board has the authority to appoint, review the performance
+    of, and remove the CEO. The bill authorizes the CEO to appoint, supervise, and remove
+    foundation employees and officers.
+
+
+    Further, the bill directs the foundation to develop and implement best practices for conducting
+    outreach to Indian tribes and tribal governments. The foundation must locate its principal
+    office in the National Capital Region or a coastal shoreline community.
+
+
+    Finally, the bill authorizes the foundation to match contributions from regional organizations,
+    Indian tribes, tribal organizations, and foreign governments.'
+  summary_version: Passed Senate
+  summary_date: '2025-05-20'
+  summary_truncated: false
 - law_number: 119-64
   title: Disaster Related Extension of Deadlines Act
   bill: HR 1491
@@ -365,6 +1464,40 @@ laws:
     bioguide: M001210
     name: Rep. Murphy, Gregory F. [R-NC-3]
   url: https://www.congress.gov/bill/119th-congress/house-bill/1491
+  summary: 'Disaster Related Extension of Deadlines Act
+
+
+    This act requires the Internal Revenue Service (IRS) to treat the postponement of the
+    federal tax return deadline due to a federally declared disaster or certain other events
+    as an extension of such deadline for purposes of calculating the limit on a tax refund.
+    The act also provides that the IRS’s deadline for sending certain notices includes such
+    postponement.
+
+
+    Under current law, a tax refund claim must be filed within three years of the date that
+    the federal tax return is filed. (Some exceptions apply.) The tax refund amount generally
+    is limited to federal taxes paid within the three years preceding the tax refund claim
+    plus any extension of the federal tax return deadline (known as the lookback period).
+    Under the law in effect prior to this act, the postponement of the federal tax return
+    deadline is not an extension for purposes of the lookback period. Thus, under prior law,
+    certain tax payments (e.g., amounts withheld from a paycheck for federal taxes) made before
+    the federal tax return is filed may be outside the lookback period and non-refundable.
+
+
+    Under the act, a federal tax return deadline postponed due to a federally declared disaster
+    or certain other events must be treated as an extension of such deadline for purposes
+    of the lookback period.
+
+
+    Further, under current law, the IRS is required to mail a notice and demand for tax payment
+    within 60 days of an assessment but not before the tax payment due date.
+
+
+    The act provides that the tax payment due date includes the postponement of the tax payment
+    deadline due to a federally declared disaster or certain other events.'
+  summary_version: Public Law
+  summary_date: '2025-12-26'
+  summary_truncated: false
 - law_number: 119-63
   title: Alaska Native Vietnam Era Veterans Land Allotment Extension Act of 2025
   bill: HR 410
@@ -374,6 +1507,22 @@ laws:
     bioguide: B001323
     name: Rep. Begich, Nicholas [R-AK-At Large]
   url: https://www.congress.gov/bill/119th-congress/house-bill/410
+  summary: 'Alaska Native Vietnam Era Veterans Land Allotment Extension Act of 2025
+
+
+    This act extends for an additional five years the time period during which an eligible
+    Alaska Native veteran may apply for a land allotment under the Alaska Native Vietnam Era
+    Veterans Land Allotment Program. The program makes Alaska Native veterans who served in
+    the Armed Forces in Vietnam between August 5, 1964, and December 31, 1971, or their heirs
+    eligible to receive up to 160 acres of federal land in Alaska.
+
+
+    Under the current program, the Department of the Interior''s Bureau of Land Management
+    may accept applications through December 29, 2025. This act extends this time period for
+    an additional five years to December 29, 2030.'
+  summary_version: Public Law
+  summary_date: '2025-12-26'
+  summary_truncated: false
 - law_number: 119-62
   title: MAPWaters Act of 2025
   bill: HR 187
@@ -383,6 +1532,52 @@ laws:
     bioguide: M001213
     name: Rep. Moore, Blake D. [R-UT-1]
   url: https://www.congress.gov/bill/119th-congress/house-bill/187
+  summary: 'Modernizing Access to our Public Waters Act or the MAPWaters Act of 2025 or the
+    MAPWaters Act of 2025
+
+
+    This act directs the Forest Service and the Department of the Interior to standardize
+    and publish data relating to the public''s access to federal waterways for recreational
+    use.
+
+
+    (Sec. 3) The Forest Service and Interior must jointly develop and adopt interagency standards
+    for data collection and dissemination of geospatial data relating to public outdoor recreational
+    access of federal waterways and federal fishing restrictions. The standards must ensure
+    compatibility and interoperability among applicable federal databases with respect to
+    collection and dissemination of such data.
+
+
+    (Sec. 4) Within five years, the Forest Service and Interior must also digitize and make
+    publicly available online certain geographic information system data about (1) federal
+    waterway restrictions, (2) federal waterway access and navigation information, and (3)
+    federal fishing restrictions. They must also update the data about waterway restrictions,
+    waterway access, and navigation information at least twice per year. Data about fishing
+    restrictions must be updated in real time as changes go into effect.
+
+
+    The Forest Service and Interior must also develop a process to allow members of the public
+    to submit questions or comments regarding the data regarding waterway restrictions, waterway
+    access, and navigation information.
+
+
+    The requirements under this section do not apply to irrigation canals and flowage easements.
+
+
+    (Sec. 5) To carry out the act, the Forest Service and Interior may (1) coordinate and
+    partner with nonfederal agencies, private entities, and nonprofit partners; and (2) enter
+    into agreements with third parties.
+
+
+    The Forest Service and Interior may work with the U.S. Geological Survey to collect, aggregate,
+    digitize, standardize, and publish data on their behalf.
+
+
+    (Sec. 6) The Forest Service and Interior must annually report to specified congressional
+    committees on their progress in meeting the requirements of this act.'
+  summary_version: Public Law
+  summary_date: '2025-12-26'
+  summary_truncated: false
 - law_number: 119-61
   title: Wounded Knee Massacre Memorial and Sacred Site Act
   bill: HR 165
@@ -392,6 +1587,24 @@ laws:
     bioguide: J000301
     name: Rep. Johnson, Dusty [R-SD-At Large]
   url: https://www.congress.gov/bill/119th-congress/house-bill/165
+  summary: 'Wounded Knee Massacre Memorial and Sacred Site Act
+
+
+    This act directs the Department of the Interior to complete all actions necessary to place
+    approximately 40 acres of land in Oglala Lakota County, South Dakota, into restricted
+    fee status for the Oglala Sioux Tribe and the Cheyenne River Sioux Tribe. Restricted fee
+    status refers to land that is owned by a tribe or tribal member but is subject to restrictions
+    by the United States against alienation (i.e., sale or transfer) or encumbrance (e.g.,
+    liens, leases, or rights-of-way) by operation of law.
+
+
+    The act requires the land to be held and maintained as a memorial and sacred site, as
+    outlined by the document titled Covenant Between the Oglala Sioux Tribe and the Cheyenne
+    River Sioux Tribe and dated October 21, 2022. Further, it prohibits commercial development
+    and gaming activity on the land.'
+  summary_version: Public Law
+  summary_date: '2025-12-19'
+  summary_truncated: false
 - law_number: 119-60
   title: National Defense Authorization Act for Fiscal Year 2026
   bill: S 1071
@@ -401,6 +1614,70 @@ laws:
     bioguide: C001056
     name: Sen. Cornyn, John [R-TX]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/1071
+  summary: 'National Defense Authorization Act for Fiscal Year 2026
+
+
+    This bill sets forth policies and authorities for FY2026 for Department of Defense (DOD)
+    programs and activities, military construction, and the national security programs of
+    the Department of Energy (DOE). The bill also sets forth policies and authorities for
+    the Department of State, the Coast Guard, and the Intelligence Community (IC).
+
+
+    Among other elements, the bill
+
+
+    authorizes the procurement of various items, including aircraft, ships, and missiles;
+
+
+    sets active duty and reserve component personnel strength levels;
+
+
+    sets policy regarding various aspects of military health care and military compensation;
+
+
+    sets policy regarding DOD acquisitions and acquisition management, including contracting
+    authorities and domestic sourcing;
+
+
+    sets policy for various matters related to DOD interactions with foreign nations, including
+    matters concerning Israel, Ukraine, and the Indo-Pacific;
+
+
+    sets policy for various matters related to DOD cyber operations, cybersecurity, and artificial
+    intelligence;
+
+
+    authorizes specified military construction projects and extends the authorization of certain
+    projects from previous fiscal years;
+
+
+    authorizes the National Nuclear Security Administration, Defense Nuclear Facilities Safety
+    Board, Naval Petroleum Reserves, and Maritime Administration;
+
+
+    sets policy regarding the organization and workforce of the State Department;
+
+
+    sets acquisition and personnel policy for the Coast Guard;
+
+
+    sets policy for merchant mariner credentials, vessel safety, and oil pollution response;
+    and
+
+
+    sets policy for the IC regarding artificial intelligence and biotechnology.
+
+
+    For additional information on the National Defense Authorization Act (NDAA) see
+
+
+    In Focus IF10516, Defense Primer: Navigating the NDAA, and
+
+
+    In Focus IF10515, Defense Primer: The NDAA Process.'
+  summary_version: Passed House
+  summary_date: '2025-12-10'
+  summary_truncated: false
 - law_number: 119-59
   title: A bill to designate the facility of the United States Postal Service located at 201
     West Oklahoma Avenue in Guthrie, Oklahoma, as the "Oscar J. Upham Post Office".
@@ -411,6 +1688,11 @@ laws:
     bioguide: L000575
     name: Sen. Lankford, James [R-OK]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/2283
+  summary: This bill designates the facility of the United States Postal Service located at
+    201 West Oklahoma Avenue in Guthrie, Oklahoma, as the "Oscar J. Upham Post Office".
+  summary_version: Introduced in Senate
+  summary_date: '2025-07-15'
+  summary_truncated: false
 - law_number: 119-58
   title: Secure Rural Schools Reauthorization Act of 2025
   bill: S 356
@@ -420,6 +1702,33 @@ laws:
     bioguide: C000880
     name: Sen. Crapo, Mike [R-ID]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/356
+  summary: 'Secure Rural Schools Reauthorization Act of 2025
+
+
+    This act extends and modifies the Secure Rural Schools (SRS) program, under which states
+    and counties containing certain federal land may receive payments from the Forest Service
+    or the Bureau of Land Management (BLM) for schools, roads, and certain other municipal
+    services.
+
+
+    The act modifies the SRS program, including by
+
+
+    extending payments made to states and counties containing federal land through FY2026,
+
+
+    providing lapsed payments for FY2024 and FY2025,
+
+
+    extending the authority of counties to initiate projects using such funds through FY2028,
+    and
+
+
+    extending the authority to initiate projects proposed by resource advisory committees
+    through FY2028.'
+  summary_version: Public Law
+  summary_date: '2025-12-18'
+  summary_truncated: false
 - law_number: 119-57
   title: Foundation of the Federal Bar Association Charter Amendments Act of 2025
   bill: S 616
@@ -429,6 +1738,46 @@ laws:
     bioguide: K000393
     name: Sen. Kennedy, John [R-LA]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/616
+  summary: 'Foundation of the Federal Bar Association Charter Amendments Act of 2025
+
+
+    This act revises the federal charter for the Foundation of the Federal Bar Association
+    to shift authority from the charter to the bylaws.
+
+
+    Specifically, it makes the following changes:
+
+
+    removes the requirement for the foundation to be incorporated and domiciled in the District
+    of Columbia;
+
+
+    requires the board of directors to decide, and specify in the bylaws, the location of
+    the principal office;
+
+
+    specifies that the bylaws—not the charter—must provide for the terms of membership, the
+    responsibilities of the board of directors, and the election of officers;
+
+
+    prohibits a director or officer, in his or her corporate capacity, from contributing to,
+    supporting, or participating in political activities;
+
+
+    allows income and assets of the corporation to be used to reasonably compensate or reimburse
+    expenses of an officer, director, or member; to award a grant to the Federal Bar Association
+    chapter of an officer, director, or member; and to reasonably compensate employees;
+
+
+    expands a prohibition on loans for directors and officers to include members and employees;
+    and
+
+
+    specifies that on dissolution or final liquidation, any remaining assets must be distributed
+    as provided by the board of directors instead of deposited in the Treasury.'
+  summary_version: Public Law
+  summary_date: '2025-12-12'
+  summary_truncated: false
 - law_number: 119-56
   title: Veteran Fraud Reimbursement Act of 2025
   bill: HR 1912
@@ -438,6 +1787,25 @@ laws:
     bioguide: C001078
     name: Rep. Connolly, Gerald E. [D-VA-11]
   url: https://www.congress.gov/bill/119th-congress/house-bill/1912
+  summary: 'Veteran Fraud Reimbursement Act of 2025
+
+
+    This act modifies the procedures by which the Department of Veterans Affairs (VA) reissues
+    misused benefits to a beneficiary, including by requiring the VA to establish methods
+    and timing with respect to determining whether an instance of misuse by a fiduciary is
+    the result of negligence by the VA. The act also provides that if a beneficiary predeceases
+    a reissuance, the VA must pay the amount to a surviving beneficiary in the same method
+    as certain other VA benefits are paid upon the death of a beneficiary.
+
+
+    Under the act, the VA may not withhold the reissuing of a benefit payment by reason of
+    a pending determination regarding the VA''s negligence in relation to the instance of
+    misuse by a fiduciary. Additionally, the VA is not required to make a determination regarding
+    its negligence for each instance of misuse by a fiduciary of all or part of an individual''s
+    benefit paid to such fiduciary.'
+  summary_version: Public Law
+  summary_date: '2025-12-12'
+  summary_truncated: false
 - law_number: 119-55
   title: Montgomery GI Bill Selected Reserves Tuition Fairness Act of 2025
   bill: HR 983
@@ -447,6 +1815,16 @@ laws:
     bioguide: V000135
     name: Rep. Van Orden, Derrick [R-WI-3]
   url: https://www.congress.gov/bill/119th-congress/house-bill/983
+  summary: 'Montgomery GI Bill Selected Reserves Tuition Fairness Act of 2025
+
+
+    This act requires that the Department of Veterans Affairs disapprove courses of education
+    provided by educational institutions that charge higher than in-state tuition for individuals
+    utilizing the Montgomery GI Bill-Selected Reserve education benefits while living in the
+    state where the education is located, regardless of the individual’s state of residence.'
+  summary_version: Public Law
+  summary_date: '2025-12-12'
+  summary_truncated: false
 - law_number: 119-54
   title: Fairness for Servicemembers and their Families Act of 2025
   bill: HR 970
@@ -478,8 +1856,8 @@ laws:
   url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/131
 - law_number: 119-51
   title: Providing for congressional disapproval under chapter 8 of title 5, United States
-    Code, of the rule submitted by the Bureau of Land Management relating to "Buffalo Field
-    Office Record of Decision and Approved Resource Management Plan Amendment".
+    Code, of the rule submitted by the Bureau of Land Management relating to Buffalo Field
+    Office Record of Decision and Approved Resource Management Plan Amendment.
   bill: HJRES 130
   enacted_date: '2025-12-11'
   origin_chamber: House
@@ -805,7 +2183,7 @@ laws:
 - law_number: 119-17
   title: Providing congressional disapproval under chapter 8 of title 5, United States Code,
     of the rule submitted by the Environmental Protection Agency relating to "California State
-    Motor Vehicle and Engine and Nonroad Engine Pollution Control Standards; The 'Omnibus'
+    Motor Vehicle and Engine and Nonroad Engine Pollution Control Standards; The "Omnibus"
     Low NOX Regulation; Waiver of Preemption; Notice of Decision".
   bill: HJRES 89
   enacted_date: '2025-06-12'
