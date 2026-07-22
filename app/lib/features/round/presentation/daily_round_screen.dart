@@ -124,7 +124,7 @@ class _RoundBody extends ConsumerWidget {
           final ctx = context;
           if (ctx.mounted) ctx.go('/');
         });
-        return const AppLoadingView(label: 'Round complete — heading home…');
+        return const AppLoadingView(label: 'Round complete, heading home…');
     }
   }
 }
@@ -225,7 +225,7 @@ class _RoundErrorView extends StatelessWidget {
         title: 'Season complete',
         body:
             "You've walked through every chapter we have. New content's "
-            'on the way — your streak is safe until then.',
+            'on the way, your streak is safe until then.',
         action: FilledButton(
           onPressed: () => context.go('/'),
           child: const Text('Home'),
@@ -237,7 +237,7 @@ class _RoundErrorView extends StatelessWidget {
         icon: Icons.menu_book_outlined,
         title: "Today's chapter is loading",
         body:
-            "Today's chapter doesn't have playable cards yet — the content's "
+            "Today's chapter doesn't have playable cards yet; the content's "
             'being authored. Check back tomorrow.',
         action: FilledButton(
           onPressed: () => context.go('/'),
@@ -263,7 +263,7 @@ class _NoTriviaView extends StatelessWidget {
       title: 'No trivia today',
       body:
           'Cards done. Trivia for Chapter ${state.chapterTitle} '
-          'is still being authored — your day still counts.',
+          'is still being authored, your day still counts.',
       action: FilledButton(
         onPressed: () => context.go('/'),
         child: const Text('Home'),

@@ -126,7 +126,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Image share unavailable — copied as text instead'),
+          content: Text('Image share unavailable; copied as text instead'),
           duration: Duration(seconds: 3),
         ),
       );
@@ -337,7 +337,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
 /// Wordle-style text payload for iMessage / X — emoji grid, archetype,
 /// score, app pointer. Also the fallback payload when the PNG render
 /// pipeline fails.
-String _shareText(TriviaResult r) => 'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
+String _shareText(TriviaResult r) => 'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
       '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
       '${r.gridEmojis.join()}\n'
       'politiface.app';
@@ -349,7 +349,7 @@ Color _archetypeColor(TriviaArchetype a) {
     case TriviaArchetype.luckyGuesser:
       return const Color(0xFF60A5FA); // blue
     case TriviaArchetype.civicBullshitter:
-      return const Color(0xFFEF4444); // red — the viral one
+      return const Color(0xFFEF4444); // red (the viral one)
     case TriviaArchetype.humbleApprentice:
       return const Color(0xFFC084FC); // purple
   }

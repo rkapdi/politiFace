@@ -54,7 +54,7 @@ class SessionScreen extends ConsumerWidget {
             return AppEmptyView(
               icon: Icons.check_circle_outline,
               title: 'No cards due',
-              body: 'Come back tomorrow — your streak resets at midnight.',
+              body: 'Come back tomorrow, your streak resets at midnight.',
               action: FilledButton(
                 onPressed: () => context.go('/'),
                 child: const Text('Home'),

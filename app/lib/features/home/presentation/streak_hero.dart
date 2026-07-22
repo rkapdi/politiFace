@@ -126,7 +126,7 @@ class StreakHero extends StatelessWidget {
   static String _subtitleFor(int streak) {
     if (streak == 0) return 'Start your streak today.';
     if (streak == 1) return "Don't break the chain.";
-    if (streak < 7) return 'Going strong — keep showing up.';
+    if (streak < 7) return 'Going strong, keep showing up.';
     if (streak < 30) return 'On fire.';
     return 'Legend.';
   }

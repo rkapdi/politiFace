@@ -250,7 +250,7 @@ class _Row extends StatelessWidget {
     final correct = entry.correctCount;
     final total = entry.totalCount;
     final headline = entry.summary ??
-        (correct != null && total != null ? '$correct/$total' : '—');
+        (correct != null && total != null ? '$correct/$total' : '-');
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),

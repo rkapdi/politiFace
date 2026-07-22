@@ -29,7 +29,7 @@ class SessionCard implements Comparable<SessionCard> {
   final String? body;
   final String? recallPrompt;
   final CardPhase phase;
-  final double stability;    // FSRS S — lower = more at risk
+  final double stability;    // FSRS S (lower = more at risk)
   final int reviewCount;     // FSRS review count for this card
   final double priority;     // heap key
 

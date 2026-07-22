@@ -97,20 +97,20 @@ AnswerScore scoreAnswer({
   if (isCorrect) {
     switch (confidence) {
       case TriviaConfidence.guess:
-        return const AnswerScore(points: 5, reason: 'Right — lucky guess');
+        return const AnswerScore(points: 5, reason: 'Right, lucky guess');
       case TriviaConfidence.prettySure:
-        return const AnswerScore(points: 10, reason: 'Right — pretty sure');
+        return const AnswerScore(points: 10, reason: 'Right, pretty sure');
       case TriviaConfidence.certain:
-        return const AnswerScore(points: 15, reason: 'Right — and you knew it');
+        return const AnswerScore(points: 15, reason: 'Right, and you knew it');
     }
   }
   switch (confidence) {
     case TriviaConfidence.guess:
-      return const AnswerScore(points: 2, reason: 'Wrong — but you said so');
+      return const AnswerScore(points: 2, reason: 'Wrong, but you said so');
     case TriviaConfidence.prettySure:
-      return const AnswerScore(points: -3, reason: 'Wrong — should have hedged');
+      return const AnswerScore(points: -3, reason: 'Wrong, should have hedged');
     case TriviaConfidence.certain:
-      return const AnswerScore(points: -10, reason: 'Wrong — and you SWORE');
+      return const AnswerScore(points: -10, reason: 'Wrong, and you SWORE');
   }
 }
 

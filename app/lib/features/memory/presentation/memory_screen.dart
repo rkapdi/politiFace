@@ -123,13 +123,13 @@ class _BrainStrengthHero extends StatelessWidget {
   Color _stageColor(BrainStage stage) {
     switch (stage) {
       case BrainStage.forming:
-        return const Color(0xFFE57373); // soft red — early growth
+        return const Color(0xFFE57373); // soft red (early growth)
       case BrainStage.crystallizing:
-        return const Color(0xFF60A5FA); // blue — taking shape
+        return const Color(0xFF60A5FA); // blue (taking shape)
       case BrainStage.solidifying:
-        return const Color(0xFF34D399); // green — locking in
+        return const Color(0xFF34D399); // green (locking in)
       case BrainStage.mastered:
-        return const Color(0xFFFFC107); // gold — long-term
+        return const Color(0xFFFFC107); // gold (long-term)
     }
   }
 

@@ -45,7 +45,7 @@ class ShareCardRenderer {
     if (context == null || !context.mounted) {
       throw StateError(
         'ShareCardRenderer.render() called before the share-card '
-        'RepaintBoundary mounted — did the OverlayPortal open?',
+        'RepaintBoundary mounted; did the OverlayPortal open?',
       );
     }
     final boundary =
@@ -53,7 +53,7 @@ class ShareCardRenderer {
     if (boundary == null) {
       throw StateError(
         'ShareCardRenderer.render() found no RenderRepaintBoundary at the '
-        'boundary key — check the widget tree.',
+        'boundary key; check the widget tree.',
       );
     }
 
@@ -61,12 +61,12 @@ class ShareCardRenderer {
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     image.dispose();
     if (byteData == null) {
-      throw StateError('toByteData returned null — PNG encode failed.');
+      throw StateError('toByteData returned null: PNG encode failed.');
     }
     final bytes = byteData.buffer.asUint8List();
     if (bytes.length < minimumValidBytes) {
       throw StateError(
-        'Rendered PNG is suspiciously small (${bytes.length} bytes) — '
+        'Rendered PNG is suspiciously small (${bytes.length} bytes); '
         'the off-screen capture likely produced a near-empty image.',
       );
     }

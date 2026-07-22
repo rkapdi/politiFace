@@ -89,12 +89,12 @@ class _EndlessScreenState extends ConsumerState<EndlessScreen> {
       if (!mounted) return;
       final s = ref.read(endlessControllerProvider).valueOrNull;
       final text =
-          'Politiface Endless — streak ${s?.bestStreak ?? 0} (${s?.totalCorrect ?? 0}/${s?.totalAnswered ?? 0} correct)\npolitiface.app';
+          'Politiface Endless: streak ${s?.bestStreak ?? 0} (${s?.totalCorrect ?? 0}/${s?.totalAnswered ?? 0} correct)\npolitiface.app';
       await Clipboard.setData(ClipboardData(text: text));
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Image share unavailable — copied as text instead'),
+          content: Text('Image share unavailable; copied as text instead'),
           duration: Duration(seconds: 3),
         ),
       );
@@ -201,7 +201,7 @@ class _EndlessScreenState extends ConsumerState<EndlessScreen> {
                 icon: Icons.layers_outlined,
                 title: 'Not enough cards yet',
                 body: 'Endless needs at least 4 cards in the pool. Add more '
-                    'content or sit tight — V1.1 will have a lot more.',
+                    'content or sit tight: V1.1 will have a lot more.',
                 action: FilledButton(
                   onPressed: () => context.go('/'),
                   child: const Text('Home'),
@@ -257,7 +257,7 @@ class _EndlessView extends ConsumerWidget {
             const SizedBox(height: 8),
             if (state.lastWasCorrect == false)
               Text(
-                'Correct: ${q.correct.politicianName} — ${q.correct.title}',
+                'Correct: ${q.correct.politicianName}, ${q.correct.title}',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
