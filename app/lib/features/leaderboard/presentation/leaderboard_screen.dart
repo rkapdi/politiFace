@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
@@ -26,6 +27,7 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   String? _selectedCohortId;
+  bool _joiningAnother = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,16 +59,24 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           icon: Icons.wifi_off,
           text: 'Could not load your classes. Pull to retry.',
         ),
-        data: (list) => list.isEmpty
+        data: (list) => list.isEmpty || _joiningAnother
             ? _JoinView(
-                onJoined: () {
+                onCancel: list.isEmpty
+                    ? null
+                    : () => setState(() => _joiningAnother = false),
+                onJoined: (cohortId) {
                   ref.invalidate(myCohortsProvider);
+                  setState(() {
+                    _selectedCohortId = cohortId;
+                    _joiningAnother = false;
+                  });
                 },
               )
             : _BoardView(
                 cohorts: list,
                 selectedId: _selectedCohortId ?? list.first.id,
                 onSelect: (id) => setState(() => _selectedCohortId = id),
+                onJoinAnother: () => setState(() => _joiningAnother = true),
               ),
       );
     }
@@ -83,7 +93,9 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
       body: RefreshIndicator(
         onRefresh: () async {
           ref.invalidate(myCohortsProvider);
-          final id = _selectedCohortId;
+          final list = ref.read(myCohortsProvider).valueOrNull;
+          final id = _selectedCohortId ??
+              (list == null || list.isEmpty ? null : list.first.id);
           if (id != null) ref.invalidate(leaderboardEntriesProvider(id));
         },
         child: body,
@@ -93,9 +105,15 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
 }
 
 class _JoinView extends ConsumerStatefulWidget {
-  const _JoinView({required this.onJoined});
+  const _JoinView({required this.onJoined, this.onCancel});
 
-  final VoidCallback onJoined;
+  /// Called with the newly joined cohort's id.
+  final void Function(String cohortId) onJoined;
+
+  /// When non-null, the student already belongs to at least one class, so
+  /// this view was opened from the board and can be dismissed without
+  /// joining.
+  final VoidCallback? onCancel;
 
   @override
   ConsumerState<_JoinView> createState() => _JoinViewState();
@@ -120,12 +138,21 @@ class _JoinViewState extends ConsumerState<_JoinView> {
       _error = null;
     });
     try {
-      await api.joinCohort(_code.text);
-      widget.onJoined();
-    } catch (_) {
+      final cohortId = await api.joinCohort(_code.text);
+      widget.onJoined(cohortId);
+    } on PostgrestException {
+      // A server verdict on the code itself (e.g. no matching cohort):
+      // the code is genuinely wrong.
       setState(
         () => _error = 'That code did not work. Check with your '
             'professor and try again.',
+      );
+    } catch (_) {
+      // Network/socket/timeout failures never reached the server, so the
+      // code itself has not been judged; do not blame it.
+      setState(
+        () => _error = 'Could not reach the server. Check your '
+            'connection and try again.',
       );
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -194,6 +221,15 @@ class _JoinViewState extends ConsumerState<_JoinView> {
                   ),
                 ),
         ),
+        if (widget.onCancel != null) ...[
+          const SizedBox(height: 8),
+          Center(
+            child: TextButton(
+              onPressed: _busy ? null : widget.onCancel,
+              child: const Text('CANCEL'),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -204,11 +240,13 @@ class _BoardView extends ConsumerWidget {
     required this.cohorts,
     required this.selectedId,
     required this.onSelect,
+    required this.onJoinAnother,
   });
 
   final List<CohortInfo> cohorts;
   final String selectedId;
   final void Function(String) onSelect;
+  final VoidCallback onJoinAnother;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -245,6 +283,18 @@ class _BoardView extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
         ],
+        Align(
+          alignment: Alignment.centerLeft,
+          child: OutlinedButton.icon(
+            onPressed: onJoinAnother,
+            icon: const Icon(Icons.add, size: 16),
+            label: const Text(
+              'JOIN ANOTHER CLASS',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
         entries.when(
           loading: () => const Padding(
             padding: EdgeInsets.only(top: 48),

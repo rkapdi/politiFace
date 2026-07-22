@@ -233,9 +233,12 @@ if (!cfg.url || !cfg.anonKey) {
   }
 
   async function loadClasses() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
     const { data, error } = await supabase
       .from("cohort_members")
       .select("cohort_id, role, joined_at, cohorts(name, term, join_code)")
+      .eq("user_id", user.id)
       .eq("role", "faculty")
       .order("joined_at", { ascending: false });
     const list = $("classlist");

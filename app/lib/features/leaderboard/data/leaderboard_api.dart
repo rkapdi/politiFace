@@ -74,19 +74,32 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
 
   @override
   Future<List<CohortInfo>> myCohorts() async {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) return const [];
     final rows = await _client
         .from('cohort_members')
         .select('cohort_id, role, joined_at, cohorts(name, term)')
+        .eq('user_id', uid)
         .order('joined_at', ascending: false);
-    return [
-      for (final r in rows)
+    final seen = <String>{};
+    final cohorts = <CohortInfo>[];
+    for (final r in rows) {
+      final cohortId = r['cohort_id'] as String;
+      // Defensive: dedupe by cohort_id. RLS scopes cohort_members to every
+      // roster row the caller can see, not just their own membership, so
+      // without the eq('user_id', ...) filter above this would otherwise
+      // return one row per classmate.
+      if (!seen.add(cohortId)) continue;
+      cohorts.add(
         CohortInfo(
-          id: r['cohort_id'] as String,
+          id: cohortId,
           role: r['role'] as String,
           name: (r['cohorts'] as Map?)?['name'] as String? ?? 'My class',
           term: (r['cohorts'] as Map?)?['term'] as String?,
         ),
-    ];
+      );
+    }
+    return cohorts;
   }
 
   @override
