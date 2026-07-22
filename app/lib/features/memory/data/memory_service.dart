@@ -79,7 +79,7 @@ enum BrainStage {
   forming(
     label: 'Forming',
     copy:
-        'Your political brain is wiring up. Keep practicing — synapses are firing.',
+        'Your political brain is wiring up. Keep practicing: synapses are firing.',
   ),
   crystallizing(
     label: 'Crystallizing',

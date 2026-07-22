@@ -71,13 +71,13 @@ class _RoundBody extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _ChapterHeader(state: state),
-          const SizedBox(height: 12),
-          Expanded(child: _phaseBody(context, ref)),
-        ],
-      );
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _ChapterHeader(state: state),
+        const SizedBox(height: 12),
+        Expanded(child: _phaseBody(context, ref)),
+      ],
+    );
 
   Widget _phaseBody(BuildContext context, WidgetRef ref) {
     switch (state.phase) {
@@ -124,7 +124,7 @@ class _RoundBody extends ConsumerWidget {
           final ctx = context;
           if (ctx.mounted) ctx.go('/');
         });
-        return const AppLoadingView(label: 'Round complete — heading home…');
+        return const AppLoadingView(label: 'Round complete, heading home…');
     }
   }
 }
@@ -223,8 +223,9 @@ class _RoundErrorView extends StatelessWidget {
       return AppEmptyView(
         icon: Icons.flag_outlined,
         title: 'Season complete',
-        body: "You've walked through every chapter we have. New content's "
-            'on the way — your streak is safe until then.',
+        body:
+            "You've walked through every chapter we have. New content's "
+            'on the way, your streak is safe until then.',
         action: FilledButton(
           onPressed: () => context.go('/'),
           child: const Text('Home'),
@@ -235,7 +236,8 @@ class _RoundErrorView extends StatelessWidget {
       return AppEmptyView(
         icon: Icons.menu_book_outlined,
         title: "Today's chapter is loading",
-        body: "Today's chapter doesn't have playable cards yet — the content's "
+        body:
+            "Today's chapter doesn't have playable cards yet; the content's "
             'being authored. Check back tomorrow.',
         action: FilledButton(
           onPressed: () => context.go('/'),
@@ -257,21 +259,22 @@ class _NoTriviaView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AppEmptyView(
-        icon: Icons.quiz_outlined,
-        title: 'No trivia today',
-        body: 'Cards done. Trivia for Chapter ${state.chapterTitle} '
-            'is still being authored — your day still counts.',
-        action: FilledButton(
-          onPressed: () => context.go('/'),
-          child: const Text('Home'),
-        ),
-      );
+      icon: Icons.quiz_outlined,
+      title: 'No trivia today',
+      body:
+          'Cards done. Trivia for Chapter ${state.chapterTitle} '
+          'is still being authored, your day still counts.',
+      action: FilledButton(
+        onPressed: () => context.go('/'),
+        child: const Text('Home'),
+      ),
+    );
 }
 
 class _SkipToTriviaView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const AppEmptyView(
-        icon: Icons.arrow_forward_rounded,
-        title: 'Skipping to trivia…',
-      );
+      icon: Icons.arrow_forward_rounded,
+      title: 'Skipping to trivia…',
+    );
 }

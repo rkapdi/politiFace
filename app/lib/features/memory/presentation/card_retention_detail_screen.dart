@@ -333,12 +333,12 @@ class _CurveSection extends StatelessWidget {
     switch (status) {
       case _Status.strong:
         return "Solid. You'd recall this about $strength% of the time right "
-            'now — it won\'t need a refresh for a while.';
+            "now; it won't need a refresh for a while.";
       case _Status.holding:
         return 'Holding steady at about $strength% recall. Each review '
             'stretches the gap before it fades.';
       case _Status.fading:
-        return 'Starting to fade — around $strength% recall. A review soon '
+        return 'Starting to fade: around $strength% recall. A review soon '
             'will lock it back in.';
       case _Status.atRisk:
         return 'This one has slipped to about $strength% recall. Review it in '
@@ -555,14 +555,14 @@ class _ReviewDot {
 Color _gradeColor(int grade) {
   switch (grade) {
     case 0:
-      return const Color(0xFFE57373); // again — red
+      return const Color(0xFFE57373); // again (red)
     case 1:
-      return const Color(0xFFFFB74D); // hard — orange
+      return const Color(0xFFFFB74D); // hard (orange)
     case 3:
-      return const Color(0xFFFFD54F); // easy — gold
+      return const Color(0xFFFFD54F); // easy (gold)
     case 2:
     default:
-      return const Color(0xFF81C784); // good — green
+      return const Color(0xFF81C784); // good (green)
   }
 }
 

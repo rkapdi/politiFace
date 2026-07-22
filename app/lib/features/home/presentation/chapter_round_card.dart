@@ -304,7 +304,7 @@ class _SeasonCompleteCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  'New chapters land soon — your streak is safe until then.',
+                  'New chapters land soon, your streak is safe until then.',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

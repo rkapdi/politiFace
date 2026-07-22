@@ -92,7 +92,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Image share unavailable — copied as text instead'),
+          content: Text('Image share unavailable; copied as text instead'),
           duration: Duration(seconds: 3),
         ),
       );
@@ -453,7 +453,7 @@ class _ChapterCompleteBanner extends StatelessWidget {
 }
 
 String _shareText(TriviaResult r) =>
-    'Politiface Daily — ${r.archetype.emoji} ${r.archetype.name}\n'
+    'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
     '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
     '${r.gridEmojis.join()}\n'
     'politiface.app';

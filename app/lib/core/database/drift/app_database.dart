@@ -144,7 +144,7 @@ class CardMemoryStates extends Table {
   IntColumn get lastReviewedAt =>
       integer().withDefault(const Constant(0))(); // Unix timestamp
   IntColumn get nextReviewAt =>
-      integer().withDefault(const Constant(0))(); // Unix timestamp — INDEXED
+      integer().withDefault(const Constant(0))(); // Unix timestamp (indexed)
   IntColumn get intervalDays => integer().withDefault(const Constant(1))();
   IntColumn get lapses => integer().withDefault(const Constant(0))();
   IntColumn get reviewCount => integer().withDefault(const Constant(0))();
