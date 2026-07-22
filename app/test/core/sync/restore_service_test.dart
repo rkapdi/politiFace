@@ -440,35 +440,68 @@ void main() {
       expect(payload['xp'], 300);
     });
 
-    test('streak: server run adopted when at least the local run', () async {
+    String isoDaysAgo(int days) {
+      final d = DateTime.now().subtract(Duration(days: days));
+      return '${d.year.toString().padLeft(4, '0')}-'
+          '${d.month.toString().padLeft(2, '0')}-'
+          '${d.day.toString().padLeft(2, '0')}';
+    }
+
+    test('streak: live server run adopted when at least the local run',
+        () async {
       await db.metaDao.set(ProfileService.kStreak, '3');
-      await db.metaDao.set(ProfileService.kLastReview, '2026-07-10');
+      await db.metaDao.set(ProfileService.kLastReview, isoDaysAgo(3));
       api.streak = {
         'current': 5,
         'longest': 9,
-        'last_active_date': '2026-07-20',
+        'last_active_date': isoDaysAgo(1),
       };
 
       final summary = await service.restoreNow();
 
       expect(summary.appStateChanged, isTrue);
       expect(await db.metaDao.get(ProfileService.kStreak), '5');
-      expect(await db.metaDao.get(ProfileService.kLastReview), '2026-07-20');
+      expect(
+        await db.metaDao.get(ProfileService.kLastReview),
+        isoDaysAgo(1),
+      );
     });
 
-    test('streak: shorter server run is ignored', () async {
+    test('streak: a dead server run never overwrites a live local run',
+        () async {
+      await db.metaDao.set(ProfileService.kStreak, '3');
+      await db.metaDao.set(ProfileService.kLastReview, isoDaysAgo(0));
+      api.streak = {
+        'current': 10,
+        'longest': 10,
+        'last_active_date': isoDaysAgo(21),
+      };
+
+      await service.restoreNow();
+
+      expect(await db.metaDao.get(ProfileService.kStreak), '3');
+      expect(
+        await db.metaDao.get(ProfileService.kLastReview),
+        isoDaysAgo(0),
+      );
+    });
+
+    test('streak: shorter server run is ignored even when live', () async {
       await db.metaDao.set(ProfileService.kStreak, '4');
-      await db.metaDao.set(ProfileService.kLastReview, '2026-07-21');
+      await db.metaDao.set(ProfileService.kLastReview, isoDaysAgo(0));
       api.streak = {
         'current': 2,
         'longest': 2,
-        'last_active_date': '2026-07-01',
+        'last_active_date': isoDaysAgo(1),
       };
 
       await service.restoreNow();
 
       expect(await db.metaDao.get(ProfileService.kStreak), '4');
-      expect(await db.metaDao.get(ProfileService.kLastReview), '2026-07-21');
+      expect(
+        await db.metaDao.get(ProfileService.kLastReview),
+        isoDaysAgo(0),
+      );
     });
 
     test('deck map applies to local decks; extra local decks trigger one push',

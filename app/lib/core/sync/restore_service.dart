@@ -105,23 +105,54 @@ CardMergeDecision decideCardMerge({
   return CardMergeDecision.skip; // same instant: already in sync
 }
 
+/// Clears everything account-specific ahead of an account switch: the
+/// user-state tables plus profile and sync meta keys. Device preferences
+/// (settings.*, onboarding, home state, the sign-in nudge) stay; they
+/// belong to the device, not the account. The outbox clears too so the
+/// previous account's undelivered events never flush under the new JWT.
+Future<void> wipeLocalUserState(AppDatabase db) async {
+  await db.transaction(() async {
+    await db.delete(db.cardMemoryStates).go();
+    await db.delete(db.reviewLogs).go();
+    await db.delete(db.userNodeProgress).go();
+    await db.delete(db.fcleAnswers).go();
+    await db.delete(db.completedRuns).go();
+    await db.delete(db.chapterProgress).go();
+    await db.delete(db.dailyRounds).go();
+    await db.delete(db.outboxEvents).go();
+    for (final key in [
+      ProfileService.kStreak,
+      ProfileService.kLastReview,
+      ProfileService.kXp,
+      RestoreService.lastPullMetaKey,
+      'fcle.completed_mocks',
+      'fcle.completed_server_mocks',
+    ]) {
+      await db.metaDao.remove(key);
+    }
+  });
+}
+
 class RestoreService {
   RestoreService({
     required AppDatabase db,
     required RestoreApi? api,
     required SyncEngine sync,
     required Future<Curriculum> Function() loadCurriculum,
+    Future<void> Function()? ensureProfile,
     FSRS fsrs = const FSRS(),
   })  : _db = db,
         _api = api,
         _sync = sync,
         _loadCurriculum = loadCurriculum,
+        _ensureProfile = ensureProfile,
         _fsrs = fsrs;
 
   final AppDatabase _db;
   final RestoreApi? _api;
   final SyncEngine _sync;
   final Future<Curriculum> Function() _loadCurriculum;
+  final Future<void> Function()? _ensureProfile;
   final FSRS _fsrs;
 
   /// AppMeta key holding the last successful pull (unix ms).
@@ -153,6 +184,11 @@ class RestoreService {
     if (api == null || !_sync.isActive) return RestoreSummary.empty;
     final clock = now ?? DateTime.now();
     try {
+      // Self-heal the profile row if a flaky sign-in skipped it; every
+      // server table FKs profiles(id), so nothing else lands without it.
+      try {
+        await _ensureProfile?.call();
+      } catch (_) {}
       final serverApp = await api.fetchAppState();
       final serverCards = await api.fetchCardStates();
       final serverStreak = await api.fetchStreak();
@@ -297,15 +333,27 @@ class RestoreService {
       localAhead = true;
     }
 
-    // Streak: adopt the server run when it is at least the local one. The
-    // last-active date comes along (when newer) so the run survives the
-    // next local play instead of resetting.
+    // Streak: adopt the server run only when it is at least the local one
+    // AND still alive (active today or yesterday). A weeks-dead 10-day
+    // server run must not overwrite a live 3-day local run; the server row
+    // never decays on its own. The last-active date comes along so the
+    // adopted run survives the next local play instead of resetting.
     if (serverStreak != null) {
       final serverCurrent = (serverStreak['current'] as num?)?.toInt() ?? 0;
       final localCurrent =
           int.tryParse(await _db.metaDao.get(ProfileService.kStreak) ?? '') ??
               0;
-      if (serverCurrent >= localCurrent) {
+      final serverDateStr = serverStreak['last_active_date'] as String?;
+      final serverAlive = () {
+        if (serverDateStr == null) return false;
+        final d = DateTime.tryParse(serverDateStr);
+        if (d == null) return false;
+        final today = DateTime.now();
+        final startOfYesterday =
+            DateTime(today.year, today.month, today.day - 1);
+        return !d.isBefore(startOfYesterday);
+      }();
+      if (serverAlive && serverCurrent >= localCurrent) {
         if (serverCurrent != localCurrent) {
           await _db.metaDao
               .set(ProfileService.kStreak, serverCurrent.toString());

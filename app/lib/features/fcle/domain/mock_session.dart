@@ -17,6 +17,10 @@ import 'mock_engine.dart';
 abstract class MockSession {
   List<FcleQuestion> get questions;
 
+  /// True when this attempt lives in mock_attempts on the server (the
+  /// efficacy instrument); drives the separate server-baseline counter.
+  bool get isServerBacked;
+
   Future<void> submit(FcleQuestion question, String chosenKey);
 
   Future<MockResult> finish();
@@ -49,6 +53,9 @@ class LocalMockSession implements MockSession {
 
   final _answers = <String, String>{};
   static const _engine = MockEngine();
+
+  @override
+  bool get isServerBacked => false;
 
   @override
   List<FcleQuestion> get questions => _assembly.questions;

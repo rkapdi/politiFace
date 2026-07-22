@@ -66,6 +66,10 @@ class ChapterContentSampler {
         saltSuffix: 'trivia',
         curriculum: curriculum,
         allowFallback: allowFallback,
+        // Trivia is a who-is-this photo quiz; a concept card has no face
+        // and renders as an unanswerable question. Faces only, everywhere
+        // this sample draws from.
+        faceOnly: true,
       );
 
   Future<SampledContent> _sample({
@@ -76,7 +80,9 @@ class ChapterContentSampler {
     required bool allowFallback,
     Curriculum? curriculum,
     List<String> preferItemIds = const [],
+    bool faceOnly = false,
   }) async {
+    bool eligible(LocalCard c) => !faceOnly || c.cardType == 'face';
     final seed = _seedFor(dateIso, chapter.id, saltSuffix);
     final rng = Random(seed);
 
@@ -89,7 +95,7 @@ class ChapterContentSampler {
       if (picked.length >= count) break;
       if (!preferred.add(itemId)) continue;
       final card = await _resolveItemId(itemId, curriculum);
-      if (card != null) {
+      if (card != null && eligible(card)) {
         picked.add(_ResolvedItem(itemId: itemId, card: card));
       }
     }
@@ -101,9 +107,9 @@ class ChapterContentSampler {
     for (final itemId in chapter.itemIds) {
       if (preferred.contains(itemId)) continue;
       final card = await _resolveItemId(itemId, curriculum);
-      if (card != null) {
+      if (card != null && eligible(card)) {
         resolved.add(_ResolvedItem(itemId: itemId, card: card));
-      } else {
+      } else if (card == null) {
         missingItemIds.add(itemId);
       }
     }
@@ -126,7 +132,9 @@ class ChapterContentSampler {
         if (deck == null) continue;
         final deckCards = await _db.cardsDao.cardsByDeckId(deck.id);
         final candidates = deckCards
-            .where((c) => c.isActive && !usedCardIds.contains(c.id))
+            .where(
+              (c) => c.isActive && eligible(c) && !usedCardIds.contains(c.id),
+            )
             .toList()
           ..shuffle(rng);
         for (final card in candidates.take(count - picked.length)) {

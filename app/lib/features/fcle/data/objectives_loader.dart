@@ -27,11 +27,13 @@ class ObjectivesLoader {
       final domain = FcleDomain.fromCode(o['domain'] as String? ?? '');
       final code = o['code'] as String?;
       if (domain == null || code == null) continue;
-      result.add(Objective(
-        code: code,
-        domain: domain,
-        description: (o['description'] as String? ?? '').trim(),
-      ),);
+      result.add(
+        Objective(
+          code: code,
+          domain: domain,
+          description: (o['description'] as String? ?? '').trim(),
+        ),
+      );
     }
     return result;
   }

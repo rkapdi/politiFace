@@ -30,7 +30,14 @@ class AuthService {
       email: email.trim(),
       token: code.trim(),
     );
-    await ensureProfile();
+    // The OTP is consumed at this point: the user IS signed in. A profile
+    // creation hiccup must not fail the sheet (retrying would resubmit a
+    // dead code); the profile self-heals on the next restore or sign-in
+    // routine, and the transport treats the missing-profile FK as
+    // transient until then.
+    try {
+      await ensureProfile();
+    } catch (_) {}
   }
 
   Future<void> signOut() => _client.auth.signOut();
@@ -75,12 +82,32 @@ class AuthService {
   /// civic-flavored, neutral, collision-resistant enough with the retry loop.
   static String generateHandle({Random? random}) {
     const adjectives = [
-      'civic', 'keen', 'steady', 'bright', 'quiet', 'swift',
-      'sturdy', 'plain', 'bold', 'candid', 'earnest', 'lively',
+      'civic',
+      'keen',
+      'steady',
+      'bright',
+      'quiet',
+      'swift',
+      'sturdy',
+      'plain',
+      'bold',
+      'candid',
+      'earnest',
+      'lively',
     ];
     const nouns = [
-      'quill', 'gavel', 'ledger', 'compass', 'lantern', 'archway',
-      'beacon', 'bridge', 'anchor', 'summit', 'meridian', 'harbor',
+      'quill',
+      'gavel',
+      'ledger',
+      'compass',
+      'lantern',
+      'archway',
+      'beacon',
+      'bridge',
+      'anchor',
+      'summit',
+      'meridian',
+      'harbor',
     ];
     final r = random ?? Random.secure();
     final a = adjectives[r.nextInt(adjectives.length)];

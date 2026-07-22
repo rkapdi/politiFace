@@ -15,8 +15,7 @@ class QuestionBank {
 
   final Map<FcleDomain, List<FcleQuestion>> byDomain;
 
-  List<FcleQuestion> get all =>
-      [for (final qs in byDomain.values) ...qs];
+  List<FcleQuestion> get all => [for (final qs in byDomain.values) ...qs];
 
   int countFor(FcleDomain d) => byDomain[d]?.length ?? 0;
 
@@ -31,9 +30,7 @@ class QuestionBank {
         0,
         (sum, d) =>
             sum +
-            (countFor(d) > perDomainForMock
-                ? perDomainForMock
-                : countFor(d)),
+            (countFor(d) > perDomainForMock ? perDomainForMock : countFor(d)),
       );
 }
 
@@ -66,17 +63,19 @@ class QuestionBankLoader {
           for (final o in (q['options'] as YamlList).whereType<YamlMap>())
             FcleOption(key: o['key'] as String, text: o['text'] as String),
         ];
-        byDomain[domain]!.add(FcleQuestion(
-          id: q['id'] as String,
-          domain: domain,
-          stem: (q['stem'] as String).trim(),
-          options: options,
-          answerKey: q['answer'] as String,
-          explanation: (q['explanation'] as String).trim(),
-          citation: q['citation'] as String,
-          difficulty: q['difficulty'] as int? ?? 3,
-          objective: q['objective'] as String?,
-        ),);
+        byDomain[domain]!.add(
+          FcleQuestion(
+            id: q['id'] as String,
+            domain: domain,
+            stem: (q['stem'] as String).trim(),
+            options: options,
+            answerKey: q['answer'] as String,
+            explanation: (q['explanation'] as String).trim(),
+            citation: q['citation'] as String,
+            difficulty: q['difficulty'] as int? ?? 3,
+            objective: q['objective'] as String?,
+          ),
+        );
       }
     }
     return QuestionBank(byDomain);

@@ -10,7 +10,8 @@ enum FcleDomain {
   americanDemocracy('american_democracy', 'American Democracy'),
   usConstitution('us_constitution', 'United States Constitution'),
   foundingDocuments('founding_documents', 'Founding Documents'),
-  landmarkImpact('landmark_impact', 'Landmark Influences and Supreme Court Cases');
+  landmarkImpact(
+      'landmark_impact', 'Landmark Influences and Supreme Court Cases',);
 
   const FcleDomain(this.code, this.label);
 

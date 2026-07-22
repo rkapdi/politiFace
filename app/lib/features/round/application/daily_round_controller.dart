@@ -168,35 +168,46 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
   /// pipeline + profile XP/streak update — same path the free-explore
   /// session uses. Advances to the trivia phase when the last card is
   /// graded.
+  /// Indices with a grade in flight; the graded-check alone reads state
+  /// captured before the await, so a double-tap could record twice.
+  final _grading = <int>{};
+
   Future<void> gradeCard(int index, int grade) async {
     final s = state.value;
     if (s == null || s.phase != RoundPhase.cards) return;
     if (index < 0 || index >= s.cards.length) return;
     if (s.cards[index].grade != null) return; // already graded
-
-    // Hand the grade to the spaced-repetition pipeline. This updates
-    // FSRS memory state for the card AND increments profile XP + streak
-    // via ProfileService.recordReview inside the repository.
-    final fsrsGrade = FSRSGrade.values[grade.clamp(0, 3)];
-    await _reviewRepository.recordGrade(
-      cardId: s.cards[index].cardId,
-      grade: fsrsGrade,
-    );
+    if (!_grading.add(index)) return; // grade already in flight
+    try {
+      // Hand the grade to the spaced-repetition pipeline. This updates
+      // FSRS memory state for the card AND increments profile XP + streak
+      // via ProfileService.recordReview inside the repository.
+      final fsrsGrade = FSRSGrade.values[grade.clamp(0, 3)];
+      await _reviewRepository.recordGrade(
+        cardId: s.cards[index].cardId,
+        grade: fsrsGrade,
+      );
+    } finally {
+      _grading.remove(index);
+    }
     // Profile + map widgets watch sessionTickProvider for invalidation.
     ref.read(sessionTickProvider.notifier).state++;
 
-    final updatedCards = [...s.cards];
+    // Re-read state after the await: an overlapping grade on another card
+    // may have landed while this one was in flight.
+    final fresh = state.value ?? s;
+    final updatedCards = [...fresh.cards];
     updatedCards[index] = updatedCards[index].copyWith(grade: grade);
 
-    var nextState = s.copyWith(cards: updatedCards);
+    var nextState = fresh.copyWith(cards: updatedCards);
     final allGraded = updatedCards.every((c) => c.grade != null);
     if (allGraded) {
       // Skip directly to reveal if there's no trivia (sparse chapter
       // content). Otherwise move to the trivia phase.
       nextState = nextState.copyWith(
-        phase: s.trivia.isEmpty ? RoundPhase.reveal : RoundPhase.trivia,
+        phase: fresh.trivia.isEmpty ? RoundPhase.reveal : RoundPhase.trivia,
       );
-      if (s.trivia.isEmpty) {
+      if (fresh.trivia.isEmpty) {
         nextState = nextState.copyWith(result: _emptyResult());
       }
     }
@@ -249,7 +260,16 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       );
     }
     final curriculum = await ref.read(curriculumProvider.future);
-    await _progressService.recordRoundCompletion(curriculum);
+    // Advance only from the position this round was CREATED at. A restore
+    // can move the current position further mid-round (cross-device sync);
+    // completing today's round must not mark a restored, never-played day
+    // as done on top of that.
+    final current = await _progressService.currentProgress(curriculum);
+    if (current != null &&
+        current.chapterId == s.chapterId &&
+        current.dayInChapter == s.dayInChapter) {
+      await _progressService.recordRoundCompletion(curriculum);
+    }
 
     final next = s.copyWith(phase: RoundPhase.done);
     state = AsyncData(next);

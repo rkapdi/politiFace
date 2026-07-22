@@ -150,7 +150,19 @@ class ServerMockSession implements MockSession {
   }
 
   @override
+  bool get isServerBacked => true;
+
+  @override
   Future<MockResult> finish() async {
+    // Any answer still queued from a mid-exam blip must reach the server
+    // BEFORE finalize, or the attempt is scored short and the late answer
+    // dead-letters against the completed attempt. Drain first; if anything
+    // for this attempt is still stuck, finalize through the outbox too
+    // (FIFO lands the answers ahead of it) and show the local tally.
+    await _sync.flush();
+    if (await _sync.hasPendingForAttempt(attemptId)) {
+      return _finishOffline();
+    }
     try {
       final outcome = await _api.finalize(attemptId);
       return MockResult(
@@ -166,26 +178,30 @@ class ServerMockSession implements MockSession {
         },
       );
     } catch (_) {
-      // Finalize later, show the local tally now.
-      await _sync.enqueueMockFinalize(attemptId: attemptId);
-      var score = 0;
-      for (final counts in _tally.values) {
-        score += counts[0];
-      }
-      final total = _questions.length;
-      return MockResult(
-        score: score,
-        total: total,
-        passed: score >= (total * MockEngine.passFraction).ceil(),
-        perDomain: {
-          for (final d in FcleDomain.values)
-            d: DomainScore(
-              correct: _tally[d]?[0] ?? 0,
-              total: _tally[d]?[1] ?? 0,
-            ),
-        },
-        pendingSync: true,
-      );
+      return _finishOffline();
     }
+  }
+
+  /// Finalize later, show the local tally now.
+  Future<MockResult> _finishOffline() async {
+    await _sync.enqueueMockFinalize(attemptId: attemptId);
+    var score = 0;
+    for (final counts in _tally.values) {
+      score += counts[0];
+    }
+    final total = _questions.length;
+    return MockResult(
+      score: score,
+      total: total,
+      passed: score >= (total * MockEngine.passFraction).ceil(),
+      perDomain: {
+        for (final d in FcleDomain.values)
+          d: DomainScore(
+            correct: _tally[d]?[0] ?? 0,
+            total: _tally[d]?[1] ?? 0,
+          ),
+      },
+      pendingSync: true,
+    );
   }
 }

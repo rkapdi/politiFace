@@ -16,8 +16,7 @@ class RoundBriefingPhase extends ConsumerStatefulWidget {
   final DailyRoundState state;
 
   @override
-  ConsumerState<RoundBriefingPhase> createState() =>
-      _RoundBriefingPhaseState();
+  ConsumerState<RoundBriefingPhase> createState() => _RoundBriefingPhaseState();
 }
 
 class _RoundBriefingPhaseState extends ConsumerState<RoundBriefingPhase> {
@@ -36,9 +35,7 @@ class _RoundBriefingPhaseState extends ConsumerState<RoundBriefingPhase> {
   Future<void> _advance() async {
     HapticFeedback.lightImpact();
     if (_onLastPage) {
-      await ref
-          .read(dailyRoundControllerProvider.notifier)
-          .completeBriefing();
+      await ref.read(dailyRoundControllerProvider.notifier).completeBriefing();
       return;
     }
     await _pageController.nextPage(

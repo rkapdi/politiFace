@@ -38,7 +38,8 @@ const kObjectiveRollingWindow = 50;
 /// The minimum attempts before accuracy is trusted enough to grade.
 const kConfidentCount = 4;
 
-ReadinessState readinessStateFor({required double? accuracy, required int count}) {
+ReadinessState readinessStateFor(
+    {required double? accuracy, required int count,}) {
   if (count == 0) return ReadinessState.unseen;
   if (count < kConfidentCount) return ReadinessState.practicing;
   // count >= 4 from here: accuracy is non-null (there are answers).
@@ -175,8 +176,7 @@ ExamReadiness aggregateExamReadiness(Map<String, ObjectiveReadiness> byCode) {
   final unseen = all.where((o) => o.state == ReadinessState.unseen).length;
 
   // Per-domain solidity: does every domain have at least one solid objective?
-  final domainsWithObjectives =
-      all.map((o) => o.domain).toSet();
+  final domainsWithObjectives = all.map((o) => o.domain).toSet();
   final domainsWithSolid = all
       .where((o) => o.state == ReadinessState.solid)
       .map((o) => o.domain)

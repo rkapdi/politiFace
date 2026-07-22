@@ -28,6 +28,11 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
   String? _selectedKey;
   bool _finishing = false;
 
+  /// Pinned at first load. The provider can rebuild underneath us (any
+  /// upstream churn); the exam must keep the session it started with, or
+  /// answers land on an abandoned attempt.
+  MockSession? _session;
+
   /// In-flight submits. Advancing never waits on the network, but finish
   /// waits for every answer to settle so finalize cannot race a submit.
   final _pending = <Future<void>>[];
@@ -53,11 +58,20 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
       await Future.wait(_pending);
       final result = await session.finish();
 
-      // Count completed mocks: the first one is the baseline.
+      // Count completed mocks. The server counter (baseline decider) only
+      // moves for server-backed attempts; local mocks never consume the
+      // cohort baseline.
       final meta = ref.read(databaseProvider).metaDao;
       final completed =
           int.tryParse(await meta.get(kCompletedMocksMetaKey) ?? '0') ?? 0;
       await meta.set(kCompletedMocksMetaKey, '${completed + 1}');
+      if (session.isServerBacked) {
+        final server = int.tryParse(
+              await meta.get(kCompletedServerMocksMetaKey) ?? '0',
+            ) ??
+            0;
+        await meta.set(kCompletedServerMocksMetaKey, '${server + 1}');
+      }
 
       if (!mounted) return;
       context.pushReplacement('/fcle/result', extra: result);
@@ -92,6 +106,8 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final sessionAsync = ref.watch(mockSessionProvider);
+    final pinned = _session ??= sessionAsync.valueOrNull;
+    if (pinned != null) return _buildExam(context, theme, pinned);
 
     return sessionAsync.when(
       loading: () =>

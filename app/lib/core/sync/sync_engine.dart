@@ -162,6 +162,12 @@ class SupabaseTransport implements SyncTransport {
       // 23505 unique_violation = the event already landed on a previous try
       // that timed out on the way back. That is success, not failure.
       if (e.code == '23505') return;
+      // 23503 foreign_key_violation is the missing-profile window right
+      // after a flaky sign-in (ensureProfile failed after verifyOTP).
+      // The profile self-heals on the next restore; keep retrying.
+      if (e.code == '23503') {
+        throw Exception('profile row pending: ${e.message}');
+      }
       throw PermanentSyncError('${e.code}: ${e.message}');
     }
   }
@@ -204,6 +210,13 @@ class SyncEngine {
   /// Deferred finalize_mock call for a server mock finished offline.
   Future<void> enqueueMockFinalize({required String attemptId}) =>
       _enqueue(type: 'mock_finalize', attemptId: attemptId);
+
+  /// Whether any undelivered outbox row still references [attemptId].
+  /// finish() checks this so finalize never overtakes a stuck answer.
+  Future<bool> hasPendingForAttempt(String attemptId) async {
+    final rows = await _outbox.pending();
+    return rows.any((r) => r.payload.contains(attemptId));
+  }
 
   /// Cross-device sync: snapshot of one card's FSRS state, applied as an
   /// upsert keyed by (user, card external id). Enqueued after every grade;
@@ -303,8 +316,12 @@ class SyncEngine {
         } on PermanentSyncError catch (e) {
           await _outbox.recordFailure(event.eventId, e.message);
         } catch (e) {
-          await _outbox.recordFailure(event.eventId, e.toString());
-          return; // transient: stop, retry on the next trigger
+          // Transient (network et al): stop the pass and retry on the next
+          // trigger WITHOUT burning a try. Only permanent rejections count
+          // toward dead-lettering; a student playing offline for an evening
+          // must not lose queued events to connectivity alone.
+          await _outbox.noteTransient(event.eventId, e.toString());
+          return;
         }
       }
       // A pass of nothing but permanent failures must not spin the loop.

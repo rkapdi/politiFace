@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/sync/restore_service.dart';
 import '../../../core/sync/sign_in_sheet.dart';
 import '../../decks/application/deck_providers.dart';
 
@@ -34,6 +35,46 @@ Future<void> showAccountSignInSheet(
   await showSignInSheet(context, auth);
   ref.invalidate(profileHandleProvider);
   if (!auth.isSignedIn) return; // sheet dismissed without signing in
+
+  // Account switch guard: this device may hold another account's progress
+  // (and undelivered outbox events). Never mix them; ask, then start the
+  // new account clean before anything flushes under the new session.
+  const kAccountUidKey = 'sync.account_uid';
+  final db = ref.read(databaseProvider);
+  final uid = auth.currentUser?.id;
+  final stored = await db.metaDao.get(kAccountUidKey);
+  if (stored != null && uid != null && stored != uid) {
+    if (!context.mounted) return;
+    final proceed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Switch accounts?'),
+        content: const Text(
+          'This device has progress from a different account. Continue to '
+          'load this account\'s progress instead. Anything the other '
+          'account had not yet synced from this device will be cleared.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('CONTINUE'),
+          ),
+        ],
+      ),
+    );
+    if (proceed != true) {
+      await auth.signOut();
+      ref.invalidate(profileHandleProvider);
+      return;
+    }
+    await wipeLocalUserState(db);
+  }
+  if (uid != null) await db.metaDao.set(kAccountUidKey, uid);
+
   // Deliver anything recorded while signed out was dropped by design;
   // this drains events from any previous signed-in run.
   await ref.read(syncEngineProvider).flush();

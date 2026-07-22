@@ -102,31 +102,35 @@ class _RoundReviewData {
   final List<RoundTrivia> trivia;
 
   factory _RoundReviewData.fromState(DailyRoundState s) => _RoundReviewData(
-      chapterTitle: s.chapterTitle,
-      chapterSubtitle: s.chapterSubtitle,
-      cards: s.cards,
-      trivia: s.trivia,
-    );
+        chapterTitle: s.chapterTitle,
+        chapterSubtitle: s.chapterSubtitle,
+        cards: s.cards,
+        trivia: s.trivia,
+      );
 
   factory _RoundReviewData.fromPayload(Map<dynamic, dynamic> m) {
     final cardMaps =
-        (m['cards'] as List<dynamic>?)?.cast<Map<dynamic, dynamic>>() ?? const [];
+        (m['cards'] as List<dynamic>?)?.cast<Map<dynamic, dynamic>>() ??
+            const [];
     final grades = (m['grades'] as List<dynamic>?) ?? const [];
     final cards = <RoundCard>[];
     for (var i = 0; i < cardMaps.length; i++) {
       final cm = cardMaps[i];
-      cards.add(RoundCard(
-        cardId: cm['cardId'] as String? ?? '',
-        prompt: cm['prompt'] as String? ?? '',
-        answer: cm['answer'] as String? ?? '',
-        politicianName: cm['politicianName'] as String?,
-        photoUrl: cm['photoUrl'] as String?,
-        grade: i < grades.length ? grades[i] as int? : null,
-      ),);
+      cards.add(
+        RoundCard(
+          cardId: cm['cardId'] as String? ?? '',
+          prompt: cm['prompt'] as String? ?? '',
+          answer: cm['answer'] as String? ?? '',
+          politicianName: cm['politicianName'] as String?,
+          photoUrl: cm['photoUrl'] as String?,
+          grade: i < grades.length ? grades[i] as int? : null,
+        ),
+      );
     }
 
     final triviaMaps =
-        (m['trivia'] as List<dynamic>?)?.cast<Map<dynamic, dynamic>>() ?? const [];
+        (m['trivia'] as List<dynamic>?)?.cast<Map<dynamic, dynamic>>() ??
+            const [];
     final answerMaps = (m['answers'] as List<dynamic>?) ?? const [];
     final trivia = <RoundTrivia>[];
     for (var i = 0; i < triviaMaps.length; i++) {
@@ -173,10 +177,8 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final gradedCards =
-        data.cards.where((c) => c.grade != null).toList();
-    final answeredTrivia =
-        data.trivia.where((t) => t.answer != null).toList();
+    final gradedCards = data.cards.where((c) => c.grade != null).toList();
+    final answeredTrivia = data.trivia.where((t) => t.answer != null).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
