@@ -52,4 +52,84 @@ void main() {
     await settings.resetProgress();
     expect(await settings.soundEffectsEnabled(), true);
   });
+
+  test('resetProgress empties every user-state table', () async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+
+    await db.into(db.cardMemoryStates).insert(
+          CardMemoryStatesCompanion.insert(cardId: 'card-1'),
+        );
+    await db.into(db.reviewLogs).insert(
+          ReviewLogsCompanion.insert(
+            cardId: 'card-1',
+            reviewedAt: now,
+            grade: 2,
+            stability: 1,
+            difficulty: 5,
+            retrievability: 1,
+            intervalDays: 1,
+          ),
+        );
+    await db.into(db.userNodeProgress).insert(
+          UserNodeProgressCompanion.insert(
+            nodeId: 'node-1',
+            governmentId: 'us-federal',
+          ),
+        );
+    await db.into(db.appMeta).insert(
+          AppMetaCompanion.insert(key: 'streak.count', value: '5'),
+        );
+    await db.into(db.fcleAnswers).insert(
+          FcleAnswersCompanion.insert(
+            questionId: 'q-1',
+            domain: 'D1',
+            correct: true,
+            answeredAt: now,
+          ),
+        );
+    await db.into(db.completedRuns).insert(
+          CompletedRunsCompanion.insert(
+            id: 'run-1',
+            mode: 'trivia',
+            completedAt: now,
+          ),
+        );
+    await db.into(db.chapterProgress).insert(
+          ChapterProgressCompanion.insert(
+            seasonId: 'season-1',
+            chapterId: 'chapter-1',
+            startedAt: now,
+            updatedAt: now,
+          ),
+        );
+    await db.into(db.dailyRounds).insert(
+          DailyRoundsCompanion.insert(
+            dateIso: '2026-07-12',
+            chapterId: 'chapter-1',
+            dayInChapter: 1,
+            startedAt: now,
+            updatedAt: now,
+          ),
+        );
+    await db.into(db.outboxEvents).insert(
+          OutboxEventsCompanion.insert(
+            eventId: 'event-1',
+            type: 'answer',
+            clientTs: now,
+            createdAt: now,
+          ),
+        );
+
+    await settings.resetProgress();
+
+    expect(await db.select(db.cardMemoryStates).get(), isEmpty);
+    expect(await db.select(db.reviewLogs).get(), isEmpty);
+    expect(await db.select(db.userNodeProgress).get(), isEmpty);
+    expect(await db.select(db.appMeta).get(), isEmpty);
+    expect(await db.select(db.fcleAnswers).get(), isEmpty);
+    expect(await db.select(db.completedRuns).get(), isEmpty);
+    expect(await db.select(db.chapterProgress).get(), isEmpty);
+    expect(await db.select(db.dailyRounds).get(), isEmpty);
+    expect(await db.select(db.outboxEvents).get(), isEmpty);
+  });
 }

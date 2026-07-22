@@ -72,6 +72,11 @@ class SettingsService {
       await _db.delete(_db.cardMemoryStates).go();
       await _db.delete(_db.reviewLogs).go();
       await _db.delete(_db.userNodeProgress).go();
+      await _db.delete(_db.fcleAnswers).go();
+      await _db.delete(_db.completedRuns).go();
+      await _db.delete(_db.chapterProgress).go();
+      await _db.delete(_db.dailyRounds).go();
+      await _db.delete(_db.outboxEvents).go();
       // Clear gamification + seed flags so seeds re-run + onboarding shows again.
       await _db.delete(_db.appMeta).go();
     });

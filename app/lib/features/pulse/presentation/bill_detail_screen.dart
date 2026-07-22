@@ -61,8 +61,13 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
       'they can take time to appear.';
   static const _truncatedCopy =
       'Shortened to fit offline. The full summary is on congress.gov.';
+  static const _failedSummaryCopy =
+      'The summary could not load. Check your connection.';
 
   Future<LiveBillSummary?>? _liveSummary;
+  int? _liveCongress;
+  String? _liveType;
+  String? _liveNumber;
 
   @override
   void initState() {
@@ -71,15 +76,26 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     if (args.summary == null && args.congress != null) {
       final parts = args.bill.split(' ');
       if (parts.length == 2) {
-        _liveSummary = PulseLiveService()
-            .fetchBillSummary(
-              congress: args.congress!,
-              type: parts[0],
-              number: parts[1],
-            )
-            .catchError((Object _) => null);
+        _liveCongress = args.congress;
+        _liveType = parts[0];
+        _liveNumber = parts[1];
+        // No catchError here: a fetch failure must surface distinctly from
+        // a genuine "no summary yet" so the FutureBuilder can tell them
+        // apart (snapshot.hasError vs. snapshot.data == null).
+        _liveSummary = _fetchLiveSummary();
       }
     }
+  }
+
+  Future<LiveBillSummary?> _fetchLiveSummary() =>
+      PulseLiveService().fetchBillSummary(
+        congress: _liveCongress!,
+        type: _liveType!,
+        number: _liveNumber!,
+      );
+
+  void _retryLiveSummary() {
+    setState(() => _liveSummary = _fetchLiveSummary());
   }
 
   Widget _sectionLabel(BuildContext context, String label) {
@@ -145,6 +161,27 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     );
   }
 
+  Widget _failedSummary(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          _failedSummaryCopy,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            height: 1.45,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 10),
+        OutlinedButton(
+          onPressed: _retryLiveSummary,
+          child: const Text('TRY AGAIN'),
+        ),
+      ],
+    );
+  }
+
   Widget _summarySection(BuildContext context, List<CivicTerm> terms) {
     final args = widget.args;
     if (args.summary != null) {
@@ -167,6 +204,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
               child: Center(child: CircularProgressIndicator()),
             );
           }
+          if (snapshot.hasError) return _failedSummary(context);
           final live = snapshot.data;
           if (live == null) return _noSummary(context);
           return Column(
