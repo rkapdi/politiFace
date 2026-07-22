@@ -66,7 +66,10 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
 
   Future<LiveBillSummary?>? _liveSummary;
   int? _liveCongress;
+  // Null when the bill code cannot be parsed; deliberately not `late`.
+  // ignore: use_late_for_private_fields_and_variables
   String? _liveType;
+  // ignore: use_late_for_private_fields_and_variables
   String? _liveNumber;
 
   @override
