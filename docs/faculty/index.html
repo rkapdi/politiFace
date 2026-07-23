@@ -147,6 +147,17 @@
   .reteach th { text-align: left; color: #5c6270; font-size: 12px;
                 padding: 6px 8px; }
   .reteach td { padding: 8px; border-top: 1px solid #edeff3; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%;
+         margin-right:3px; background:#555; }
+  .dot-ok { background:#3f8f5f; }
+  .dot-no { background:#b0413e; }
+  .dot-na { background:#555; opacity:.45; }
+  td.dots { white-space:nowrap; }
+  @media print {
+    body.print-report > *:not(#view-live) { display:none !important; }
+    body.print-report #view-live > *:not(#report-card) { display:none !important; }
+    body.print-report #report-card { display:block !important; }
+  }
 </style>
 </head>
 <body>
@@ -376,7 +387,9 @@
           </div>
 
           <div class="card hidden" id="report-card">
-            <h2>Student report</h2>
+            <h2>Student report
+              <button class="btn-quiet" id="btn-print-report" type="button">Print</button>
+            </h2>
             <p class="muted">Roster name, score, and correctness for every
             student who took part in this session.</p>
             <table class="reteach" id="report"></table>
@@ -434,7 +447,9 @@
   </section>
 </main>
 
-<script src="./config.js"></script>
+<script src="./config.js">  document.getElementById("btn-print-report")
+    ?.addEventListener("click", printReport);
+</script>
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -1259,14 +1274,25 @@ if (!cfg.url || !cfg.anonKey) {
         <td>${s.answered}</td>
         <td>${Math.round((s.correct_rate ?? 0) * 100)}%</td>
       </tr>`).join("");
+    const qIds = live.question_ids ?? (stats ?? []).map((s) => s.question_id);
     $("report").innerHTML =
-      `<tr><th>Student</th><th>Score</th><th>Correct</th><th>Answered</th></tr>` +
+      `<tr><th>Student</th><th>Score</th><th>Correct</th><th>Questions</th></tr>` +
       (report ?? []).map((r) => `<tr>
         <td>${esc(r.roster_name)}</td>
         <td>${r.score}</td>
-        <td>${r.correct_count}</td>
-        <td>${r.answered}</td>
+        <td>${r.correct_count}/${r.answered}</td>
+        <td class="dots">${qIds.map((q) => {
+          const v = (r.per_question ?? {})[q];
+          const cls = v === true ? "dot-ok" : v === false ? "dot-no" : "dot-na";
+          return `<span class="dot ${cls}"></span>`;
+        }).join("")}</td>
       </tr>`).join("");
+  }
+
+  function printReport() {
+    document.body.classList.add("print-report");
+    window.print();
+    document.body.classList.remove("print-report");
   }
 
   async function advanceSession(btnId) {
