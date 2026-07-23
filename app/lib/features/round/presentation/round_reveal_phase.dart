@@ -168,13 +168,20 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
         ),
       ),
       child: SafeArea(
-        child: Padding(
+        // Fixed height + `Spacer()` clipped the chapter-complete banner
+        // and CTA row on shorter screens once there was enough reveal
+        // content to exceed the viewport (RenderFlex overflow silently
+        // clips in release builds). A scrollable body with fixed gaps
+        // in place of the flexible spacers means content never clips,
+        // it just scrolls, and the bottom padding keeps the last CTA
+        // clear of the home indicator once scrolled to the end.
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ChapterCompletionStrip(state: widget.state),
-              const Spacer(),
+              const SizedBox(height: 24),
               Center(
                 child: Text(
                   result.archetype.emoji,
@@ -247,7 +254,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
                     .animate()
                     .fade(delay: 1060.ms, duration: 420.ms),
               ],
-              const Spacer(),
+              const SizedBox(height: 24),
               if (widget.state.isFinalDay)
                 _ChapterCompleteBanner(
                   chapterTitle: widget.state.chapterTitle,
