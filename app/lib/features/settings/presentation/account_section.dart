@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
-import '../../../core/sync/auth_service.dart';
+import '../../../core/sync/restore_service.dart';
+import '../../../core/sync/sign_in_sheet.dart';
+import '../../decks/application/deck_providers.dart';
 
 final profileHandleProvider = FutureProvider<String?>((ref) async {
   ref.watch(authStateProvider);
@@ -18,6 +20,77 @@ final profileHandleProvider = FutureProvider<String?>((ref) async {
   if (auth == null || !auth.isSignedIn) return null;
   return auth.profileHandle();
 });
+
+/// Opens the email-OTP sign-in sheet and, when the user signs in, restores
+/// any progress the account already carries (cross-device sync). Shared by
+/// the Settings account row and the post-session nudge card. Safe to call
+/// anywhere: no-ops on unconfigured builds and never throws.
+Future<void> showAccountSignInSheet(
+  BuildContext context,
+  WidgetRef ref,
+) async {
+  final auth = ref.read(authServiceProvider);
+  if (auth == null) return;
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  await showSignInSheet(context, auth);
+  ref.invalidate(profileHandleProvider);
+  if (!auth.isSignedIn) return; // sheet dismissed without signing in
+
+  // Account switch guard: this device may hold another account's progress
+  // (and undelivered outbox events). Never mix them; ask, then start the
+  // new account clean before anything flushes under the new session.
+  const kAccountUidKey = 'sync.account_uid';
+  final db = ref.read(databaseProvider);
+  final uid = auth.currentUser?.id;
+  final stored = await db.metaDao.get(kAccountUidKey);
+  if (stored != null && uid != null && stored != uid) {
+    if (!context.mounted) return;
+    final proceed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Switch accounts?'),
+        content: const Text(
+          'This device has progress from a different account. Continue to '
+          'load this account\'s progress instead. Anything the other '
+          'account had not yet synced from this device will be cleared.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('CANCEL'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('CONTINUE'),
+          ),
+        ],
+      ),
+    );
+    if (proceed != true) {
+      await auth.signOut();
+      ref.invalidate(profileHandleProvider);
+      return;
+    }
+    await wipeLocalUserState(db);
+  }
+  if (uid != null) await db.metaDao.set(kAccountUidKey, uid);
+
+  // Deliver anything recorded while signed out was dropped by design;
+  // this drains events from any previous signed-in run.
+  await ref.read(syncEngineProvider).flush();
+  // Pull this account's progress and merge it into the local database.
+  final summary = await ref.read(restoreServiceProvider).restoreNow();
+  // Refresh everything that renders streak/XP/chapter/deck state.
+  ref.read(sessionTickProvider.notifier).state++;
+  ref.read(deckSubscriptionTickProvider.notifier).state++;
+  if (summary.cardsRestored > 0) {
+    messenger?.showSnackBar(
+      SnackBar(
+        content: Text('Progress restored: ${summary.cardsRestored} cards.'),
+      ),
+    );
+  }
+}
 
 class AccountSection extends ConsumerWidget {
   const AccountSection({super.key});
@@ -33,10 +106,11 @@ class AccountSection extends ConsumerWidget {
         leading: const Icon(Icons.person_outline),
         title: const Text('Sign in'),
         subtitle: const Text(
-          'Optional. Backs up progress and unlocks class leaderboards.',
+          'Optional. Keeps your progress on all your devices and unlocks '
+          'class leaderboards.',
         ),
         trailing: const Icon(Icons.chevron_right),
-        onTap: () => _showSignInSheet(context, ref, auth),
+        onTap: () => showAccountSignInSheet(context, ref),
       );
     }
 
@@ -44,160 +118,13 @@ class AccountSection extends ConsumerWidget {
     return ListTile(
       leading: const Icon(Icons.person),
       title: Text(handle ?? 'Signed in'),
-      subtitle: const Text('Progress syncs when you play.'),
+      subtitle: const Text('Progress syncs across your devices.'),
       trailing: TextButton(
         onPressed: () async {
           await auth.signOut();
           ref.invalidate(profileHandleProvider);
         },
         child: const Text('SIGN OUT'),
-      ),
-    );
-  }
-
-  Future<void> _showSignInSheet(
-    BuildContext context,
-    WidgetRef ref,
-    AuthService auth,
-  ) async {
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: _SignInSheet(auth: auth),
-      ),
-    );
-    ref.invalidate(profileHandleProvider);
-    // Deliver anything recorded while signed out was dropped by design;
-    // this drains events from any previous signed-in run.
-    await ref.read(syncEngineProvider).flush();
-  }
-}
-
-class _SignInSheet extends StatefulWidget {
-  const _SignInSheet({required this.auth});
-
-  final AuthService auth;
-
-  @override
-  State<_SignInSheet> createState() => _SignInSheetState();
-}
-
-class _SignInSheetState extends State<_SignInSheet> {
-  final _email = TextEditingController();
-  final _code = TextEditingController();
-  bool _codeSent = false;
-  bool _busy = false;
-  String? _error;
-
-  @override
-  void dispose() {
-    _email.dispose();
-    _code.dispose();
-    super.dispose();
-  }
-
-  Future<void> _run(Future<void> Function() action) async {
-    setState(() {
-      _busy = true;
-      _error = null;
-    });
-    try {
-      await action();
-    } catch (e) {
-      setState(() => _error = 'That did not work. Check and try again.');
-      return;
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Sign in', style: theme.textTheme.titleLarge),
-            const SizedBox(height: 4),
-            Text(
-              _codeSent
-                  ? 'Enter the 6-digit code we emailed you.'
-                  : 'We email you a one-time code. No password, no account '
-                      'profile beyond a generated handle.',
-              style: theme.textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            if (!_codeSent)
-              TextField(
-                controller: _email,
-                keyboardType: TextInputType.emailAddress,
-                autocorrect: false,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              )
-            else
-              TextField(
-                controller: _code,
-                keyboardType: TextInputType.number,
-                autofocus: true,
-                maxLength: 6,
-                decoration: const InputDecoration(
-                  labelText: 'Code',
-                  border: OutlineInputBorder(),
-                  counterText: '',
-                ),
-              ),
-            if (_error != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                _error!,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(color: theme.colorScheme.error),
-              ),
-            ],
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      if (!_codeSent) {
-                        await _run(() async {
-                          await widget.auth.requestOtp(_email.text);
-                          setState(() => _codeSent = true);
-                        });
-                      } else {
-                        final navigator = Navigator.of(context);
-                        await _run(() async {
-                          await widget.auth.verifyOtp(
-                            email: _email.text,
-                            code: _code.text,
-                          );
-                          navigator.pop();
-                        });
-                      }
-                    },
-              child: _busy
-                  ? const SizedBox(
-                      height: 18,
-                      width: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_codeSent ? 'VERIFY' : 'SEND CODE'),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
       ),
     );
   }

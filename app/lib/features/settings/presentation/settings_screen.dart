@@ -201,8 +201,9 @@ class SettingsScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Text('Reset all progress?'),
         content: const Text(
-            'This clears your streak, XP, every review, and onboarding state. '
-            "You'll see onboarding again on the next launch."),
+            'This clears your streak, XP, every review, and onboarding state, '
+            'and reverts sound, theme, and reminder settings to their '
+            "defaults. You'll see onboarding again on the next launch."),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
@@ -221,6 +222,9 @@ class SettingsScreen extends ConsumerWidget {
     if (confirmed != true) return;
     HapticFeedback.heavyImpact();
     await ref.read(settingsServiceProvider).resetProgress();
+    // Reset also wipes the daily-reminder flag, so cancel the scheduled
+    // notification too, otherwise it keeps firing with the toggle off.
+    await NotificationService.instance.cancel();
     ref.invalidate(profileProvider);
     ref.invalidate(remindersEnabledProvider);
     ref.invalidate(crashReportsEnabledProvider);

@@ -37,6 +37,7 @@ String uuidV5(String namespace, String name) {
 List<int> _parse(String uuid) {
   final hex = uuid.replaceAll('-', '');
   return [
-    for (var i = 0; i < 32; i += 2) int.parse(hex.substring(i, i + 2), radix: 16),
+    for (var i = 0; i < 32; i += 2)
+      int.parse(hex.substring(i, i + 2), radix: 16),
   ];
 }

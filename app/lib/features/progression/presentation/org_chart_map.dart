@@ -149,7 +149,7 @@ class _OrgChartMapState extends ConsumerState<OrgChartMap>
       if (!mounted) return;
       ref.read(lastKnownNodeStatesProvider.notifier).state = currentStates;
     });
-    if (prev == null) return; // cold launch — no animation
+    if (prev == null) return; // cold launch, no animation
     final unlocked = <String>{};
     currentStates.forEach((id, state) {
       final wasLocked = (prev[id] ?? NodeState.locked) == NodeState.locked;

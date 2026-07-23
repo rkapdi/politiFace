@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Faculty — Politiface</title>
+<title>Faculty | Politiface</title>
 <meta name="description" content="Class view for educators: where your cohort is strong, where it is weak, and the printable summary. Aggregates only, never individual students.">
 <meta name="theme-color" content="#1A1A2E">
 <meta name="robots" content="noindex">
@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="../assets/site.css">
 <style>
   .fac { max-width: 780px; margin: 0 auto; padding: 32px 24px 64px; }
+  .fac.wide { max-width: 1100px; }
   .fac h1 { font-family: Fraunces, serif; font-size: 30px; margin: 0 0 4px; }
   .fac .lede { color: #5c6270; margin: 0 0 28px; }
   .card { border: 1px solid #d9dce3; border-radius: 8px; padding: 18px;
@@ -25,6 +26,11 @@
   .fac input { width: 100%; box-sizing: border-box; padding: 10px 12px;
                border: 1px solid #c8ccd6; border-radius: 6px;
                font: inherit; }
+  .fac textarea, .fac select { width: 100%; box-sizing: border-box;
+               padding: 10px 12px; border: 1px solid #c8ccd6;
+               border-radius: 6px; font: inherit; background: #fff; }
+  .fac input[type="checkbox"], .fac input[type="radio"] {
+               width: auto; padding: 0; margin: 0; }
   .btn { display: inline-block; margin-top: 14px; padding: 10px 18px;
          border-radius: 6px; border: 0; background: #1A1A2E; color: #fff;
          font: 600 13px/1 "Plus Jakarta Sans", sans-serif;
@@ -32,6 +38,7 @@
   .btn.secondary { background: #fff; color: #1A1A2E;
                    border: 1px solid #c8ccd6; }
   .btn[disabled] { opacity: 0.5; cursor: default; }
+  .btn.mini { margin-top: 0; padding: 7px 12px; font-size: 12px; }
   .err { color: #a3222c; font-size: 13px; margin-top: 8px; }
   .muted { color: #8a90a0; font-size: 13px; }
   .hidden { display: none; }
@@ -59,6 +66,78 @@
   .classlist button.active { border-color: #1A1A2E; border-width: 2px; }
   .code { font: 700 15px/1 ui-monospace, Menlo, monospace;
           letter-spacing: 0.2em; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 8px; margin: 4px 0 16px; flex-wrap: wrap; }
+  .tabbtn { padding: 9px 16px; border: 1px solid #c8ccd6; border-radius: 99px;
+            background: #fff; color: #5c6270; cursor: pointer;
+            font: 600 13px "Plus Jakarta Sans", sans-serif; }
+  .tabbtn.active { background: #1A1A2E; color: #fff; border-color: #1A1A2E; }
+
+  /* My questions: authoring */
+  .optrow { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .optrow input[type="text"] { flex: 1; width: auto; }
+  .optkey { font: 700 13px/1 ui-monospace, Menlo, monospace; width: 18px; }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 13px;
+           font-weight: 500; color: inherit; margin: 0; }
+  .filterrow { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 4px; }
+
+  /* Live session: composer picker */
+  .qpick { max-height: 340px; overflow-y: auto; border: 1px solid #d9dce3;
+           border-radius: 6px; margin-top: 8px; }
+  .qpick label { display: flex; gap: 10px; align-items: flex-start;
+           padding: 10px 12px; border-top: 1px solid #edeff3; margin: 0;
+           font-size: 14px; font-weight: 400; color: inherit; cursor: pointer; }
+  .qpick label:first-child { border-top: 0; }
+  .badge { display: inline-block; padding: 1px 7px; border-radius: 99px;
+           background: #edeff3; color: #5c6270; font-size: 11px;
+           font-weight: 700; margin-left: 6px; }
+  .badge.mine { background: #e2ecfb; color: #1c4e89; }
+
+  /* Live session: projector stage. Big type on purpose; the join code and
+     stem should read from the back of a lecture hall. */
+  .stage { text-align: center; padding: 40px 24px 32px; }
+  .kicker { display: block; text-transform: uppercase; letter-spacing: 0.14em;
+            font-size: 14px; font-weight: 700; color: #5c6270; }
+  .jumbo { font: 700 clamp(72px, 15vw, 150px)/1.05 ui-monospace, Menlo, monospace;
+           letter-spacing: 0.1em; margin: 10px 0 4px; color: #1A1A2E; }
+  .stage-help { font-size: clamp(17px, 2.4vw, 26px); margin: 6px 0 0; }
+  .stage-sub { font-size: clamp(15px, 2vw, 22px); margin: 14px 0 0; }
+  .stage .btn { margin-top: 26px; font-size: 15px; padding: 14px 32px; }
+  .qhead { display: flex; align-items: center; justify-content: space-between;
+           gap: 16px; }
+  .timer { font: 700 clamp(36px, 6vw, 64px)/1 ui-monospace, Menlo, monospace;
+           color: #1A1A2E; }
+  .timer.urgent { color: #a3222c; }
+  .stage-stem { font-family: Fraunces, serif; font-weight: 600;
+                font-size: clamp(24px, 3.6vw, 40px); line-height: 1.3;
+                margin: 18px auto 8px; max-width: 900px; }
+  .revopt { display: grid; grid-template-columns: 26px 1fr 52px; gap: 10px;
+            align-items: center; text-align: left; max-width: 720px;
+            margin: 10px auto; padding: 10px 14px;
+            border: 1px solid #d9dce3; border-radius: 8px;
+            font-size: clamp(15px, 1.8vw, 20px); }
+  .revopt.correct { border-color: #2e7d4f; background: #edf7f0; }
+  .revopt .n { font-weight: 700; text-align: right; }
+  .standings { width: 100%; max-width: 560px; margin: 8px auto 0;
+               border-collapse: collapse;
+               font-size: clamp(14px, 1.8vw, 19px); }
+  .standings td { padding: 8px 10px; border-top: 1px solid #edeff3;
+                  text-align: left; }
+  .standings td.rk { width: 40px; color: #5c6270; font-weight: 700; }
+  .standings td.sc { text-align: right; font-weight: 700; }
+  .podium { display: flex; justify-content: center; align-items: flex-end;
+            gap: 14px; margin: 18px 0 6px; flex-wrap: wrap; }
+  .pod { border: 1px solid #d9dce3; border-radius: 8px; padding: 14px 18px;
+         min-width: 130px; }
+  .pod.p1 { padding: 26px 22px; border: 2px solid #1A1A2E; }
+  .pod .medal { font-weight: 700; color: #7a5817; }
+  .pod .name { font: 13px/1.4 ui-monospace, Menlo, monospace; margin: 4px 0; }
+  .pod .pts { font-size: 22px; font-weight: 700; }
+  .reteach { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .reteach th { text-align: left; color: #5c6270; font-size: 12px;
+                padding: 6px 8px; }
+  .reteach td { padding: 8px; border-top: 1px solid #edeff3; }
 </style>
 </head>
 <body>
@@ -74,7 +153,7 @@
   </div>
 </header>
 
-<main class="fac">
+<main class="fac" id="main">
   <h1>Faculty</h1>
   <p class="lede">Where your class is strong, where it is weak. Cohort
   aggregates only: no individual student activity is visible here, no
@@ -122,41 +201,156 @@
       </details>
     </div>
 
-    <div id="board" class="hidden">
-      <div class="card">
-        <div class="row">
-          <h2 id="board-title"></h2>
-          <span>Join code: <span class="code" id="board-code"></span></span>
+    <div id="classpane" class="hidden">
+      <div class="tabs">
+        <button class="tabbtn active" id="tab-insights">Insights</button>
+        <button class="tabbtn" id="tab-questions">My questions</button>
+        <button class="tabbtn" id="tab-live">Live session</button>
+      </div>
+
+      <div id="board">
+        <div class="card">
+          <div class="row">
+            <h2 id="board-title"></h2>
+            <span>Join code: <span class="code" id="board-code"></span></span>
+          </div>
+          <p class="muted">Students join in the app: Class leaderboard, then
+          enter this code.</p>
+          <div class="statgrid" id="overview"></div>
         </div>
-        <p class="muted">Students join in the app: Class leaderboard, then
-        enter this code.</p>
-        <div class="statgrid" id="overview"></div>
+
+        <div class="card">
+          <h2>Readiness by FCLE domain</h2>
+          <div id="domains"></div>
+          <p class="muted hidden" id="domains-empty">Nothing to show yet.
+          Domain statistics appear once at least five students have answered
+          practice or mock questions.</p>
+        </div>
+
+        <div class="card">
+          <h2>Most missed questions</h2>
+          <div id="misses"></div>
+          <p class="muted hidden" id="misses-empty">No question has enough
+          answers yet (five students minimum per question).</p>
+        </div>
+
+        <div class="card">
+          <h2>Summary one-pager</h2>
+          <p class="muted">A printable cohort summary: adoption, engagement,
+          and mock movement. Figures are aggregates from pseudonymous
+          practice data; mocks are practice signals, not predictions of
+          official results.</p>
+          <button class="btn" id="btn-report">Open one-pager</button>
+          <p class="err hidden" id="report-err"></p>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>Readiness by FCLE domain</h2>
-        <div id="domains"></div>
-        <p class="muted hidden" id="domains-empty">Nothing to show yet.
-        Domain statistics appear once at least five students have answered
-        practice or mock questions.</p>
-      </div>
+      <section id="panel-questions" class="hidden">
+        <div class="card">
+          <h2>Write a question for this class</h2>
+          <p class="muted">Visible only to this class, alongside the standard
+          bank. Keep it factual and nonpartisan, and cite a source where you
+          can; students see the citation with the explanation.</p>
+          <label for="q-stem">Question</label>
+          <textarea id="q-stem" rows="3" placeholder="At least 10 characters"></textarea>
+          <label for="q-domain">FCLE domain</label>
+          <select id="q-domain"></select>
+          <label>Answer options (mark the correct one)</label>
+          <div id="q-options"></div>
+          <button class="btn secondary mini" id="btn-add-option">Add option</button>
+          <label for="q-expl">Explanation (optional)</label>
+          <input id="q-expl" placeholder="Shown to students after the reveal">
+          <label for="q-cite">Citation (optional)</label>
+          <input id="q-cite" placeholder="U.S. Constitution, Article I, Section 8">
+          <button class="btn" id="btn-q-save">Save question</button>
+          <p class="err hidden" id="q-err"></p>
+        </div>
+        <div class="card">
+          <h2>Your questions</h2>
+          <div id="q-list"></div>
+          <p class="muted hidden" id="q-empty">No questions yet. Anything you
+          write above appears here and in the live session picker.</p>
+        </div>
+      </section>
 
-      <div class="card">
-        <h2>Most missed questions</h2>
-        <div id="misses"></div>
-        <p class="muted hidden" id="misses-empty">No question has enough
-        answers yet (five students minimum per question).</p>
-      </div>
+      <section id="panel-live" class="hidden">
+        <div id="live-composer">
+          <div class="card">
+            <h2>Set up a live session</h2>
+            <p class="muted">Project this screen; students play along in the
+            app. Supplemental practice students choose, for the room, not a
+            graded assessment.</p>
+            <label for="ls-title">Session title</label>
+            <input id="ls-title" placeholder="Week 6 review">
+            <label for="ls-seconds">Seconds per question</label>
+            <select id="ls-seconds">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="30">30</option>
+            </select>
+            <label>Question bank filters</label>
+            <div class="filterrow" id="ls-domain-filters"></div>
+            <div class="filterrow" style="margin-top:8px">
+              <label class="check"><input type="checkbox" id="ls-mine-only"> My questions only</label>
+            </div>
+            <div class="qpick" id="ls-picker"></div>
+            <p class="muted" style="margin-top:8px"><span id="ls-count">0</span> selected (1 to 50)</p>
+            <button class="btn" id="btn-ls-create">Create session</button>
+            <p class="err hidden" id="ls-err"></p>
+          </div>
+        </div>
 
-      <div class="card">
-        <h2>Summary one-pager</h2>
-        <p class="muted">A printable cohort summary: adoption, engagement,
-        and mock movement. Figures are aggregates from pseudonymous
-        practice data; mocks are practice signals, not predictions of
-        official results.</p>
-        <button class="btn" id="btn-report">Open one-pager</button>
-        <p class="err hidden" id="report-err"></p>
-      </div>
+        <div id="live-console" class="hidden">
+          <div class="card stage">
+            <div id="stage-lobby" class="hidden">
+              <span class="kicker">Join with code</span>
+              <div class="jumbo" id="stage-code"></div>
+              <p class="stage-help">Open Politiface, tap CLASS, then JOIN</p>
+              <p class="stage-sub muted">Answer counts and standings appear
+              live once the first question starts.</p>
+              <button class="btn" id="btn-ls-start">Start</button>
+            </div>
+            <div id="stage-question" class="hidden">
+              <div class="qhead">
+                <span class="kicker" id="sq-num"></span>
+                <span class="timer" id="sq-timer"></span>
+              </div>
+              <p class="stage-stem" id="sq-stem"></p>
+              <p class="stage-sub" aria-live="polite">Answered: <b id="sq-answered">0</b></p>
+              <button class="btn" id="btn-ls-reveal">Reveal</button>
+            </div>
+            <div id="stage-reveal" class="hidden">
+              <span class="kicker" id="sr-num"></span>
+              <p class="stage-stem" id="sr-stem"></p>
+              <div id="sr-options"></div>
+              <p class="muted" id="sr-expl" style="max-width:720px;margin:10px auto 0"></p>
+              <p class="stage-sub" style="margin-top:22px">Standings</p>
+              <div id="sr-top5"></div>
+              <button class="btn" id="btn-ls-next">Next question</button>
+            </div>
+            <div id="stage-ended" class="hidden">
+              <span class="kicker">Final standings</span>
+              <div class="podium" id="se-podium"></div>
+              <div id="se-standings"></div>
+            </div>
+          </div>
+
+          <div class="card hidden" id="reteach-card">
+            <h2>What to reteach</h2>
+            <p class="muted">Per-question results from this session, hardest
+            first. Aggregates only; no individual answers.</p>
+            <table class="reteach" id="reteach"></table>
+          </div>
+
+          <div class="card">
+            <div class="row">
+              <span class="muted">Session: <span id="ls-live-title"></span></span>
+              <button class="btn secondary" id="btn-ls-end">End session</button>
+            </div>
+            <p class="err hidden" id="ls-live-err"></p>
+          </div>
+        </div>
+      </section>
     </div>
   </section>
 </main>
@@ -178,6 +372,26 @@ if (!cfg.url || !cfg.anonKey) {
   let email = "";
   let selected = null;
 
+  // Reference data
+  let domains = [];
+  let domainName = {};
+
+  // Authoring form state
+  let qOptions = [];
+  let qCorrect = 0;
+
+  // Live session state
+  let bank = [];
+  let pickSel = new Set();
+  let domFilter = new Set();
+  let live = null;
+  let liveChannel = null;
+  let tickTimer = null;
+  let pollTimer = null;
+  let currentQid = null;
+  let answered = 0;
+  let advancing = false;
+
   const setErr = (id, msg) => {
     $(id).textContent = msg ?? "";
     show(id, Boolean(msg));
@@ -187,7 +401,10 @@ if (!cfg.url || !cfg.anonKey) {
     const { data: { session } } = await supabase.auth.getSession();
     show("view-signin", !session);
     show("view-dash", Boolean(session));
-    if (session) await loadClasses();
+    if (session) {
+      await loadDomainRefs();
+      await loadClasses();
+    }
   }
 
   $("btn-send").onclick = async () => {
@@ -211,8 +428,9 @@ if (!cfg.url || !cfg.anonKey) {
 
   $("btn-signout").onclick = async () => {
     await supabase.auth.signOut();
+    cleanupLive();
     selected = null;
-    show("board", false);
+    show("classpane", false);
     show("step-email");
     show("step-code", false);
     await refresh();
@@ -232,10 +450,24 @@ if (!cfg.url || !cfg.anonKey) {
     }
   }
 
+  async function loadDomainRefs() {
+    if (domains.length) return;
+    const { data } = await supabase.from("domains").select("id, name, ordinal").order("ordinal");
+    domains = data ?? [];
+    domainName = Object.fromEntries(domains.map((d) => [d.id, d.name]));
+    $("q-domain").innerHTML = domains
+      .map((d) => `<option value="${d.id}">${esc(d.name)}</option>`).join("");
+    renderDomainFilters();
+    resetQuestionForm();
+  }
+
   async function loadClasses() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
     const { data, error } = await supabase
       .from("cohort_members")
       .select("cohort_id, role, joined_at, cohorts(name, term, join_code)")
+      .eq("user_id", user.id)
       .eq("role", "faculty")
       .order("joined_at", { ascending: false });
     const list = $("classlist");
@@ -260,9 +492,28 @@ if (!cfg.url || !cfg.anonKey) {
     buttonEl?.classList?.add("active");
     $("board-title").textContent = cohort.name ?? "Class";
     $("board-code").textContent = cohort.join_code ?? "";
-    show("board");
-    await Promise.all([loadOverview(id), loadDomains(id), loadMisses(id)]);
+    show("classpane");
+    await Promise.all([
+      loadOverview(id), loadDomains(id), loadMisses(id),
+      loadMyQuestions(), initLive(),
+    ]);
   }
+
+  // ── tabs ──────────────────────────────────────────────────────────────
+
+  const TABS = ["insights", "questions", "live"];
+  function setTab(t) {
+    for (const x of TABS) $("tab-" + x).classList.toggle("active", x === t);
+    show("board", t === "insights");
+    show("panel-questions", t === "questions");
+    show("panel-live", t === "live");
+    $("main").classList.toggle("wide", t === "live");
+  }
+  $("tab-insights").onclick = () => setTab("insights");
+  $("tab-questions").onclick = () => setTab("questions");
+  $("tab-live").onclick = () => setTab("live");
+
+  // ── insights (cohort aggregates) ──────────────────────────────────────
 
   async function loadOverview(id) {
     const { data } = await supabase.rpc("cohort_overview", { p_cohort: id });
@@ -326,6 +577,421 @@ if (!cfg.url || !cfg.anonKey) {
     if (!res.ok) return setErr("report-err", "No summary available yet for this class.");
     const blob = await res.blob();
     window.open(URL.createObjectURL(blob), "_blank");
+  };
+
+  // ── my questions: authoring + list ────────────────────────────────────
+
+  const keyFor = (i) => String.fromCharCode(65 + i); // A..F
+
+  function resetQuestionForm() {
+    qOptions = [{ text: "" }, { text: "" }, { text: "" }, { text: "" }];
+    qCorrect = 0;
+    $("q-stem").value = "";
+    $("q-expl").value = "";
+    $("q-cite").value = "";
+    renderOptionRows();
+  }
+
+  function renderOptionRows() {
+    const wrap = $("q-options");
+    wrap.innerHTML = "";
+    qOptions.forEach((o, i) => {
+      const row = document.createElement("div");
+      row.className = "optrow";
+      row.innerHTML = `<span class="optkey">${keyFor(i)}</span>
+        <input type="text" class="opttext" placeholder="Option ${keyFor(i)}">
+        <label class="check"><input type="radio" name="q-correct"> correct</label>
+        <button type="button" class="btn secondary mini">Remove</button>`;
+      const text = row.querySelector(".opttext");
+      text.value = o.text;
+      text.oninput = () => { qOptions[i].text = text.value; };
+      const radio = row.querySelector('input[type="radio"]');
+      radio.checked = i === qCorrect;
+      radio.onchange = () => { qCorrect = i; };
+      const rm = row.querySelector("button");
+      rm.disabled = qOptions.length <= 2;
+      rm.onclick = () => {
+        qOptions.splice(i, 1);
+        if (qCorrect === i) qCorrect = 0;
+        else if (qCorrect > i) qCorrect -= 1;
+        renderOptionRows();
+      };
+      wrap.appendChild(row);
+    });
+    $("btn-add-option").disabled = qOptions.length >= 6;
+  }
+
+  $("btn-add-option").onclick = () => {
+    if (qOptions.length >= 6) return;
+    qOptions.push({ text: "" });
+    renderOptionRows();
+  };
+
+  $("btn-q-save").onclick = async () => {
+    setErr("q-err", null);
+    if (!selected) return;
+    // Mirrors create_cohort_question: stem >= 10 chars, 2 to 6 options with
+    // unique keys and non-empty text, answer key among the options.
+    const stem = $("q-stem").value.trim();
+    const opts = qOptions.map((o, i) => ({ key: keyFor(i), text: o.text.trim() }));
+    if (stem.length < 10) return setErr("q-err", "The question needs at least 10 characters.");
+    if (opts.length < 2 || opts.length > 6) return setErr("q-err", "Give the question 2 to 6 options.");
+    if (opts.some((o) => !o.text)) return setErr("q-err", "Every option needs text.");
+    if (new Set(opts.map((o) => o.key)).size !== opts.length) return setErr("q-err", "Option keys must be unique.");
+    if (qCorrect < 0 || qCorrect >= opts.length) return setErr("q-err", "Mark the correct option.");
+    const btn = $("btn-q-save");
+    btn.disabled = true;
+    const { error } = await supabase.rpc("create_cohort_question", {
+      p_cohort: selected,
+      p_domain: Number($("q-domain").value),
+      p_stem: stem,
+      p_options: opts,
+      p_answer_key: opts[qCorrect].key,
+      p_explanation: $("q-expl").value.trim() || null,
+      p_citation: $("q-cite").value.trim() || null,
+    });
+    btn.disabled = false;
+    if (error) return setErr("q-err", "Could not save the question. Check every field and try again.");
+    const domainKeep = $("q-domain").value;
+    resetQuestionForm();
+    $("q-domain").value = domainKeep;
+    await Promise.all([loadMyQuestions(), loadBank()]);
+  };
+
+  async function loadMyQuestions() {
+    if (!selected) return;
+    const { data, error } = await supabase.from("questions")
+      .select("id, stem, domain_id, review_status, created_at")
+      .eq("cohort_id", selected).eq("author", "faculty")
+      .order("created_at", { ascending: false });
+    const rows = (error ? null : data) ?? [];
+    show("q-empty", rows.length === 0);
+    $("q-list").innerHTML = rows.map((q) => {
+      const retired = q.review_status !== "published";
+      return `<div class="miss">
+        <p class="stem">${esc(q.stem)}${retired ? '<span class="pill">retired</span>' : ""}</p>
+        <div class="row">
+          <span class="muted">${esc(domainName[q.domain_id] ?? `Domain ${q.domain_id}`)}</span>
+          ${retired ? "" : `<button class="btn secondary mini" data-retire="${q.id}">Retire</button>`}
+        </div>
+      </div>`;
+    }).join("");
+    for (const b of $("q-list").querySelectorAll("[data-retire]")) {
+      b.onclick = async () => {
+        b.disabled = true;
+        const { error: e } = await supabase.rpc("retire_cohort_question", { p_question: b.dataset.retire });
+        if (e) { b.disabled = false; return; }
+        await Promise.all([loadMyQuestions(), loadBank()]);
+      };
+    }
+  }
+
+  // ── live session: composer ────────────────────────────────────────────
+
+  function renderDomainFilters() {
+    domFilter = new Set(domains.map((d) => d.id));
+    $("ls-domain-filters").innerHTML = domains.map((d) => `<label class="check">
+      <input type="checkbox" data-dom="${d.id}" checked> ${esc(d.name)}</label>`).join("");
+    for (const cb of $("ls-domain-filters").querySelectorAll("[data-dom]")) {
+      cb.onchange = () => {
+        const id = Number(cb.dataset.dom);
+        cb.checked ? domFilter.add(id) : domFilter.delete(id);
+        renderPicker();
+      };
+    }
+  }
+  $("ls-mine-only").onchange = () => renderPicker();
+
+  async function loadBank() {
+    if (!selected) return;
+    // Published questions readable under RLS: the system bank plus this
+    // cohort's own faculty questions.
+    const { data, error } = await supabase.from("questions")
+      .select("id, stem, domain_id, cohort_id")
+      .eq("review_status", "published")
+      .or(`cohort_id.is.null,cohort_id.eq.${selected}`)
+      .order("domain_id")
+      .limit(1000);
+    bank = (error ? null : data) ?? [];
+    bank.sort((a, b) =>
+      (a.cohort_id ? 0 : 1) - (b.cohort_id ? 0 : 1) || a.domain_id - b.domain_id);
+    renderPicker();
+  }
+
+  function renderPicker() {
+    const mineOnly = $("ls-mine-only").checked;
+    const rows = bank.filter((q) =>
+      domFilter.has(q.domain_id) && (!mineOnly || q.cohort_id));
+    $("ls-picker").innerHTML = rows.length ? rows.map((q) => `<label>
+        <input type="checkbox" data-pick="${q.id}"${pickSel.has(q.id) ? " checked" : ""}>
+        <span>${esc(q.stem)}
+          <span class="badge">${esc(domainName[q.domain_id] ?? "")}</span>
+          ${q.cohort_id ? '<span class="badge mine">MINE</span>' : ""}</span>
+      </label>`).join("")
+      : `<p class="muted" style="padding:12px">No questions match these filters.</p>`;
+    for (const cb of $("ls-picker").querySelectorAll("[data-pick]")) {
+      cb.onchange = () => {
+        cb.checked ? pickSel.add(cb.dataset.pick) : pickSel.delete(cb.dataset.pick);
+        $("ls-count").textContent = pickSel.size;
+      };
+    }
+    $("ls-count").textContent = pickSel.size;
+  }
+
+  $("btn-ls-create").onclick = async () => {
+    setErr("ls-err", null);
+    if (!selected) return;
+    const title = $("ls-title").value.trim();
+    if (title.length < 3 || title.length > 80) return setErr("ls-err", "Title the session (3 to 80 characters).");
+    if (pickSel.size < 1 || pickSel.size > 50) return setErr("ls-err", "Pick 1 to 50 questions.");
+    const btn = $("btn-ls-create");
+    btn.disabled = true;
+    const { data, error } = await supabase.rpc("create_live_session", {
+      p_cohort: selected,
+      p_title: title,
+      p_question_ids: [...pickSel],
+      p_question_seconds: Number($("ls-seconds").value),
+    });
+    btn.disabled = false;
+    if (error) return setErr("ls-err", "Could not create the session. Try again.");
+    pickSel = new Set();
+    $("ls-title").value = "";
+    const { data: row } = await supabase.from("live_sessions")
+      .select("*").eq("id", data.id).maybeSingle();
+    if (!row) return setErr("ls-err", "Session created but could not be loaded. Reload the page.");
+    setTab("live");
+    await enterConsole(row);
+  };
+
+  // ── live session: console ─────────────────────────────────────────────
+
+  async function initLive() {
+    cleanupLive();
+    show("live-console", false);
+    show("live-composer");
+    pickSel = new Set();
+    await loadBank();
+    // Resume a session that is still open for this class.
+    const { data } = await supabase.from("live_sessions").select("*")
+      .eq("cohort_id", selected).neq("status", "ended")
+      .order("created_at", { ascending: false }).limit(1).maybeSingle();
+    if (data) await enterConsole(data);
+  }
+
+  async function enterConsole(row) {
+    live = row;
+    show("live-composer", false);
+    show("live-console");
+    $("ls-live-title").textContent = live.title;
+    setErr("ls-live-err", null);
+    subscribeAnswers();
+    await renderPhase();
+  }
+
+  function cleanupLive() {
+    clearInterval(tickTimer);
+    clearInterval(pollTimer);
+    tickTimer = pollTimer = null;
+    if (liveChannel) {
+      supabase.removeChannel(liveChannel);
+      liveChannel = null;
+    }
+    live = null;
+    currentQid = null;
+    answered = 0;
+  }
+
+  function subscribeAnswers() {
+    if (liveChannel) supabase.removeChannel(liveChannel);
+    liveChannel = supabase.channel(`live-answers-${live.id}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "live_answers",
+          filter: `session_id=eq.${live.id}` },
+        (payload) => {
+          if (payload.new?.question_id === currentQid) {
+            answered += 1;
+            $("sq-answered").textContent = answered;
+          }
+        })
+      .subscribe();
+  }
+
+  async function renderPhase() {
+    clearInterval(tickTimer);
+    clearInterval(pollTimer);
+    tickTimer = pollTimer = null;
+    const st = live.status;
+    show("stage-lobby", st === "lobby");
+    show("stage-question", st === "question");
+    show("stage-reveal", st === "reveal");
+    show("stage-ended", st === "ended");
+    show("reteach-card", st === "ended");
+    $("btn-ls-end").textContent = st === "ended" ? "Set up a new session" : "End session";
+    if (st === "lobby") {
+      $("stage-code").textContent = live.join_code ?? "";
+    } else if (st === "question") {
+      await renderQuestion();
+    } else if (st === "reveal") {
+      await renderReveal();
+    } else {
+      await renderEnded();
+    }
+  }
+
+  async function renderQuestion() {
+    const total = live.question_ids.length;
+    currentQid = live.question_ids[live.current_index];
+    answered = 0;
+    $("sq-answered").textContent = "0";
+    $("sq-num").textContent = `Question ${live.current_index + 1} of ${total}`;
+    const { data: q } = await supabase.from("questions")
+      .select("stem").eq("id", currentQid).maybeSingle();
+    $("sq-stem").textContent = q?.stem ?? "";
+    // Countdown is driven by question_seconds from the start of the phase;
+    // on resume it picks up from the server's question_started_at.
+    const startedMs = live.question_started_at
+      ? new Date(live.question_started_at).getTime() : Date.now();
+    const endMs = startedMs + live.question_seconds * 1000;
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((endMs - Date.now()) / 1000));
+      $("sq-timer").textContent = left;
+      $("sq-timer").classList.toggle("urgent", left <= 5);
+      if (left === 0) { clearInterval(tickTimer); tickTimer = null; }
+    };
+    tick();
+    tickTimer = setInterval(tick, 250);
+    pollTimer = setInterval(pollAnswers, 3000);
+    pollAnswers();
+  }
+
+  async function pollAnswers() {
+    if (!live || live.status !== "question" || !currentQid) return;
+    // Realtime inserts drive the counter; this 3s poll is the fallback. The
+    // scoreboard call keeps standings warm, the head count is authoritative
+    // for the current question.
+    const [{ data: board }, { count }] = await Promise.all([
+      supabase.rpc("live_scoreboard", { p_session: live.id }),
+      supabase.from("live_answers")
+        .select("*", { count: "exact", head: true })
+        .eq("session_id", live.id).eq("question_id", currentQid),
+    ]);
+    if (typeof count === "number") {
+      answered = Math.max(answered, count);
+    } else if (Array.isArray(board) && live.current_index === 0) {
+      answered = Math.max(answered, board.length);
+    }
+    $("sq-answered").textContent = answered;
+  }
+
+  const renderStandings = (rows) => rows.length
+    ? `<table class="standings"><tbody>${rows.map((r) =>
+        `<tr><td class="rk">${r.rank}</td><td>${esc(r.handle)}</td><td class="sc">${r.score}</td></tr>`
+      ).join("")}</tbody></table>`
+    : `<p class="muted">No answers yet.</p>`;
+
+  async function renderReveal() {
+    const total = live.question_ids.length;
+    currentQid = live.question_ids[live.current_index];
+    $("sr-num").textContent = `Question ${live.current_index + 1} of ${total}`;
+    $("btn-ls-next").textContent =
+      live.current_index + 1 >= total ? "Finish session" : "Next question";
+    const [{ data: q }, { data: rev }, { data: board }] = await Promise.all([
+      supabase.from("questions").select("stem, options").eq("id", currentQid).maybeSingle(),
+      supabase.rpc("live_reveal", { p_session: live.id }),
+      supabase.rpc("live_scoreboard", { p_session: live.id }),
+    ]);
+    $("sr-stem").textContent = q?.stem ?? "";
+    const counts = rev?.counts ?? {};
+    const totalAnswers = Object.values(counts).reduce((a, b) => a + Number(b), 0);
+    $("sr-options").innerHTML = (q?.options ?? []).map((o) => {
+      const n = Number(counts[o.key] ?? 0);
+      const pct = totalAnswers ? Math.round((n / totalAnswers) * 100) : 0;
+      const correct = o.key === rev?.correct_key;
+      return `<div class="revopt${correct ? " correct" : ""}">
+        <span class="optkey">${esc(o.key)}</span>
+        <span><span>${esc(o.text)}</span>
+          <span class="bar"><i style="width:${pct}%;background:${correct ? "#2e7d4f" : "#8a90a0"}"></i></span></span>
+        <span class="n">${n}</span>
+      </div>`;
+    }).join("");
+    $("sr-expl").textContent = rev?.explanation ?? "";
+    $("sr-top5").innerHTML = renderStandings((board ?? []).slice(0, 5));
+  }
+
+  async function renderEnded() {
+    currentQid = null;
+    const [{ data: board }, { data: stats }] = await Promise.all([
+      supabase.rpc("live_scoreboard", { p_session: live.id }),
+      supabase.rpc("live_session_stats", { p_session: live.id }),
+    ]);
+    const rows = board ?? [];
+    const top3 = rows.slice(0, 3);
+    const podium = [top3[1], top3[0], top3[2]].filter(Boolean);
+    $("se-podium").innerHTML = podium.length ? podium.map((r) => `<div class="pod p${r.rank}">
+        <div class="medal">${["1st", "2nd", "3rd"][r.rank - 1] ?? r.rank}</div>
+        <div class="name">${esc(r.handle)}</div>
+        <div class="pts">${r.score}</div>
+      </div>`).join("")
+      : `<p class="muted">Nobody answered in this session.</p>`;
+    $("se-standings").innerHTML = renderStandings(rows);
+    $("reteach").innerHTML =
+      `<tr><th>Question</th><th>Answered</th><th>Correct</th></tr>` +
+      (stats ?? []).map((s) => `<tr>
+        <td>${esc(s.stem)}</td>
+        <td>${s.answered}</td>
+        <td>${Math.round((s.correct_rate ?? 0) * 100)}%</td>
+      </tr>`).join("");
+  }
+
+  async function advanceSession(btnId) {
+    if (!live || advancing) return;
+    advancing = true;
+    const btn = $(btnId);
+    btn.disabled = true;
+    setErr("ls-live-err", null);
+    const { data, error } = await supabase.rpc("advance_live_session", { p_session: live.id });
+    advancing = false;
+    btn.disabled = false;
+    if (error) {
+      setErr("ls-live-err", "Could not advance the session. Resyncing.");
+      return resyncLive();
+    }
+    live.status = data.status;
+    if (data.status === "question") {
+      live.current_index = data.index;
+      live.question_started_at = new Date().toISOString();
+    } else if (data.status === "ended") {
+      live.question_started_at = null;
+    }
+    await renderPhase();
+  }
+
+  async function resyncLive() {
+    if (!live) return;
+    const { data } = await supabase.from("live_sessions")
+      .select("*").eq("id", live.id).maybeSingle();
+    if (data) {
+      live = data;
+      await renderPhase();
+    }
+  }
+
+  $("btn-ls-start").onclick = () => advanceSession("btn-ls-start");
+  $("btn-ls-reveal").onclick = () => advanceSession("btn-ls-reveal");
+  $("btn-ls-next").onclick = () => advanceSession("btn-ls-next");
+
+  $("btn-ls-end").onclick = async () => {
+    if (!live) return;
+    if (live.status === "ended") {
+      // Session is over: back to the composer.
+      cleanupLive();
+      return initLive();
+    }
+    if (!window.confirm("End this session for everyone?")) return;
+    const { error } = await supabase.rpc("end_live_session", { p_session: live.id });
+    if (error) return setErr("ls-live-err", "Could not end the session. Try again.");
+    live.status = "ended";
+    await renderPhase();
   };
 
   refresh();

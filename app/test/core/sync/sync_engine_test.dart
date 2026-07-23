@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/core/database/daos/outbox_dao.dart';
@@ -10,8 +12,7 @@ class FakeTransport implements SyncTransport {
 
   bool signedIn;
   final deliveredEvents = <OutboxEvent>[];
-  List<String> get delivered =>
-      [for (final e in deliveredEvents) e.eventId];
+  List<String> get delivered => [for (final e in deliveredEvents) e.eventId];
 
   /// eventId -> error to throw. PermanentSyncError = server rejection;
   /// anything else = transient network failure.
@@ -34,6 +35,10 @@ class FakeTransport implements SyncTransport {
   Future<void> sendSessionEvent(OutboxEvent e) => _send(e);
   @override
   Future<void> sendMockFinalize(OutboxEvent e) => _send(e);
+  @override
+  Future<void> upsertCardState(OutboxEvent e) => _send(e);
+  @override
+  Future<void> upsertAppState(OutboxEvent e) => _send(e);
 }
 
 void main() {
@@ -80,18 +85,22 @@ void main() {
   test('delivers oldest first', () async {
     final transport = FakeTransport();
     final engine = SyncEngine(db, transport);
-    await db.outboxDao.enqueue(OutboxEventsCompanion.insert(
-      eventId: 'later',
-      type: 'session_start',
-      clientTs: 2000,
-      createdAt: 2000,
-    ),);
-    await db.outboxDao.enqueue(OutboxEventsCompanion.insert(
-      eventId: 'earlier',
-      type: 'session_start',
-      clientTs: 1000,
-      createdAt: 1000,
-    ),);
+    await db.outboxDao.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: 'later',
+        type: 'session_start',
+        clientTs: 2000,
+        createdAt: 2000,
+      ),
+    );
+    await db.outboxDao.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: 'earlier',
+        type: 'session_start',
+        clientTs: 1000,
+        createdAt: 1000,
+      ),
+    );
     await engine.flush();
     expect(transport.delivered, ['earlier', 'later']);
   });
@@ -100,12 +109,14 @@ void main() {
     final transport = FakeTransport();
     final engine = SyncEngine(db, transport);
     // Direct DAO insert: no auto-flush, so the failure is armed first.
-    await db.outboxDao.enqueue(OutboxEventsCompanion.insert(
-      eventId: 'e1',
-      type: 'answer',
-      clientTs: 1,
-      createdAt: 1,
-    ),);
+    await db.outboxDao.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: 'e1',
+        type: 'answer',
+        clientTs: 1,
+        createdAt: 1,
+      ),
+    );
     transport.failWith['e1'] = Exception('socket closed');
 
     await engine.flush();
@@ -122,18 +133,22 @@ void main() {
   test('permanent failure does not dam the queue behind it', () async {
     final transport = FakeTransport();
     final engine = SyncEngine(db, transport);
-    await db.outboxDao.enqueue(OutboxEventsCompanion.insert(
-      eventId: 'poison',
-      type: 'session_start',
-      clientTs: 1,
-      createdAt: 1,
-    ),);
-    await db.outboxDao.enqueue(OutboxEventsCompanion.insert(
-      eventId: 'good',
-      type: 'session_start',
-      clientTs: 2,
-      createdAt: 2,
-    ),);
+    await db.outboxDao.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: 'poison',
+        type: 'session_start',
+        clientTs: 1,
+        createdAt: 1,
+      ),
+    );
+    await db.outboxDao.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: 'good',
+        type: 'session_start',
+        clientTs: 2,
+        createdAt: 2,
+      ),
+    );
     transport.failWith['poison'] = PermanentSyncError('42501: rejected');
 
     await engine.flush();
@@ -144,12 +159,14 @@ void main() {
   test('poison event dead-letters after max tries', () async {
     final transport = FakeTransport();
     final engine = SyncEngine(db, transport);
-    await db.outboxDao.enqueue(OutboxEventsCompanion.insert(
-      eventId: 'poison',
-      type: 'session_start',
-      clientTs: 1,
-      createdAt: 1,
-    ),);
+    await db.outboxDao.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: 'poison',
+        type: 'session_start',
+        clientTs: 1,
+        createdAt: 1,
+      ),
+    );
     transport.failWith['poison'] = PermanentSyncError('42501: rejected');
 
     for (var i = 0; i < OutboxDao.maxTries; i++) {
@@ -179,6 +196,78 @@ void main() {
     expect(transport.deliveredEvents.first.type, 'answer');
     expect(transport.deliveredEvents.last.type, 'mock_finalize');
     expect(transport.deliveredEvents.last.attemptId, 'attempt-1');
+    expect(await db.outboxDao.pendingCount(), 0);
+  });
+
+  test('card_state event carries the FSRS snapshot payload', () async {
+    final transport = FakeTransport();
+    final engine = SyncEngine(db, transport);
+    const state = CardMemoryState(
+      cardId: 'local-row-id',
+      userId: 'local-user',
+      difficulty: 5.5,
+      stability: 12.25,
+      retrievability: 0.93,
+      lastReviewedAt: 1721500000,
+      nextReviewAt: 1722500000,
+      intervalDays: 12,
+      lapses: 2,
+      reviewCount: 7,
+      isNew: false,
+      practiceCountSinceReview: 0,
+      lastGrade: 2,
+    );
+    await engine.enqueueCardState(
+      cardExternalId: 'potus-47',
+      state: state,
+    );
+    await engine.flush();
+
+    final event = transport.deliveredEvents.single;
+    expect(event.type, 'card_state');
+    final payload = jsonDecode(event.payload) as Map<String, dynamic>;
+    expect(payload['card_id'], 'potus-47');
+    expect(payload['stability'], 12.25);
+    expect(payload['difficulty'], 5.5);
+    expect(payload['reps'], 7);
+    expect(payload['lapses'], 2);
+    expect(payload['is_new'], false);
+    expect(payload['due_at'], isoFromUnixSeconds(1722500000));
+    expect(payload['last_reviewed_at'], isoFromUnixSeconds(1721500000));
+    expect(await db.outboxDao.pendingCount(), 0);
+  });
+
+  test('app_state event carries chapter, xp, and the full deck map', () async {
+    final transport = FakeTransport();
+    final engine = SyncEngine(db, transport);
+    await engine.enqueueAppState(
+      chapterNumber: 3,
+      dayInChapter: 2,
+      xp: 480,
+      deckSubscriptions: {'us-executive': true, 'delegation-fl': false},
+    );
+    await engine.flush();
+
+    final event = transport.deliveredEvents.single;
+    expect(event.type, 'app_state');
+    final payload = jsonDecode(event.payload) as Map<String, dynamic>;
+    expect(payload['chapter_number'], 3);
+    expect(payload['day_in_chapter'], 2);
+    expect(payload['xp'], 480);
+    expect(payload['deck_subscriptions'], {
+      'us-executive': true,
+      'delegation-fl': false,
+    });
+  });
+
+  test('signed out: card_state and app_state enqueues are no-ops', () async {
+    final engine = SyncEngine(db, FakeTransport(signedIn: false));
+    await engine.enqueueAppState(
+      chapterNumber: 1,
+      dayInChapter: 1,
+      xp: 0,
+      deckSubscriptions: const {},
+    );
     expect(await db.outboxDao.pendingCount(), 0);
   });
 

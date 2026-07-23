@@ -318,7 +318,7 @@ class _SessionMapPainter extends CustomPainter {
   final _SessionMapData data;
   final double zoom;  // eased 0..1
   final double pulse; // 0..1, reverses
-  final double trail; // eased 0..1, one-shot — drives the spark position
+  final double trail; // eased 0..1, one-shot; drives the spark position
   final bool isDark;
 
   /// Normalized-space viewport (in mapX/mapY coords) we're currently

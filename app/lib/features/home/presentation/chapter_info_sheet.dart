@@ -591,7 +591,7 @@ class _ChapterCta extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Completed. Replay anytime — reviews always count.',
+                    'Completed. Replay anytime: reviews always count.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w700,
                     ),

@@ -61,8 +61,8 @@ class SupabaseMockApi implements ServerMockApi {
 
   @override
   Future<ServerMockAssembly> assembleMock(String kind) async {
-    final res = await _client
-        .rpc<dynamic>('assemble_mock', params: {'p_kind': kind});
+    final res =
+        await _client.rpc<dynamic>('assemble_mock', params: {'p_kind': kind});
     final map = res as Map<String, dynamic>;
     return ServerMockAssembly(
       attemptId: map['attempt_id'] as String,
@@ -89,13 +89,16 @@ class SupabaseMockApi implements ServerMockApi {
     required String chosenKey,
     required String attemptId,
   }) async {
-    final res = await _client.rpc<dynamic>('submit_answer', params: {
-      'p_event_id': eventId,
-      'p_question_id': serverQuestionId,
-      'p_chosen_key': chosenKey,
-      'p_client_ts': DateTime.now().toIso8601String(),
-      'p_attempt_id': attemptId,
-    },);
+    final res = await _client.rpc<dynamic>(
+      'submit_answer',
+      params: {
+        'p_event_id': eventId,
+        'p_question_id': serverQuestionId,
+        'p_chosen_key': chosenKey,
+        'p_client_ts': DateTime.now().toIso8601String(),
+        'p_attempt_id': attemptId,
+      },
+    );
     return (res as Map<String, dynamic>)['correct'] as bool;
   }
 

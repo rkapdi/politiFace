@@ -11,7 +11,9 @@ import '../../shared/widgets/state_views.dart';
 import '../data/memory_service.dart';
 import 'memory_field.dart';
 
-final memoryServiceProvider = Provider<MemoryService>((ref) => MemoryService(ref.watch(databaseProvider)));
+final memoryServiceProvider = Provider<MemoryService>(
+  (ref) => MemoryService(ref.watch(databaseProvider)),
+);
 
 final memoryStatsProvider = FutureProvider<MemoryStats>((ref) async {
   // Refetch after every grade so stats stay current.
@@ -123,13 +125,13 @@ class _BrainStrengthHero extends StatelessWidget {
   Color _stageColor(BrainStage stage) {
     switch (stage) {
       case BrainStage.forming:
-        return const Color(0xFFE57373); // soft red — early growth
+        return const Color(0xFFE57373); // soft red (early growth)
       case BrainStage.crystallizing:
-        return const Color(0xFF60A5FA); // blue — taking shape
+        return const Color(0xFF60A5FA); // blue (taking shape)
       case BrainStage.solidifying:
-        return const Color(0xFF34D399); // green — locking in
+        return const Color(0xFF34D399); // green (locking in)
       case BrainStage.mastered:
-        return const Color(0xFFFFC107); // gold — long-term
+        return const Color(0xFFFFC107); // gold (long-term)
     }
   }
 
@@ -192,7 +194,7 @@ class _BrainStrengthHero extends StatelessWidget {
 
 class _StrengthRing extends StatelessWidget {
   const _StrengthRing({required this.value, required this.color});
-  final double value;  // 0..100
+  final double value; // 0..100
   final Color color;
 
   @override
@@ -203,39 +205,39 @@ class _StrengthRing extends StatelessWidget {
       duration: const Duration(milliseconds: 1000),
       curve: Curves.easeOutCubic,
       builder: (context, animated, _) => CustomPaint(
-          painter: _RingPainter(
-            value: animated,
-            color: color,
-            background: theme.colorScheme.surfaceContainerHigh,
-          ),
-          child: SizedBox(
-            width: 84,
-            height: 84,
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '${animated.round()}',
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w900,
-                      fontFeatures: const [FontFeature.tabularFigures()],
-                    ),
+        painter: _RingPainter(
+          value: animated,
+          color: color,
+          background: theme.colorScheme.surfaceContainerHigh,
+        ),
+        child: SizedBox(
+          width: 84,
+          height: 84,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${animated.round()}',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w900,
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   ),
-                  Text(
-                    '/ 100',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      letterSpacing: 1,
-                      fontWeight: FontWeight.w700,
-                    ),
+                ),
+                Text(
+                  '/ 100',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                    letterSpacing: 1,
+                    fontWeight: FontWeight.w700,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
 }
@@ -463,8 +465,7 @@ class _TierRow extends StatelessWidget {
             range: range,
             cards: cards,
             color: color,
-            backgroundColor:
-                theme.colorScheme.surfaceContainerHighest,
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
           ),
         ),
         const SizedBox(width: 10),
@@ -531,24 +532,24 @@ class _TierTrack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-      height: 22,
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: 0, end: 1),
-        duration: const Duration(milliseconds: 700),
-        curve: Curves.easeOutCubic,
-        builder: (context, t, _) => CustomPaint(
-          painter: _TrackPainter(
-            level: level,
-            range: range,
-            cards: cards,
-            color: color,
-            background: backgroundColor,
-            entrance: t,
+        height: 22,
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0, end: 1),
+          duration: const Duration(milliseconds: 700),
+          curve: Curves.easeOutCubic,
+          builder: (context, t, _) => CustomPaint(
+            painter: _TrackPainter(
+              level: level,
+              range: range,
+              cards: cards,
+              color: color,
+              background: backgroundColor,
+              entrance: t,
+            ),
+            size: const Size.fromHeight(22),
           ),
-          size: const Size.fromHeight(22),
         ),
-      ),
-    );
+      );
 }
 
 class _TrackPainter extends CustomPainter {
@@ -618,7 +619,8 @@ class _TrackPainter extends CustomPainter {
       ..color = color.withOpacity(0.25)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 2);
 
-    final sorted = [...cards]..sort((a, b) => a.stability.compareTo(b.stability));
+    final sorted = [...cards]
+      ..sort((a, b) => a.stability.compareTo(b.stability));
     final placed = <Offset>[];
     const dotR = 4.0;
     const collisionR = dotR * 2.4;
@@ -654,9 +656,7 @@ class _TrackPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _TrackPainter old) =>
-      old.cards != cards ||
-      old.color != color ||
-      old.entrance != entrance;
+      old.cards != cards || old.color != color || old.entrance != entrance;
 }
 
 class _TopCardTile extends StatelessWidget {
@@ -681,7 +681,8 @@ class _TopCardTile extends StatelessWidget {
         ),
         title: Text(
           entry.politicianName,
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+          style:
+              theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
         subtitle: Text(
           entry.title,

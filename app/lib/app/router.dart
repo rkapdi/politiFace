@@ -21,8 +21,11 @@ import '../features/government/presentation/node_detail_screen.dart';
 import '../features/history/presentation/history_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/leaderboard/presentation/leaderboard_screen.dart';
+import '../features/live/application/live_session_controller.dart';
+import '../features/live/presentation/live_session_screen.dart';
 import '../features/memory/presentation/card_retention_detail_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
+import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/pulse/presentation/bill_detail_screen.dart';
 import '../features/pulse/presentation/pulse_screen.dart';
 import '../features/round/presentation/daily_round_screen.dart';
@@ -38,6 +41,10 @@ import 'shell_scaffold.dart';
 GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       initialLocation: initialLocation,
       routes: [
+        GoRoute(
+          path: '/onboarding',
+          builder: (context, state) => const OnboardingScreen(),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) =>
               ShellScaffold(navigationShell: navigationShell),
@@ -170,6 +177,11 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         GoRoute(
           path: '/leaderboard',
           builder: (context, state) => const LeaderboardScreen(),
+        ),
+        GoRoute(
+          path: '/live',
+          builder: (context, state) =>
+              LiveSessionScreen(args: state.extra! as LiveSessionArgs),
         ),
         GoRoute(
           path: '/fcle',

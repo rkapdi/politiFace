@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart' show Value;
 
 import '../../../core/database/drift/app_database.dart';
+import '../../../core/sync/sync_engine.dart';
 import '../../profile/data/profile_service.dart';
 import '../domain/fsrs_algorithm.dart';
 import '../domain/session_queue.dart';
@@ -23,11 +24,16 @@ class GradeOutcome {
 }
 
 class CardReviewRepository {
-  CardReviewRepository(this._db, this._fsrs, this._profile);
+  CardReviewRepository(this._db, this._fsrs, this._profile, [this._sync]);
 
   final AppDatabase _db;
   final FSRS _fsrs;
   final ProfileService _profile;
+
+  /// Cross-device sync outbox. Null in tests and legacy call sites; when
+  /// present and active, every grade snapshots the card's FSRS state into
+  /// an idempotent 'card_state' upsert.
+  final SyncEngine? _sync;
 
   /// Route a user grade to either the real-FSRS path or the practice path.
   ///
@@ -56,6 +62,7 @@ class CardReviewRepository {
         grade: grade,
         now: reviewAt,
       );
+      await _pushCardState(cardId);
       return GradeOutcome(state: state, mode: GradeMode.review);
     }
     final state = await recordPractice(
@@ -63,7 +70,30 @@ class CardReviewRepository {
       grade: grade,
       now: reviewAt,
     );
+    await _pushCardState(cardId);
     return GradeOutcome(state: state, mode: GradeMode.practice);
+  }
+
+  /// Cross-device sync: snapshot the card's FSRS state into the outbox as
+  /// an upsert keyed by the card's EXTERNAL content id (the stable id both
+  /// devices share; local row ids are device-specific). Signed-out or
+  /// unconfigured builds no-op inside SyncEngine. Best-effort: a sync
+  /// hiccup must never fail a grade.
+  Future<void> _pushCardState(String cardId) async {
+    final sync = _sync;
+    if (sync == null || !sync.isActive) return;
+    try {
+      final state = await _db.reviewsDao.stateFor(cardId);
+      if (state == null) return;
+      final card = await _db.cardsDao.cardById(cardId);
+      if (card == null) return;
+      await sync.enqueueCardState(
+        cardExternalId: card.externalId,
+        state: state,
+      );
+    } catch (_) {
+      // Swallow: the next grade of this card re-snapshots everything.
+    }
   }
 
   /// Full FSRS update — stability, difficulty, schedule. The hot path for

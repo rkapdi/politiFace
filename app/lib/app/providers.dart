@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart'
 
 import '../core/database/drift/app_database.dart';
 import '../core/sync/auth_service.dart';
+import '../core/sync/restore_service.dart';
 import '../core/sync/supabase_config.dart';
 import '../core/sync/sync_engine.dart';
 import '../features/atlas/data/branch_info_loader.dart';
@@ -52,14 +53,41 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return auth == null ? const Stream.empty() : auth.onAuthStateChange;
 });
 
+/// The signed-in user's id, or null. Derived with select() so dependents
+/// rebuild only when the IDENTITY changes (sign in, sign out, account
+/// switch), never on routine token refreshes. Watching the raw auth stream
+/// here once silently replaced an in-progress Mock FCLE mid-exam when the
+/// hourly JWT refresh fired.
+final authUserIdProvider = Provider<String?>(
+  (ref) => ref.watch(
+    authStateProvider.select((s) => s.valueOrNull?.session?.user.id),
+  ),
+);
+
 final syncEngineProvider = Provider<SyncEngine>((ref) {
-  // Recreate when auth flips so isActive reflects the current session.
-  ref.watch(authStateProvider);
+  // Recreate only when the signed-in identity changes, so isActive
+  // reflects the current session without churning on token refreshes.
+  ref.watch(authUserIdProvider);
   final transport = SupabaseConfig.isConfigured
       ? SupabaseTransport(Supabase.instance.client)
       : null;
   return SyncEngine(ref.watch(databaseProvider), transport);
 });
+
+/// Cross-device restore: pulls server card/app state and merges it locally.
+/// Every call no-ops when the build is unconfigured or the user signed out.
+final restoreServiceProvider = Provider<RestoreService>(
+  (ref) => RestoreService(
+    db: ref.watch(databaseProvider),
+    api: SupabaseConfig.isConfigured
+        ? SupabaseRestoreApi(Supabase.instance.client)
+        : null,
+    sync: ref.watch(syncEngineProvider),
+    loadCurriculum: () => ref.read(curriculumProvider.future),
+    ensureProfile: () async =>
+        await ref.read(authServiceProvider)?.ensureProfile(),
+  ),
+);
 
 final profileServiceProvider = Provider<ProfileService>(
   (ref) => ProfileService(ref.watch(databaseProvider)),
@@ -70,6 +98,7 @@ final cardReviewRepositoryProvider = Provider<CardReviewRepository>(
     ref.watch(databaseProvider),
     ref.watch(fsrsProvider),
     ref.watch(profileServiceProvider),
+    ref.watch(syncEngineProvider),
   ),
 );
 

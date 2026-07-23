@@ -126,7 +126,10 @@ Future<List<FcleQuestion>> buildPracticeSet({
   final domainPool = bank.byDomain[domain] ?? const <FcleQuestion>[];
   final pool = objective == null
       ? domainPool
-      : [for (final q in domainPool) if (q.objective == objective) q];
+      : [
+          for (final q in domainPool)
+            if (q.objective == objective) q,
+        ];
   if (pool.isEmpty) return const [];
 
   final byId = {for (final q in pool) q.id: q};

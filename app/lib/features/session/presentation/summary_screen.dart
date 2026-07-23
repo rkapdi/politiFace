@@ -10,6 +10,7 @@ import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../government/application/gov_map_data.dart';
 import '../../government/application/node_detail_data.dart';
+import '../../settings/presentation/account_nudge_card.dart';
 import '../application/session_controller.dart';
 import 'session_map_summary.dart';
 
@@ -149,6 +150,13 @@ class _SummaryScreenState extends ConsumerState<SummaryScreen> {
                               duration: 380.ms,
                               curve: Curves.easeOutCubic,
                             ),
+                        const SizedBox(height: 16),
+                        // Optional-account nudge: renders only when a
+                        // backend is configured, the user is signed out,
+                        // and it was never dismissed.
+                        const AccountNudgeCard()
+                            .animate()
+                            .fade(duration: 380.ms, delay: 1650.ms),
                       ],
                     ),
                   ),

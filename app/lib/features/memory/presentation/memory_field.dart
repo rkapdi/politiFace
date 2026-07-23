@@ -233,7 +233,10 @@ class _OrbPopover extends StatelessWidget {
     final useAbove = preferredAbove >= margin;
     final y = useAbove
         ? preferredAbove
-        : math.min(orbPos.dy + orbGap, fieldSize.height - popoverHeight - margin);
+        : math.min(
+            orbPos.dy + orbGap,
+            fieldSize.height - popoverHeight - margin,
+          );
     final x = (orbPos.dx - popoverWidth / 2)
         .clamp(margin, fieldSize.width - popoverWidth - margin)
         .toDouble();
@@ -259,8 +262,7 @@ class _OrbPopover extends StatelessWidget {
           curve: Curves.easeOutBack,
           builder: (context, scale, child) => Transform.scale(
             scale: scale,
-            alignment:
-                useAbove ? Alignment.bottomCenter : Alignment.topCenter,
+            alignment: useAbove ? Alignment.bottomCenter : Alignment.topCenter,
             child: Opacity(opacity: math.min(1, scale), child: child),
           ),
           child: Material(
@@ -272,8 +274,7 @@ class _OrbPopover extends StatelessWidget {
                     ? const Color(0xFF1E2330).withOpacity(0.96)
                     : Colors.white.withOpacity(0.98),
                 borderRadius: BorderRadius.circular(12),
-                border:
-                    Border.all(color: tierColor.withOpacity(0.55)),
+                border: Border.all(color: tierColor.withOpacity(0.55)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(isDark ? 0.5 : 0.18),
@@ -290,7 +291,9 @@ class _OrbPopover extends StatelessWidget {
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2,),
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: tierColor.withOpacity(0.18),
                           borderRadius: BorderRadius.circular(4),
@@ -348,7 +351,9 @@ class _OrbPopover extends StatelessWidget {
                         child: _StatChip(
                           label: 'Seen',
                           value: _formatElapsed(
-                              elapsedDays, card.lastReviewedAtUnix,),
+                            elapsedDays,
+                            card.lastReviewedAtUnix,
+                          ),
                         ),
                       ),
                     ],
@@ -429,8 +434,8 @@ class _MemoryFieldPainter extends CustomPainter {
 
   final List<OrbitalCard> orbits;
   final double rotation; // 0..1, repeats (60s)
-  final double breath;   // 0..1, repeats (3s)
-  final double sweep;    // 0..1, repeats (10s)
+  final double breath; // 0..1, repeats (3s)
+  final double sweep; // 0..1, repeats (10s)
   final Brightness brightness;
   final Color primary;
   final Color outlineVariant;
@@ -473,14 +478,19 @@ class _MemoryFieldPainter extends CustomPainter {
       // fades to 0 within ~30° behind it. Trailing only — feels like radar.
       final delta = _normAngle(sweepAngle - worldAngle);
       const sweepWidth = math.pi / 4; // 45° trail
-      final sweepBoost =
-          delta < sweepWidth ? (1.0 - delta / sweepWidth) : 0.0;
+      final sweepBoost = delta < sweepWidth ? (1.0 - delta / sweepWidth) : 0.0;
       final selected = o.id == selectedId;
 
       final color = _tierColors[(o.level - 1).clamp(0, 4)];
       _drawOrb(canvas, pos, color, pulse, o.stability, sweepBoost, selected);
       _drawRetrievabilityArc(
-          canvas, pos, color, _orbRetrievability(o, nowSeconds), pulse, o.stability,);
+        canvas,
+        pos,
+        color,
+        _orbRetrievability(o, nowSeconds),
+        pulse,
+        o.stability,
+      );
     }
   }
 
@@ -532,7 +542,11 @@ class _MemoryFieldPainter extends CustomPainter {
   }
 
   void _drawRadarSweep(
-      Canvas canvas, Offset center, double radius, double angle,) {
+    Canvas canvas,
+    Offset center,
+    double radius,
+    double angle,
+  ) {
     // Trailing wedge — angular fade so it reads like a radar sweep.
     const wedge = math.pi / 3; // 60° tail
     final start = angle - wedge;

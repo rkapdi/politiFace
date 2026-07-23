@@ -359,15 +359,19 @@ begin
     raise exception 'FAIL: create_cohort join code';
   end if;
 
-  -- Overview counts the mock activity.
+  -- Overview: below the 5-student k-anonymity floor, activity stats are
+  -- withheld (null) and only the student count reports.
   perform 1 from public.cohort_overview(v_cohort)
-    where answers_total >= 80 and mocks_completed >= 1;
-  if not found then raise exception 'FAIL: cohort_overview counts'; end if;
+    where students is not null and answers_total is null
+      and active_7d is null and mocks_completed is null;
+  if not found then raise exception 'FAIL: cohort_overview floor not applied'; end if;
 
   -- With the floor lowered (one student answered), stats appear...
   select count(*) into n from public.cohort_domain_stats(v_cohort, 1);
-  if n <> 4 then
-    raise exception 'FAIL: domain stats should cover 4 domains, got %', n;
+  -- p_min_n is clamped server-side to 5; a 1-student cohort gets nothing
+  -- even when the caller asks for a floor of 1.
+  if n <> 0 then
+    raise exception 'FAIL: min_n clamp bypassed, got % rows', n;
   end if;
 
   -- ...but at the default floor of 5 students, NOTHING renders.
@@ -376,12 +380,12 @@ begin
     raise exception 'FAIL: min-n floor leaked stats for a tiny cohort';
   end if;
 
-  -- Top misses: the student answered 24 mock questions wrong.
+  -- Top misses: the clamp holds here too; a 1-student cohort exposes no
+  -- per-question rows even when the caller requests a floor of 1.
   select count(*) into n from public.cohort_top_misses(v_cohort, 1, 10);
-  if n < 1 then raise exception 'FAIL: no top misses returned'; end if;
-  perform 1 from public.cohort_top_misses(v_cohort, 1, 10)
-    where miss_rate <= 0 or stem is null;
-  if found then raise exception 'FAIL: bad top-miss row'; end if;
+  if n <> 0 then
+    raise exception 'FAIL: top-misses min_n clamp bypassed, got % rows', n;
+  end if;
 end $$;
 
 -- Students cannot call the faculty aggregates.
@@ -496,6 +500,224 @@ begin
   if exists (select 1 from public.user_objective_readiness) then
     raise exception 'FAIL: outsider sees objective readiness';
   end if;
+end $$;
+
+
+-- ── Cross-device state: own-rows only (regression for 20260721000100) ───────
+set app.test_uid = :s1_uid;
+do $$
+begin
+  insert into public.card_states (user_id, card_id, stability, difficulty, reps, last_reviewed_at)
+  values (auth.uid(), 'us-pres-washington', 3.2, 5.1, 4, now());
+  insert into public.card_states (user_id, card_id, stability, difficulty, reps, last_reviewed_at)
+  values (auth.uid(), 'us-pres-washington', 4.0, 5.0, 5, now())
+  on conflict (user_id, card_id) do update
+    set stability = excluded.stability, reps = excluded.reps,
+        last_reviewed_at = excluded.last_reviewed_at, updated_at = now();
+  if (select reps from public.card_states
+      where user_id = auth.uid() and card_id = 'us-pres-washington') <> 5 then
+    raise exception 'FAIL: card_states upsert did not apply';
+  end if;
+  insert into public.user_app_state (user_id, chapter_number, day_in_chapter, xp, deck_subscriptions)
+  values (auth.uid(), 3, 2, 480, '{"us-delegation-fl": true}'::jsonb)
+  on conflict (user_id) do update set xp = excluded.xp, updated_at = now();
+end $$;
+
+set app.test_uid = :s2_uid;
+do $$
+declare n int;
+begin
+  select count(*) into n from public.card_states;
+  if n <> 0 then raise exception 'FAIL: outsider sees % card_states rows', n; end if;
+  select count(*) into n from public.user_app_state;
+  if n <> 0 then raise exception 'FAIL: outsider sees % user_app_state rows', n; end if;
+  begin
+    insert into public.card_states (user_id, card_id) values (gen_random_uuid(), 'evil');
+    raise exception 'FAIL: outsider wrote another user''s card state';
+  exception when insufficient_privilege or check_violation then null;
+  end;
+end $$;
+
+
+-- ── Audit hardening regressions (20260722000100) ────────────────────────────
+set app.test_uid = :s1_uid;
+do $$
+declare q1 uuid; s_before int; s_after int;
+begin
+  -- Leaderboard first-correct dedupe: re-answering an already-correct
+  -- question with a fresh event id must not add another point.
+  select id into q1 from public.questions where stem like 'Domain 1 question 1?%';
+  select score into s_before from public.leaderboard where user_id = auth.uid();
+  perform public.submit_answer(gen_random_uuid(), q1, 'b', now());
+  select score into s_after from public.leaderboard where user_id = auth.uid();
+  if s_after <> s_before then
+    raise exception 'FAIL: repeat correct answer farmed the leaderboard (% -> %)', s_before, s_after;
+  end if;
+end $$;
+
+-- Forged-cohort session events are rejected: s1 may not tag events with a
+-- cohort they are not a student member of. Create the foreign cohort as
+-- owner with a fixed id so the student block needs no RLS-blocked lookup.
+reset role;
+do $$
+begin
+  insert into public.cohorts (id, org_id, name, join_code)
+  select '00000000-0000-4000-8000-00000000f0e1'::uuid, id,
+         'Not My Class', 'ZZZZQ1'
+  from public.orgs limit 1;
+end $$;
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    insert into public.events (event_id, user_id, cohort_id, type, client_ts)
+    values (gen_random_uuid(), auth.uid(),
+            '00000000-0000-4000-8000-00000000f0e1'::uuid,
+            'session_start', now());
+    raise exception 'FAIL: forged-cohort session event accepted';
+  exception when insufficient_privilege or check_violation then null;
+  end;
+end $$;
+
+
+-- ── Live sessions: full lifecycle (20260723000100) ──────────────────────────
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid; q1 uuid; q2 uuid; qc uuid; v_sess jsonb; v_id uuid;
+  v_state jsonb; v_q jsonb; v_rev jsonb;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+   where user_id = auth.uid() and role = 'faculty' limit 1;
+
+  -- Faculty authors a cohort question, immediately session-ready.
+  qc := public.create_cohort_question(
+    v_cohort, 1::smallint, 'Instructor question: which branch makes laws?',
+    '[{"key":"a","text":"Legislative"},{"key":"b","text":"Executive"}]'::jsonb,
+    'a', 'Article I.', null);
+
+  select id into q1 from public.questions where stem like 'Domain 1 question 1?%';
+  select id into q2 from public.questions where stem like 'Domain 1 question 2?%';
+
+  v_sess := public.create_live_session(
+    v_cohort, 'Smoke session',
+    jsonb_build_array(q1::text, q2::text, qc::text), 10);
+  v_id := (v_sess ->> 'id')::uuid;
+  if (v_sess ->> 'question_count')::int <> 3 then
+    raise exception 'FAIL: session question count';
+  end if;
+
+  -- lobby -> question 0
+  v_state := public.advance_live_session(v_id);
+  if v_state ->> 'status' <> 'question' or (v_state ->> 'index')::int <> 0 then
+    raise exception 'FAIL: advance to first question, got %', v_state;
+  end if;
+  perform set_config('app.smoke_session', v_id::text, false);
+  perform set_config('app.smoke_q1', q1::text, false);
+end $$;
+
+-- Student answers while the question is open.
+set app.test_uid = :s1_uid;
+do $$
+declare v_id uuid; q1 uuid; v_q jsonb; v_res jsonb;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  q1 := current_setting('app.smoke_q1')::uuid;
+  v_q := public.get_live_question(v_id);
+  if v_q ->> 'status' <> 'question' then
+    raise exception 'FAIL: student should see an open question';
+  end if;
+  if (v_q -> 'question') ? 'answer_key' then
+    raise exception 'FAIL: live question leaked a key field';
+  end if;
+  v_res := public.submit_live_answer(v_id, q1, 'b');  -- correct per seed
+  if not (v_res ->> 'accepted')::boolean then
+    raise exception 'FAIL: answer not accepted';
+  end if;
+  -- Second answer is silently ignored (first is final).
+  perform public.submit_live_answer(v_id, q1, 'a');
+  if (select count(*) from public.live_answers
+       where session_id = v_id and user_id = auth.uid()) <> 1 then
+    raise exception 'FAIL: duplicate live answer stored';
+  end if;
+  -- Students cannot drive the session.
+  begin
+    perform public.advance_live_session(v_id);
+    raise exception 'FAIL: student advanced the session';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- Standings are hidden while the question is open.
+  begin
+    perform * from public.live_scoreboard(v_id);
+    raise exception 'FAIL: standings visible mid-question';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Reveal, standings, wrap-up.
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_id uuid; v_state jsonb; v_rev jsonb; r record; n int := 0;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  v_state := public.advance_live_session(v_id);  -- question -> reveal
+  if v_state ->> 'status' <> 'reveal' then
+    raise exception 'FAIL: expected reveal, got %', v_state;
+  end if;
+  v_rev := public.live_reveal(v_id);
+  if v_rev ->> 'correct_key' is null then
+    raise exception 'FAIL: reveal missing correct key';
+  end if;
+  for r in select * from public.live_scoreboard(v_id) loop
+    n := n + 1;
+    if r.rank = 1 and (r.score < 100 or r.correct_count <> 1) then
+      raise exception 'FAIL: leader score wrong: % / %', r.score, r.correct_count;
+    end if;
+  end loop;
+  if n < 1 then raise exception 'FAIL: empty scoreboard after reveal'; end if;
+
+  -- reveal -> q2 -> reveal -> q3 -> reveal -> ended
+  perform public.advance_live_session(v_id);
+  perform public.advance_live_session(v_id);
+  perform public.advance_live_session(v_id);
+  perform public.advance_live_session(v_id);
+  v_state := public.advance_live_session(v_id);
+  if v_state ->> 'status' <> 'ended' then
+    raise exception 'FAIL: session should have ended, got %', v_state;
+  end if;
+  if (select count(*) from public.live_session_stats(v_id)) <> 3 then
+    raise exception 'FAIL: wrap-up stats question count';
+  end if;
+end $$;
+
+-- A true outsider (s2 was auto-joined by the redemption test earlier)
+-- can neither see nor join the session.
+reset role;
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-000000000003', 's3@example.edu')
+  on conflict do nothing;
+set role authenticated;
+set app.test_uid = '00000000-0000-0000-0000-000000000003';
+insert into public.profiles (id, handle)
+  values ('00000000-0000-0000-0000-000000000003', 'outsider_three')
+  on conflict do nothing;
+do $$
+declare v_id uuid;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  if exists (select 1 from public.live_sessions where id = v_id) then
+    raise exception 'FAIL: outsider sees the live session row';
+  end if;
+  begin
+    perform public.get_live_question(v_id);
+    raise exception 'FAIL: outsider fetched a live question';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
 end $$;
 
 reset role;

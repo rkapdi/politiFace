@@ -51,6 +51,20 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
   /// Count of active cards in subscribed decks: the brain-strength
   /// denominator once delegation decks exist (paused decks must not
   /// deflate the score).
+  /// Ids of every active card in a subscribed deck (face and concept),
+  /// the exact pool [subscribedActiveCardCount] measures.
+  Future<Set<String>> subscribedActiveCardIds() async {
+    final query = selectOnly(localCards).join([
+      innerJoin(localDecks, localDecks.id.equalsExp(localCards.deckId)),
+    ])
+      ..addColumns([localCards.id])
+      ..where(
+        localCards.isActive.equals(true) & localDecks.isSubscribed.equals(true),
+      );
+    final rows = await query.get();
+    return {for (final r in rows) r.read(localCards.id)!};
+  }
+
   Future<int> subscribedActiveCardCount() async {
     final countExp = localCards.id.count();
     final query = selectOnly(localCards).join([
@@ -80,6 +94,25 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
   Future<List<LocalCard>> cardsByIds(List<String> ids) {
     if (ids.isEmpty) return Future.value(const []);
     return (select(localCards)..where((c) => c.id.isIn(ids))).get();
+  }
+
+  /// Cards matched by their stable content (external) ids. Chunked so a
+  /// large restore pull never overflows SQLite's bound-variable limit.
+  Future<List<LocalCard>> cardsByExternalIds(List<String> externalIds) async {
+    if (externalIds.isEmpty) return const [];
+    const chunkSize = 500;
+    final out = <LocalCard>[];
+    for (var i = 0; i < externalIds.length; i += chunkSize) {
+      final end = i + chunkSize > externalIds.length
+          ? externalIds.length
+          : i + chunkSize;
+      final chunk = externalIds.sublist(i, end);
+      out.addAll(
+        await (select(localCards)..where((c) => c.externalId.isIn(chunk)))
+            .get(),
+      );
+    }
+    return out;
   }
 
   Future<List<LocalCard>> cardsByDeckId(String deckId) => (select(localCards)

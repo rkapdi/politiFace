@@ -304,7 +304,7 @@ class _BucketStat extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              total == 0 ? '—' : '$pct%',
+              total == 0 ? '-' : '$pct%',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w900,
               ),
@@ -556,7 +556,7 @@ _Insight _insightFor({
 }) {
   if (isCorrect && confidence == TriviaConfidence.certain) {
     return const _Insight(
-      text: 'Certain and right — calibration validated.',
+      text: 'Certain and right: calibration validated.',
       icon: Icons.verified_outlined,
       color: Color(0xFF34D399),
     );
@@ -565,20 +565,20 @@ _Insight _insightFor({
       (confidence == TriviaConfidence.guess ||
           confidence == TriviaConfidence.prettySure)) {
     return const _Insight(
-      text: 'Lucky — you hedged and it landed.',
+      text: 'Lucky: you hedged and it landed.',
       icon: Icons.casino_outlined,
       color: Color(0xFF60A5FA),
     );
   }
   if (!isCorrect && confidence == TriviaConfidence.certain) {
     return const _Insight(
-      text: 'Overconfident miss — Dunning-Kruger says hi.',
+      text: 'Overconfident miss: Dunning-Kruger says hi.',
       icon: Icons.warning_amber_rounded,
       color: Color(0xFFEF4444),
     );
   }
   return const _Insight(
-    text: "Honest miss — you said you didn't know.",
+    text: "Honest miss: you said you didn't know.",
     icon: Icons.sentiment_neutral_outlined,
     color: Color(0xFFF59E0B),
   );

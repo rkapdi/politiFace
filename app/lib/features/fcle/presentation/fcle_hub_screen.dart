@@ -252,7 +252,7 @@ class _ReadinessRow extends StatelessWidget {
                 Text(
                   accuracy == null
                       ? 'No data yet'
-                      : '${(accuracy * 100).round()}%',
+                      : '${(accuracy * 100).floor()}%',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: accuracy == null

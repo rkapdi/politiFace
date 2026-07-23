@@ -79,7 +79,7 @@ enum BrainStage {
   forming(
     label: 'Forming',
     copy:
-        'Your political brain is wiring up. Keep practicing — synapses are firing.',
+        'Your political brain is wiring up. Keep practicing: synapses are firing.',
   ),
   crystallizing(
     label: 'Crystallizing',
@@ -163,10 +163,12 @@ class MemoryService {
     // Pull every memory state, filter to reviewed cards.
     final allStates = await _db.select(_db.cardMemoryStates).get();
     final reviewed = allStates.where((s) => !s.isNew).toList();
-    // Subscribed decks only: pausing a delegation deck must not deflate
-    // brain strength. Reviewed-card stats intentionally still include
-    // paused decks; earned mastery never vanishes.
-    final activeCardCount = await _db.cardsDao.subscribedActiveCardCount();
+    // Brain strength is a ratio over the SUBSCRIBED active pool, so both
+    // sides of the fraction must use it: mastery earned in paused or
+    // retired decks stays visible in the tier counts and top list below,
+    // but cannot push the percentage past what the current pool allows.
+    final pool = await _db.cardsDao.subscribedActiveCardIds();
+    final activeCardCount = pool.length;
 
     final tierCounts = List<int>.filled(6, 0);
     var totalStability = 0.0;
@@ -177,9 +179,9 @@ class MemoryService {
         isNewCard: false,
         stability: s.stability,
       );
+      if (pool.contains(s.cardId)) masterySum += level;
       tierCounts[level]++;
       totalStability += s.stability;
-      masterySum += level;
       if (level == 5) mastered++;
     }
     final avg = reviewed.isEmpty ? 0.0 : totalStability / reviewed.length;

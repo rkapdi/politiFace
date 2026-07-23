@@ -33,6 +33,13 @@ class OutboxDao extends DatabaseAccessor<AppDatabase> with _$OutboxDaoMixin {
   Future<void> markDelivered(String eventId) =>
       (delete(outboxEvents)..where((t) => t.eventId.equals(eventId))).go();
 
+  /// A transient delivery failure: remember the error for diagnosis but do
+  /// not advance [tries]; only permanent rejections may dead-letter a row.
+  Future<void> noteTransient(String eventId, String error) => customStatement(
+        'UPDATE outbox_events SET last_error = ? WHERE event_id = ?',
+        [error, eventId],
+      );
+
   Future<void> recordFailure(String eventId, String error) => customStatement(
         'UPDATE outbox_events SET tries = tries + 1, last_error = ? '
         'WHERE event_id = ?',

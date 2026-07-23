@@ -82,11 +82,18 @@ class PulseLiveService {
 
   static const _userAgent = 'politiface-app (rkapdi4@gmail.com)';
 
-  Future<dynamic> _getJson(Uri uri, {Map<String, String>? headers}) async {
+  // The timeout wraps the whole request, not just `close()`: a black-holed
+  // connection can hang on `getUrl` (connect) or on reading the response
+  // body just as easily as on close, and either would otherwise make the
+  // live path wait forever.
+  Future<dynamic> _getJson(Uri uri, {Map<String, String>? headers}) =>
+      _fetchJson(uri, headers).timeout(const Duration(seconds: 12));
+
+  Future<dynamic> _fetchJson(Uri uri, Map<String, String>? headers) async {
     final request = await _client.getUrl(uri)
       ..headers.set(HttpHeaders.userAgentHeader, _userAgent);
     headers?.forEach(request.headers.set);
-    final response = await request.close().timeout(const Duration(seconds: 12));
+    final response = await request.close();
     if (response.statusCode != 200) {
       throw HttpException('HTTP ${response.statusCode}', uri: uri);
     }

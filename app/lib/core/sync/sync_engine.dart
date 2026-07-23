@@ -11,6 +11,12 @@
 // the same paths once the FCLE prep UI ships and plays server-known
 // questions. v1 face/concept-card reviews stay local: their cards are not in
 // the server question bank.
+//
+// Cross-device state rides the same outbox with two upsert-shaped event
+// types: 'card_state' (per-card FSRS snapshot keyed by the card's external
+// content id) and 'app_state' (chapter position, XP, deck subscriptions).
+// Upserts are idempotent by nature and FIFO order makes the newest snapshot
+// win, so retries and replays are harmless.
 
 import 'dart:async';
 import 'dart:convert';
@@ -34,6 +40,13 @@ abstract class SyncTransport {
   /// e.attemptId. Queued when finishing a server mock offline; FIFO order
   /// guarantees the attempt's queued answers land first.
   Future<void> sendMockFinalize(OutboxEvent e);
+
+  /// Cross-device state snapshots, applied server-side as plain upserts
+  /// into public.card_states / public.user_app_state. Naturally idempotent:
+  /// replays just rewrite the same row, and FIFO order means the newest
+  /// snapshot lands last and wins.
+  Future<void> upsertCardState(OutboxEvent e);
+  Future<void> upsertAppState(OutboxEvent e);
 }
 
 /// Thrown by transports for errors that will not succeed on retry (the
@@ -55,47 +68,89 @@ class SupabaseTransport implements SyncTransport {
   bool get isSignedIn => _client.auth.currentUser != null;
 
   @override
-  Future<void> sendAnswer(OutboxEvent e) => _guard(() => _client.rpc<void>(
-        'submit_answer',
-        params: {
-          'p_event_id': e.eventId,
-          'p_question_id': e.questionId,
-          'p_chosen_key': e.chosenKey,
-          'p_client_ts':
-              DateTime.fromMillisecondsSinceEpoch(e.clientTs).toIso8601String(),
-          'p_attempt_id': e.attemptId,
-        },
-      ),);
-
-  @override
-  Future<void> sendReview(OutboxEvent e) => _guard(() => _client.rpc<void>(
-        'submit_review',
-        params: {
-          'p_event_id': e.eventId,
-          'p_question_id': e.questionId,
-          'p_grade': e.grade,
-          'p_client_ts':
-              DateTime.fromMillisecondsSinceEpoch(e.clientTs).toIso8601String(),
-        },
-      ),);
-
-  @override
-  Future<void> sendSessionEvent(OutboxEvent e) =>
-      _guard(() => _client.from('events').insert({
-            'event_id': e.eventId,
-            'user_id': _client.auth.currentUser!.id,
-            'type': e.type,
-            'payload': jsonDecode(e.payload),
-            'client_ts': DateTime.fromMillisecondsSinceEpoch(e.clientTs)
+  Future<void> sendAnswer(OutboxEvent e) => _guard(
+        () => _client.rpc<void>(
+          'submit_answer',
+          params: {
+            'p_event_id': e.eventId,
+            'p_question_id': e.questionId,
+            'p_chosen_key': e.chosenKey,
+            'p_client_ts': DateTime.fromMillisecondsSinceEpoch(e.clientTs)
                 .toIso8601String(),
-          }),);
+            'p_attempt_id': e.attemptId,
+          },
+        ),
+      );
 
   @override
-  Future<void> sendMockFinalize(OutboxEvent e) =>
-      _guard(() => _client.rpc<void>(
-            'finalize_mock',
-            params: {'p_attempt_id': e.attemptId},
-          ),);
+  Future<void> sendReview(OutboxEvent e) => _guard(
+        () => _client.rpc<void>(
+          'submit_review',
+          params: {
+            'p_event_id': e.eventId,
+            'p_question_id': e.questionId,
+            'p_grade': e.grade,
+            'p_client_ts': DateTime.fromMillisecondsSinceEpoch(e.clientTs)
+                .toIso8601String(),
+          },
+        ),
+      );
+
+  @override
+  Future<void> sendSessionEvent(OutboxEvent e) => _guard(
+        () => _client.from('events').insert({
+          'event_id': e.eventId,
+          'user_id': _client.auth.currentUser!.id,
+          'type': e.type,
+          'payload': jsonDecode(e.payload),
+          'client_ts':
+              DateTime.fromMillisecondsSinceEpoch(e.clientTs).toIso8601String(),
+        }),
+      );
+
+  @override
+  Future<void> sendMockFinalize(OutboxEvent e) => _guard(
+        () => _client.rpc<void>(
+          'finalize_mock',
+          params: {'p_attempt_id': e.attemptId},
+        ),
+      );
+
+  @override
+  Future<void> upsertCardState(OutboxEvent e) => _guard(() {
+        final p = jsonDecode(e.payload) as Map<String, dynamic>;
+        return _client.from('card_states').upsert(
+          {
+            'user_id': _client.auth.currentUser!.id,
+            'card_id': p['card_id'],
+            'stability': p['stability'],
+            'difficulty': p['difficulty'],
+            'due_at': p['due_at'],
+            'last_reviewed_at': p['last_reviewed_at'],
+            'reps': p['reps'],
+            'lapses': p['lapses'],
+            'is_new': p['is_new'],
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          },
+          onConflict: 'user_id,card_id',
+        );
+      });
+
+  @override
+  Future<void> upsertAppState(OutboxEvent e) => _guard(() {
+        final p = jsonDecode(e.payload) as Map<String, dynamic>;
+        return _client.from('user_app_state').upsert(
+          {
+            'user_id': _client.auth.currentUser!.id,
+            'chapter_number': p['chapter_number'],
+            'day_in_chapter': p['day_in_chapter'],
+            'xp': p['xp'],
+            'deck_subscriptions': p['deck_subscriptions'],
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          },
+          onConflict: 'user_id',
+        );
+      });
 
   /// PostgrestExceptions are server verdicts (bad payload, RLS, missing
   /// content): retrying cannot fix them. Everything else (socket, timeout)
@@ -107,6 +162,12 @@ class SupabaseTransport implements SyncTransport {
       // 23505 unique_violation = the event already landed on a previous try
       // that timed out on the way back. That is success, not failure.
       if (e.code == '23505') return;
+      // 23503 foreign_key_violation is the missing-profile window right
+      // after a flaky sign-in (ensureProfile failed after verifyOTP).
+      // The profile self-heals on the next restore; keep retrying.
+      if (e.code == '23503') {
+        throw Exception('profile row pending: ${e.message}');
+      }
       throw PermanentSyncError('${e.code}: ${e.message}');
     }
   }
@@ -150,6 +211,46 @@ class SyncEngine {
   Future<void> enqueueMockFinalize({required String attemptId}) =>
       _enqueue(type: 'mock_finalize', attemptId: attemptId);
 
+  /// Whether any undelivered outbox row still references [attemptId].
+  /// finish() checks this so finalize never overtakes a stuck answer.
+  Future<bool> hasPendingForAttempt(String attemptId) async {
+    final rows = await _outbox.pending();
+    return rows.any((r) => r.payload.contains(attemptId));
+  }
+
+  /// Cross-device sync: snapshot of one card's FSRS state, applied as an
+  /// upsert keyed by (user, card external id). Enqueued after every grade;
+  /// the newest snapshot simply wins on the server.
+  Future<void> enqueueCardState({
+    required String cardExternalId,
+    required CardMemoryState state,
+  }) =>
+      _enqueue(
+        type: 'card_state',
+        payload: {'card_id': cardExternalId, ...cardStatePayload(state)},
+      );
+
+  /// Cross-device sync: chapter position, XP, and the full deck-subscription
+  /// map, applied as an upsert on public.user_app_state. Enqueued at round
+  /// or session completion and on subscription toggles, never per XP tick.
+  Future<void> enqueueAppState({
+    required int chapterNumber,
+    required int dayInChapter,
+    required int xp,
+    required Map<String, bool> deckSubscriptions,
+  }) =>
+      _enqueue(
+        type: 'app_state',
+        payload: {
+          // Server check constraints allow 1..99 / xp >= 0; clamp so a
+          // weird local state can never poison the queue.
+          'chapter_number': chapterNumber.clamp(1, 99),
+          'day_in_chapter': dayInChapter.clamp(1, 99),
+          'xp': xp < 0 ? 0 : xp,
+          'deck_subscriptions': deckSubscriptions,
+        },
+      );
+
   Future<void> _enqueueSession(String type) => _enqueue(type: type);
 
   Future<void> _enqueue({
@@ -158,19 +259,24 @@ class SyncEngine {
     String? chosenKey,
     String? grade,
     String? attemptId,
+    Map<String, Object?>? payload,
   }) async {
     if (!isActive) return;
     final now = DateTime.now().millisecondsSinceEpoch;
-    await _outbox.enqueue(OutboxEventsCompanion.insert(
-      eventId: uuidV4(),
-      type: type,
-      questionId: Value(questionId),
-      chosenKey: Value(chosenKey),
-      grade: Value(grade),
-      attemptId: Value(attemptId),
-      clientTs: now,
-      createdAt: now,
-    ),);
+    await _outbox.enqueue(
+      OutboxEventsCompanion.insert(
+        eventId: uuidV4(),
+        type: type,
+        questionId: Value(questionId),
+        chosenKey: Value(chosenKey),
+        grade: Value(grade),
+        attemptId: Value(attemptId),
+        payload:
+            payload == null ? const Value.absent() : Value(jsonEncode(payload)),
+        clientTs: now,
+        createdAt: now,
+      ),
+    );
     unawaited(flush());
   }
 
@@ -181,8 +287,7 @@ class SyncEngine {
   Future<void> flush() {
     final transport = _transport;
     if (transport == null || !transport.isSignedIn) return Future.value();
-    return _inFlight ??=
-        _drain(transport).whenComplete(() => _inFlight = null);
+    return _inFlight ??= _drain(transport).whenComplete(() => _inFlight = null);
   }
 
   Future<void> _drain(SyncTransport transport) async {
@@ -199,6 +304,10 @@ class SyncEngine {
               await transport.sendReview(event);
             case 'mock_finalize':
               await transport.sendMockFinalize(event);
+            case 'card_state':
+              await transport.upsertCardState(event);
+            case 'app_state':
+              await transport.upsertAppState(event);
             default:
               await transport.sendSessionEvent(event);
           }
@@ -207,8 +316,12 @@ class SyncEngine {
         } on PermanentSyncError catch (e) {
           await _outbox.recordFailure(event.eventId, e.message);
         } catch (e) {
-          await _outbox.recordFailure(event.eventId, e.toString());
-          return; // transient: stop, retry on the next trigger
+          // Transient (network et al): stop the pass and retry on the next
+          // trigger WITHOUT burning a try. Only permanent rejections count
+          // toward dead-lettering; a student playing offline for an evening
+          // must not lose queued events to connectivity alone.
+          await _outbox.noteTransient(event.eventId, e.toString());
+          return;
         }
       }
       // A pass of nothing but permanent failures must not spin the loop.
@@ -216,6 +329,25 @@ class SyncEngine {
     }
   }
 }
+
+/// Wire payload for one card's FSRS state: the public.card_states columns
+/// minus identity (user comes from auth, card id is added by the caller).
+/// Timestamps go out as UTC ISO-8601; zero means "never" and maps to null.
+Map<String, Object?> cardStatePayload(CardMemoryState row) => {
+      'stability': row.stability,
+      'difficulty': row.difficulty,
+      'due_at': isoFromUnixSeconds(row.nextReviewAt),
+      'last_reviewed_at': isoFromUnixSeconds(row.lastReviewedAt),
+      'reps': row.reviewCount,
+      'lapses': row.lapses,
+      'is_new': row.isNew,
+    };
+
+/// Unix seconds -> UTC ISO-8601, or null for the 0 "never" sentinel.
+String? isoFromUnixSeconds(int unixSeconds) => unixSeconds <= 0
+    ? null
+    : DateTime.fromMillisecondsSinceEpoch(unixSeconds * 1000, isUtc: true)
+        .toIso8601String();
 
 /// RFC 4122 v4 UUID from a cryptographic RNG. Local implementation to avoid
 /// a dependency for 16 random bytes.
