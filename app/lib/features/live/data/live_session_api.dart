@@ -178,6 +178,16 @@ abstract class LiveSessionApi {
   /// Joins by session code via join_live_session.
   Future<JoinedLiveSession> joinByCode(String code);
 
+  /// Records presence via enter_live_session, for entries reached through
+  /// the LIVE NOW banner: that path never calls join_live_session (which
+  /// records presence itself), so this fills the gap. Best-effort; callers
+  /// must never let a failure here block entry into the session.
+  Future<void> enterLiveSession(String sessionId);
+
+  /// Headcount of public.live_participants for this session, for the
+  /// lobby's "N in the lobby" line.
+  Future<int> participantCount(String sessionId);
+
   /// The current phase snapshot via get_live_question (key-free).
   Future<LiveQuestionState> question(String sessionId);
 
@@ -227,6 +237,22 @@ class SupabaseLiveSessionApi implements LiveSessionApi {
       total: (json['total'] as num?)?.toInt() ?? 0,
       questionSeconds: (json['question_seconds'] as num?)?.toInt() ?? 20,
     );
+  }
+
+  @override
+  Future<void> enterLiveSession(String sessionId) async {
+    await _client
+        .rpc<dynamic>('enter_live_session', params: {'p_session': sessionId});
+  }
+
+  @override
+  Future<int> participantCount(String sessionId) async {
+    final res = await _client
+        .from('live_participants')
+        .select()
+        .eq('session_id', sessionId)
+        .count(CountOption.exact);
+    return res.count;
   }
 
   @override

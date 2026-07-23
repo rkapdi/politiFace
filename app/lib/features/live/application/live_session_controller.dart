@@ -188,6 +188,12 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
   /// Wires the channel (Realtime + poll) and pulls the first snapshot.
   void start() {
     if (_channel != null) return;
+    // Best-effort presence record. The LIVE NOW banner pushes straight to
+    // this screen without ever calling join_live_session (which records
+    // presence itself), so this fills that gap; the code-join path calling
+    // it again is a harmless duplicate (server-side "on conflict do
+    // nothing"). Never blocks entry: a failure here is silently swallowed.
+    unawaited(_api.enterLiveSession(_args.sessionId).catchError((_, __) {}));
     final channel = LiveSessionChannel(
       api: _api,
       sessionId: _args.sessionId,

@@ -143,7 +143,7 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
         body: switch (state.phase) {
           LivePhase.connecting =>
             const Center(child: CircularProgressIndicator()),
-          LivePhase.lobby => const _LobbyView(),
+          LivePhase.lobby => _LobbyView(sessionId: widget.args.sessionId),
           LivePhase.question => _QuestionView(
               state: state,
               onChoose: (key) {
@@ -166,12 +166,50 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
 
 // ── lobby ───────────────────────────────────────────────────────────────────
 
-class _LobbyView extends StatelessWidget {
-  const _LobbyView();
+class _LobbyView extends ConsumerStatefulWidget {
+  const _LobbyView({required this.sessionId});
+
+  final String sessionId;
+
+  @override
+  ConsumerState<_LobbyView> createState() => _LobbyViewState();
+}
+
+class _LobbyViewState extends ConsumerState<_LobbyView> {
+  /// Headcount of public.live_participants, polled rather than pushed:
+  /// Realtime is optional here and a 5-second poll is plenty responsive
+  /// for a number nobody is staring at a countdown for.
+  int? _count;
+  Timer? _poll;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _fetchCount());
+    _poll = Timer.periodic(const Duration(seconds: 5), (_) => _fetchCount());
+  }
+
+  @override
+  void dispose() {
+    _poll?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _fetchCount() async {
+    final api = ref.read(liveSessionApiProvider);
+    if (api == null || !mounted) return;
+    try {
+      final count = await api.participantCount(widget.sessionId);
+      if (mounted) setState(() => _count = count);
+    } catch (_) {
+      // Offline blip: keep the last known count; the next tick retries.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final count = _count;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -192,6 +230,16 @@ class _LobbyView extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const _AnimatedDots(),
+            if (count != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                '$count in the lobby',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
           ],
         ),
       ),
