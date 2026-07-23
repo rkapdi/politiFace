@@ -67,6 +67,15 @@
   .code { font: 700 15px/1 ui-monospace, Menlo, monospace;
           letter-spacing: 0.2em; }
 
+  /* Session history: past-sessions list */
+  .histlist button { width: 100%; display: flex; align-items: center;
+          justify-content: space-between; gap: 12px; text-align: left;
+          margin-bottom: 8px; padding: 12px 14px; border: 1px solid #d9dce3;
+          border-radius: 6px; background: #fff; font: inherit; cursor: pointer; }
+  .histlist button:hover { border-color: #1A1A2E; }
+  .histlist .meta { display: flex; gap: 10px; font-size: 13px;
+          color: #5c6270; white-space: nowrap; }
+
   /* Tabs */
   .tabs { display: flex; gap: 8px; margin: 4px 0 16px; flex-wrap: wrap; }
   .tabbtn { padding: 9px 16px; border: 1px solid #c8ccd6; border-radius: 99px;
@@ -138,6 +147,17 @@
   .reteach th { text-align: left; color: #5c6270; font-size: 12px;
                 padding: 6px 8px; }
   .reteach td { padding: 8px; border-top: 1px solid #edeff3; }
+  .dot { display:inline-block; width:10px; height:10px; border-radius:50%;
+         margin-right:3px; background:#555; }
+  .dot-ok { background:#3f8f5f; }
+  .dot-no { background:#b0413e; }
+  .dot-na { background:#555; opacity:.45; }
+  td.dots { white-space:nowrap; }
+  @media print {
+    body.print-report > *:not(#view-live) { display:none !important; }
+    body.print-report #view-live > *:not(#report-card) { display:none !important; }
+    body.print-report #report-card { display:block !important; }
+  }
 </style>
 </head>
 <body>
@@ -184,6 +204,17 @@
   </section>
 
   <section id="view-dash" class="hidden">
+    <div class="tabs hidden" id="admin-toggle-row">
+      <button class="tabbtn" id="nav-admin-btn">Admin</button>
+      <button class="tabbtn active" id="nav-classes-btn">Your classes</button>
+    </div>
+
+    <div id="classes-view">
+    <div class="card hidden" id="rollup-card">
+      <h2>Your classes at a glance</h2>
+      <table class="reteach" id="rollup-table"></table>
+    </div>
+
     <div class="card">
       <div class="row">
         <h2>Your classes</h2>
@@ -274,7 +305,19 @@
       </section>
 
       <section id="panel-live" class="hidden">
-        <div id="live-composer">
+        <div id="live-history">
+          <div class="card">
+            <div class="row">
+              <h2>Past sessions</h2>
+              <button class="btn" id="btn-new-session">New session</button>
+            </div>
+            <div class="histlist" id="history-list"></div>
+            <p class="muted hidden" id="history-empty">No sessions yet for
+            this class. Start one to see it here once it ends.</p>
+          </div>
+        </div>
+
+        <div id="live-composer" class="hidden">
           <div class="card">
             <h2>Set up a live session</h2>
             <p class="muted">Project this screen; students play along in the
@@ -296,6 +339,7 @@
             <div class="qpick" id="ls-picker"></div>
             <p class="muted" style="margin-top:8px"><span id="ls-count">0</span> selected (1 to 50)</p>
             <button class="btn" id="btn-ls-create">Create session</button>
+            <button class="btn secondary" id="btn-ls-cancel">Cancel</button>
             <p class="err hidden" id="ls-err"></p>
           </div>
         </div>
@@ -342,6 +386,15 @@
             <table class="reteach" id="reteach"></table>
           </div>
 
+          <div class="card hidden" id="report-card">
+            <h2>Student report
+              <button class="btn-quiet" id="btn-print-report" type="button">Print</button>
+            </h2>
+            <p class="muted">Roster name, score, and correctness for every
+            student who took part in this session.</p>
+            <table class="reteach" id="report"></table>
+          </div>
+
           <div class="card">
             <div class="row">
               <span class="muted">Session: <span id="ls-live-title"></span></span>
@@ -352,10 +405,51 @@
         </div>
       </section>
     </div>
+    </div>
+
+    <section id="view-admin" class="hidden">
+      <div class="card">
+        <h2>Command center</h2>
+        <div class="statgrid" id="admin-overview"></div>
+      </div>
+
+      <div class="card">
+        <h2>All classes</h2>
+        <table class="reteach" id="admin-cohorts"></table>
+      </div>
+
+      <div class="card">
+        <h2>Find user</h2>
+        <label for="admin-search">Handle or email (2 or more characters)</label>
+        <input id="admin-search" placeholder="civic_quill or name@school.edu">
+        <div id="admin-search-results"></div>
+        <p class="err hidden" id="admin-search-err"></p>
+      </div>
+
+      <div class="card">
+        <h2>Instructor invites</h2>
+        <table class="reteach" id="admin-invites"></table>
+        <details style="margin-top:12px">
+          <summary class="muted" style="cursor:pointer">Mint an invite</summary>
+          <label for="invite-note">Note (optional)</label>
+          <input id="invite-note" placeholder="For Prof. X, POS 2041">
+          <button class="btn" id="btn-mint-invite">Mint invite</button>
+          <p class="hidden" id="mint-result"></p>
+          <p class="err hidden" id="mint-err"></p>
+        </details>
+      </div>
+
+      <div class="card">
+        <h2>All live sessions</h2>
+        <table class="reteach" id="admin-sessions"></table>
+      </div>
+    </section>
   </section>
 </main>
 
-<script src="./config.js"></script>
+<script src="./config.js">  document.getElementById("btn-print-report")
+    ?.addEventListener("click", printReport);
+</script>
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
@@ -391,6 +485,15 @@ if (!cfg.url || !cfg.anonKey) {
   let currentQid = null;
   let answered = 0;
   let advancing = false;
+  let viewingHistory = false;
+
+  // Admin state
+  let isAdmin = false;
+  let adminMode = false;
+  let searchTimer = null;
+
+  // Tabs
+  let currentTab = "insights";
 
   const setErr = (id, msg) => {
     $(id).textContent = msg ?? "";
@@ -403,6 +506,7 @@ if (!cfg.url || !cfg.anonKey) {
     show("view-dash", Boolean(session));
     if (session) {
       await loadDomainRefs();
+      await checkAdmin();
       await loadClasses();
     }
   }
@@ -430,6 +534,8 @@ if (!cfg.url || !cfg.anonKey) {
     await supabase.auth.signOut();
     cleanupLive();
     selected = null;
+    isAdmin = false;
+    setAdminMode(false);
     show("classpane", false);
     show("step-email");
     show("step-code", false);
@@ -483,7 +589,33 @@ if (!cfg.url || !cfg.anonKey) {
       b.onclick = () => selectClass(row.cohort_id, c, b);
       list.appendChild(b);
     }
-    if (!selected) data[0] && selectClass(data[0].cohort_id, data[0].cohorts ?? {}, list.firstChild);
+    await loadRollup(data.length);
+    // Single-class faculty land straight in their class, as before. Faculty
+    // teaching 2 or more classes see the rollup above and pick one.
+    if (!selected && data.length === 1) {
+      selectClass(data[0].cohort_id, data[0].cohorts ?? {}, list.firstChild);
+    }
+  }
+
+  async function loadRollup(classCount) {
+    if (classCount < 2) { show("rollup-card", false); return; }
+    const { data, error } = await supabase.rpc("my_faculty_overview");
+    const rows = (error ? null : data) ?? [];
+    show("rollup-card", rows.length > 0);
+    const withheld = '<span class="muted">under 5 students</span>';
+    $("rollup-table").innerHTML =
+      `<tr><th>Class</th><th>Term</th><th>Students</th><th>Active 7d</th>
+       <th>Answers</th><th>Accuracy</th><th>Mocks</th><th>Sessions</th></tr>` +
+      rows.map((r) => `<tr>
+        <td>${esc(r.name)}</td>
+        <td>${esc(r.term ?? "")}</td>
+        <td>${r.students}</td>
+        <td>${r.active_7d ?? withheld}</td>
+        <td>${r.answers_total ?? withheld}</td>
+        <td>${r.accuracy != null ? Math.round(r.accuracy * 100) + "%" : withheld}</td>
+        <td>${r.mocks_completed ?? withheld}</td>
+        <td>${r.live_sessions}</td>
+      </tr>`).join("");
   }
 
   async function selectClass(id, cohort, buttonEl) {
@@ -499,15 +631,158 @@ if (!cfg.url || !cfg.anonKey) {
     ]);
   }
 
+  // ── admin: command center ───────────────────────────────────────────────
+
+  async function checkAdmin() {
+    const { data } = await supabase.rpc("am_admin");
+    isAdmin = Boolean(data);
+    show("admin-toggle-row", isAdmin);
+    if (!isAdmin) setAdminMode(false);
+  }
+
+  function setAdminMode(on) {
+    adminMode = on;
+    $("nav-classes-btn").classList.toggle("active", !on);
+    $("nav-admin-btn").classList.toggle("active", on);
+    show("classes-view", !on);
+    show("view-admin", on);
+    updateWide();
+    if (on) loadAdmin();
+  }
+  $("nav-classes-btn").onclick = () => setAdminMode(false);
+  $("nav-admin-btn").onclick = () => setAdminMode(true);
+
+  async function loadAdmin() {
+    const { data: ov } = await supabase.rpc("admin_overview");
+    $("admin-overview").innerHTML = !ov ? "" : [
+      [ov.users, "Users"],
+      [ov.verified_faculty, "Verified faculty"],
+      [ov.cohorts, "Classes"],
+      [ov.memberships, "Students"],
+      [ov.active_7d, "Active 7d"],
+      [ov.answers_7d, "Answers 7d"],
+      [ov.mocks_completed, "Mocks"],
+      [ov.live_sessions_run, "Sessions run"],
+    ].map(([v, l]) => `<div><div class="value">${v ?? 0}</div><div class="label">${l}</div></div>`).join("");
+
+    const { data: cohorts } = await supabase.rpc("admin_list_cohorts");
+    $("admin-cohorts").innerHTML =
+      `<tr><th>Name</th><th>Term</th><th>Creator</th><th>Students</th>
+       <th>Answers 7d</th><th>Created</th><th>Join code</th></tr>` +
+      (cohorts ?? []).map((c) => `<tr>
+        <td>${esc(c.name)}</td>
+        <td>${esc(c.term ?? "")}</td>
+        <td>${esc(c.creator_handle)}</td>
+        <td>${c.students}</td>
+        <td>${c.answers_7d}</td>
+        <td>${new Date(c.created_at).toLocaleDateString()}</td>
+        <td><button type="button" class="btn secondary mini" data-reveal="${esc(c.join_code)}">Reveal</button></td>
+      </tr>`).join("");
+    for (const b of $("admin-cohorts").querySelectorAll("[data-reveal]")) {
+      b.onclick = () => {
+        b.replaceWith(Object.assign(document.createElement("span"),
+          { className: "code", textContent: b.dataset.reveal }));
+      };
+    }
+
+    await Promise.all([loadAdminInvites(), loadAdminSessions()]);
+  }
+
+  async function loadAdminInvites() {
+    const { data } = await supabase.rpc("admin_list_invites");
+    $("admin-invites").innerHTML =
+      `<tr><th>Code</th><th>Note</th><th>Minted by</th><th>Uses</th></tr>` +
+      (data ?? []).map((i) => `<tr>
+        <td class="code">${esc(i.code)}</td>
+        <td>${esc(i.note ?? "")}</td>
+        <td>${esc(i.minted_by_handle)}</td>
+        <td>${i.uses} / ${i.max_uses}</td>
+      </tr>`).join("");
+  }
+
+  async function loadAdminSessions() {
+    const { data } = await supabase.rpc("admin_list_live_sessions");
+    $("admin-sessions").innerHTML =
+      `<tr><th>Class</th><th>Title</th><th>Status</th><th>Questions</th>
+       <th>Participants</th><th>Created</th><th>Ended</th></tr>` +
+      (data ?? []).map((s) => `<tr>
+        <td>${esc(s.cohort_name)}</td>
+        <td>${esc(s.title)}</td>
+        <td>${esc(s.status)}</td>
+        <td>${s.questions}</td>
+        <td>${s.participants}</td>
+        <td>${new Date(s.created_at).toLocaleDateString()}</td>
+        <td>${s.ended_at ? new Date(s.ended_at).toLocaleDateString() : ""}</td>
+      </tr>`).join("");
+  }
+
+  $("admin-search").oninput = () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(runAdminSearch, 300);
+  };
+
+  async function runAdminSearch() {
+    setErr("admin-search-err", null);
+    const q = $("admin-search").value.trim();
+    if (q.length < 2) { $("admin-search-results").innerHTML = ""; return; }
+    const { data, error } = await supabase.rpc("admin_search_users", { p_q: q });
+    if (error) return setErr("admin-search-err", "Search failed. Try a different term.");
+    renderAdminSearchResults(data ?? []);
+  }
+
+  function renderAdminSearchResults(rows) {
+    $("admin-search-results").innerHTML = rows.length ? rows.map((u) => `<div class="miss">
+        <p class="stem">${esc(u.handle)}
+          ${u.is_admin ? '<span class="pill">admin</span>' : ""}
+          ${u.is_faculty ? '<span class="pill">faculty</span>' : ""}</p>
+        <div class="row">
+          <span class="muted">${esc(u.email)}, ${u.classes} class${u.classes === 1 ? "" : "es"}</span>
+          <button class="btn secondary mini" data-grant="${u.user_id}"
+            data-verified="${u.is_faculty ? "false" : "true"}">
+            ${u.is_faculty ? "Revoke faculty" : "Grant faculty"}
+          </button>
+        </div>
+      </div>`).join("") : `<p class="muted">No matches.</p>`;
+    for (const b of $("admin-search-results").querySelectorAll("[data-grant]")) {
+      b.onclick = async () => {
+        b.disabled = true;
+        const { error } = await supabase.rpc("admin_set_faculty", {
+          p_user: b.dataset.grant, p_verified: b.dataset.verified === "true",
+        });
+        if (error) { b.disabled = false; return setErr("admin-search-err", "Could not update faculty status."); }
+        await runAdminSearch();
+      };
+    }
+  }
+
+  $("btn-mint-invite").onclick = async () => {
+    setErr("mint-err", null);
+    show("mint-result", false);
+    const note = $("invite-note").value.trim();
+    const btn = $("btn-mint-invite");
+    btn.disabled = true;
+    const { data, error } = await supabase.rpc("mint_faculty_invite", { p_note: note || null });
+    btn.disabled = false;
+    if (error) return setErr("mint-err", "Could not mint an invite.");
+    $("invite-note").value = "";
+    $("mint-result").innerHTML = `New code: <span class="code">${esc(data)}</span>, shown once. Copy it now.`;
+    show("mint-result");
+    await loadAdminInvites();
+  };
+
   // ── tabs ──────────────────────────────────────────────────────────────
 
   const TABS = ["insights", "questions", "live"];
   function setTab(t) {
+    currentTab = t;
     for (const x of TABS) $("tab-" + x).classList.toggle("active", x === t);
     show("board", t === "insights");
     show("panel-questions", t === "questions");
     show("panel-live", t === "live");
-    $("main").classList.toggle("wide", t === "live");
+    updateWide();
+  }
+  function updateWide() {
+    $("main").classList.toggle("wide", adminMode || currentTab === "live");
   }
   $("tab-insights").onclick = () => setTab("insights");
   $("tab-questions").onclick = () => setTab("questions");
@@ -768,9 +1043,11 @@ if (!cfg.url || !cfg.anonKey) {
   async function initLive() {
     cleanupLive();
     show("live-console", false);
-    show("live-composer");
+    show("live-composer", false);
+    show("live-history");
     pickSel = new Set();
     await loadBank();
+    await loadHistory();
     // Resume a session that is still open for this class.
     const { data } = await supabase.from("live_sessions").select("*")
       .eq("cohort_id", selected).neq("status", "ended")
@@ -778,8 +1055,60 @@ if (!cfg.url || !cfg.anonKey) {
     if (data) await enterConsole(data);
   }
 
+  async function loadHistory() {
+    if (!selected) return;
+    const { data, error } = await supabase.rpc("cohort_live_sessions", { p_cohort: selected });
+    const rows = (error ? null : data) ?? [];
+    show("history-empty", rows.length === 0);
+    $("history-list").innerHTML = rows.map((s) => {
+      const pct = Math.round((s.avg_correct ?? 0) * 100);
+      const date = s.ended_at ?? s.created_at;
+      return `<button type="button" data-session="${s.session_id}">
+        <span>
+          <b>${esc(s.title)}</b><br>
+          <span class="muted">${new Date(date).toLocaleDateString()}</span>
+        </span>
+        <span class="meta">
+          <span>${s.participants} played</span>
+          <span>${pct}% correct</span>
+          <span class="badge">${esc(s.status)}</span>
+        </span>
+      </button>`;
+    }).join("");
+    for (const b of $("history-list").querySelectorAll("[data-session]")) {
+      b.onclick = () => openHistorySession(b.dataset.session);
+    }
+  }
+
+  async function openHistorySession(id) {
+    const { data: row } = await supabase.from("live_sessions").select("*").eq("id", id).maybeSingle();
+    if (!row) return;
+    if (row.status !== "ended") return enterConsole(row);
+    cleanupLive();
+    live = row;
+    viewingHistory = true;
+    show("live-history", false);
+    show("live-composer", false);
+    show("live-console");
+    $("ls-live-title").textContent = live.title;
+    setErr("ls-live-err", null);
+    await renderPhase();
+  }
+
+  $("btn-new-session").onclick = () => {
+    viewingHistory = false;
+    show("live-history", false);
+    show("live-composer");
+  };
+  $("btn-ls-cancel").onclick = () => {
+    show("live-composer", false);
+    show("live-history");
+  };
+
   async function enterConsole(row) {
     live = row;
+    viewingHistory = false;
+    show("live-history", false);
     show("live-composer", false);
     show("live-console");
     $("ls-live-title").textContent = live.title;
@@ -799,6 +1128,7 @@ if (!cfg.url || !cfg.anonKey) {
     live = null;
     currentQid = null;
     answered = 0;
+    viewingHistory = false;
   }
 
   function subscribeAnswers() {
@@ -826,7 +1156,9 @@ if (!cfg.url || !cfg.anonKey) {
     show("stage-reveal", st === "reveal");
     show("stage-ended", st === "ended");
     show("reteach-card", st === "ended");
-    $("btn-ls-end").textContent = st === "ended" ? "Set up a new session" : "End session";
+    show("report-card", st === "ended");
+    $("btn-ls-end").textContent = st !== "ended" ? "End session"
+      : viewingHistory ? "Back to past sessions" : "Set up a new session";
     if (st === "lobby") {
       $("stage-code").textContent = live.join_code ?? "";
     } else if (st === "question") {
@@ -920,9 +1252,10 @@ if (!cfg.url || !cfg.anonKey) {
 
   async function renderEnded() {
     currentQid = null;
-    const [{ data: board }, { data: stats }] = await Promise.all([
+    const [{ data: board }, { data: stats }, { data: report }] = await Promise.all([
       supabase.rpc("live_scoreboard", { p_session: live.id }),
       supabase.rpc("live_session_stats", { p_session: live.id }),
+      supabase.rpc("live_session_report", { p_session: live.id }),
     ]);
     const rows = board ?? [];
     const top3 = rows.slice(0, 3);
@@ -941,6 +1274,25 @@ if (!cfg.url || !cfg.anonKey) {
         <td>${s.answered}</td>
         <td>${Math.round((s.correct_rate ?? 0) * 100)}%</td>
       </tr>`).join("");
+    const qIds = live.question_ids ?? (stats ?? []).map((s) => s.question_id);
+    $("report").innerHTML =
+      `<tr><th>Student</th><th>Score</th><th>Correct</th><th>Questions</th></tr>` +
+      (report ?? []).map((r) => `<tr>
+        <td>${esc(r.roster_name)}</td>
+        <td>${r.score}</td>
+        <td>${r.correct_count}/${r.answered}</td>
+        <td class="dots">${qIds.map((q) => {
+          const v = (r.per_question ?? {})[q];
+          const cls = v === true ? "dot-ok" : v === false ? "dot-no" : "dot-na";
+          return `<span class="dot ${cls}"></span>`;
+        }).join("")}</td>
+      </tr>`).join("");
+  }
+
+  function printReport() {
+    document.body.classList.add("print-report");
+    window.print();
+    document.body.classList.remove("print-report");
   }
 
   async function advanceSession(btnId) {
@@ -983,7 +1335,7 @@ if (!cfg.url || !cfg.anonKey) {
   $("btn-ls-end").onclick = async () => {
     if (!live) return;
     if (live.status === "ended") {
-      // Session is over: back to the composer.
+      // Session is over: back to the class's session history.
       cleanupLive();
       return initLive();
     }

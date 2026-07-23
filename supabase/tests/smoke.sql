@@ -820,5 +820,115 @@ begin
   end;
 end $$;
 
+
+-- ── Admin, history, rollups, live scoring (20260724000100) ──────────────────
+reset role;
+insert into app.admins (user_id, note)
+values (:f_uid, 'smoke admin') on conflict do nothing;
+set role authenticated;
+
+-- Live scoring fold: the smoke session ended earlier (advance now calls the
+-- finalizer). s1 answered q1 correctly live, but had ALREADY answered that
+-- question correctly in practice, so the fold must create the event and
+-- award nothing (first-correct-ever dedupe holds across contexts).
+-- Faculty cannot read raw events (FERPA posture), so the existence check
+-- runs as the student who owns the event, and counts run as owner.
+set app.test_uid = :s1_uid;
+do $$
+declare v_id uuid; v_q uuid; v_det uuid;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  v_q := current_setting('app.smoke_q1')::uuid;
+  v_det := md5('live:' || v_id || ':' || v_q || ':' || auth.uid())::uuid;
+  if not exists (select 1 from public.events where event_id = v_det) then
+    raise exception 'FAIL: live answer did not fold into events';
+  end if;
+end $$;
+
+reset role;
+do $$
+declare n_before int;
+begin
+  select count(*) into n_before from public.events;
+  perform set_config('app.smoke_evcount', n_before::text, false);
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform public.end_live_session(
+    current_setting('app.smoke_session')::uuid);  -- replay: idempotent
+end $$;
+reset role;
+do $$
+declare n_after int;
+begin
+  select count(*) into n_after from public.events;
+  if n_after <> current_setting('app.smoke_evcount')::int then
+    raise exception 'FAIL: replaying session end duplicated events';
+  end if;
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+
+-- Session history lists the ended session with participants + accuracy.
+do $$
+declare v_id uuid; r record; ok boolean := false;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  for r in select * from public.cohort_live_sessions(
+    (select cohort_id from public.live_sessions where id = v_id)) loop
+    if r.session_id = v_id and r.status = 'ended' and r.participants >= 1 then
+      ok := true;
+    end if;
+  end loop;
+  if not ok then raise exception 'FAIL: session history missing ended session'; end if;
+end $$;
+
+-- Cross-class rollup: one row per taught cohort, floored below 5 students.
+do $$
+declare n int := 0; r record;
+begin
+  for r in select * from public.my_faculty_overview() loop
+    n := n + 1;
+    if r.students < 5 and r.answers_total is not null then
+      raise exception 'FAIL: rollup leaked stats below the floor';
+    end if;
+  end loop;
+  if n < 1 then raise exception 'FAIL: faculty overview empty'; end if;
+end $$;
+
+-- Admin surfaces: work for the admin, rejected for a student.
+do $$
+declare v jsonb; n int;
+begin
+  v := public.admin_overview();
+  if (v ->> 'users')::int < 3 then
+    raise exception 'FAIL: admin overview user count, got %', v;
+  end if;
+  select count(*) into n from public.admin_list_cohorts();
+  if n < 2 then raise exception 'FAIL: admin cohort list, got %', n; end if;
+  select count(*) into n from public.admin_search_users('student');
+  if n < 1 then raise exception 'FAIL: admin user search'; end if;
+  select count(*) into n from public.admin_list_invites();
+  if n < 1 then raise exception 'FAIL: admin invite list'; end if;
+  select count(*) into n from public.admin_list_live_sessions();
+  if n < 1 then raise exception 'FAIL: admin session list'; end if;
+end $$;
+
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.admin_overview();
+    raise exception 'FAIL: student read the admin overview';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  if public.am_admin() then
+    raise exception 'FAIL: student claims admin';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
