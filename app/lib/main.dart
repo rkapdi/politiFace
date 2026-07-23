@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:workmanager/workmanager.dart';
 
 import 'app/politiface_app.dart';
 import 'app/providers.dart';
+import 'app/router.dart';
 import 'core/database/drift/app_database.dart';
 import 'core/sync/restore_service.dart';
 import 'core/sync/supabase_config.dart';
@@ -15,6 +18,7 @@ import 'features/atlas/data/people_seed_service.dart';
 import 'features/curriculum/data/curriculum_loader.dart';
 import 'features/government/data/government_seed_service.dart';
 import 'features/notifications/data/notification_service.dart';
+import 'features/notifications/data/washington_watch_service.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 import 'features/session/data/delegation_deck_service.dart';
 import 'features/session/data/yaml_seed_service.dart';
@@ -24,6 +28,28 @@ import 'features/settings/data/settings_service.dart';
 /// yourself contain no DSN; official builds inject one via
 /// --dart-define=SENTRY_DSN=... (see codemagic.yaml).
 const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+/// Runs in a dedicated background Dart isolate for the iOS BGAppRefresh
+/// task (see AppDelegate.swift / Info.plist). Deliberately minimal: opens
+/// its own AppDatabase handle and runs WashingtonWatchService.check() —
+/// no Sentry, no content seeding, no Supabase SDK init. The service talks
+/// to the network with a plain HttpClient (via PulseLiveService), so none
+/// of that setup is needed here.
+@pragma('vm:entry-point')
+void washingtonWatchCallbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    final db = AppDatabase();
+    try {
+      await WashingtonWatchService(db: db).check();
+    } catch (_) {
+      // Best-effort background refresh: a failure here must not crash the
+      // isolate.
+    } finally {
+      await db.close();
+    }
+    return true;
+  });
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +94,13 @@ Future<void> _bootstrap(AppDatabase db) async {
   await PeopleSeedService(db).ensureSeeded();
   await DelegationDeckService(db).ensureSeeded();
   await NotificationService.instance.init();
+  // Route a notification tap through the app's single GoRouter instance.
+  // The closure is only ever invoked later (on tap), by which time the
+  // widget tree — and rootNavigatorKey's context — exists.
+  NotificationService.instance.onSelectRoute = (route) {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx != null) GoRouter.of(ctx).go(route);
+  };
   // Sync the daily-reminder toggle with the OS authorization state. If the
   // user revoked notifications in iOS Settings since last launch, flip our
   // toggle off so the UI doesn't lie. If still authorized and the toggle is
@@ -81,6 +114,26 @@ Future<void> _bootstrap(AppDatabase db) async {
       await NotificationService.instance.cancel();
     }
   }
+
+  // Washington Watch: iOS BGAppRefresh task, gated by the "What Washington
+  // did" master switch. Initializing the callback dispatcher is required
+  // even when the switch is off — it just wires up the isolate entry
+  // point, it does not itself schedule anything.
+  await Workmanager().initialize(washingtonWatchCallbackDispatcher);
+  if (await SettingsService(db).washingtonNotifEnabled()) {
+    await Workmanager().registerPeriodicTask(
+      washingtonRefreshTaskId,
+      washingtonRefreshTaskId,
+      initialDelay: const Duration(minutes: 15),
+    );
+  } else {
+    await Workmanager().cancelByUniqueName(washingtonRefreshTaskId);
+  }
+  // Belt-and-braces: also check on every normal foreground start, not just
+  // from the BGAppRefresh task (iOS may schedule that rarely, or never,
+  // for a given install). Internally rate-limited + fail-soft.
+  unawaited(WashingtonWatchService(db: db).check());
+
   // Drain events queued in a previous run (delivers only when a user is
   // signed in; no-ops otherwise). Fire-and-forget: launch never waits on
   // the network.

@@ -4,13 +4,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:workmanager/workmanager.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../../core/sync/supabase_config.dart';
+import '../../notifications/data/chapter_ready_service.dart';
 import '../../notifications/data/notification_service.dart';
+import '../../notifications/data/washington_watch_service.dart';
 import '../data/settings_service.dart';
 import 'account_section.dart';
+
+const _permissionDeniedCopy =
+    'Permission denied. Enable in iOS Settings → Notifications.';
 
 const _githubUrl = 'https://github.com/rkapdi/politiFace';
 const _licenseUrl = 'https://github.com/rkapdi/politiFace/blob/main/LICENSE';
@@ -45,6 +51,44 @@ final crashReportsEnabledProvider = FutureProvider<bool>(
   (ref) async => ref.watch(settingsServiceProvider).crashReportsEnabled(),
 );
 
+final chapterNotifEnabledProvider = FutureProvider<bool>((ref) async {
+  final settings = ref.watch(settingsServiceProvider);
+  final stored = await settings.chapterNotifEnabled();
+  if (!stored) return false;
+  final authorized = await NotificationService.instance.isAuthorized();
+  if (!authorized) {
+    await settings.setChapterNotifEnabled(false);
+    await NotificationService.instance.cancelId(chapterReadyNotificationId);
+    return false;
+  }
+  return true;
+});
+
+final washingtonNotifEnabledProvider = FutureProvider<bool>((ref) async {
+  final settings = ref.watch(settingsServiceProvider);
+  final stored = await settings.washingtonNotifEnabled();
+  if (!stored) return false;
+  final authorized = await NotificationService.instance.isAuthorized();
+  if (!authorized) {
+    await settings.setWashingtonNotifEnabled(false);
+    await Workmanager().cancelByUniqueName(washingtonRefreshTaskId);
+    return false;
+  }
+  return true;
+});
+
+final washLawsEnabledProvider = FutureProvider<bool>(
+  (ref) => ref.watch(settingsServiceProvider).washLawsEnabled(),
+);
+
+final washBillsEnabledProvider = FutureProvider<bool>(
+  (ref) => ref.watch(settingsServiceProvider).washBillsEnabled(),
+);
+
+final washEosEnabledProvider = FutureProvider<bool>(
+  (ref) => ref.watch(settingsServiceProvider).washEosEnabled(),
+);
+
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
@@ -54,6 +98,13 @@ class SettingsScreen extends ConsumerWidget {
     final reminders = ref.watch(remindersEnabledProvider).valueOrNull ?? false;
     final crashReports =
         ref.watch(crashReportsEnabledProvider).valueOrNull ?? false;
+    final chapterReady =
+        ref.watch(chapterNotifEnabledProvider).valueOrNull ?? false;
+    final washingtonOn =
+        ref.watch(washingtonNotifEnabledProvider).valueOrNull ?? false;
+    final washLaws = ref.watch(washLawsEnabledProvider).valueOrNull ?? false;
+    final washBills = ref.watch(washBillsEnabledProvider).valueOrNull ?? false;
+    final washEos = ref.watch(washEosEnabledProvider).valueOrNull ?? false;
     final settings = ref.read(settingsServiceProvider);
 
     return Scaffold(
@@ -115,9 +166,7 @@ class SettingsScreen extends ConsumerWidget {
                   if (!context.mounted) return;
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text(
-                        'Permission denied. Enable in iOS Settings → Notifications.',
-                      ),
+                      content: Text(_permissionDeniedCopy),
                       duration: Duration(seconds: 3),
                     ),
                   );
@@ -130,6 +179,103 @@ class SettingsScreen extends ConsumerWidget {
               await settings.setRemindersEnabled(v);
               ref.invalidate(remindersEnabledProvider);
             },
+          ),
+          SwitchListTile(
+            title: const Text('New chapter ready'),
+            subtitle: const Text(
+              'A morning heads-up when the next chapter unlocks.',
+            ),
+            value: chapterReady,
+            onChanged: (v) async {
+              if (v) {
+                final granted =
+                    await NotificationService.instance.requestPermission();
+                if (!granted) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(_permissionDeniedCopy),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                  return;
+                }
+              } else {
+                await NotificationService.instance
+                    .cancelId(chapterReadyNotificationId);
+              }
+              await settings.setChapterNotifEnabled(v);
+              ref.invalidate(chapterNotifEnabledProvider);
+            },
+          ),
+          SwitchListTile(
+            title: const Text('What Washington did'),
+            subtitle: const Text(
+              'When a law passes, a bill moves, or an executive order lands.',
+            ),
+            value: washingtonOn,
+            onChanged: (v) async {
+              if (v) {
+                final granted =
+                    await NotificationService.instance.requestPermission();
+                if (!granted) {
+                  if (!context.mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(_permissionDeniedCopy),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                  return;
+                }
+                await Workmanager().registerPeriodicTask(
+                  washingtonRefreshTaskId,
+                  washingtonRefreshTaskId,
+                  initialDelay: const Duration(minutes: 15),
+                );
+              } else {
+                await Workmanager().cancelByUniqueName(washingtonRefreshTaskId);
+              }
+              await settings.setWashingtonNotifEnabled(v);
+              ref.invalidate(washingtonNotifEnabledProvider);
+            },
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 16),
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: const Text('New laws'),
+                  value: washLaws,
+                  onChanged: washingtonOn
+                      ? (v) async {
+                          await settings.setWashLawsEnabled(v);
+                          ref.invalidate(washLawsEnabledProvider);
+                        }
+                      : null,
+                ),
+                SwitchListTile(
+                  title: const Text('Bills advancing'),
+                  value: washBills,
+                  onChanged: washingtonOn
+                      ? (v) async {
+                          await settings.setWashBillsEnabled(v);
+                          ref.invalidate(washBillsEnabledProvider);
+                        }
+                      : null,
+                ),
+                SwitchListTile(
+                  title: const Text('Executive orders'),
+                  value: washEos,
+                  onChanged: washingtonOn
+                      ? (v) async {
+                          await settings.setWashEosEnabled(v);
+                          ref.invalidate(washEosEnabledProvider);
+                        }
+                      : null,
+                ),
+              ],
+            ),
           ),
           const Divider(height: 32),
           _SectionHeader(text: 'Privacy', theme: theme),
@@ -223,12 +369,20 @@ class SettingsScreen extends ConsumerWidget {
     if (confirmed != true) return;
     HapticFeedback.heavyImpact();
     await ref.read(settingsServiceProvider).resetProgress();
-    // Reset also wipes the daily-reminder flag, so cancel the scheduled
-    // notification too, otherwise it keeps firing with the toggle off.
+    // Reset also wipes every notification flag, so cancel what's actually
+    // scheduled too, otherwise a stale alarm keeps firing with the toggle
+    // (now defaulted back to on) out of sync with reality.
     await NotificationService.instance.cancel();
+    await NotificationService.instance.cancelId(chapterReadyNotificationId);
+    await Workmanager().cancelByUniqueName(washingtonRefreshTaskId);
     ref.invalidate(profileProvider);
     ref.invalidate(remindersEnabledProvider);
     ref.invalidate(crashReportsEnabledProvider);
+    ref.invalidate(chapterNotifEnabledProvider);
+    ref.invalidate(washingtonNotifEnabledProvider);
+    ref.invalidate(washLawsEnabledProvider);
+    ref.invalidate(washBillsEnabledProvider);
+    ref.invalidate(washEosEnabledProvider);
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
