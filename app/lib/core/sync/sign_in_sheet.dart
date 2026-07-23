@@ -16,6 +16,10 @@ Future<void> showSignInSheet(BuildContext context, AuthService auth) =>
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      // Scrolling the form must never drag the sheet away mid-flow; a
+      // dismissal between SEND CODE and VERIFY resets to the email step
+      // and strands the emailed code. Barrier tap still dismisses.
+      enableDrag: false,
       builder: (sheetContext) => Padding(
         padding: EdgeInsets.only(
           bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
@@ -88,6 +92,7 @@ class _SignInSheetState extends State<SignInSheet> {
                 keyboardType: TextInputType.emailAddress,
                 autocorrect: false,
                 autofocus: true,
+                scrollPadding: const EdgeInsets.only(bottom: 140),
                 decoration: const InputDecoration(
                   labelText: 'Email',
                   border: OutlineInputBorder(),
@@ -99,6 +104,7 @@ class _SignInSheetState extends State<SignInSheet> {
                 keyboardType: TextInputType.number,
                 autofocus: true,
                 maxLength: 6,
+                scrollPadding: const EdgeInsets.only(bottom: 140),
                 decoration: const InputDecoration(
                   labelText: 'Code',
                   border: OutlineInputBorder(),
@@ -130,7 +136,7 @@ class _SignInSheetState extends State<SignInSheet> {
                             email: _email.text,
                             code: _code.text,
                           );
-                          navigator.pop();
+                          if (mounted) navigator.pop();
                         });
                       }
                     },
