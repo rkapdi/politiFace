@@ -1,6 +1,6 @@
 name: politiface
 description: Global political literacy platform.
-version: 1.2.0+17
+version: 1.2.0+18
 publish_to: none
 
 environment:
