@@ -378,14 +378,24 @@ class _QuestionView extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.lock,
-                      size: 16,
-                      color: theme.colorScheme.brandNavy,
-                    ),
+                    if (state.submitting)
+                      SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.brandNavy,
+                        ),
+                      )
+                    else
+                      Icon(
+                        Icons.lock,
+                        size: 16,
+                        color: theme.colorScheme.brandNavy,
+                      ),
                     const SizedBox(width: 8),
                     Text(
-                      'LOCKED IN',
+                      state.submitting ? 'SENDING' : 'LOCKED IN',
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.6,

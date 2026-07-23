@@ -268,6 +268,9 @@ class SupabaseLiveSessionApi implements LiveSessionApi {
     required String questionId,
     required String key,
   }) async {
+    // A hard timeout, not a hope: a stalled classroom socket must surface
+    // as a retryable failure within the countdown, never an eternal
+    // "locked in" while nothing is actually in flight.
     await _client.rpc<dynamic>(
       'submit_live_answer',
       params: {
@@ -275,7 +278,7 @@ class SupabaseLiveSessionApi implements LiveSessionApi {
         'p_question': questionId,
         'p_key': key,
       },
-    );
+    ).timeout(const Duration(seconds: 6));
   }
 
   @override
