@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../features/atlas/presentation/atlas_screen.dart';
@@ -38,7 +39,13 @@ import '../features/trivia/presentation/trivia_review_screen.dart';
 import '../features/trivia/presentation/trivia_screen.dart';
 import 'shell_scaffold.dart';
 
+/// Lets code outside the widget tree (a notification tap) navigate through
+/// the app's single GoRouter instance — see NotificationService.onSelectRoute
+/// and its wiring in main.dart.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
+      navigatorKey: rootNavigatorKey,
       initialLocation: initialLocation,
       routes: [
         GoRoute(

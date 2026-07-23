@@ -29,8 +29,7 @@ void main() {
     expect(await settings.crashReportsEnabled(), false);
   });
 
-  test('resetProgress returns crash reporting to the default (on)',
-      () async {
+  test('resetProgress returns crash reporting to the default (on)', () async {
     await settings.setCrashReportsEnabled(false);
     await settings.resetProgress();
     expect(await settings.crashReportsEnabled(), true);
@@ -52,6 +51,57 @@ void main() {
     await settings.setSoundEffectsEnabled(false);
     await settings.resetProgress();
     expect(await settings.soundEffectsEnabled(), true);
+  });
+
+  test('chapter-ready notif defaults to ON and round-trips', () async {
+    expect(await settings.chapterNotifEnabled(), true);
+    await settings.setChapterNotifEnabled(false);
+    expect(await settings.chapterNotifEnabled(), false);
+    await settings.setChapterNotifEnabled(true);
+    expect(await settings.chapterNotifEnabled(), true);
+  });
+
+  test(
+      'Washington Watch master + sub-category prefs default to ON and '
+      'round-trip independently', () async {
+    expect(await settings.washingtonNotifEnabled(), true);
+    expect(await settings.washLawsEnabled(), true);
+    expect(await settings.washBillsEnabled(), true);
+    expect(await settings.washEosEnabled(), true);
+
+    await settings.setWashingtonNotifEnabled(false);
+    expect(await settings.washingtonNotifEnabled(), false);
+    // Flipping the master off does not touch the sub-category values.
+    expect(await settings.washLawsEnabled(), true);
+
+    await settings.setWashLawsEnabled(false);
+    await settings.setWashBillsEnabled(false);
+    await settings.setWashEosEnabled(false);
+    expect(await settings.washLawsEnabled(), false);
+    expect(await settings.washBillsEnabled(), false);
+    expect(await settings.washEosEnabled(), false);
+
+    await settings.setWashingtonNotifEnabled(true);
+    expect(await settings.washingtonNotifEnabled(), true);
+    // Sub-categories stay off until independently re-enabled.
+    expect(await settings.washLawsEnabled(), false);
+  });
+
+  test('resetProgress reverts all notification prefs to the default ON',
+      () async {
+    await settings.setChapterNotifEnabled(false);
+    await settings.setWashingtonNotifEnabled(false);
+    await settings.setWashLawsEnabled(false);
+    await settings.setWashBillsEnabled(false);
+    await settings.setWashEosEnabled(false);
+
+    await settings.resetProgress();
+
+    expect(await settings.chapterNotifEnabled(), true);
+    expect(await settings.washingtonNotifEnabled(), true);
+    expect(await settings.washLawsEnabled(), true);
+    expect(await settings.washBillsEnabled(), true);
+    expect(await settings.washEosEnabled(), true);
   });
 
   test('resetProgress empties every user-state table', () async {

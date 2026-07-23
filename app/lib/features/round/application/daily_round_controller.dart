@@ -10,8 +10,10 @@ import '../../../core/database/drift/app_database.dart';
 import '../../../core/sync/app_state_sync.dart';
 import '../../curriculum/data/chapter_progress_service.dart';
 import '../../curriculum/domain/curriculum.dart';
+import '../../notifications/data/chapter_ready_service.dart';
 import '../../session/data/card_review_repository.dart';
 import '../../session/domain/fsrs_algorithm.dart';
+import '../../settings/data/settings_service.dart';
 import '../../trivia/data/trivia_generator.dart';
 import '../../trivia/domain/trivia_question.dart';
 import '../../trivia/domain/trivia_scoring.dart';
@@ -281,6 +283,13 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
 
     // Efficacy plumbing counterpart to the session_start in _createNewRound.
     unawaited(ref.read(syncEngineProvider).enqueueSessionEnd());
+
+    // Chapter-ready nudge for tomorrow morning — best-effort, only fires
+    // anything when this round finished the chapter's last day.
+    unawaited(
+      ChapterReadyService(settings: SettingsService(_db))
+          .onRoundCompleted(round: next, curriculum: curriculum),
+    );
 
     // Cross-device sync: chapter position and XP settle here, so one
     // app_state upsert per completed round (never per XP tick). No-op when
