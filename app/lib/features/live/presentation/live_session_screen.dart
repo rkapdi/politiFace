@@ -327,20 +327,46 @@ class _QuestionView extends StatelessWidget {
     final fraction = state.questionSeconds == 0
         ? 0.0
         : (state.remainingSeconds / state.questionSeconds).clamp(0.0, 1.0);
+    // The last ten seconds get loud, visually: thicker red bar and a
+    // pulsing countdown number. Absolute seconds, not a fraction, so a
+    // 60-second question and a 30-second question feel the same at the end.
+    final urgent = state.remainingSeconds <= 10 && state.remainingSeconds > 0;
 
     return Column(
       children: [
         Semantics(
           label: '${state.remainingSeconds.ceil()} seconds left',
-          child: LinearProgressIndicator(
-            value: fraction,
-            minHeight: 4,
-            color: fraction <= 0.25
-                ? theme.colorScheme.brandRed
-                : theme.colorScheme.brandNavy,
-            backgroundColor: theme.colorScheme.outlineVariant,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            height: urgent ? 8 : 4,
+            child: LinearProgressIndicator(
+              value: fraction,
+              minHeight: urgent ? 8 : 4,
+              color: urgent
+                  ? theme.colorScheme.brandRed
+                  : theme.colorScheme.brandNavy,
+              backgroundColor: theme.colorScheme.outlineVariant,
+            ),
           ),
         ),
+        if (urgent && !locked)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: TweenAnimationBuilder<double>(
+              key: ValueKey(state.remainingSeconds.ceil()),
+              tween: Tween(begin: 1.25, end: 1),
+              duration: const Duration(milliseconds: 350),
+              builder: (context, scale, child) =>
+                  Transform.scale(scale: scale, child: child),
+              child: Text(
+                '${state.remainingSeconds.ceil()}',
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: theme.colorScheme.brandRed,
+                ),
+              ),
+            ),
+          ),
         Expanded(
           child: ListView(
             padding: const EdgeInsets.all(24),
