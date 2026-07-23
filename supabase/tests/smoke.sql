@@ -43,6 +43,13 @@ set app.test_uid = :f_uid;
 
 insert into public.profiles (id, handle, school)
 values (:f_uid, 'prof_p', 'MDC North');
+-- Mirror production grandfathering: the professor is verified faculty.
+-- (app schema is owner-only; flip roles for the seed row.)
+reset role;
+insert into app.verified_faculty (user_id, note)
+values (:f_uid, 'smoke seed') on conflict do nothing;
+set role authenticated;
+set app.test_uid = :f_uid;
 insert into public.cohorts (name, term, created_by)
 values ('POS2041 Fall', '2026F', :f_uid);
 
@@ -715,6 +722,99 @@ begin
   begin
     perform public.get_live_question(v_id);
     raise exception 'FAIL: outsider fetched a live question';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+
+-- ── Roster identity + faculty gating + presence (20260723000200) ────────────
+-- s1 sets a roster name; only faculty see it in reports.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+   where user_id = auth.uid() and role = 'student' limit 1;
+  perform public.set_roster_name(v_cohort, 'Jordan Alvarez');
+end $$;
+
+-- Presence: joining the smoke session recorded participants, and the
+-- identified report resolves the roster name for faculty.
+set app.test_uid = :f_uid;
+do $$
+declare v_id uuid; r record; found_name boolean := false;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  perform public.enter_live_session(v_id);
+exception when others then
+  null; -- session is ended by now; presence came from live answers below
+end $$;
+do $$
+declare v_id uuid; r record; found_name boolean := false;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  for r in select * from public.live_session_report(v_id) loop
+    if r.roster_name = 'Jordan Alvarez' then found_name := true; end if;
+  end loop;
+  if not found_name then
+    raise exception 'FAIL: session report missing roster name';
+  end if;
+  perform 1 from public.cohort_student_progress(
+    (select cohort_id from public.live_sessions where id = v_id))
+    where roster_name = 'Jordan Alvarez' and answers_total >= 0;
+  if not found then
+    raise exception 'FAIL: student progress missing roster row';
+  end if;
+end $$;
+
+-- Students cannot call the identified views.
+set app.test_uid = :s1_uid;
+do $$
+declare v_id uuid;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  begin
+    perform * from public.live_session_report(v_id);
+    raise exception 'FAIL: student read the identified session report';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform * from public.cohort_student_progress(
+      (select cohort_id from public.cohort_members
+        where user_id = auth.uid() limit 1));
+    raise exception 'FAIL: student read identified progress';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Faculty gating: the fresh outsider cannot create a cohort, then can
+-- after redeeming an invite minted by grandfathered faculty.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform set_config('app.smoke_invite', public.mint_faculty_invite('smoke'), false);
+end $$;
+set app.test_uid = '00000000-0000-0000-0000-000000000003';
+do $$
+declare res jsonb;
+begin
+  begin
+    res := public.create_cohort('Sneaky Class', null);
+    raise exception 'FAIL: unverified user created a cohort';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  perform public.redeem_faculty_invite(current_setting('app.smoke_invite'));
+  res := public.create_cohort('New Faculty Class', '2026F');
+  if res ->> 'join_code' is null then
+    raise exception 'FAIL: verified faculty could not create a cohort';
+  end if;
+  begin
+    perform public.redeem_faculty_invite(current_setting('app.smoke_invite'));
+    raise exception 'FAIL: exhausted invite redeemed twice';
   exception when others then
     if sqlerrm like 'FAIL:%' then raise; end if;
   end;
