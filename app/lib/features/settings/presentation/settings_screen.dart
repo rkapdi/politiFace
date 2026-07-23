@@ -136,8 +136,9 @@ class SettingsScreen extends ConsumerWidget {
           SwitchListTile(
             title: const Text('Crash reports'),
             subtitle: const Text(
-                'Off by default. Sends anonymous crash reports so we can fix '
-                'bugs, never what you review. Takes effect on next launch.'),
+                'Anonymous crash reports help us fix bugs; they never '
+                'include what you review or who you are. Turn off any time; '
+                'takes effect on next launch.'),
             value: crashReports,
             onChanged: (v) async {
               await settings.setCrashReportsEnabled(v);

@@ -14,9 +14,9 @@ void main() {
 
   tearDown(() => db.close());
 
-  test('crash reporting defaults to OFF — the opt-in privacy posture',
+  test('crash reporting defaults to ON, anonymous diagnostics posture',
       () async {
-    expect(await settings.crashReportsEnabled(), false);
+    expect(await settings.crashReportsEnabled(), true);
   });
 
   test('crash reporting opt-in round-trips and can be revoked', () async {
@@ -29,10 +29,11 @@ void main() {
     expect(await settings.crashReportsEnabled(), false);
   });
 
-  test('resetProgress clears the crash-reporting opt-in too', () async {
-    await settings.setCrashReportsEnabled(true);
+  test('resetProgress returns crash reporting to the default (on)',
+      () async {
+    await settings.setCrashReportsEnabled(false);
     await settings.resetProgress();
-    expect(await settings.crashReportsEnabled(), false);
+    expect(await settings.crashReportsEnabled(), true);
   });
 
   test('sound effects default to ON when the preference is unset', () async {

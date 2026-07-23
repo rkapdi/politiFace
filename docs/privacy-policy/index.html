@@ -54,9 +54,9 @@
       <p>If you uninstall the app, all of this is deleted.</p>
 
       <h2>What is sent to third parties</h2>
-      <h3>Sentry (crash reporting; opt-in, off by default)</h3>
+      <h3>Sentry (crash reporting; on by default, with an off switch)</h3>
       <p>Crash reporting is <strong>off until you turn it on</strong> in <strong>Settings &rarr; Privacy &rarr; Crash reports</strong>. If you never touch the toggle, the Sentry SDK is never even initialized and nothing is sent, ever.</p>
-      <p>If you opt in, then when the app crashes or hits an unexpected error a stack trace is sent to <a href="https://sentry.io">Sentry</a> so we can fix bugs. We have explicitly configured Sentry to <strong>never attach personal information</strong> (<code>sendDefaultPii: false</code>). The report contains the error message, the source line, and the software stack, not who you are. You can opt back out at any time with the same toggle (takes effect on the next launch).</p>
+      <p>When the app crashes or hits an unexpected error, a stack trace is sent to <a href="https://sentry.io">Sentry</a> so we can fix bugs. We have explicitly configured Sentry to <strong>never attach personal information</strong> (<code>sendDefaultPii: false</code>): the report contains the error message, the source line, and the software stack, not who you are and not anything you studied. Crash reporting is on by default; you can turn it off at any time in Settings, under Privacy (takes effect on the next launch).</p>
       <p>The app has <strong>no usage analytics of any kind</strong>: no events, no identifiers, no analytics SDK. See <a href="https://github.com/rkapdi/politiFace/blob/main/VERIFIED.md">VERIFIED.md</a> for the verifiable, code-level description.</p>
       <h3>Wikimedia (Wikidata + Wikipedia)</h3>
       <p>Politician portraits ship inside the app; they are not downloaded. When you open a politician's detail screen, the app fetches a short biographical summary from Wikipedia (cached on your device afterward). These requests contain the politician's identifier, never anything about you. They follow Wikimedia's own privacy policy, and the app works fully offline without them.</p>
