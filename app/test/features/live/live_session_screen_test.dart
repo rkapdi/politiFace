@@ -18,6 +18,7 @@ class FakeLiveSessionApi implements LiveSessionApi {
 
   LiveQuestionState snapshot;
   final submissions = <String>[];
+  int participantCountValue = 0;
 
   @override
   Future<ActiveLiveSession?> activeSession(String cohortId) async => null;
@@ -25,6 +26,12 @@ class FakeLiveSessionApi implements LiveSessionApi {
   @override
   Future<JoinedLiveSession> joinByCode(String code) async =>
       throw UnimplementedError();
+
+  @override
+  Future<void> enterLiveSession(String sessionId) async {}
+
+  @override
+  Future<int> participantCount(String sessionId) async => participantCountValue;
 
   @override
   Future<LiveQuestionState> question(String sessionId) async => snapshot;
@@ -111,5 +118,33 @@ void main() {
     expect(find.textContaining('CORRECT'), findsNothing);
     expect(find.textContaining('Legislative'), findsNothing);
     expect(find.text('The answer arrives with the reveal.'), findsOneWidget);
+  });
+
+  testWidgets('lobby shows the joined-count from the fake api', (tester) async {
+    final api = FakeLiveSessionApi(const LiveQuestionState(status: 'lobby'))
+      ..participantCountValue = 4;
+    final controller = LiveSessionController(api: api, args: _args);
+    await controller.refresh();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          liveSessionApiProvider.overrideWithValue(api),
+          liveSessionControllerProvider.overrideWith((ref, args) => controller),
+        ],
+        child: const MaterialApp(home: LiveSessionScreen(args: _args)),
+      ),
+    );
+    // The lobby's initState schedules a post-frame fetch; give it a turn
+    // of the event loop to land before asserting on it.
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Waiting for your professor to start'), findsOneWidget);
+    expect(find.text('4 in the lobby'), findsOneWidget);
+
+    // Unmount before the test ends so the lobby's 5-second poll timer is
+    // canceled cleanly rather than left pending.
+    await tester.pumpWidget(const SizedBox());
   });
 }

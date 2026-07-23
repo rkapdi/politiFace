@@ -64,7 +64,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
           text: 'Could not load your classes. Pull to retry.',
         ),
         data: (list) => list.isEmpty || _joiningAnother
-            ? _JoinView(
+            ? JoinCohortView(
                 onCancel: list.isEmpty
                     ? null
                     : () => setState(() => _joiningAnother = false),
@@ -108,8 +108,12 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
   }
 }
 
-class _JoinView extends ConsumerStatefulWidget {
-  const _JoinView({required this.onJoined, this.onCancel});
+/// Class-join form: class code plus the roster name the professor knows the
+/// student by. Public (not the usual leading-underscore private widget) so
+/// it can be pumped directly in widget tests without threading a signed-in
+/// auth state through [LeaderboardScreen].
+class JoinCohortView extends ConsumerStatefulWidget {
+  const JoinCohortView({required this.onJoined, this.onCancel, super.key});
 
   /// Called with the newly joined cohort's id.
   final void Function(String cohortId) onJoined;
@@ -120,29 +124,43 @@ class _JoinView extends ConsumerStatefulWidget {
   final VoidCallback? onCancel;
 
   @override
-  ConsumerState<_JoinView> createState() => _JoinViewState();
+  ConsumerState<JoinCohortView> createState() => _JoinCohortViewState();
 }
 
-class _JoinViewState extends ConsumerState<_JoinView> {
+class _JoinCohortViewState extends ConsumerState<JoinCohortView> {
   final _code = TextEditingController();
+  final _name = TextEditingController();
   bool _busy = false;
   String? _error;
 
   @override
   void dispose() {
     _code.dispose();
+    _name.dispose();
     super.dispose();
   }
 
   Future<void> _join() async {
     final api = ref.read(leaderboardApiProvider);
-    if (api == null || _code.text.trim().isEmpty) return;
+    final code = _code.text.trim();
+    final name = _name.text.trim();
+    if (api == null || code.isEmpty) return;
+    // Client-side gate matching the server's roster_name check: professor
+    // reports are the point of joining a class, so a name is required
+    // before this ever reaches the network.
+    if (name.length < 2 || name.length > 60) {
+      setState(
+        () => _error = 'Enter your name as your professor knows you, '
+            '2 to 60 characters.',
+      );
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
-      final cohortId = await api.joinCohort(_code.text);
+      final cohortId = await api.joinCohort(code, name);
       widget.onJoined(cohortId);
     } on PostgrestException {
       // A server verdict on the code itself (e.g. no matching cohort):
@@ -183,6 +201,19 @@ class _JoinViewState extends ConsumerState<_JoinView> {
           ),
         ),
         const SizedBox(height: 20),
+        TextField(
+          controller: _name,
+          textCapitalization: TextCapitalization.words,
+          maxLength: 60,
+          decoration: const InputDecoration(
+            labelText: 'Your name (as your professor knows you)',
+            helperText: 'Only your professor sees this. Leaderboards '
+                'always show your generated handle.',
+            helperMaxLines: 2,
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16),
         TextField(
           controller: _code,
           autocorrect: false,
@@ -417,6 +448,16 @@ class _BoardViewState extends ConsumerState<_BoardView> {
                   ],
                 ),
         ),
+        const SizedBox(height: 12),
+        _RosterNameTile(
+          cohortId: selectedId,
+          rosterName: cohorts
+              .firstWhere(
+                (c) => c.id == selectedId,
+                orElse: () => cohorts.first,
+              )
+              .rosterName,
+        ),
         const SizedBox(height: 16),
         Text(
           'Points are one per correct answer, counted by the server. '
@@ -424,6 +465,159 @@ class _BoardViewState extends ConsumerState<_BoardView> {
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Small tile letting a student set or change the name their professor
+/// sees for this one class. Leaderboards never reflect this; it exists
+/// purely so faculty reports (roster name + score) mean something.
+class _RosterNameTile extends ConsumerWidget {
+  const _RosterNameTile({required this.cohortId, required this.rosterName});
+
+  final String cohortId;
+  final String? rosterName;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final hasName = rosterName != null && rosterName!.trim().isNotEmpty;
+    return MergeSemantics(
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: () => _edit(context, ref),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.badge_outlined,
+                size: 18,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  hasName
+                      ? 'Name for this class: $rosterName'
+                      : 'Add your name for this class',
+                  style: theme.textTheme.bodyMedium
+                      ?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+              Icon(
+                Icons.edit_outlined,
+                size: 16,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _edit(BuildContext context, WidgetRef ref) async {
+    final api = ref.read(leaderboardApiProvider);
+    if (api == null) return;
+    final name = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => _RosterNameDialog(initial: rosterName),
+    );
+    if (name == null) return;
+    try {
+      await api.setRosterName(cohortId, name);
+      ref.invalidate(myCohortsProvider);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not save your name. Try again.'),
+        ),
+      );
+    }
+  }
+}
+
+class _RosterNameDialog extends StatefulWidget {
+  const _RosterNameDialog({this.initial});
+
+  final String? initial;
+
+  @override
+  State<_RosterNameDialog> createState() => _RosterNameDialogState();
+}
+
+class _RosterNameDialogState extends State<_RosterNameDialog> {
+  late final _name = TextEditingController(text: widget.initial);
+  String? _error;
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  void _save() {
+    final name = _name.text.trim();
+    if (name.length < 2 || name.length > 60) {
+      setState(() => _error = 'Enter a name 2 to 60 characters long.');
+      return;
+    }
+    Navigator.of(context).pop(name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: const Text('Name for this class'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Only your professor sees this. Leaderboards always show your '
+            'generated handle.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _name,
+            autofocus: true,
+            textCapitalization: TextCapitalization.words,
+            maxLength: 60,
+            onSubmitted: (_) => _save(),
+            decoration: const InputDecoration(
+              labelText: 'Your name',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          if (_error != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              _error!,
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.error),
+            ),
+          ],
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('CANCEL'),
+        ),
+        FilledButton(
+          onPressed: _save,
+          child: const Text('SAVE'),
         ),
       ],
     );

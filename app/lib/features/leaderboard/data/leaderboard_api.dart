@@ -14,12 +14,18 @@ class CohortInfo {
     required this.name,
     required this.role,
     this.term,
+    this.rosterName,
   });
 
   final String id;
   final String name;
   final String role; // student | faculty
   final String? term;
+
+  /// The name the professor knows this member by in this class, or null
+  /// until set. Faculty-of-this-cohort visibility only; leaderboards always
+  /// show the generated handle instead.
+  final String? rosterName;
 }
 
 class LeaderboardEntry {
@@ -48,12 +54,14 @@ List<LeaderboardEntry> rankEntries(
     final rank = (i > 0 && sorted[i].score == sorted[i - 1].score)
         ? entries[i - 1].rank
         : i + 1;
-    entries.add(LeaderboardEntry(
-      userId: sorted[i].userId,
-      handle: sorted[i].handle,
-      score: sorted[i].score,
-      rank: rank,
-    ),);
+    entries.add(
+      LeaderboardEntry(
+        userId: sorted[i].userId,
+        handle: sorted[i].handle,
+        score: sorted[i].score,
+        rank: rank,
+      ),
+    );
   }
   return entries;
 }
@@ -64,7 +72,14 @@ abstract class LeaderboardApi {
   Future<List<LeaderboardEntry>> entries(String cohortId);
 
   /// Joins by class code via the join_cohort RPC; returns the cohort id.
-  Future<String> joinCohort(String code);
+  /// [rosterName] is the name the professor knows the student by, required
+  /// so faculty reports are meaningful the moment a student joins.
+  Future<String> joinCohort(String code, String rosterName);
+
+  /// Updates the roster name for a class already joined, via
+  /// set_roster_name. Faculty-only visibility; never touches the handle
+  /// leaderboards show.
+  Future<void> setRosterName(String cohortId, String name);
 }
 
 class SupabaseLeaderboardApi implements LeaderboardApi {
@@ -78,7 +93,7 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
     if (uid == null) return const [];
     final rows = await _client
         .from('cohort_members')
-        .select('cohort_id, role, joined_at, cohorts(name, term)')
+        .select('cohort_id, role, joined_at, roster_name, cohorts(name, term)')
         .eq('user_id', uid)
         .order('joined_at', ascending: false);
     final seen = <String>{};
@@ -96,6 +111,7 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
           role: r['role'] as String,
           name: (r['cohorts'] as Map?)?['name'] as String? ?? 'My class',
           term: (r['cohorts'] as Map?)?['term'] as String?,
+          rosterName: r['roster_name'] as String?,
         ),
       );
     }
@@ -121,9 +137,25 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
   }
 
   @override
-  Future<String> joinCohort(String code) async {
-    final res = await _client
-        .rpc<dynamic>('join_cohort', params: {'p_code': code.trim()});
+  Future<String> joinCohort(String code, String rosterName) async {
+    final res = await _client.rpc<dynamic>(
+      'join_cohort',
+      params: {
+        'p_code': code.trim(),
+        'p_roster_name': rosterName.trim(),
+      },
+    );
     return res as String;
+  }
+
+  @override
+  Future<void> setRosterName(String cohortId, String name) async {
+    await _client.rpc<dynamic>(
+      'set_roster_name',
+      params: {
+        'p_cohort': cohortId,
+        'p_name': name.trim(),
+      },
+    );
   }
 }
