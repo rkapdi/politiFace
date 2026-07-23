@@ -47,6 +47,9 @@ class FakeLiveSessionApi implements LiveSessionApi {
   PostgrestException? submitError;
   final submissions = <({String sessionId, String questionId, String key})>[];
   int questionCalls = 0;
+  final enteredSessions = <String>[];
+  Exception? enterError;
+  int participantCountValue = 0;
 
   @override
   Future<ActiveLiveSession?> activeSession(String cohortId) async => null;
@@ -61,6 +64,16 @@ class FakeLiveSessionApi implements LiveSessionApi {
         total: 2,
         questionSeconds: 20,
       );
+
+  @override
+  Future<void> enterLiveSession(String sessionId) async {
+    enteredSessions.add(sessionId);
+    final error = enterError;
+    if (error != null) throw error;
+  }
+
+  @override
+  Future<int> participantCount(String sessionId) async => participantCountValue;
 
   @override
   Future<LiveQuestionState> question(String sessionId) async {
@@ -257,5 +270,21 @@ void main() {
     // Same question restarted at a new started_at is a new signature, so it
     // applies; 40s elapsed on a 20s window floors at 0.
     expect(clamped.state.remainingSeconds, 0);
+  });
+
+  test('start() records presence best-effort and never blocks on failure',
+      () async {
+    // The banner-entry path never calls join_live_session (which records
+    // its own presence row), so start() must call enter_live_session
+    // itself, and a failure there must not stop the session from working.
+    api.enterError = Exception('offline');
+    controller.start();
+    await Future<void>.delayed(Duration.zero);
+    expect(api.enteredSessions, ['session-1']);
+
+    // The rest of the lifecycle proceeds unaffected by that failure.
+    api.snapshot = _questionSnapshot();
+    await controller.refresh();
+    expect(controller.state.phase, LivePhase.question);
   });
 }
