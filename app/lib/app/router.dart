@@ -23,6 +23,7 @@ import '../features/home/presentation/home_screen.dart';
 import '../features/leaderboard/presentation/leaderboard_screen.dart';
 import '../features/memory/presentation/card_retention_detail_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
+import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/pulse/presentation/bill_detail_screen.dart';
 import '../features/pulse/presentation/pulse_screen.dart';
 import '../features/round/presentation/daily_round_screen.dart';
@@ -38,6 +39,10 @@ import 'shell_scaffold.dart';
 GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       initialLocation: initialLocation,
       routes: [
+        GoRoute(
+          path: '/onboarding',
+          builder: (context, state) => const OnboardingScreen(),
+        ),
         StatefulShellRoute.indexedStack(
           builder: (context, state, navigationShell) =>
               ShellScaffold(navigationShell: navigationShell),

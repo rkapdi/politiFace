@@ -15,6 +15,7 @@ import 'features/atlas/data/people_seed_service.dart';
 import 'features/curriculum/data/curriculum_loader.dart';
 import 'features/government/data/government_seed_service.dart';
 import 'features/notifications/data/notification_service.dart';
+import 'features/onboarding/presentation/onboarding_screen.dart';
 import 'features/session/data/delegation_deck_service.dart';
 import 'features/session/data/yaml_seed_service.dart';
 import 'features/settings/data/settings_service.dart';
@@ -100,15 +101,19 @@ Future<void> _bootstrap(AppDatabase db) async {
     );
   }
 
+  // First launch opens the onboarding sequence; a --dart-define lets
+  // QA/deep-link builds open straight onto any route instead
+  // (e.g. INITIAL_ROUTE=/pulse), and takes precedence.
+  const envRoute = String.fromEnvironment('INITIAL_ROUTE');
+  final onboarded = (await db.metaDao.get(OnboardingScreen.doneFlagKey)) == '1';
+  final initialRoute =
+      envRoute.isNotEmpty ? envRoute : (onboarded ? '/' : '/onboarding');
+
   runApp(
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
-        // Defaults to home; a --dart-define lets QA/deep-link builds open
-        // straight onto any route (e.g. INITIAL_ROUTE=/pulse).
-        initialRouteProvider.overrideWithValue(
-          const String.fromEnvironment('INITIAL_ROUTE', defaultValue: '/'),
-        ),
+        initialRouteProvider.overrideWithValue(initialRoute),
       ],
       child: const PolitifaceApp(),
     ),
