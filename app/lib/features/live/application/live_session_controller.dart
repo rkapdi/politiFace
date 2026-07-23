@@ -279,11 +279,22 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
     _submitInFlight = true;
     state = state.copyWith(lockedKey: key, submitting: true, notice: null);
     try {
-      await _api.submitAnswer(
-        sessionId: _args.sessionId,
-        questionId: question.id,
-        key: key,
-      );
+      try {
+        await _api.submitAnswer(
+          sessionId: _args.sessionId,
+          questionId: question.id,
+          key: key,
+        );
+      } on PostgrestException {
+        rethrow; // server verdicts do not get a blind retry
+      } catch (_) {
+        // One silent retry for transport stalls; the countdown allows it.
+        await _api.submitAnswer(
+          sessionId: _args.sessionId,
+          questionId: question.id,
+          key: key,
+        );
+      }
       if (mounted) {
         state = state.copyWith(submitting: false, answerAccepted: true);
       }
