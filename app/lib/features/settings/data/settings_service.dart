@@ -24,8 +24,11 @@ class SettingsService {
   /// Opt-in crash reporting (Sentry). Off by default — the toggle is the
   /// only thing that enables the app's only telemetry. Takes effect on the
   /// next launch because Sentry must wrap the app from startup.
+  /// Default ON: anonymous crash diagnostics are collected unless the
+  /// user explicitly turns them off ('0'). Reports carry no personal
+  /// information (sendDefaultPii is false and no user ids are attached).
   Future<bool> crashReportsEnabled() async =>
-      (await _db.metaDao.get(kCrashReports)) == '1';
+      (await _db.metaDao.get(kCrashReports)) != '0';
 
   Future<void> setCrashReportsEnabled(bool value) =>
       _db.metaDao.set(kCrashReports, value ? '1' : '0');

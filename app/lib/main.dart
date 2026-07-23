@@ -41,14 +41,14 @@ Future<void> main() async {
     );
   }
 
-  // Crash reporting is opt-in: even in official builds with a DSN, nothing
-  // initializes unless the user flipped Settings → Privacy → Crash reports.
+  // Crash reporting is on by default (anonymous, no personal info) and
+  // honors the explicit off switch in Settings → Privacy → Crash reports.
   // The flag is read here (not via SettingsService providers) because Sentry
   // must wrap the app from startup; changes take effect on the next launch.
-  final crashReportsOptedIn =
-      (await db.metaDao.get(SettingsService.kCrashReports)) == '1';
+  final crashReportsEnabled =
+      (await db.metaDao.get(SettingsService.kCrashReports)) != '0';
 
-  if (crashReportsOptedIn && _sentryDsn.isNotEmpty) {
+  if (crashReportsEnabled && _sentryDsn.isNotEmpty) {
     await SentryFlutter.init(
       (opts) {
         opts.dsn = _sentryDsn;
