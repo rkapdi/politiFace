@@ -580,5 +580,145 @@ begin
   end;
 end $$;
 
+
+-- ── Live sessions: full lifecycle (20260723000100) ──────────────────────────
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid; q1 uuid; q2 uuid; qc uuid; v_sess jsonb; v_id uuid;
+  v_state jsonb; v_q jsonb; v_rev jsonb;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+   where user_id = auth.uid() and role = 'faculty' limit 1;
+
+  -- Faculty authors a cohort question, immediately session-ready.
+  qc := public.create_cohort_question(
+    v_cohort, 1::smallint, 'Instructor question: which branch makes laws?',
+    '[{"key":"a","text":"Legislative"},{"key":"b","text":"Executive"}]'::jsonb,
+    'a', 'Article I.', null);
+
+  select id into q1 from public.questions where stem like 'Domain 1 question 1?%';
+  select id into q2 from public.questions where stem like 'Domain 1 question 2?%';
+
+  v_sess := public.create_live_session(
+    v_cohort, 'Smoke session',
+    jsonb_build_array(q1::text, q2::text, qc::text), 10);
+  v_id := (v_sess ->> 'id')::uuid;
+  if (v_sess ->> 'question_count')::int <> 3 then
+    raise exception 'FAIL: session question count';
+  end if;
+
+  -- lobby -> question 0
+  v_state := public.advance_live_session(v_id);
+  if v_state ->> 'status' <> 'question' or (v_state ->> 'index')::int <> 0 then
+    raise exception 'FAIL: advance to first question, got %', v_state;
+  end if;
+  perform set_config('app.smoke_session', v_id::text, false);
+  perform set_config('app.smoke_q1', q1::text, false);
+end $$;
+
+-- Student answers while the question is open.
+set app.test_uid = :s1_uid;
+do $$
+declare v_id uuid; q1 uuid; v_q jsonb; v_res jsonb;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  q1 := current_setting('app.smoke_q1')::uuid;
+  v_q := public.get_live_question(v_id);
+  if v_q ->> 'status' <> 'question' then
+    raise exception 'FAIL: student should see an open question';
+  end if;
+  if (v_q -> 'question') ? 'answer_key' then
+    raise exception 'FAIL: live question leaked a key field';
+  end if;
+  v_res := public.submit_live_answer(v_id, q1, 'b');  -- correct per seed
+  if not (v_res ->> 'accepted')::boolean then
+    raise exception 'FAIL: answer not accepted';
+  end if;
+  -- Second answer is silently ignored (first is final).
+  perform public.submit_live_answer(v_id, q1, 'a');
+  if (select count(*) from public.live_answers
+       where session_id = v_id and user_id = auth.uid()) <> 1 then
+    raise exception 'FAIL: duplicate live answer stored';
+  end if;
+  -- Students cannot drive the session.
+  begin
+    perform public.advance_live_session(v_id);
+    raise exception 'FAIL: student advanced the session';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- Standings are hidden while the question is open.
+  begin
+    perform * from public.live_scoreboard(v_id);
+    raise exception 'FAIL: standings visible mid-question';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Reveal, standings, wrap-up.
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_id uuid; v_state jsonb; v_rev jsonb; r record; n int := 0;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  v_state := public.advance_live_session(v_id);  -- question -> reveal
+  if v_state ->> 'status' <> 'reveal' then
+    raise exception 'FAIL: expected reveal, got %', v_state;
+  end if;
+  v_rev := public.live_reveal(v_id);
+  if v_rev ->> 'correct_key' is null then
+    raise exception 'FAIL: reveal missing correct key';
+  end if;
+  for r in select * from public.live_scoreboard(v_id) loop
+    n := n + 1;
+    if r.rank = 1 and (r.score < 100 or r.correct_count <> 1) then
+      raise exception 'FAIL: leader score wrong: % / %', r.score, r.correct_count;
+    end if;
+  end loop;
+  if n < 1 then raise exception 'FAIL: empty scoreboard after reveal'; end if;
+
+  -- reveal -> q2 -> reveal -> q3 -> reveal -> ended
+  perform public.advance_live_session(v_id);
+  perform public.advance_live_session(v_id);
+  perform public.advance_live_session(v_id);
+  perform public.advance_live_session(v_id);
+  v_state := public.advance_live_session(v_id);
+  if v_state ->> 'status' <> 'ended' then
+    raise exception 'FAIL: session should have ended, got %', v_state;
+  end if;
+  if (select count(*) from public.live_session_stats(v_id)) <> 3 then
+    raise exception 'FAIL: wrap-up stats question count';
+  end if;
+end $$;
+
+-- A true outsider (s2 was auto-joined by the redemption test earlier)
+-- can neither see nor join the session.
+reset role;
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-000000000003', 's3@example.edu')
+  on conflict do nothing;
+set role authenticated;
+set app.test_uid = '00000000-0000-0000-0000-000000000003';
+insert into public.profiles (id, handle)
+  values ('00000000-0000-0000-0000-000000000003', 'outsider_three')
+  on conflict do nothing;
+do $$
+declare v_id uuid;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  if exists (select 1 from public.live_sessions where id = v_id) then
+    raise exception 'FAIL: outsider sees the live session row';
+  end if;
+  begin
+    perform public.get_live_question(v_id);
+    raise exception 'FAIL: outsider fetched a live question';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
