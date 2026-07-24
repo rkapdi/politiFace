@@ -642,12 +642,10 @@ begin
   if not (v_res ->> 'accepted')::boolean then
     raise exception 'FAIL: answer not accepted';
   end if;
-  -- Second answer is silently ignored (first is final).
+  -- Second answer is silently ignored (first is final). Students no
+  -- longer have direct SELECT on live_answers; the dedupe is asserted as
+  -- owner just below.
   perform public.submit_live_answer(v_id, q1, 'a');
-  if (select count(*) from public.live_answers
-       where session_id = v_id and user_id = auth.uid()) <> 1 then
-    raise exception 'FAIL: duplicate live answer stored';
-  end if;
   -- Students cannot drive the session.
   begin
     perform public.advance_live_session(v_id);
@@ -663,6 +661,20 @@ begin
     if sqlerrm like 'FAIL:%' then raise; end if;
   end;
 end $$;
+
+-- Owner-role check: the double-submit stored exactly one answer.
+reset role;
+do $$
+declare v_id uuid; q1 uuid; n int;
+begin
+  v_id := current_setting('app.smoke_session')::uuid;
+  q1 := current_setting('app.smoke_q1')::uuid;
+  select count(*) into n from public.live_answers
+   where session_id = v_id and question_id = q1;
+  if n <> 1 then raise exception 'FAIL: duplicate live answer stored (%)', n; end if;
+end $$;
+set role authenticated;
+set app.test_uid = :s1_uid;
 
 -- Reveal, standings, wrap-up.
 set app.test_uid = :f_uid;
@@ -835,12 +847,15 @@ set role authenticated;
 -- runs as the student who owns the event, and counts run as owner.
 set app.test_uid = :s1_uid;
 do $$
-declare v_id uuid; v_q uuid; v_det uuid;
+declare v_id uuid; v_q uuid;
 begin
   v_id := current_setting('app.smoke_session')::uuid;
   v_q := current_setting('app.smoke_q1')::uuid;
-  v_det := md5('live:' || v_id || ':' || v_q || ':' || auth.uid())::uuid;
-  if not exists (select 1 from public.events where event_id = v_det) then
+  -- event_id is now random (griefing fix), so match by content: this
+  -- student's folded answer for the first live question exists as an event.
+  if not exists (
+    select 1 from public.events
+     where user_id = auth.uid() and question_id = v_q and type = 'answer') then
     raise exception 'FAIL: live answer did not fold into events';
   end if;
 end $$;
@@ -1009,6 +1024,55 @@ begin
   -- but a member CAN read the class inbox
   if (select count(*) from public.class_announcements where cohort_id = v_cohort) < 1 then
     raise exception 'FAIL: member cannot read class announcements';
+  end if;
+end $$;
+
+
+-- ── Audit-2 hardening (20260724000400) ──────────────────────────────────────
+-- A student cannot read roster_name off the table directly (column revoke),
+-- but can read their own via the RPC.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid; v_name text;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+   where user_id = auth.uid() and role = 'student' limit 1;
+  begin
+    perform roster_name from public.cohort_members
+     where cohort_id = v_cohort;
+    raise exception 'FAIL: student read roster_name column directly';
+  exception
+    when insufficient_privilege then null;
+    when others then
+      if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  v_name := public.my_roster_name(v_cohort);
+  if v_name is null or v_name = '' then
+    raise exception 'FAIL: my_roster_name returned nothing for own row';
+  end if;
+  -- other non-sensitive columns still selectable
+  perform user_id, role from public.cohort_members where cohort_id = v_cohort;
+end $$;
+
+-- A student has no direct SELECT on live_answers at all now.
+do $$
+declare n int;
+begin
+  select count(*) into n from public.live_answers;
+  if n <> 0 then
+    raise exception 'FAIL: student still reads live_answers rows (got %)', n;
+  end if;
+end $$;
+
+-- push token cap: registering 7 tokens leaves at most 5.
+do $$
+declare i int;
+begin
+  for i in 1..7 loop
+    perform public.register_push_token('tok' || i || repeat('x', 40), 'production');
+  end loop;
+  if (select count(*) from public.push_tokens where user_id = auth.uid()) > 5 then
+    raise exception 'FAIL: push token cap not enforced';
   end if;
 end $$;
 
