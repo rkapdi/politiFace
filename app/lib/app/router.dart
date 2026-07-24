@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/account/presentation/account_screen.dart';
 import '../features/atlas/presentation/atlas_screen.dart';
 import '../features/atlas/presentation/congress_directory_screen.dart';
 import '../features/atlas/presentation/executive_orders_screen.dart';
@@ -109,6 +110,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         GoRoute(
           path: '/settings',
           builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: '/account',
+          builder: (context, state) => const AccountScreen(),
         ),
         GoRoute(
           path: '/decks',
