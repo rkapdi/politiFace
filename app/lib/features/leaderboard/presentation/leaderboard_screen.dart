@@ -417,6 +417,14 @@ class _BoardViewState extends ConsumerState<_BoardView> {
                 style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
               ),
             ),
+            TextButton.icon(
+              onPressed: () => context.push('/class'),
+              icon: const Icon(Icons.mail_outline, size: 16),
+              label: const Text(
+                'CLASS MESSAGES',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
