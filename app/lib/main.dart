@@ -18,6 +18,7 @@ import 'features/atlas/data/people_seed_service.dart';
 import 'features/curriculum/data/curriculum_loader.dart';
 import 'features/government/data/government_seed_service.dart';
 import 'features/notifications/data/notification_service.dart';
+import 'features/notifications/data/push_service.dart';
 import 'features/notifications/data/washington_watch_service.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 import 'features/session/data/delegation_deck_service.dart';
@@ -152,6 +153,31 @@ Future<void> _bootstrap(AppDatabase db) async {
         loadCurriculum: () => CurriculumLoader().load(),
       ).maybeRestoreOnColdStart(),
     );
+
+    // Push: a silent-push wake is a faster path to the same
+    // WashingtonWatchService.check() the BGAppRefresh task above already
+    // runs, so the two share one AppDatabase handle and one check. Wired
+    // for the life of the auth session (sign-in/out, not just cold start),
+    // unlike the one-shot flush/restore calls above.
+    PushChannelBridge.instance.onSilentPush = () async {
+      await WashingtonWatchService(db: db).check();
+      return true;
+    };
+    final pushService = PushService(db: db, api: SupabasePushTokenApi(client));
+    if (client.auth.currentSession != null) {
+      unawaited(pushService.onSignedIn());
+    }
+    client.auth.onAuthStateChange.listen((state) {
+      switch (state.event) {
+        case AuthChangeEvent.signedIn:
+        case AuthChangeEvent.initialSession:
+          unawaited(pushService.onSignedIn());
+        case AuthChangeEvent.signedOut:
+          unawaited(pushService.onSignedOut());
+        default:
+          break;
+      }
+    });
   }
 
   // First launch opens the onboarding sequence; a --dart-define lets
