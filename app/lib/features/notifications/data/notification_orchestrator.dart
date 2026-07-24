@@ -98,7 +98,21 @@ class NotificationOrchestrator {
       if (memory != null) candidates.add(memory);
       candidates.addAll(await _fcleCandidates(now));
       if (candidates.isEmpty) return;
-      await _dispatch(candidates, now);
+      final delivered = await _dispatch(candidates, now);
+      // Advance Washington baselines only for items that actually delivered,
+      // so a capped or unauthorized item is retried next cycle rather than
+      // lost forever.
+      final washingtonDelivered = delivered
+          .where(
+            (k) =>
+                k.startsWith('eo:') ||
+                k.startsWith('law:') ||
+                k.startsWith('bill:'),
+          )
+          .toList();
+      if (washingtonDelivered.isNotEmpty) {
+        await _washington.commitDelivered(washingtonDelivered);
+      }
     } catch (_) {
       // Best-effort: never surface as a crash on a BGAppRefresh task.
     }
@@ -258,7 +272,10 @@ class NotificationOrchestrator {
 
   // ── Brain wiring ───────────────────────────────────────────────────────
 
-  Future<void> _dispatch(List<NotifCandidate> candidates, DateTime now) async {
+  Future<List<String>> _dispatch(
+    List<NotifCandidate> candidates,
+    DateTime now,
+  ) async {
     final context = await _buildContext(now);
     final decisions = _brain.decide(candidates, context);
     final acting = decisions.where(
@@ -266,15 +283,20 @@ class NotificationOrchestrator {
           d.action == NotifAction.fireNow ||
           d.action == NotifAction.deferToPreferredHour,
     );
-    if (acting.isEmpty) return;
+    if (acting.isEmpty) return const [];
 
     // One authorization check for the whole batch. If the user revoked
     // notifications, send nothing and record nothing so a re-grant re-tries.
-    if (!await _sender.isAuthorized()) return;
+    if (!await _sender.isAuthorized()) return const [];
 
-    final fired = <String>[];
+    final delivered = <String>[];
     for (final d in acting) {
       final c = d.candidate;
+      // A deferred item is billed to its DELIVERY day, not the dispatch
+      // day, so a defer that crosses midnight counts against the right
+      // day's cap.
+      final deliveredAt =
+          d.action == NotifAction.fireNow ? now : d.scheduledFor!;
       if (d.action == NotifAction.fireNow) {
         await _sender.show(
           id: c.notificationId,
@@ -291,9 +313,12 @@ class NotificationOrchestrator {
           payload: c.route,
         );
       }
-      fired.add(c.dedupeKey);
+      // Record immediately after each successful send: a later failure in
+      // the batch can never erase an item the user has already seen.
+      await _appendLog([c.dedupeKey], deliveredAt, now);
+      delivered.add(c.dedupeKey);
     }
-    await _appendLog(fired, now);
+    return delivered;
   }
 
   Future<BrainContext> _buildContext(DateTime now) async {
@@ -337,10 +362,14 @@ class NotificationOrchestrator {
     return entries;
   }
 
-  Future<void> _appendLog(List<String> keys, DateTime now) async {
+  Future<void> _appendLog(
+    List<String> keys,
+    DateTime entryTime,
+    DateTime pruneNow,
+  ) async {
     if (keys.isEmpty) return;
-    final entries = await _prunedLog(now);
-    final at = now.millisecondsSinceEpoch;
+    final entries = await _prunedLog(pruneNow);
+    final at = entryTime.millisecondsSinceEpoch;
     entries.addAll(keys.map((k) => _LogEntry(key: k, atMillis: at)));
     await _db.metaDao.set(
       _kLog,

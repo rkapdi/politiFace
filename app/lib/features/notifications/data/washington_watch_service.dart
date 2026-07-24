@@ -209,27 +209,31 @@ class WashingtonWatchService {
                 if (b.actionDate.compareTo(lastBill) > 0) b,
             ];
 
-      // Baselines always advance to the newest thing this fetch saw,
-      // regardless of whether the category is enabled right now — so
-      // flipping a switch back on later never dumps a backlog of "new"
-      // items that actually happened while it was off.
-      if (orders.isNotEmpty) {
-        final maxEo = orders.map((o) => o.number).reduce(math.max);
-        await _db.metaDao.set(_kLastEo, maxEo.toString());
-      }
-      if (laws.isNotEmpty) {
-        await _db.metaDao.set(_kLastLaw, laws.last.actionDate);
-      }
-      if (bills.isNotEmpty) {
-        await _db.metaDao.set(_kLastBillAction, bills.last.actionDate);
-      }
-
-      if (isFirstRun) return const []; // baselines written; nothing new yet
-
       final washingtonOn = await _settings.washingtonNotifEnabled();
       final eosOn = washingtonOn && await _settings.washEosEnabled();
       final billsOn = washingtonOn && await _settings.washBillsEnabled();
       final lawsOn = washingtonOn && await _settings.washLawsEnabled();
+
+      // Baseline policy: advance immediately for the FIRST run (silent
+      // baselining) and for DISABLED categories (so flipping a switch back
+      // on never dumps a backlog of items that happened while it was off).
+      // For ENABLED categories the baseline is NOT advanced here: it is
+      // committed by the orchestrator only once an item is actually
+      // delivered (see [commitDelivered]), so an item dropped by the daily
+      // cap or a revoked permission retries next cycle instead of being
+      // silently lost forever.
+      if ((isFirstRun || !eosOn) && orders.isNotEmpty) {
+        final maxEo = orders.map((o) => o.number).reduce(math.max);
+        await _db.metaDao.set(_kLastEo, maxEo.toString());
+      }
+      if ((isFirstRun || !lawsOn) && laws.isNotEmpty) {
+        await _db.metaDao.set(_kLastLaw, laws.last.actionDate);
+      }
+      if ((isFirstRun || !billsOn) && bills.isNotEmpty) {
+        await _db.metaDao.set(_kLastBillAction, bills.last.actionDate);
+      }
+
+      if (isFirstRun) return const []; // baselines written; nothing new yet
 
       final notifiable = <WatchItem>[
         if (eosOn)
@@ -287,6 +291,47 @@ class WashingtonWatchService {
       // Best-effort refresh: never let a formatting/network hiccup surface
       // as a crash on a foreground app start or BGAppRefresh task.
       return const [];
+    }
+  }
+
+  /// Advance the baselines for items the orchestrator actually delivered
+  /// (or scheduled). Keys look like 'eo:14413', 'law:2026-07-20',
+  /// 'bill:2026-07-20'. Undelivered items are simply not passed here, so
+  /// they remain "new" and get another delivery attempt next cycle.
+  Future<void> commitDelivered(List<String> deliveredKeys) async {
+    var maxEo = -1;
+    String? maxLaw;
+    String? maxBill;
+    for (final k in deliveredKeys) {
+      final i = k.indexOf(':');
+      if (i < 0) continue;
+      final kind = k.substring(0, i);
+      final val = k.substring(i + 1);
+      switch (kind) {
+        case 'eo':
+          final n = int.tryParse(val);
+          if (n != null && n > maxEo) maxEo = n;
+        case 'law':
+          if (maxLaw == null || val.compareTo(maxLaw) > 0) maxLaw = val;
+        case 'bill':
+          if (maxBill == null || val.compareTo(maxBill) > 0) maxBill = val;
+      }
+    }
+    if (maxEo >= 0) {
+      final cur = int.tryParse(await _db.metaDao.get(_kLastEo) ?? '') ?? -1;
+      if (maxEo > cur) await _db.metaDao.set(_kLastEo, maxEo.toString());
+    }
+    if (maxLaw != null) {
+      final cur = await _db.metaDao.get(_kLastLaw);
+      if (cur == null || maxLaw.compareTo(cur) > 0) {
+        await _db.metaDao.set(_kLastLaw, maxLaw);
+      }
+    }
+    if (maxBill != null) {
+      final cur = await _db.metaDao.get(_kLastBillAction);
+      if (cur == null || maxBill.compareTo(cur) > 0) {
+        await _db.metaDao.set(_kLastBillAction, maxBill);
+      }
     }
   }
 

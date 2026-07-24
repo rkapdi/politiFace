@@ -120,6 +120,14 @@ Future<void> wipeLocalUserState(AppDatabase db) async {
     await db.delete(db.chapterProgress).go();
     await db.delete(db.dailyRounds).go();
     await db.delete(db.outboxEvents).go();
+    // Reset deck subscriptions to defaults so the previous account's picks
+    // do not carry into (and get pushed for) the new account: curated decks
+    // subscribed, everything else off.
+    await (db.update(db.localDecks)..where((d) => d.category.equals('curated')))
+        .write(const LocalDecksCompanion(isSubscribed: Value(true)));
+    await (db.update(db.localDecks)
+          ..where((d) => d.category.isNotValue('curated')))
+        .write(const LocalDecksCompanion(isSubscribed: Value(false)));
     for (final key in [
       ProfileService.kStreak,
       ProfileService.kLastReview,

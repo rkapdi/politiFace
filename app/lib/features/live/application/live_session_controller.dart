@@ -183,7 +183,17 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
   bool _revealLoading = false;
   bool _finalLoaded = false;
   bool _finalLoading = false;
-  bool _submitInFlight = false;
+
+  /// The question id a submit is in flight for, if any. Scoped per
+  /// question so a slow submit for Q(n) never blocks answering Q(n+1).
+  String? _submittingQuestionId;
+
+  /// When we anchored the current countdown, plus the server started_at it
+  /// was anchored to. Re-anchoring on a started_at change gives a monotonic
+  /// countdown that survives device-clock skew yet still snaps to a
+  /// server-corrected start.
+  DateTime? _questionReceivedAt;
+  DateTime? _anchoredStartedAt;
 
   /// Wires the channel (Realtime + poll) and pulls the first snapshot.
   void start() {
@@ -241,10 +251,21 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
           // and notice; a re-clamp of the same question keeps them.
           lockedKey: isNewQuestion ? null : state.lockedKey,
           answerAccepted: !isNewQuestion && state.answerAccepted,
+          submitting: !isNewQuestion && state.submitting,
           notice: isNewQuestion ? null : state.notice,
           reveal: isNewQuestion ? null : state.reveal,
           standings: isNewQuestion ? const [] : state.standings,
         );
+        if (isNewQuestion) {
+          // Stop treating a stalled prior-question submit as in flight.
+          _submittingQuestionId = null;
+        }
+        // (Re)anchor the monotonic clock whenever the server start changes,
+        // including a corrected started_at on the same question.
+        if (_anchoredStartedAt != snapshot.startedAt) {
+          _anchoredStartedAt = snapshot.startedAt;
+          _questionReceivedAt = _now();
+        }
         _recomputeRemaining();
         _startTicker();
       case 'reveal':
@@ -275,8 +296,10 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
   Future<void> selectAnswer(String key) async {
     final question = state.question;
     if (question == null || state.phase != LivePhase.question) return;
-    if (state.lockedKey != null || _submitInFlight) return;
-    _submitInFlight = true;
+    if (state.lockedKey != null || _submittingQuestionId == question.id) {
+      return;
+    }
+    _submittingQuestionId = question.id;
     state = state.copyWith(lockedKey: key, submitting: true, notice: null);
     try {
       try {
@@ -295,7 +318,12 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
           key: key,
         );
       }
-      if (mounted) {
+      // Only mark accepted if we are still on this question and have not
+      // already moved to the reveal: a late success must not flip a verdict
+      // the student has already been shown and heard.
+      if (mounted &&
+          state.phase == LivePhase.question &&
+          state.question?.id == question.id) {
         state = state.copyWith(submitting: false, answerAccepted: true);
       }
     } on PostgrestException catch (e) {
@@ -310,7 +338,7 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
         );
       }
     } finally {
-      _submitInFlight = false;
+      if (_submittingQuestionId == question.id) _submittingQuestionId = null;
     }
   }
 
@@ -401,8 +429,21 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
     if (!mounted) return;
     final startedAt = state.startedAt;
     if (startedAt == null) return;
-    final elapsedMs =
-        _now().toUtc().difference(startedAt.toUtc()).inMilliseconds;
+    // Elapsed is measured from when THIS client received the question,
+    // offset by however much of the window the server says had already
+    // passed. This is immune to absolute device-clock skew (a fast clock
+    // no longer forces the bar to 0 for the entire question).
+    final serverElapsedAtReceiptMs = (_questionReceivedAt == null)
+        ? 0
+        : _questionReceivedAt!
+            .toUtc()
+            .difference(startedAt.toUtc())
+            .inMilliseconds
+            .clamp(0, state.questionSeconds * 1000);
+    final sinceReceiptMs = (_questionReceivedAt == null)
+        ? 0
+        : _now().difference(_questionReceivedAt!).inMilliseconds;
+    final elapsedMs = serverElapsedAtReceiptMs + sinceReceiptMs;
     final remaining = (state.questionSeconds - elapsedMs / 1000)
         .clamp(0.0, state.questionSeconds.toDouble());
     if (remaining <= 0) _stopTicker();
