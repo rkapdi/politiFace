@@ -27,8 +27,16 @@ const APNS_HOST = (Deno.env.get("APNS_ENV") ?? "production") === "sandbox"
 let cachedJwt: { token: string; at: number } | null = null;
 
 function pemToArrayBuffer(pem: string): ArrayBuffer {
-  const b64 = pem.replace(/-----[^-]+-----/g, "").replace(/\s+/g, "");
-  const raw = atob(b64);
+  // Bulletproof against however the .p8 survived the dashboard paste:
+  // drop the BEGIN/END armor and any escaped newlines, then keep only
+  // real base64 characters so a stray \n literal or quote cannot break
+  // atob.
+  const body = pem
+    .replace(/-----BEGIN [^-]+-----/g, "")
+    .replace(/-----END [^-]+-----/g, "")
+    .replace(/\\n/g, "")
+    .replace(/[^A-Za-z0-9+/=]/g, "");
+  const raw = atob(body);
   const buf = new Uint8Array(raw.length);
   for (let i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
   return buf.buffer;
