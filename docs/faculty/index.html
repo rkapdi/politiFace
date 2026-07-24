@@ -60,6 +60,12 @@
   .pill { display: inline-block; padding: 2px 8px; border-radius: 99px;
           background: #f4e9d8; color: #7a5817; font-size: 12px;
           font-weight: 700; margin-left: 8px; }
+  .count { font-size: 12px; color: #8a90a0; }
+  .count.warn { color: #a3222c; font-weight: 700; }
+  .msg-item { padding: 10px 0; border-top: 1px solid #edeff3; }
+  .msg-item:first-of-type { border-top: 0; }
+  .msg-item .stem { font-size: 14px; margin: 0 0 2px; white-space: pre-wrap; }
+  .ok { color: #2e7d4f; font-size: 13px; margin-top: 8px; }
   .classlist button { width: 100%; text-align: left; margin-bottom: 8px;
           padding: 12px 14px; border: 1px solid #d9dce3; border-radius: 6px;
           background: #fff; font: inherit; cursor: pointer; }
@@ -240,6 +246,23 @@
       </div>
 
       <div id="board">
+        <div class="card">
+          <h2>Message class</h2>
+          <p class="muted">A short alert lands on every student's phone and
+          in their in-app class inbox. Up to 5 an hour, 20 a day, per class.</p>
+          <label for="msg-body">Message</label>
+          <textarea id="msg-body" rows="3" maxlength="240"
+            placeholder="Reminder: bring your laptop Thursday."></textarea>
+          <div class="row">
+            <span class="count" id="msg-count">0 / 240</span>
+            <button class="btn" id="btn-msg-send">Send</button>
+          </div>
+          <p class="err hidden" id="msg-err"></p>
+          <p class="ok hidden" id="msg-ok"></p>
+          <div id="msg-recent" style="margin-top:14px"></div>
+          <p class="muted hidden" id="msg-empty">No messages sent yet.</p>
+        </div>
+
         <div class="card">
           <div class="row">
             <h2 id="board-title"></h2>
@@ -625,10 +648,88 @@ if (!cfg.url || !cfg.anonKey) {
     $("board-title").textContent = cohort.name ?? "Class";
     $("board-code").textContent = cohort.join_code ?? "";
     show("classpane");
+    // A composed but unsent message must never carry over to a different
+    // class: sending the wrong class a message is worse than losing a draft.
+    $("msg-body").value = "";
+    $("msg-count").textContent = "0 / 240";
+    $("msg-count").classList.remove("warn");
+    setErr("msg-err", null);
+    show("msg-ok", false);
     await Promise.all([
       loadOverview(id), loadDomains(id), loadMisses(id),
-      loadMyQuestions(), initLive(),
+      loadMyQuestions(), initLive(), loadMessages(id),
     ]);
+  }
+
+  // ── message class (visible alert push + in-app inbox) ────────────────
+
+  function timeAgo(iso) {
+    const ms = Date.now() - new Date(iso).getTime();
+    const min = Math.floor(ms / 60000);
+    if (min < 1) return "just now";
+    if (min < 60) return `${min}m ago`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+    const day = Math.floor(hr / 24);
+    if (day < 7) return `${day}d ago`;
+    return new Date(iso).toLocaleDateString();
+  }
+
+  $("msg-body").oninput = () => {
+    const len = $("msg-body").value.length;
+    $("msg-count").textContent = `${len} / 240`;
+    $("msg-count").classList.toggle("warn", len > 220);
+  };
+
+  $("btn-msg-send").onclick = async () => {
+    setErr("msg-err", null);
+    show("msg-ok", false);
+    if (!selected) return;
+    const body = $("msg-body").value.trim();
+    if (!body) return setErr("msg-err", "Write a message first.");
+    if (body.length > 240) return setErr("msg-err", "Keep it to 240 characters.");
+    const btn = $("btn-msg-send");
+    btn.disabled = true;
+    const { data, error } = await supabase.rpc("send_class_announcement", {
+      p_cohort: selected, p_body: body,
+    });
+    if (error) {
+      btn.disabled = false;
+      const m = error.message ?? "";
+      const friendly = m.toLowerCase().includes("too many messages")
+        || m.toLowerCase().includes("daily message limit")
+        ? m
+        : "Could not send the message. Try again.";
+      return setErr("msg-err", friendly);
+    }
+    // Best-effort: the announcement row is the source of truth (delivery is
+    // best-effort), so a push-send failure here does not undo the send.
+    try {
+      await supabase.functions.invoke("class-announce", {
+        body: { announcement_id: data.id },
+      });
+    } catch (_) { /* the record stands even if the push did not go out */ }
+    btn.disabled = false;
+    $("msg-body").value = "";
+    $("msg-count").textContent = "0 / 240";
+    $("msg-count").classList.remove("warn");
+    $("msg-ok").textContent = `Sent to ${data.devices} device${data.devices === 1 ? "" : "s"}.`;
+    show("msg-ok");
+    await loadMessages(selected);
+  };
+
+  async function loadMessages(id) {
+    const { data, error } = await supabase.from("class_announcements")
+      .select("id, body, created_at")
+      .eq("cohort_id", id)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const rows = (error ? null : data) ?? [];
+    show("msg-empty", rows.length === 0);
+    $("msg-recent").innerHTML = rows.map((m) => `<div class="msg-item">
+        <p class="stem">${esc(m.body)}</p>
+        <span class="muted">${timeAgo(m.created_at)}</span>
+      </div>`).join("");
   }
 
   // ── admin: command center ───────────────────────────────────────────────
