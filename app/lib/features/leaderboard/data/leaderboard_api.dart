@@ -34,6 +34,7 @@ class LeaderboardEntry {
     required this.handle,
     required this.score,
     required this.rank,
+    this.avatarId = 0,
   });
 
   final String userId;
@@ -42,11 +43,16 @@ class LeaderboardEntry {
 
   /// Competition ranking: ties share a rank (1, 2, 2, 4).
   final int rank;
+
+  /// The pseudonymous avatar chosen on the account screen. Defaults to 0
+  /// (a valid avatar) when a row predates avatar_id or the caller does not
+  /// have it on hand.
+  final int avatarId;
 }
 
 /// Sorts descending and assigns competition ranks. Pure; unit-tested.
 List<LeaderboardEntry> rankEntries(
-  List<({String userId, String handle, int score})> rows,
+  List<({String userId, String handle, int score, int avatarId})> rows,
 ) {
   final sorted = [...rows]..sort((a, b) => b.score.compareTo(a.score));
   final entries = <LeaderboardEntry>[];
@@ -60,6 +66,7 @@ List<LeaderboardEntry> rankEntries(
         handle: sorted[i].handle,
         score: sorted[i].score,
         rank: rank,
+        avatarId: sorted[i].avatarId,
       ),
     );
   }
@@ -126,7 +133,7 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
   Future<List<LeaderboardEntry>> entries(String cohortId) async {
     final rows = await _client
         .from('leaderboard')
-        .select('user_id, score, profiles(handle)')
+        .select('user_id, score, profiles(handle, avatar_id)')
         .eq('cohort_id', cohortId)
         .order('score', ascending: false)
         .limit(200);
@@ -136,6 +143,8 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
           userId: r['user_id'] as String,
           handle: (r['profiles'] as Map?)?['handle'] as String? ?? 'anonymous',
           score: r['score'] as int,
+          avatarId:
+              ((r['profiles'] as Map?)?['avatar_id'] as num?)?.toInt() ?? 0,
         ),
     ]);
   }

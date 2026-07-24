@@ -8,10 +8,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
 import '../../../core/sync/restore_service.dart';
 import '../../../core/sync/sign_in_sheet.dart';
+import '../../account/application/account_providers.dart';
+import '../../account/domain/avatars.dart';
 import '../../decks/application/deck_providers.dart';
 
 final profileHandleProvider = FutureProvider<String?>((ref) async {
@@ -115,17 +118,22 @@ class AccountSection extends ConsumerWidget {
     }
 
     final handle = ref.watch(profileHandleProvider).valueOrNull;
+    final avatarId = ref.watch(myAccountProvider).valueOrNull?.avatarId ?? 0;
     return ListTile(
-      leading: const Icon(Icons.person),
+      leading: PolitifaceAvatar(avatarId: avatarId, size: 36),
       title: Text(handle ?? 'Signed in'),
-      subtitle: const Text('Progress syncs across your devices.'),
+      subtitle: const Text(
+        'Progress syncs across your devices. Tap to manage your account.',
+      ),
       trailing: TextButton(
         onPressed: () async {
           await auth.signOut();
           ref.invalidate(profileHandleProvider);
+          ref.invalidate(myAccountProvider);
         },
         child: const Text('SIGN OUT'),
       ),
+      onTap: () => context.push('/account'),
     );
   }
 }

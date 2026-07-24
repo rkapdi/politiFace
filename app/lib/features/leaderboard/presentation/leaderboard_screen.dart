@@ -17,6 +17,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../features/settings/presentation/account_section.dart';
+import '../../account/domain/avatars.dart';
 import '../../live/application/live_session_controller.dart';
 import '../../live/data/live_session_api.dart';
 import '../application/leaderboard_providers.dart';
@@ -845,6 +846,8 @@ class _EntryRow extends StatelessWidget {
                 ),
               ),
             ),
+            PolitifaceAvatar(avatarId: entry.avatarId, size: 28),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 isMe ? '${entry.handle} (you)' : entry.handle,
