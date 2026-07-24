@@ -8,12 +8,20 @@
 //
 // House style: notifications describe what happened, never what it means.
 // Bodies are official titles and CRS summary text, verbatim.
+//
+// Phase 3: this service no longer fires notifications itself. It DETECTS
+// what changed (fetch + diff + baseline advance + CRS enrichment) and hands
+// the raw items to the NotificationOrchestrator, which runs them through the
+// on-device notification brain alongside memory-rescue and FCLE candidates.
+// [detectNewItems] is the detection seam; [check] is a thin delegator kept
+// for existing callers.
 
 import 'dart:math' as math;
 
 import '../../../core/database/drift/app_database.dart';
 import '../../pulse/data/pulse_live_service.dart';
 import '../../settings/data/settings_service.dart';
+import 'notification_orchestrator.dart';
 import 'notification_sender.dart';
 
 /// Native iOS BGAppRefresh identifier. Must match
@@ -62,18 +70,34 @@ class LivePulseFetcher implements PulseFetcher {
 
 enum WatchCategory { executiveOrder, law, bill }
 
-/// One new item surfaced by [WashingtonWatchService.check], ready to become
-/// a notification (or fold into the collapsed summary).
+/// One new item surfaced by [WashingtonWatchService.detectNewItems], ready to
+/// become a notification candidate (or fold into the collapsed summary).
 class WatchItem {
-  const WatchItem({required this.category, required this.title, this.extra});
+  const WatchItem({
+    required this.category,
+    required this.title,
+    required this.dedupeKey,
+    this.extra,
+    this.personName,
+  });
 
   final WatchCategory category;
 
   /// Official title, verbatim.
   final String title;
 
+  /// Stable identity of this exact update, for the brain's repeat
+  /// suppression: 'eo:<num>', 'law:<bill>', 'bill:<bill>:<actiondate>'.
+  final String dedupeKey;
+
   /// Extra body content (currently: a law's CRS first sentence, verbatim).
   final String? extra;
+
+  /// The real newsmaker tied to this item, when the feed carries one: the
+  /// signing president for an executive order. Null when the source gives no
+  /// person (congress.gov bill/law actions carry no sponsor field today).
+  /// Only ever a name that came straight from the feed; never synthesized.
+  final String? personName;
 
   String get notificationTitle {
     switch (category) {
@@ -117,20 +141,30 @@ class WashingtonWatchService {
   static const _kLastCheck = 'watch.last_check';
   static const _rateLimit = Duration(hours: 2);
 
-  /// id 100 is the collapsed "N updates" summary; 101-103 are individual
-  /// items. Never more than 3 fire individually: a 4th collapses the whole
-  /// batch into the summary instead.
-  static const _summaryId = 100;
-  static const _itemIdBase = 101;
+  /// Delegates to the [NotificationOrchestrator] so the Washington slice runs
+  /// through the same on-device brain (dedupe, daily cap, quiet hours,
+  /// personalization) as every other notification. Kept for existing callers;
+  /// the fetch + baseline + CRS logic still lives here, in [detectNewItems].
+  Future<void> check() => NotificationOrchestrator(
+        db: _db,
+        washington: this,
+        sender: _sender,
+        settings: _settings,
+        now: _now,
+      ).run();
 
-  /// Fetches, diffs against baselines, and fires notifications. Safe to
-  /// call from anywhere (foreground start, BGAppRefresh): every network
-  /// call this depends on fails soft to empty results (see
+  /// Fetches, diffs against baselines, and returns the new items since last
+  /// time (pref-filtered, CRS-enriched for small batches). Does NOT notify:
+  /// the orchestrator turns these into candidates and lets the brain decide.
+  ///
+  /// Safe to call from anywhere (foreground start, BGAppRefresh): every
+  /// network call this depends on fails soft to empty results (see
   /// [PulseLiveService.fetch]), so offline just means "nothing changed."
-  Future<void> check() async {
+  /// Internally rate-limited to at most once per 2 hours.
+  Future<List<WatchItem>> detectNewItems() async {
     try {
       final now = _now();
-      if (!await _passesRateLimit(now)) return;
+      if (!await _passesRateLimit(now)) return const [];
       // Stamp the attempt before the fetch, not after: an offline attempt
       // still counts against the 2-hour budget, so a dead connection can't
       // turn "at most once per 2 hours" into "once per foreground open".
@@ -190,7 +224,7 @@ class WashingtonWatchService {
         await _db.metaDao.set(_kLastBillAction, bills.last.actionDate);
       }
 
-      if (isFirstRun) return; // baselines written; nothing to notify yet
+      if (isFirstRun) return const []; // baselines written; nothing new yet
 
       final washingtonOn = await _settings.washingtonNotifEnabled();
       final eosOn = washingtonOn && await _settings.washEosEnabled();
@@ -200,31 +234,37 @@ class WashingtonWatchService {
       final notifiable = <WatchItem>[
         if (eosOn)
           for (final o in newEos)
-            WatchItem(category: WatchCategory.executiveOrder, title: o.title),
+            WatchItem(
+              category: WatchCategory.executiveOrder,
+              title: o.title,
+              dedupeKey: 'eo:${o.number}',
+              // The signing president is a real face; the orchestrator checks
+              // whether the user has actually studied their card.
+              personName: o.president.isEmpty ? null : o.president,
+            ),
         if (billsOn)
           for (final b in newBills)
-            WatchItem(category: WatchCategory.bill, title: b.title),
+            WatchItem(
+              category: WatchCategory.bill,
+              title: b.title,
+              dedupeKey: 'bill:${b.bill}:${b.actionDate}',
+            ),
         if (lawsOn)
           for (final l in newLaws)
-            WatchItem(category: WatchCategory.law, title: l.title),
+            WatchItem(
+              category: WatchCategory.law,
+              title: l.title,
+              dedupeKey: 'law:${l.bill}',
+            ),
       ];
 
-      if (notifiable.isEmpty) return;
-      if (!await _sender.isAuthorized()) return;
+      if (notifiable.isEmpty) return const [];
 
-      if (notifiable.length > 3) {
-        await _sender.show(
-          id: _summaryId,
-          title:
-              'Washington was busy: ${notifiable.length} updates in The Pulse.',
-          body: '',
-          payload: '/pulse',
-        );
-        return;
-      }
+      // More than 3 collapse into a single summary candidate downstream, so
+      // the per-law CRS round trip is only worth it for a small batch that
+      // will actually surface individually.
+      if (notifiable.length > 3) return notifiable;
 
-      // Small batch: fill in each law's CRS first sentence. Only worth the
-      // network round trip when we're actually about to show it.
       final enriched = <WatchItem>[];
       for (final item in notifiable) {
         if (item.category != WatchCategory.law) {
@@ -236,23 +276,17 @@ class WashingtonWatchService {
           WatchItem(
             category: item.category,
             title: item.title,
+            dedupeKey: item.dedupeKey,
+            personName: item.personName,
             extra: await _firstSentenceOf(law),
           ),
         );
       }
-
-      for (var i = 0; i < enriched.length; i++) {
-        final item = enriched[i];
-        await _sender.show(
-          id: _itemIdBase + i,
-          title: item.notificationTitle,
-          body: item.notificationBody,
-          payload: '/pulse',
-        );
-      }
+      return enriched;
     } catch (_) {
       // Best-effort refresh: never let a formatting/network hiccup surface
       // as a crash on a foreground app start or BGAppRefresh task.
+      return const [];
     }
   }
 

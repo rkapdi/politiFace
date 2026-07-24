@@ -38,8 +38,10 @@ const kObjectiveRollingWindow = 50;
 /// The minimum attempts before accuracy is trusted enough to grade.
 const kConfidentCount = 4;
 
-ReadinessState readinessStateFor(
-    {required double? accuracy, required int count,}) {
+ReadinessState readinessStateFor({
+  required double? accuracy,
+  required int count,
+}) {
   if (count == 0) return ReadinessState.unseen;
   if (count < kConfidentCount) return ReadinessState.practicing;
   // count >= 4 from here: accuracy is non-null (there are answers).
@@ -71,26 +73,19 @@ class ObjectiveReadiness {
   final ReadinessState state;
 }
 
-/// Readiness for all 32 objectives (unseen ones included, accuracy null),
-/// keyed by objective code.
-final objectiveReadinessProvider =
-    FutureProvider<Map<String, ObjectiveReadiness>>((ref) async {
-  ref.watch(fcleTickProvider);
-  final objectives = await ref.watch(objectivesProvider.future);
-  final bank = await ref.watch(questionBankProvider.future);
-  final dao = ref.watch(databaseProvider).fcleAnswersDao;
-  final log = await dao.answerLog(); // newest first
-
-  // questionId -> objective code, from the loaded bank.
-  final objectiveOf = <String, String>{
-    for (final q in bank.all)
-      if (q.objective != null) q.id: q.objective!,
-  };
-
+/// Pure readiness computation over the loaded taxonomy, the questionId ->
+/// objective map, and the local answer log (newest first). Extracted from
+/// [objectiveReadinessProvider] so callers with no Riverpod scope (the
+/// background notification orchestrator) can reuse the exact same logic.
+Map<String, ObjectiveReadiness> computeObjectiveReadiness({
+  required List<Objective> objectives,
+  required Map<String, String> objectiveOfQuestion,
+  required List<({String questionId, bool correct, int answeredAt})> answerLog,
+}) {
   // Bucket answers by objective, preserving newest-first order.
   final byObjective = <String, List<bool>>{};
-  for (final row in log) {
-    final code = objectiveOf[row.questionId];
+  for (final row in answerLog) {
+    final code = objectiveOfQuestion[row.questionId];
     if (code == null) continue;
     (byObjective[code] ??= <bool>[]).add(row.correct);
   }
@@ -115,6 +110,29 @@ final objectiveReadinessProvider =
     );
   }
   return result;
+}
+
+/// Readiness for all 32 objectives (unseen ones included, accuracy null),
+/// keyed by objective code.
+final objectiveReadinessProvider =
+    FutureProvider<Map<String, ObjectiveReadiness>>((ref) async {
+  ref.watch(fcleTickProvider);
+  final objectives = await ref.watch(objectivesProvider.future);
+  final bank = await ref.watch(questionBankProvider.future);
+  final dao = ref.watch(databaseProvider).fcleAnswersDao;
+  final log = await dao.answerLog(); // newest first
+
+  // questionId -> objective code, from the loaded bank.
+  final objectiveOf = <String, String>{
+    for (final q in bank.all)
+      if (q.objective != null) q.id: q.objective!,
+  };
+
+  return computeObjectiveReadiness(
+    objectives: objectives,
+    objectiveOfQuestion: objectiveOf,
+    answerLog: log,
+  );
 });
 
 /// Where the blueprint points the student next: either the single weakest

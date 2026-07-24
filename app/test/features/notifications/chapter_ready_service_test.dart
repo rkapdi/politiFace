@@ -7,8 +7,8 @@ import 'package:politiface/features/notifications/data/notification_sender.dart'
 import 'package:politiface/features/round/domain/round_state.dart';
 import 'package:politiface/features/settings/data/settings_service.dart';
 
-class _ScheduledCall {
-  _ScheduledCall({
+class ScheduledCall {
+  ScheduledCall({
     required this.id,
     required this.title,
     required this.body,
@@ -20,13 +20,19 @@ class _ScheduledCall {
   final DateTime when;
 }
 
-/// Fakes the plugin so tests never touch a platform channel. Optionally
-/// throws from [scheduleAt] to exercise the best-effort swallow path.
+/// Fakes the plugin so tests never touch a platform channel. Records both
+/// immediate deliveries (show) and scheduled ones (scheduleAt); the chapter
+/// nudge now flows through the notification brain, which fires it immediately
+/// at a normal hour. Optionally throws to exercise the best-effort swallow.
 class FakeNotificationSender implements NotificationSender {
   bool authorized = true;
-  bool throwOnSchedule = false;
-  final scheduled = <_ScheduledCall>[];
+  bool throwOnShow = false;
+  final shown = <ScheduledCall>[];
+  final scheduled = <ScheduledCall>[];
   final cancelled = <int>[];
+
+  /// Every notification that actually reached the user, however delivered.
+  List<ScheduledCall> get delivered => [...shown, ...scheduled];
 
   @override
   Future<bool> isAuthorized() async => authorized;
@@ -37,7 +43,12 @@ class FakeNotificationSender implements NotificationSender {
     required String title,
     required String body,
     String? payload,
-  }) async {}
+  }) async {
+    if (throwOnShow) throw Exception('platform channel unavailable');
+    shown.add(
+      ScheduledCall(id: id, title: title, body: body, when: DateTime(0)),
+    );
+  }
 
   @override
   Future<void> scheduleAt({
@@ -47,8 +58,7 @@ class FakeNotificationSender implements NotificationSender {
     required DateTime when,
     String? payload,
   }) async {
-    if (throwOnSchedule) throw Exception('platform channel unavailable');
-    scheduled.add(_ScheduledCall(id: id, title: title, body: body, when: when));
+    scheduled.add(ScheduledCall(id: id, title: title, body: body, when: when));
   }
 
   @override
@@ -247,12 +257,30 @@ void main() {
     tearDown(() => db.close());
 
     ChapterReadyService svc() =>
-        ChapterReadyService(settings: settings, sender: sender);
+        ChapterReadyService(db: db, settings: settings, sender: sender);
 
-    test('schedules the notification when the pref is on and authorized',
+    test('delivers the nudge through the brain when pref on and authorized',
         () async {
       final round = roundAt(
         dayInChapter: 2,
+        daysInChapter: 2,
+        nextChapterTitle: 'Chapter Two',
+      );
+      // 3pm is outside quiet hours, so the brain fires it immediately.
+      await svc().onRoundCompleted(
+        round: round,
+        curriculum: curriculum,
+        now: DateTime(2026, 7, 12, 15),
+      );
+
+      expect(sender.delivered, hasLength(1));
+      expect(sender.delivered.single.id, chapterReadyNotificationId);
+      expect(sender.delivered.single.title, 'Chapter unlocked: Chapter Two');
+    });
+
+    test('does nothing when the round did not finish the chapter', () async {
+      final round = roundAt(
+        dayInChapter: 1,
         daysInChapter: 2,
         nextChapterTitle: 'Chapter Two',
       );
@@ -262,23 +290,10 @@ void main() {
         now: DateTime(2026, 7, 12, 15),
       );
 
-      expect(sender.scheduled, hasLength(1));
-      expect(sender.scheduled.single.id, chapterReadyNotificationId);
-      expect(sender.scheduled.single.title, 'Chapter unlocked: Chapter Two');
+      expect(sender.delivered, isEmpty);
     });
 
-    test('does nothing when the round did not finish the chapter', () async {
-      final round = roundAt(
-        dayInChapter: 1,
-        daysInChapter: 2,
-        nextChapterTitle: 'Chapter Two',
-      );
-      await svc().onRoundCompleted(round: round, curriculum: curriculum);
-
-      expect(sender.scheduled, isEmpty);
-    });
-
-    test('cancels rather than schedules when the pref is off', () async {
+    test('cancels rather than delivers when the pref is off', () async {
       await settings.setChapterNotifEnabled(false);
       final round = roundAt(
         dayInChapter: 2,
@@ -286,13 +301,17 @@ void main() {
         nextChapterTitle: 'Chapter Two',
       );
 
-      await svc().onRoundCompleted(round: round, curriculum: curriculum);
+      await svc().onRoundCompleted(
+        round: round,
+        curriculum: curriculum,
+        now: DateTime(2026, 7, 12, 15),
+      );
 
-      expect(sender.scheduled, isEmpty);
+      expect(sender.delivered, isEmpty);
       expect(sender.cancelled, [chapterReadyNotificationId]);
     });
 
-    test('does not schedule when notifications are not authorized', () async {
+    test('does not deliver when notifications are not authorized', () async {
       sender.authorized = false;
       final round = roundAt(
         dayInChapter: 2,
@@ -300,13 +319,17 @@ void main() {
         nextChapterTitle: 'Chapter Two',
       );
 
-      await svc().onRoundCompleted(round: round, curriculum: curriculum);
+      await svc().onRoundCompleted(
+        round: round,
+        curriculum: curriculum,
+        now: DateTime(2026, 7, 12, 15),
+      );
 
-      expect(sender.scheduled, isEmpty);
+      expect(sender.delivered, isEmpty);
     });
 
     test('never throws even if the sender blows up (best-effort)', () async {
-      sender.throwOnSchedule = true;
+      sender.throwOnShow = true;
       final round = roundAt(
         dayInChapter: 2,
         daysInChapter: 2,
@@ -314,7 +337,11 @@ void main() {
       );
 
       await expectLater(
-        svc().onRoundCompleted(round: round, curriculum: curriculum),
+        svc().onRoundCompleted(
+          round: round,
+          curriculum: curriculum,
+          now: DateTime(2026, 7, 12, 15),
+        ),
         completes,
       );
     });
