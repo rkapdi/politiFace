@@ -98,9 +98,12 @@ Deno.serve(async (req) => {
     global: { headers: { Authorization: `Bearer ${jwtCaller}` } },
   });
   const { data: ann } = await admin.from("class_announcements")
-    .select("id, cohort_id, author, body")
+    .select("id, cohort_id, author, body, pushed_at")
     .eq("id", announcement_id).single();
   if (!ann) return new Response("not found", { status: 404 });
+  if (ann.pushed_at) {
+    return Response.json({ sent: 0, reason: "already delivered" });
+  }
 
   // The row can only exist because send_class_announcement already
   // enforced faculty when creating it, so a matching author IS the
@@ -108,6 +111,14 @@ Deno.serve(async (req) => {
   const { data: caller } = await asCaller.auth.getUser();
   if (!caller?.user?.id || caller.user.id !== ann.author) {
     return new Response("forbidden", { status: 403 });
+  }
+
+  // Claim it so a concurrent replay finds it already pushed.
+  const { data: claimed } = await admin.from("class_announcements")
+    .update({ pushed_at: new Date().toISOString() })
+    .eq("id", ann.id).is("pushed_at", null).select("id");
+  if (!claimed?.length) {
+    return Response.json({ sent: 0, reason: "already delivered" });
   }
 
   // Target: student devices of the cohort.

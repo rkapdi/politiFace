@@ -123,3 +123,9 @@ revoke execute on all functions in schema public from public, anon;
 grant execute on all functions in schema public to authenticated;
 -- The three anon-invocable Edge-Function-facing RPCs stay reachable via the
 -- service key the functions use; nothing here is needed by anon directly.
+
+-- ── 6. announcement replay guard column ─────────────────────────────────────
+-- class-announce marks pushed_at on first delivery so a re-POST cannot
+-- re-blast the class (the RPC rate limit only guards row creation).
+alter table public.class_announcements
+  add column pushed_at timestamptz;

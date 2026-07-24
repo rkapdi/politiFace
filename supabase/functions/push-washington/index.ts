@@ -139,7 +139,27 @@ async function pollForNews(): Promise<boolean> {
   return changed && !firstRun;
 }
 
+async function allTokens(): Promise<{ token: string }[]> {
+  const out: { token: string }[] = [];
+  const page = 1000;
+  for (let from = 0;; from += page) {
+    const { data } = await admin.from("push_tokens")
+      .select("token").eq("platform", "ios").range(from, from + page - 1);
+    if (!data?.length) break;
+    out.push(...data);
+    if (data.length < page) break;
+  }
+  return out;
+}
+
 Deno.serve(async (req) => {
+  // Cron/service-only: verify_jwt merely requires ANY valid JWT (the public
+  // anon key qualifies), so a shared secret gates the fan-out. pg_cron and
+  // manual ops pass X-Cron-Secret; without it, refuse.
+  const cronSecret = Deno.env.get("CRON_SECRET");
+  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
+    return new Response("forbidden", { status: 403 });
+  }
   const force = req.method === "POST" &&
     new URL(req.url).searchParams.get("force") === "1";
   const hasNews = force || await pollForNews();
@@ -147,9 +167,8 @@ Deno.serve(async (req) => {
     return Response.json({ sent: 0, reason: "no new activity" });
   }
 
-  const { data: tokens } = await admin.from("push_tokens")
-    .select("token").eq("platform", "ios");
-  if (!tokens?.length) return Response.json({ sent: 0, reason: "no tokens" });
+  const tokens = await allTokens();
+  if (!tokens.length) return Response.json({ sent: 0, reason: "no tokens" });
 
   const jwt = await providerToken();
   let sent = 0;

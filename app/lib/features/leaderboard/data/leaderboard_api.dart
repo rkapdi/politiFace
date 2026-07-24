@@ -93,25 +93,29 @@ class SupabaseLeaderboardApi implements LeaderboardApi {
     if (uid == null) return const [];
     final rows = await _client
         .from('cohort_members')
-        .select('cohort_id, role, joined_at, roster_name, cohorts(name, term)')
+        .select('cohort_id, role, joined_at, cohorts(name, term)')
         .eq('user_id', uid)
         .order('joined_at', ascending: false);
     final seen = <String>{};
     final cohorts = <CohortInfo>[];
     for (final r in rows) {
       final cohortId = r['cohort_id'] as String;
-      // Defensive: dedupe by cohort_id. RLS scopes cohort_members to every
-      // roster row the caller can see, not just their own membership, so
-      // without the eq('user_id', ...) filter above this would otherwise
-      // return one row per classmate.
+      // Defensive dedupe by cohort_id (one membership row per cohort).
       if (!seen.add(cohortId)) continue;
+      // roster_name is column-revoked (faculty-only via reports); read the
+      // caller's OWN name through the definer RPC for the edit tile.
+      final ownName = await _client.rpc<dynamic>(
+        'my_roster_name',
+        params: {'p_cohort': cohortId},
+      );
       cohorts.add(
         CohortInfo(
           id: cohortId,
           role: r['role'] as String,
           name: (r['cohorts'] as Map?)?['name'] as String? ?? 'My class',
           term: (r['cohorts'] as Map?)?['term'] as String?,
-          rosterName: r['roster_name'] as String?,
+          rosterName:
+              (ownName is String && ownName.isNotEmpty) ? ownName : null,
         ),
       );
     }
