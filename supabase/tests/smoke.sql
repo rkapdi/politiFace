@@ -964,5 +964,53 @@ begin
   end if;
 end $$;
 
+
+-- ── Class announcements (20260724000300) ────────────────────────────────────
+set app.test_uid = :f_uid;
+do $$
+declare v_cohort uuid; res jsonb; i int;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+   where user_id = auth.uid() and role = 'faculty' limit 1;
+  res := public.send_class_announcement(v_cohort, 'Quiz Friday, bring the study guide.');
+  if res ->> 'id' is null then raise exception 'FAIL: announcement not created'; end if;
+  -- empty body rejected
+  begin
+    perform public.send_class_announcement(v_cohort, '   ');
+    raise exception 'FAIL: empty announcement accepted';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- hourly rate limit (5/hour): 4 more ok, 6th fails
+  for i in 1..4 loop
+    perform public.send_class_announcement(v_cohort, 'note ' || i);
+  end loop;
+  begin
+    perform public.send_class_announcement(v_cohort, 'one too many');
+    raise exception 'FAIL: hourly announcement limit not enforced';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- a student cannot send to their own cohort
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid;
+begin
+  select cohort_id into v_cohort from public.cohort_members
+   where user_id = auth.uid() and role = 'student' limit 1;
+  begin
+    perform public.send_class_announcement(v_cohort, 'i am not the teacher');
+    raise exception 'FAIL: student sent a class announcement';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- but a member CAN read the class inbox
+  if (select count(*) from public.class_announcements where cohort_id = v_cohort) < 1 then
+    raise exception 'FAIL: member cannot read class announcements';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
