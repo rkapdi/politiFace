@@ -8,6 +8,7 @@ import '../features/atlas/presentation/person_screen.dart';
 import '../features/atlas/presentation/politician_detail_screen.dart';
 import '../features/atlas/presentation/recent_laws_screen.dart';
 import '../features/atlas/presentation/vocabulary_screen.dart';
+import '../features/class_inbox/presentation/class_inbox_screen.dart';
 import '../features/decks/presentation/deck_browser_screen.dart';
 import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
@@ -189,6 +190,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           path: '/live',
           builder: (context, state) =>
               LiveSessionScreen(args: state.extra! as LiveSessionArgs),
+        ),
+        GoRoute(
+          path: '/class',
+          builder: (context, state) => const ClassInboxScreen(),
         ),
         GoRoute(
           path: '/fcle',
