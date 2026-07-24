@@ -77,12 +77,26 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   });
                 },
               )
-            : _BoardView(
-                cohorts: list,
-                selectedId: _selectedCohortId ?? list.first.id,
-                onSelect: (id) => setState(() => _selectedCohortId = id),
-                onJoinAnother: () => setState(() => _joiningAnother = true),
-              ),
+            : () {
+                // If the selected cohort is not in the freshly-fetched list
+                // yet (a just-joined class whose refetch is mid-flight),
+                // show loading rather than a header/roster from the old
+                // class stacked over the new class's board.
+                final selected = _selectedCohortId;
+                final resolved =
+                    selected != null && list.any((c) => c.id == selected)
+                        ? selected
+                        : list.first.id;
+                if (selected != null && !list.any((c) => c.id == selected)) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return _BoardView(
+                  cohorts: list,
+                  selectedId: resolved,
+                  onSelect: (id) => setState(() => _selectedCohortId = id),
+                  onJoinAnother: () => setState(() => _joiningAnother = true),
+                );
+              }(),
       );
     }
 

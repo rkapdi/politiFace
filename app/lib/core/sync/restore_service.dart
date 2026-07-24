@@ -19,6 +19,8 @@
 // The whole pass is idempotent (running it twice restores nothing new) and
 // never throws to the UI: failures log and no-op.
 
+import 'dart:async';
+
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
@@ -174,10 +176,22 @@ class RestoreService {
   Future<RestoreSummary?> maybeRestoreOnColdStart({DateTime? now}) async {
     if (_api == null || !_sync.isActive) return null;
     final clock = now ?? DateTime.now();
+    // Heal the profile on EVERY cold start, before the restore throttle:
+    // a flaky sign-in can leave the profile row missing, which dead-ends
+    // every queued event on a foreign-key error until it exists. This is
+    // cheap (ensureProfile checks existence first) and must not be gated by
+    // the 6-hour full-restore throttle, or a within-6h relaunch never heals.
+    try {
+      await _ensureProfile?.call();
+    } catch (_) {}
     try {
       final last = int.tryParse(await _db.metaDao.get(lastPullMetaKey) ?? '');
       if (last != null &&
           clock.millisecondsSinceEpoch - last < pullInterval.inMilliseconds) {
+        // Throttled: skip the heavy restore, but the profile heal above
+        // already ran, so give the outbox a nudge in case events were
+        // stranded behind a missing profile.
+        unawaited(_sync.flush());
         return null;
       }
     } catch (_) {
