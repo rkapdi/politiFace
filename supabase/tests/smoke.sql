@@ -1076,5 +1076,72 @@ begin
   end if;
 end $$;
 
+
+-- ── Account management (20260724000500) ─────────────────────────────────────
+set app.test_uid = :s1_uid;
+do $$
+declare res jsonb;
+begin
+  res := public.update_my_profile('jordan_a', 'MDC North', 3::smallint);
+  if res ->> 'handle' <> 'jordan_a' then raise exception 'FAIL: handle not updated'; end if;
+  if (res ->> 'avatar_id')::int <> 3 then raise exception 'FAIL: avatar not set'; end if;
+  -- bad handle rejected
+  begin
+    perform public.update_my_profile('no', null, null);
+    raise exception 'FAIL: accepted a too-short handle';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- avatar out of range rejected
+  begin
+    perform public.update_my_profile(null, null, 99::smallint);
+    raise exception 'FAIL: accepted an out-of-range avatar';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- handle collision with another user is rejected
+set app.test_uid = :s2_uid;
+do $$
+begin
+  begin
+    perform public.update_my_profile('jordan_a', null, null);
+    raise exception 'FAIL: duplicate handle accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- account deletion cascades: create a throwaway user, give them a token +
+-- membership, delete, assert everything is gone.
+reset role;
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000de', 'delete_me@example.edu')
+  on conflict do nothing;
+set role authenticated;
+set app.test_uid = '00000000-0000-0000-0000-0000000000de';
+insert into public.profiles (id, handle) values (auth.uid(), 'delete_me_now')
+  on conflict do nothing;
+do $$
+begin
+  perform public.register_push_token(repeat('d', 40), 'production');
+  perform public.delete_my_account();
+end $$;
+reset role;
+do $$
+begin
+  if exists (select 1 from public.profiles
+             where id = '00000000-0000-0000-0000-0000000000de') then
+    raise exception 'FAIL: profile survived account deletion';
+  end if;
+  if exists (select 1 from public.push_tokens
+             where user_id = '00000000-0000-0000-0000-0000000000de') then
+    raise exception 'FAIL: push token survived account deletion';
+  end if;
+  if exists (select 1 from auth.users
+             where id = '00000000-0000-0000-0000-0000000000de') then
+    raise exception 'FAIL: auth user survived account deletion';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
