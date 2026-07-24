@@ -930,5 +930,39 @@ begin
   end if;
 end $$;
 
+
+-- ── Push tokens (20260724000200) ────────────────────────────────────────────
+set app.test_uid = :s1_uid;
+do $$
+begin
+  perform public.register_push_token(repeat('a', 64), 'production');
+  if (select count(*) from public.push_tokens where user_id = auth.uid()) <> 1 then
+    raise exception 'FAIL: token not registered';
+  end if;
+  -- re-register updates, does not duplicate
+  perform public.register_push_token(repeat('a', 64), 'sandbox');
+  if (select count(*) from public.push_tokens where user_id = auth.uid()) <> 1 then
+    raise exception 'FAIL: token duplicated on re-register';
+  end if;
+  if (select environment from public.push_tokens where user_id = auth.uid())
+     <> 'sandbox' then
+    raise exception 'FAIL: environment not updated';
+  end if;
+  begin
+    perform public.register_push_token('short', 'production');
+    raise exception 'FAIL: accepted a too-short token';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+set app.test_uid = :s2_uid;
+do $$
+begin
+  if exists (select 1 from public.push_tokens) then
+    raise exception 'FAIL: outsider sees another user token';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
