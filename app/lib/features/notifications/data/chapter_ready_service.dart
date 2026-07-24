@@ -5,9 +5,11 @@
 // (decideChapterNotification — testable without the plugin) and a thin
 // service that wires it to settings + the injectable NotificationSender.
 
+import '../../../core/database/drift/app_database.dart';
 import '../../curriculum/domain/curriculum.dart';
 import '../../round/domain/round_state.dart';
 import '../../settings/data/settings_service.dart';
+import 'notification_orchestrator.dart';
 import 'notification_sender.dart';
 
 const chapterReadyNotificationId = 50;
@@ -58,18 +60,25 @@ ChapterNotificationPlan? decideChapterNotification({
   );
 }
 
-/// Thin wrapper: checks the pref + permission, then schedules or cancels
-/// notification id [chapterReadyNotificationId] via the injectable
-/// [NotificationSender].
+/// Thin wrapper: checks the pref, then either cancels the chapter nudge or
+/// hands the teaser to the [NotificationOrchestrator] as a candidate, so the
+/// brain decides whether and when it actually reaches the user (respecting the
+/// daily cap, quiet hours, and repeat suppression like every other category).
 class ChapterReadyService {
   ChapterReadyService({
-    required SettingsService settings,
+    required AppDatabase db,
     NotificationSender? sender,
-  })  : _settings = settings,
-        _sender = sender ?? const PluginNotificationSender();
+    SettingsService? settings,
+    NotificationOrchestrator? orchestrator,
+  })  : _db = db,
+        _sender = sender ?? const PluginNotificationSender(),
+        _settings = settings ?? SettingsService(db),
+        _orchestrator = orchestrator;
 
-  final SettingsService _settings;
+  final AppDatabase _db;
   final NotificationSender _sender;
+  final SettingsService _settings;
+  final NotificationOrchestrator? _orchestrator;
 
   /// Best-effort side effect for the round-completion path: never throws,
   /// so it can be called `unawaited` without risking round completion.
@@ -83,20 +92,25 @@ class ChapterReadyService {
         await _sender.cancel(chapterReadyNotificationId);
         return;
       }
+      final clock = now ?? DateTime.now();
       final nextChapter = curriculum.chapterAfter(round.chapterId);
       final plan = decideChapterNotification(
         round: round,
         nextChapter: nextChapter,
-        now: now ?? DateTime.now(),
+        now: clock,
       );
       if (plan == null) return;
-      if (!await _sender.isAuthorized()) return;
-      await _sender.scheduleAt(
-        id: chapterReadyNotificationId,
+      final orchestrator = _orchestrator ??
+          NotificationOrchestrator(
+            db: _db,
+            sender: _sender,
+            settings: _settings,
+            now: () => clock,
+          );
+      await orchestrator.submitChapterCandidate(
         title: plan.title,
         body: plan.body,
-        when: plan.when,
-        payload: '/round',
+        nextChapterTitle: round.nextChapterTitle!,
       );
     } catch (_) {
       // Never block round completion over a notification side effect.
