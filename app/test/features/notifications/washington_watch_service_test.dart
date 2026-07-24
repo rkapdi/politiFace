@@ -29,20 +29,9 @@ class FakePulseFetcher implements PulseFetcher {
       null;
 }
 
-class ShownNotification {
-  ShownNotification({
-    required this.id,
-    required this.title,
-    required this.body,
-  });
-  final int id;
-  final String title;
-  final String body;
-}
-
-/// Fakes the plugin so tests never touch a platform channel.
+/// Fakes the plugin so tests never touch a platform channel. detectNewItems
+/// never notifies, but the service still requires a sender to construct.
 class FakeNotificationSender implements NotificationSender {
-  final shown = <ShownNotification>[];
   bool authorized = true;
 
   @override
@@ -54,9 +43,7 @@ class FakeNotificationSender implements NotificationSender {
     required String title,
     required String body,
     String? payload,
-  }) async {
-    shown.add(ShownNotification(id: id, title: title, body: body));
-  }
+  }) async {}
 
   @override
   Future<void> scheduleAt({
@@ -71,10 +58,15 @@ class FakeNotificationSender implements NotificationSender {
   Future<void> cancel(int id) async {}
 }
 
-LiveOrder order(int number, {String title = 'An executive order'}) => LiveOrder(
+LiveOrder order(
+  int number, {
+  String title = 'An executive order',
+  String president = 'A President',
+}) =>
+    LiveOrder(
       number: number,
       title: title,
-      president: 'A President',
+      president: president,
       signingDate: '2026-07-01',
       url: 'https://federalregister.gov/d/$number',
     );
@@ -133,108 +125,101 @@ void main() {
         now: now ?? () => DateTime(2026, 7, 12, 10),
       );
 
-  test('first run writes baselines silently, notifies nothing', () async {
-    final fetcher = FakePulseFetcher(orders: [order(5)]);
-    await service(fetcher: fetcher).check();
+  Future<void> seedBaselines() async {
+    await db.metaDao.set('watch.last_eo_number', '5');
+    await db.metaDao.set('watch.last_law', '2026-01-01');
+    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+  }
 
-    expect(sender.shown, isEmpty);
+  test('first run writes baselines silently, detects nothing', () async {
+    final fetcher = FakePulseFetcher(orders: [order(5)]);
+    final items = await service(fetcher: fetcher).detectNewItems();
+
+    expect(items, isEmpty);
     expect(await db.metaDao.get('watch.last_eo_number'), '5');
   });
 
-  test('new EO fires when the category is on', () async {
-    // Seed baselines so this isn't treated as the first run.
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+  test('a new EO is detected with its signing president and dedupe key',
+      () async {
+    await seedBaselines();
 
-    final fetcher = FakePulseFetcher(orders: [order(6, title: 'EO 6 title')]);
-    await service(fetcher: fetcher).check();
+    final fetcher = FakePulseFetcher(
+      orders: [order(6, title: 'EO 6 title', president: 'Jane Doe')],
+    );
+    final items = await service(fetcher: fetcher).detectNewItems();
 
-    expect(sender.shown, hasLength(1));
-    expect(sender.shown.single.title, 'New executive order');
-    expect(sender.shown.single.body, 'EO 6 title');
+    expect(items, hasLength(1));
+    expect(items.single.category, WatchCategory.executiveOrder);
+    expect(items.single.title, 'EO 6 title');
+    expect(items.single.personName, 'Jane Doe');
+    expect(items.single.dedupeKey, 'eo:6');
     expect(await db.metaDao.get('watch.last_eo_number'), '6');
   });
 
-  test('new EO does not fire when the category is off', () async {
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+  test('a new EO is not detected when the category is off', () async {
+    await seedBaselines();
     await settings.setWashEosEnabled(false);
 
     final fetcher = FakePulseFetcher(orders: [order(6)]);
-    await service(fetcher: fetcher).check();
+    final items = await service(fetcher: fetcher).detectNewItems();
 
-    expect(sender.shown, isEmpty);
+    expect(items, isEmpty);
     // Baseline still advances even though the category is muted, so a
     // later re-enable doesn't dump a backlog.
     expect(await db.metaDao.get('watch.last_eo_number'), '6');
   });
 
-  test('new EO does not fire when the Washington master switch is off',
+  test('nothing is detected when the Washington master switch is off',
       () async {
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+    await seedBaselines();
     await settings.setWashingtonNotifEnabled(false);
 
     final fetcher = FakePulseFetcher(orders: [order(6)]);
-    await service(fetcher: fetcher).check();
-
-    expect(sender.shown, isEmpty);
+    expect(await service(fetcher: fetcher).detectNewItems(), isEmpty);
   });
 
-  test('more than 3 new items collapse into one summary notification',
+  test('more than 3 new items are returned raw (collapse happens downstream)',
       () async {
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+    await seedBaselines();
 
     final fetcher = FakePulseFetcher(
       orders: [order(6), order(7), order(8), order(9)],
     );
-    await service(fetcher: fetcher).check();
+    final items = await service(fetcher: fetcher).detectNewItems();
 
-    expect(sender.shown, hasLength(1));
-    expect(
-      sender.shown.single.title,
-      'Washington was busy: 4 updates in The Pulse.',
-    );
+    expect(items, hasLength(4));
   });
 
-  test('a new law body includes the CRS first sentence when available',
-      () async {
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+  test('a new law carries the CRS first sentence when available', () async {
+    await seedBaselines();
 
     final fetcher = _SummaryFetcher(
       bills: [lawAction(actionDate: '2026-07-05', title: 'The New Law Act')],
       summaryText: 'This law does a thing. It also does another thing.',
     );
-    await service(fetcher: fetcher).check();
+    final items = await service(fetcher: fetcher).detectNewItems();
 
-    expect(sender.shown, hasLength(1));
-    expect(sender.shown.single.title, 'New law');
+    expect(items, hasLength(1));
+    expect(items.single.notificationTitle, 'New law');
     expect(
-      sender.shown.single.body,
+      items.single.notificationBody,
       'The New Law Act This law does a thing.',
     );
+    expect(items.single.dedupeKey, 'law:HR 100');
   });
 
-  test('a new bill action fires as "Bill advancing" with no CRS lookup',
-      () async {
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+  test('a new bill action is detected as a bill with no CRS lookup', () async {
+    await seedBaselines();
 
     final fetcher =
         FakePulseFetcher(bills: [billAction(actionDate: '2026-07-05')]);
-    await service(fetcher: fetcher).check();
+    final items = await service(fetcher: fetcher).detectNewItems();
 
-    expect(sender.shown, hasLength(1));
-    expect(sender.shown.single.title, 'Bill advancing');
-    expect(sender.shown.single.body, 'A bill still moving');
+    expect(items, hasLength(1));
+    expect(items.single.category, WatchCategory.bill);
+    expect(items.single.title, 'A bill still moving');
+    expect(items.single.personName, isNull);
+    expect(items.single.dedupeKey, 'bill:S 200:2026-07-05');
   });
 
   test('rate limited to at most once per 2 hours', () async {
@@ -242,37 +227,25 @@ void main() {
     final fetcher = FakePulseFetcher(orders: [order(5)]);
     final svc = service(fetcher: fetcher, now: () => clock);
 
-    await svc.check();
+    await svc.detectNewItems();
     expect(fetcher.fetchCount, 1);
 
     // 1 hour later: still inside the 2-hour window, no new fetch.
     clock = clock.add(const Duration(hours: 1));
-    await svc.check();
+    await svc.detectNewItems();
     expect(fetcher.fetchCount, 1);
 
     // 3 hours after the first check: past the window, fetch again.
     clock = DateTime(2026, 7, 12, 13, 1);
-    await svc.check();
+    await svc.detectNewItems();
     expect(fetcher.fetchCount, 2);
   });
 
   test('offline (fetch throws) is a silent no-op', () async {
-    await service(fetcher: _ThrowingFetcher()).check();
-    expect(sender.shown, isEmpty);
+    final items = await service(fetcher: _ThrowingFetcher()).detectNewItems();
+    expect(items, isEmpty);
     // No baseline should have been written since the fetch never succeeded.
     expect(await db.metaDao.get('watch.last_eo_number'), isNull);
-  });
-
-  test('nothing fires when permission is not authorized', () async {
-    await db.metaDao.set('watch.last_eo_number', '5');
-    await db.metaDao.set('watch.last_law', '2026-01-01');
-    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
-    sender.authorized = false;
-
-    final fetcher = FakePulseFetcher(orders: [order(6)]);
-    await service(fetcher: fetcher).check();
-
-    expect(sender.shown, isEmpty);
   });
 }
 
