@@ -153,6 +153,11 @@ void main() {
     expect(items.single.title, 'EO 6 title');
     expect(items.single.personName, 'Jane Doe');
     expect(items.single.dedupeKey, 'eo:6');
+    // Baseline is NOT consumed on detect for an enabled category: it holds
+    // at 5 so a capped/undelivered item can retry, and only advances once
+    // the orchestrator confirms delivery.
+    expect(await db.metaDao.get('watch.last_eo_number'), '5');
+    await service(fetcher: fetcher).commitDelivered(['eo:6']);
     expect(await db.metaDao.get('watch.last_eo_number'), '6');
   });
 
