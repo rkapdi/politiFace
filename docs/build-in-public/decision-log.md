@@ -161,3 +161,16 @@ the offline bundle cuts at a paragraph boundary and says so; that is a size deci
 an editorial one. The only "interpretation" is tappable Atlas vocabulary terms, which reuse
 definitions already reviewed and cited. No verdicts, no pros/cons, no derived stages.
 Hook: "The feature is a summary engine that refuses to summarize. Congress's own research arm writes the words; we just make them tappable."
+
+**Seven quiz modes become three verbs: Study, Drill, Play.**
+Why: a fresh-eyes audit found that a new user meeting our seven modes (Daily Round, Session,
+Trivia, Endless, FCLE Practice, Mock, Live) cannot say why they would pick one over another.
+Trivia, Endless, and Session quiz the same card pool with cosmetic differences, and choosing
+between near-identical options is work at exactly the moment a student has the least patience
+for it. The consolidation is by job, not by feature: Study keeps what you know alive (one
+flashcard UI, one FSRS queue, the 60-second daily floor), Drill moves your exam readiness
+(practice, mock, blueprint, everything cites its source), Play is joy and identity (Trivia
+and Endless merge into one arcade that feeds the learning engine silently and never burns
+your streak). Live stays an event, not a mode. Nothing is deleted; everything is filed where
+a student would look for it.
+Hook: "We had seven ways to ask you a question and no answer to 'what should I do right now.' Now the app has three verbs and always answers that question first."
