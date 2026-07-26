@@ -174,3 +174,16 @@ and Endless merge into one arcade that feeds the learning engine silently and ne
 your streak). Live stays an event, not a mode. Nothing is deleted; everything is filed where
 a student would look for it.
 Hook: "We had seven ways to ask you a question and no answer to 'what should I do right now.' Now the app has three verbs and always answers that question first."
+
+**The redesign's five open calls, decided in one sitting.**
+Why: the designer onboarding pack put every open product call on one page with a
+recommendation attached, and the founder approved the batch: the Home screen gets exactly
+one primary button chosen by a priority ladder (live game, then owed repairs, then due
+reviews capped at twelve, then weakest exam domain, then today's round); instructors get a
+cohort-scoped incentive banner they configure themselves; readiness stages speak in civic
+coach language (Not yet, On track, Ready, Locked in) instead of verdict language; the
+pre-submission scope freezes in early August; and Home declutters by demotion, not by
+hiding features in a swipe drawer. The lesson worth publishing: decisions move fast when
+the evidence is assembled first. Each call took minutes because the audit had already
+made the tradeoffs legible.
+Hook: "We made five product decisions in one review because the document did the arguing beforehand."
