@@ -122,14 +122,15 @@ final pendingSessionStoreProvider = Provider<PendingSessionStore>(
 /// Initial route, set in main() based on the onboarding flag.
 final initialRouteProvider = Provider<String>((ref) => '/');
 
-/// Controls MaterialApp.themeMode. Defaults to system on first launch; the
-/// Settings screen flips it and persists the choice via SettingsService.
+/// Controls MaterialApp.themeMode. The student app is a dark-surface
+/// product (DESIGN.md section 1): dark is the default. The Settings screen
+/// can still flip it and persist the choice via SettingsService.
 final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
   (ref) => ThemeModeNotifier(ref.read(databaseProvider)),
 );
 
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
-  ThemeModeNotifier(this._db) : super(ThemeMode.system) {
+  ThemeModeNotifier(this._db) : super(ThemeMode.dark) {
     _load();
   }
 
@@ -140,10 +141,10 @@ class ThemeModeNotifier extends StateNotifier<ThemeMode> {
     switch (raw) {
       case 'light':
         state = ThemeMode.light;
-      case 'dark':
-        state = ThemeMode.dark;
-      default:
+      case 'system':
         state = ThemeMode.system;
+      default:
+        state = ThemeMode.dark;
     }
   }
 

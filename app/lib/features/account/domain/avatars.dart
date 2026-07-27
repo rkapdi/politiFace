@@ -28,19 +28,23 @@ class AvatarSpec {
   final IconData icon;
 }
 
-// 8 backgrounds x 6 icons = 48 distinct, deterministic combinations. Colors
-// are the light/dark sibling pairs of the four brand hues already defined
-// in EditorialPalette, so avatars stay unmistakably "Politiface" rather
-// than introducing a new ad hoc palette.
+// 8 backgrounds x 6 icons = 48 distinct, deterministic combinations.
+//
+// FIXED literals, deliberately decoupled from the theme: avatar_id is a
+// persisted user choice, so the mark a student picked must never change
+// under a retheme (the DESIGN.md retheme collapsed several theme
+// constants and briefly made two avatar backgrounds identical). Hues
+// follow the design system's non-partisan family: yellows, mints,
+// oranges, violets, plus two neutrals. No red, no blue.
 const _avatarColors = <Color>[
-  EditorialPalette.actionRed,
-  EditorialPalette.actionRedDark,
-  EditorialPalette.civicNavy,
-  EditorialPalette.civicNavyDark,
-  EditorialPalette.ochreDeep,
-  EditorialPalette.ochreDark,
-  EditorialPalette.civicGreen,
-  EditorialPalette.civicGreenDark,
+  Color(0xFFFFD400), // signal yellow
+  Color(0xFFB89800), // dark yellow
+  Color(0xFF3DD68C), // mint
+  Color(0xFF1E7A4E), // deep green
+  Color(0xFFFF9D00), // orange
+  Color(0xFF8B7CF6), // violet
+  Color(0xFF5B4BC4), // deep violet
+  Color(0xFF6E6E7A), // graphite
 ];
 
 const _avatarIcons = <IconData>[

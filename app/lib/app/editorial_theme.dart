@@ -1,137 +1,171 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// "Editorial Campaign" — Politiface's distinctive design system.
+/// "Signal Brutalism" — Politiface's design system v1.0.
 ///
-/// Inspiration: Saul Bass political design, Reuters newsroom serifs, modern
-/// political magazine covers, vintage voting ballots. The goal is to feel
-/// like a civic publication, not another Material-3 gradient-card app.
+/// Source of truth: DESIGN.md at the repo root. Binding rules that shape
+/// this file:
+///   - The student app is a DARK surface; the instructor web portal is
+///     light. ThemeMode defaults to dark (providers.dart).
+///   - Colour is scarce: ~90% neutral, ~7% signal yellow, ~3% semantic.
+///     Signal yellow is THE brand colour and carries the primary action.
+///   - Semantic colours mean one thing, always: mint = correct, orange =
+///     not yet, violet = locked in / terminal. Never decorative.
+///   - No partisan colour: red and blue never appear as UI accents, state
+///     colours, borders, or backgrounds. Party affiliation is a text
+///     label. No exceptions.
+///   - Flat only: no gradients, no blur, no glow. The only shadows are
+///     hard offsets with zero blur (see BrutalButton and friends in the
+///     neo kit).
+///   - Type: Archivo (display), Inter (body), JetBrains Mono (data).
+///     Weights 400 and 500 only; the display face carries the weight.
 ///
-/// What's unique here:
-///   - Typography pairs a transitional serif (Fraunces) with monospace
-///     (JetBrains Mono). Most apps go sans+sans or serif+sans. The mono body
-///     gives every screen a "this is an official document" weight.
-///   - Palette is flat & deliberate: cream paper, near-black ink, one
-///     campaign red for action, civic navy for trust, vintage ochre as
-///     accent. No purple-gradient anything.
-///   - Surface rules: hard 1.5px borders, sharp 4-6px corners, stamped-seal
-///     button shadows (hard offset, no blur). Gradients are forbidden.
-///   - Motion: 200-280ms easeOutCubic. No elastic bounces.
+/// Naming note: the class keeps its historical name (EditorialPalette)
+/// and constant names so the 18 consumer files keep compiling; the VALUES
+/// are the DESIGN.md tokens. The semantic getters below (BrandColors) are
+/// the preferred access path and are spec-compliant. A mechanical rename
+/// lands with the screen-by-screen pass, not the token pass.
 class EditorialPalette {
-  // Light theme.
-  static const paper = Color(0xFFF5F1E8);          // cream base
-  static const ink = Color(0xFF1A1A1F);            // deep near-black
-  static const inkSubdued = Color(0xFF5C5C66);     // secondary text
-  static const rule = Color(0xFFD8D2C2);           // hairline border
+  // ── Dark surface (student app) ──────────────────────────────────────
+  static const inkInverted = Color(0xFF0B0B0F); // page canvas
+  static const slate = Color(0xFF17171C); // card surface
+  static const slate2 = Color(0xFF26262E); // raised / segment
+  static const line = Color(0xFF2A2A33); // border on dark
+  static const lineDim = Color(0xFF3F3F4A); // thin separator
+  static const mutedBorder = Color(0xFF4A4A55); // inactive control border
+  static const textDim = Color(0xFF5F5F6B); // inactive segment text
+  static const text3 = Color(0xFF6E6E7A); // metadata, captions
+  static const text2 = Color(0xFFA3A3AD); // secondary text
+  static const paperInverted = Color(0xFFF5F5F4); // primary text on dark
+  static const ruleInverted = line; // legacy alias
+  static const inkInvertedSubdued = text2; // legacy alias
 
-  // Dark theme. Recalibrated for OLED — subdued text and outlines were
-  // landing too close to the surface on real device, leaving rooms feeling
-  // muddy and hard to scan. Lifted both ~25% to restore a real hierarchy
-  // step between heading text, secondary text, and frame chrome.
-  static const inkInverted = Color(0xFF0F0F12);    // near-black base
-  static const paperInverted = Color(0xFFF5F1E4);  // brighter cream text
-  static const inkInvertedSubdued = Color(0xFFB6B6C0);  // legible secondary
-  static const ruleInverted = Color(0xFF44444F);   // visible card borders
+  // ── Light surface (instructor / rare light mode) ────────────────────
+  static const paper = Color(0xFFF5F5F4); // card-ish light surface
+  static const canvasLt = Color(0xFFEDEDE8); // dashboard page canvas
+  static const cardLt = Color(0xFFFFFFFF); // card surface on light
+  static const ink = Color(0xFF0B0B0F); // text on light
+  static const inkSubdued = Color(0xFF44444A); // secondary text on light
+  static const rule = Color(0xFF000000); // brutalist border on light
 
-  // Brand colors — light-theme defaults. Each has a lifted dark-theme
-  // sibling because the dark navy/green get swallowed on near-black surfaces.
-  // Use [BrandColors] (extension on ColorScheme) when you want the
-  // brightness-appropriate variant; reach for the constants only when you
-  // need a fixed value (e.g. share-card render that ignores theme).
-  // WCAG note (measured 2026-07-04): actionRed was 0xFFD6242C at 4.49:1 on
-  // paper, a hair under the 4.5:1 AA text minimum; darkened to 5.23:1 while
-  // staying the same campaign red. Never use `ochre` for TEXT in light mode
-  // (2.15:1); it is an accent for strips, bars, and fills. Text wants
-  // [ochreDeep] via the brandOchreText accessor.
-  static const actionRed = Color(0xFFC41E25);      // campaign poster red
-  static const civicNavy = Color(0xFF1E2A4A);      // trust
-  static const ochre = Color(0xFFC9A05B);          // vintage paper highlight
-  static const ochreDeep = Color(0xFF7E6128);      // text-safe ochre (5.14:1)
-  static const civicGreen = Color(0xFF2F6F4F);     // ledger / approval
+  // ── Brand ───────────────────────────────────────────────────────────
+  static const signal = Color(0xFFFFD400); // THE brand colour
+  static const signalDk = Color(0xFFB89800); // pressed-state shadow
 
-  // Dark-mode siblings of the brand colors. Saturation lowered, brightness
-  // lifted so each reads on a #0F0F12 surface without losing identity.
-  static const civicNavyDark = Color(0xFF7895CC);
-  static const ochreDark = Color(0xFFE0B373);
-  static const civicGreenDark = Color(0xFF5DAA80);
-  static const actionRedDark = Color(0xFFEE6A70);  // 6.32:1 on inkInverted
+  // ── Semantic ────────────────────────────────────────────────────────
+  static const correct = Color(0xFF3DD68C); // mint: correct / mastered
+  static const notyet = Color(0xFFFF9D00); // orange: missed / needs review
+  static const tier = Color(0xFF8B7CF6); // violet: locked in / unseen
+  // AA-safe darkened siblings for the rare light-surface text use. On the
+  // light instructor surface, state is encoded solid-vs-hollow black, not
+  // colour (DESIGN.md 3.3); these exist for text that must be chromatic.
+  static const correctOnLight = Color(0xFF1E7A4E);
+  static const notyetOnLight = Color(0xFF9C5000);
+  static const signalTextOnLight = Color(0xFF6E5E00);
+
+  // ── Legacy constant names, remapped to spec tokens ──────────────────
+  // actionRed is retired as a colour (partisan rule). Call sites that
+  // meant "urgent / missed state" now get the not-yet orange; call sites
+  // that meant "primary action" should use colorScheme.primary (signal).
+  static const actionRed = notyet;
+  static const actionRedDark = notyet;
+  static const civicNavy = Color(0xFF17171C); // neutral fill on light
+  static const civicNavyDark = text2; // neutral accent on dark
+  static const ochre = signal;
+  static const ochreDeep = signalTextOnLight;
+  static const ochreDark = signal;
+  static const civicGreen = correctOnLight;
+  static const civicGreenDark = correct;
 }
 
-/// Brightness-aware accessors so the same widget can pull the right brand
-/// color in light vs dark without scattering `Theme.of(context).brightness`
-/// branches everywhere.
+/// Brightness-aware accessors. Prefer these over raw constants: they pick
+/// the AA-safe variant for the current surface.
 extension BrandColors on ColorScheme {
+  /// Historical name; now the NOT-YET / urgent state colour (orange).
+  /// For the primary action colour use [primary] (signal yellow).
   Color get brandRed => brightness == Brightness.dark
-      ? EditorialPalette.actionRedDark
-      : EditorialPalette.actionRed;
-  Color get brandNavy => brightness == Brightness.dark
-      ? EditorialPalette.civicNavyDark
-      : EditorialPalette.civicNavy;
-  Color get brandOchre => brightness == Brightness.dark
-      ? EditorialPalette.ochreDark
-      : EditorialPalette.ochre;
+      ? EditorialPalette.notyet
+      : EditorialPalette.notyetOnLight;
 
-  /// Ochre for TEXT. The plain [brandOchre] fails AA contrast on light
-  /// paper (2.15:1); this variant passes in both modes. Use brandOchre only
-  /// for strips, bars, and fills.
+  /// Historical name; now a NEUTRAL accent (no blue in this product).
+  Color get brandNavy => brightness == Brightness.dark
+      ? EditorialPalette.text2
+      : EditorialPalette.civicNavy;
+
+  /// Signal yellow: fills, strips, the one CTA per screen.
+  Color get brandOchre => EditorialPalette.signal;
+
+  /// Yellow-adjacent that survives as TEXT on the current surface.
   Color get brandOchreText => brightness == Brightness.dark
-      ? EditorialPalette.ochreDark
-      : EditorialPalette.ochreDeep;
+      ? EditorialPalette.signal
+      : EditorialPalette.signalTextOnLight;
+
   Color get brandGreen => brightness == Brightness.dark
-      ? EditorialPalette.civicGreenDark
-      : EditorialPalette.civicGreen;
+      ? EditorialPalette.correct
+      : EditorialPalette.correctOnLight;
+
+  /// Spec-named accessors for new code.
+  Color get signal => EditorialPalette.signal;
+  Color get correctState => brightness == Brightness.dark
+      ? EditorialPalette.correct
+      : EditorialPalette.correctOnLight;
+  Color get notyetState => brightness == Brightness.dark
+      ? EditorialPalette.notyet
+      : EditorialPalette.notyetOnLight;
+  Color get tierState => EditorialPalette.tier;
 }
 
-/// Build the Editorial Campaign light theme.
+/// Light theme: the rare student-side light mode and any in-app surface
+/// that mirrors the instructor dashboard. Yellow is the only chromatic.
 ThemeData buildLightTheme() {
   const base = ColorScheme(
     brightness: Brightness.light,
-    primary: EditorialPalette.actionRed,
-    onPrimary: Colors.white,
+    primary: EditorialPalette.signal,
+    onPrimary: EditorialPalette.ink,
     secondary: EditorialPalette.civicNavy,
     onSecondary: Colors.white,
-    tertiary: EditorialPalette.ochre,
+    tertiary: EditorialPalette.tier,
     onTertiary: EditorialPalette.ink,
-    error: EditorialPalette.actionRed,
+    // No red in this product: destructive/error surfaces are ink-on-light
+    // with heavy borders; validation text uses the AA-safe orange.
+    error: EditorialPalette.notyetOnLight,
     onError: Colors.white,
-    surface: EditorialPalette.paper,
+    surface: EditorialPalette.canvasLt,
     onSurface: EditorialPalette.ink,
     onSurfaceVariant: EditorialPalette.inkSubdued,
-    surfaceContainerLowest: EditorialPalette.paper,
-    surfaceContainerLow: Color(0xFFEFEADA),
-    surfaceContainer: Color(0xFFE8E2CF),
-    surfaceContainerHigh: Color(0xFFE1DAC4),
-    surfaceContainerHighest: Color(0xFFD8D2BB),
+    surfaceContainerLowest: EditorialPalette.cardLt,
+    surfaceContainerLow: EditorialPalette.cardLt,
+    surfaceContainer: Color(0xFFE4E4DF),
+    surfaceContainerHigh: Color(0xFFDCDCD6),
+    surfaceContainerHighest: Color(0xFFD2D2CC),
     outline: EditorialPalette.rule,
-    outlineVariant: Color(0xFFE5DFCD),
+    outlineVariant: Color(0xFFC9C9C2),
   );
   return _themeFrom(base);
 }
 
-/// Build the Editorial Campaign dark theme.
+/// Dark theme: the student app's home surface.
 ThemeData buildDarkTheme() {
   const base = ColorScheme(
     brightness: Brightness.dark,
-    primary: EditorialPalette.actionRed,
-    onPrimary: Colors.white,
-    secondary: Color(0xFF6B82B8), // navy reads lifted in dark
+    primary: EditorialPalette.signal,
+    onPrimary: EditorialPalette.inkInverted,
+    secondary: EditorialPalette.text2,
     onSecondary: EditorialPalette.inkInverted,
-    tertiary: EditorialPalette.ochre,
+    tertiary: EditorialPalette.tier,
     onTertiary: EditorialPalette.inkInverted,
-    error: EditorialPalette.actionRed,
-    onError: Colors.white,
+    error: EditorialPalette.notyet,
+    onError: EditorialPalette.inkInverted,
     surface: EditorialPalette.inkInverted,
     onSurface: EditorialPalette.paperInverted,
-    onSurfaceVariant: EditorialPalette.inkInvertedSubdued,
-    // Surface containers stepped up so cards read as real cards, not
-    // adjacent puddles of near-black.
-    surfaceContainerLowest: Color(0xFF0B0B0E),
-    surfaceContainerLow: Color(0xFF1A1A1F),
-    surfaceContainer: Color(0xFF22222A),
-    surfaceContainerHigh: Color(0xFF2C2C36),
-    surfaceContainerHighest: Color(0xFF363641),
-    outline: EditorialPalette.ruleInverted,
-    outlineVariant: Color(0xFF34343C),
+    onSurfaceVariant: EditorialPalette.text2,
+    surfaceContainerLowest: Color(0xFF08080B),
+    surfaceContainerLow: EditorialPalette.slate,
+    surfaceContainer: EditorialPalette.slate2,
+    surfaceContainerHigh: Color(0xFF2E2E37),
+    surfaceContainerHighest: Color(0xFF383841),
+    outline: EditorialPalette.line,
+    outlineVariant: EditorialPalette.lineDim,
   );
   return _themeFrom(base);
 }
@@ -139,101 +173,86 @@ ThemeData buildDarkTheme() {
 ThemeData _themeFrom(ColorScheme scheme) {
   final isLight = scheme.brightness == Brightness.light;
 
-  // Single family — Plus Jakarta Sans. Clean, sleek, slightly humanist
-  // (warmer than Inter, less overused). Hierarchy comes from weight + size,
-  // not from family-switching. Numbers get tabular alignment via the
-  // OpenType `tnum` feature on numeric-heavy text styles.
-  final base = GoogleFonts.plusJakartaSansTextTheme();
+  // Three faces, two weights (DESIGN.md section 4): Archivo carries
+  // display/headline/title at 500, Inter carries body at 400, JetBrains
+  // Mono carries labels/metadata. Numerals are tabular wherever they
+  // align.
   const tabular = [FontFeature.tabularFigures()];
+  final display = GoogleFonts.archivoTextTheme();
+  final body = GoogleFonts.interTextTheme();
+  final mono = GoogleFonts.jetBrainsMonoTextTheme();
 
   final textTheme = TextTheme(
-    // Display — for hero numbers / archetype reveals. Negative letterspacing
-    // tightens the big sizes the way premium publications set them.
-    displayLarge: base.displayLarge?.copyWith(
-      fontWeight: FontWeight.w800,
-      letterSpacing: -1.5,
-      height: 0.95,
+    displayLarge: display.displayLarge?.copyWith(
+      fontWeight: FontWeight.w500,
+      letterSpacing: -0.5,
+      height: 0.98,
       color: scheme.onSurface,
       fontFeatures: tabular,
     ),
-    displayMedium: base.displayMedium?.copyWith(
-      fontWeight: FontWeight.w800,
-      letterSpacing: -1,
+    displayMedium: display.displayMedium?.copyWith(
+      fontWeight: FontWeight.w500,
+      letterSpacing: -0.3,
       height: 1,
       color: scheme.onSurface,
       fontFeatures: tabular,
     ),
-    displaySmall: base.displaySmall?.copyWith(
-      fontWeight: FontWeight.w800,
-      letterSpacing: -0.5,
+    displaySmall: display.displaySmall?.copyWith(
+      fontWeight: FontWeight.w500,
       color: scheme.onSurface,
       fontFeatures: tabular,
     ),
-    // Headlines — for screen titles, section headers.
-    headlineLarge: base.headlineLarge?.copyWith(
-      fontWeight: FontWeight.w800,
-      letterSpacing: -0.4,
-      color: scheme.onSurface,
-    ),
-    headlineMedium: base.headlineMedium?.copyWith(
-      fontWeight: FontWeight.w800,
-      letterSpacing: -0.3,
-      color: scheme.onSurface,
-    ),
-    headlineSmall: base.headlineSmall?.copyWith(
-      fontWeight: FontWeight.w700,
-      letterSpacing: -0.2,
-      color: scheme.onSurface,
-    ),
-    // Titles — for card titles, list headers.
-    titleLarge: base.titleLarge?.copyWith(
-      fontWeight: FontWeight.w700,
-      letterSpacing: -0.1,
-      color: scheme.onSurface,
-    ),
-    titleMedium: base.titleMedium?.copyWith(
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0,
-      color: scheme.onSurface,
-    ),
-    titleSmall: base.titleSmall?.copyWith(
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.1,
-      color: scheme.onSurface,
-    ),
-    // Body — readable, modest weight.
-    bodyLarge: base.bodyLarge?.copyWith(
+    headlineLarge: display.headlineLarge?.copyWith(
       fontWeight: FontWeight.w500,
-      letterSpacing: 0,
-      height: 1.45,
       color: scheme.onSurface,
     ),
-    bodyMedium: base.bodyMedium?.copyWith(
+    headlineMedium: display.headlineMedium?.copyWith(
       fontWeight: FontWeight.w500,
-      letterSpacing: 0,
-      height: 1.5,
       color: scheme.onSurface,
     ),
-    bodySmall: base.bodySmall?.copyWith(
+    headlineSmall: display.headlineSmall?.copyWith(
       fontWeight: FontWeight.w500,
-      letterSpacing: 0.1,
+      color: scheme.onSurface,
+    ),
+    titleLarge: display.titleLarge?.copyWith(
+      fontWeight: FontWeight.w500,
+      color: scheme.onSurface,
+    ),
+    titleMedium: display.titleMedium?.copyWith(
+      fontWeight: FontWeight.w500,
+      color: scheme.onSurface,
+    ),
+    titleSmall: display.titleSmall?.copyWith(
+      fontWeight: FontWeight.w500,
+      color: scheme.onSurface,
+    ),
+    bodyLarge: body.bodyLarge?.copyWith(
+      fontWeight: FontWeight.w400,
+      height: 1.4,
+      color: scheme.onSurface,
+    ),
+    bodyMedium: body.bodyMedium?.copyWith(
+      fontWeight: FontWeight.w400,
+      height: 1.4,
+      color: scheme.onSurface,
+    ),
+    bodySmall: body.bodySmall?.copyWith(
+      fontWeight: FontWeight.w400,
       color: scheme.onSurfaceVariant,
     ),
-    // Labels — buttons / chips / metadata. Moderate letterspacing,
-    // restrained — not the all-caps newspaper masthead treatment.
-    labelLarge: base.labelLarge?.copyWith(
-      fontWeight: FontWeight.w700,
-      letterSpacing: 0.4,
-      color: scheme.onSurface,
-    ),
-    labelMedium: base.labelMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-      letterSpacing: 0.6,
-      color: scheme.onSurfaceVariant,
-    ),
-    labelSmall: base.labelSmall?.copyWith(
-      fontWeight: FontWeight.w700,
+    labelLarge: mono.labelLarge?.copyWith(
+      fontWeight: FontWeight.w500,
       letterSpacing: 0.8,
+      color: scheme.onSurface,
+    ),
+    labelMedium: mono.labelMedium?.copyWith(
+      fontWeight: FontWeight.w400,
+      letterSpacing: 0.7,
+      color: scheme.onSurfaceVariant,
+    ),
+    labelSmall: mono.labelSmall?.copyWith(
+      fontWeight: FontWeight.w500,
+      letterSpacing: 1.1,
       color: scheme.onSurfaceVariant,
     ),
   );
@@ -243,8 +262,7 @@ ThemeData _themeFrom(ColorScheme scheme) {
     useMaterial3: true,
     scaffoldBackgroundColor: scheme.surface,
     textTheme: textTheme,
-    // App bar — flat with a hairline underline. Reads like a newspaper
-    // section header.
+    // App bar: flat, bordered below. Radius zero everywhere.
     appBarTheme: AppBarTheme(
       backgroundColor: scheme.surface,
       foregroundColor: scheme.onSurface,
@@ -252,87 +270,79 @@ ThemeData _themeFrom(ColorScheme scheme) {
       scrolledUnderElevation: 0,
       surfaceTintColor: Colors.transparent,
       centerTitle: false,
-      titleTextStyle: textTheme.titleLarge?.copyWith(
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.3,
-      ),
+      titleTextStyle: textTheme.titleLarge,
       shape: Border(
-        bottom: BorderSide(color: scheme.outline, width: 1.5),
+        bottom: BorderSide(color: scheme.outline, width: 3),
       ),
     ),
-    // Buttons — stamped seal. Sharp corners, hard borders, no shadows
-    // unless filled.
+    // The one yellow action per screen. The hard offset shadow + press
+    // collapse live in BrutalButton (neo kit); this baseline keeps every
+    // un-migrated FilledButton spec-legal: flat signal, zero radius.
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-        ),
+        backgroundColor: EditorialPalette.signal,
+        foregroundColor: EditorialPalette.ink,
+        shape: const RoundedRectangleBorder(),
+        side: const BorderSide(width: 3), // black, per spec CTA border
         textStyle: textTheme.labelLarge?.copyWith(
           letterSpacing: 1.2,
-          fontWeight: FontWeight.w800,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: scheme.onSurface,
-        side: BorderSide(color: scheme.onSurface, width: 1.5),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(4)),
-        ),
+        foregroundColor: scheme.onSurfaceVariant,
+        side: const BorderSide(color: EditorialPalette.mutedBorder, width: 3),
+        shape: const RoundedRectangleBorder(),
         textStyle: textTheme.labelLarge?.copyWith(
           letterSpacing: 1.2,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w500,
         ),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
       ),
     ),
-    // Cards — flat with hard rules. No elevation. No surface tint.
+    // Cards: flat slate (dark) / white (light), 4px border, zero radius,
+    // no elevation, no tint. Offset shadows are applied per-component,
+    // never in a dense list (DESIGN.md density rule).
     cardTheme: CardTheme(
-      color: scheme.surface,
+      color: isLight ? EditorialPalette.cardLt : EditorialPalette.slate,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
-        side: BorderSide(color: scheme.outline, width: 1.5),
+        side: BorderSide(color: scheme.outline, width: 4),
       ),
     ),
     dividerTheme: DividerThemeData(
       color: scheme.outline,
-      thickness: 1.5,
+      thickness: 1,
       space: 0,
     ),
     snackBarTheme: SnackBarThemeData(
       backgroundColor: scheme.onSurface,
       contentTextStyle: textTheme.bodyMedium?.copyWith(
         color: scheme.surface,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w500,
       ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
+      shape: const RoundedRectangleBorder(),
       behavior: SnackBarBehavior.floating,
     ),
     bottomSheetTheme: BottomSheetThemeData(
-      backgroundColor: scheme.surface,
+      backgroundColor:
+          isLight ? EditorialPalette.cardLt : EditorialPalette.slate,
       surfaceTintColor: Colors.transparent,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
-      ),
+      shape: const RoundedRectangleBorder(),
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: scheme.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      indicatorColor: scheme.primary.withOpacity(isLight ? 0.14 : 0.22),
+      indicatorColor: EditorialPalette.signal.withOpacity(0.16),
       labelTextStyle: WidgetStateProperty.all(
         textTheme.labelSmall?.copyWith(
-          letterSpacing: 1.4,
-          fontWeight: FontWeight.w800,
+          letterSpacing: 1.3,
+          fontWeight: FontWeight.w500,
         ),
       ),
     ),
