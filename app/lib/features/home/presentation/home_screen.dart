@@ -1,3 +1,17 @@
+// lib/features/home/presentation/home_screen.dart
+//
+// Home v2 (Readiness Engine, Move 2 + Move 9, Signal Brutalism skin).
+// The screen answers one question: "will I pass, and what should I do
+// about it right now?" Composition, top to bottom:
+//   masthead (brand + streak chip + avatar)
+//   readiness hero (powerline stage + projected range + domain bars)
+//   THE one button (ladder-picked; the screen's single yellow action)
+//   class block (cohort members only; solo users see nothing here)
+//   "More ways to play" verb row (Study / Drill / Play / Pulse)
+//   the season spine (the long-arc narrative, below the fold)
+// The old five equal tiles and the "Almost There" rail are retired: the
+// ladder answers "what next" alone (defect DEF-07).
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,70 +19,61 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
-import '../../../core/sync/supabase_config.dart';
+import '../../fcle/domain/fcle_question.dart';
+import '../../leaderboard/application/leaderboard_providers.dart';
 import '../../profile/data/profile_service.dart';
-import 'chapter_round_card.dart';
+import '../../shared/widgets/neo/neo_kit.dart';
+import '../application/home_providers.dart';
 import 'first_run_tour.dart';
-import 'next_up_section.dart';
 import 'season_spine.dart';
-import 'streak_hero.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(profileProvider);
-    final profile = profileAsync.valueOrNull ?? UserProfile.empty;
+    final theme = Theme.of(context);
+    final profile =
+        ref.watch(profileProvider).valueOrNull ?? UserProfile.empty;
 
-    // First-run orientation — one-time, checked once per launch.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) FirstRunTour.maybeShow(context, ref);
     });
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Politiface'),
+        title: Text(
+          'POLITIFACE',
+          style: theme.textTheme.titleLarge?.copyWith(letterSpacing: 2),
+        ),
         actions: [
+          _StreakChip(days: profile.streakDays),
+          const SizedBox(width: 10),
           IconButton(
-            tooltip: 'Settings',
-            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings and account',
+            icon: const Icon(Icons.person_outline),
             onPressed: () => context.go('/settings'),
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
+      body: const SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              StreakHero(profile: profile),
-              const SizedBox(height: 24),
-              // Primary CTA — chapter-aware daily round. Replaces the old
-              // Daily Challenge + Trivia tiles as the single ritual.
-              const ChapterRoundCard(),
-              const SizedBox(height: 24),
-              const _SectionDivider(label: 'SECONDARY'),
-              const SizedBox(height: 12),
-              const _PulseTile(),
-              const SizedBox(height: 12),
-              const _TriviaTile(),
-              const SizedBox(height: 12),
-              const _EndlessTile(),
-              const SizedBox(height: 12),
-              const _FcleTile(),
-              if (SupabaseConfig.isConfigured) ...[
-                const SizedBox(height: 12),
-                const _LeaderboardTile(),
-              ],
-              const SizedBox(height: 24),
-              const _SectionDivider(label: 'THE SEASON'),
-              const SizedBox(height: 12),
-              const SeasonSpine(),
-              const SizedBox(height: 24),
-              const NextUpSection(),
-              const SizedBox(height: 16),
+              ReadinessHero(),
+              SizedBox(height: 18),
+              _TheOneButton(),
+              SizedBox(height: 18),
+              _ClassBlock(),
+              _MoreWaysRow(),
+              SizedBox(height: 26),
+              _SectionDivider(label: 'THE SEASON'),
+              SizedBox(height: 12),
+              SeasonSpine(),
+              SizedBox(height: 16),
             ],
           ),
         ),
@@ -77,9 +82,382 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// Magazine-style section divider — hairline with a centered label chip.
+class _StreakChip extends StatelessWidget {
+  const _StreakChip({required this.days});
+
+  final int days;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        border: Border.all(color: EditorialPalette.lineDim, width: 2),
+      ),
+      child: Row(
+        children: [
+          Text('\u{1F525}', style: theme.textTheme.labelMedium),
+          const SizedBox(width: 5),
+          Text(
+            '$days',
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: EditorialPalette.signal,
+              fontFeatures: const [FontFeature.tabularFigures()],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The readiness hero: stage powerline, projected range, domain bars.
+/// Before enough signal exists it becomes an honest invitation instead of
+/// a fake number.
+class ReadinessHero extends ConsumerWidget {
+  const ReadinessHero({super.key});
+
+  static ReadinessStage stageFor(ReadinessSummary s) {
+    if (s.low >= 58) return ReadinessStage.lockedIn;
+    if (s.low >= 48) return ReadinessStage.ready;
+    if (s.high >= 48) return ReadinessStage.onTrack;
+    return ReadinessStage.notYet;
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final summary = ref.watch(readinessSummaryProvider).valueOrNull;
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: EditorialPalette.slate,
+        border: Border.all(color: EditorialPalette.line, width: 4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('YOUR READINESS', style: theme.textTheme.labelSmall),
+              Text('PASS LINE 48', style: theme.textTheme.labelSmall),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (summary == null) ...[
+            Text(
+              'No signal yet',
+              style: theme.textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Answer a few exam questions and this becomes your '
+              'projected score. The Drill tab is the fastest way in.',
+              style: theme.textTheme.bodySmall,
+            ),
+          ] else ...[
+            PowerlineBar(
+              active: stageFor(summary),
+              trailing: Text(
+                'OF 80',
+                style: theme.textTheme.labelSmall
+                    ?.copyWith(color: EditorialPalette.text2),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  '${summary.low}–${summary.high}',
+                  style: theme.textTheme.displaySmall?.copyWith(
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text('projected of 80', style: theme.textTheme.bodySmall),
+              ],
+            ),
+            const SizedBox(height: 12),
+            _DomainBars(perDomain: summary.perDomain),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DomainBars extends StatelessWidget {
+  const _DomainBars({required this.perDomain});
+
+  final Map<FcleDomain, double?> perDomain;
+
+  static const _shortLabels = {
+    FcleDomain.americanDemocracy: 'DEMOCRACY',
+    FcleDomain.usConstitution: 'CONSTITUTION',
+    FcleDomain.foundingDocuments: 'FOUNDING DOCS',
+    FcleDomain.landmarkImpact: 'LANDMARK CASES',
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        for (final d in FcleDomain.values)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 118,
+                  child: Text(
+                    _shortLabels[d] ?? d.label.toUpperCase(),
+                    style: theme.textTheme.labelSmall?.copyWith(fontSize: 9),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: EditorialPalette.inkInverted,
+                      border: Border.all(color: EditorialPalette.line),
+                    ),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: (perDomain[d] ?? 0).clamp(0.0, 1.0),
+                      child: ColoredBox(
+                        // Below par reads not-yet orange, at pace reads
+                        // neutral paper: colour marks the problem, not
+                        // the wallpaper.
+                        color: (perDomain[d] ?? 0) < 0.6
+                            ? EditorialPalette.notyet
+                            : EditorialPalette.text2,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 34,
+                  child: Text(
+                    perDomain[d] == null
+                        ? '–'
+                        : '${(perDomain[d]! * 100).round()}%',
+                    textAlign: TextAlign.right,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// The screen's ONE yellow action, picked by the approved priority
+/// ladder. Everything else on Home is quiet.
+class _TheOneButton extends ConsumerWidget {
+  const _TheOneButton();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final pick = ref.watch(ladderPickProvider).valueOrNull;
+    final played = ref.watch(homeRoundPlayedProvider).valueOrNull ?? false;
+
+    final (label, subtitle, route) = switch (pick?.rung) {
+      LadderRung.review => (
+          "▶ Today's review",
+          '${pick!.dueCount} cards · about '
+              '${(pick.dueCount / 5).ceil()} min',
+          '/session',
+        ),
+      LadderRung.drill => (
+          '▶ Drill your weakest domain',
+          '${pick!.weakest?.label ?? ''} · 10 questions',
+          '/fcle/practice?domain=${pick.weakest?.code ?? ''}',
+        ),
+      LadderRung.round || null => played
+          ? ("▶ Today's round", 'Played · replay or review', '/round')
+          : ("▶ Play today's round", 'The daily ritual', '/round'),
+    };
+
+    return BrutalButton(
+      label: label,
+      subtitle: subtitle,
+      onPressed: () => context.go(route),
+    );
+  }
+}
+
+/// The classroom, ambient on Home for cohort members only (Move 9).
+/// Solo students never see class scaffolding (persona P2's
+/// anti-requirement).
+class _ClassBlock extends ConsumerWidget {
+  const _ClassBlock();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final cohorts = ref.watch(myCohortsProvider).valueOrNull ?? const [];
+    if (cohorts.isEmpty) return const SizedBox.shrink();
+    final cohort = cohorts.first;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+        decoration: BoxDecoration(
+          color: EditorialPalette.slate,
+          border: Border.all(color: EditorialPalette.line, width: 4),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'MY CLASS · ${cohort.name.toUpperCase()}',
+              style: theme.textTheme.labelSmall,
+            ),
+            const SizedBox(height: 4),
+            _ClassRow(
+              label: 'Class messages',
+              onTap: () => context.push('/class'),
+            ),
+            _ClassRow(
+              label: 'Leaderboard and live games',
+              onTap: () => context.push('/leaderboard'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ClassRow extends StatelessWidget {
+  const _ClassRow({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        decoration: const BoxDecoration(
+          border: Border(
+            top: BorderSide(color: EditorialPalette.line),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(label, style: theme.textTheme.bodyMedium),
+            ),
+            Text(
+              '→',
+              style: theme.textTheme.labelLarge
+                  ?.copyWith(color: EditorialPalette.text2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The three verbs plus the reference feed (approved D1). Quiet tiles:
+/// hollow, mono, no colour; the ladder button above them is the loud one.
+class _MoreWaysRow extends StatelessWidget {
+  const _MoreWaysRow();
+
+  @override
+  Widget build(BuildContext context) => Row(
+      children: [
+        for (final (label, glyph, route, push) in const [
+          ('STUDY', '▤', '/session', false),
+          ('DRILL', '◎', '/fcle', true),
+          ('PLAY', '✦', '/trivia', false),
+          ('PULSE', '⚡', '/pulse', true),
+        ]) ...[
+          if (label != 'STUDY') const SizedBox(width: 8),
+          Expanded(
+            child: _VerbTile(
+              label: label,
+              glyph: glyph,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                push ? context.push(route) : context.go(route);
+              },
+            ),
+          ),
+        ],
+      ],
+    );
+}
+
+class _VerbTile extends StatelessWidget {
+  const _VerbTile({
+    required this.label,
+    required this.glyph,
+    required this.onTap,
+  });
+
+  final String label;
+  final String glyph;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 56),
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: EditorialPalette.lineDim, width: 3),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              glyph,
+              style: TextStyle(
+                fontSize: 15,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(fontSize: 10),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _SectionDivider extends StatelessWidget {
   const _SectionDivider({required this.label});
+
   final String label;
 
   @override
@@ -87,218 +465,12 @@ class _SectionDivider extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Expanded(
-          child: Container(height: 1, color: theme.colorScheme.outlineVariant),
-        ),
+        Expanded(child: Container(height: 1, color: EditorialPalette.line)),
         const SizedBox(width: 10),
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-            letterSpacing: 2,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
+        Text(label, style: theme.textTheme.labelSmall),
         const SizedBox(width: 10),
-        Expanded(
-          child: Container(height: 1, color: theme.colorScheme.outlineVariant),
-        ),
+        Expanded(child: Container(height: 1, color: EditorialPalette.line)),
       ],
     );
   }
-}
-
-/// Editorial-style action tile. Section label, display-serif headline,
-/// mono body, sharp corners, optional colored top strip like a magazine
-/// section header.
-class _ActionTile extends StatelessWidget {
-  const _ActionTile({
-    required this.section,
-    required this.headline,
-    required this.body,
-    required this.accent,
-    required this.onTap,
-    this.mark,
-  });
-  final String section;
-  final String headline;
-  final String body;
-  final Color accent;
-  final VoidCallback onTap;
-
-  /// Optional marker glyph rendered as a typographic dingbat (small,
-  /// inline, NOT a hero emoji). Pass null to omit.
-  final String? mark;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Material(
-      color: theme.colorScheme.surface,
-      child: InkWell(
-        onTap: onTap,
-        child: Container(
-          decoration: BoxDecoration(
-            border:
-                Border.all(color: theme.colorScheme.outline, width: 1.5),
-            borderRadius: const BorderRadius.all(Radius.circular(6)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Colored top strip — a hairline of identity, magazine-style.
-              Container(height: 4, color: accent),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 14, 18, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          section,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: accent,
-                            letterSpacing: 1.8,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const Spacer(),
-                        Icon(
-                          Icons.arrow_forward,
-                          size: 18,
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (mark != null) ...[
-                          Text(
-                            mark!,
-                            style: TextStyle(
-                              fontSize: 28,
-                              color: accent,
-                              fontWeight: FontWeight.w900,
-                              height: 1,
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                        Expanded(
-                          child: Text(
-                            headline,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              height: 1.1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      body,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _TriviaTile extends StatelessWidget {
-  const _TriviaTile();
-
-  @override
-  Widget build(BuildContext context) => _ActionTile(
-      section: 'TRIVIA · DAILY',
-      headline: 'Are you a Civic Bluffer?',
-      body: '10 questions. Bet your confidence. Get an archetype.',
-      accent: EditorialPalette.actionRed,
-      mark: '✦',
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.go('/trivia');
-      },
-    );
-}
-
-class _PulseTile extends StatelessWidget {
-  const _PulseTile();
-
-  @override
-  Widget build(BuildContext context) => _ActionTile(
-      section: 'THE PULSE',
-      headline: 'What Washington did.',
-      body: 'New laws, executive orders, and bill actions, one feed.',
-      accent: Theme.of(context).colorScheme.brandNavy,
-      mark: '⚡',
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push('/pulse');
-      },
-    );
-}
-
-class _LeaderboardTile extends StatelessWidget {
-  const _LeaderboardTile();
-
-  @override
-  Widget build(BuildContext context) => _ActionTile(
-      section: 'CLASS',
-      headline: 'Beat your class.',
-      body: 'Join with your class code. Every correct answer scores.',
-      // Text-safe ochre: _ActionTile renders the accent as small text.
-      accent: Theme.of(context).colorScheme.brandOchreText,
-      mark: '#1',
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push('/leaderboard');
-      },
-    );
-}
-
-class _FcleTile extends StatelessWidget {
-  const _FcleTile();
-
-  @override
-  Widget build(BuildContext context) => _ActionTile(
-      section: 'FCLE PREP',
-      headline: 'Could you pass?',
-      body: 'Practice for the Florida Civic Literacy Exam. '
-          'Four domains, mock exams, readiness tracking.',
-      accent: Theme.of(context).colorScheme.brandGreen,
-      mark: '§',
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.push('/fcle');
-      },
-    );
-}
-
-class _EndlessTile extends StatelessWidget {
-  const _EndlessTile();
-
-  @override
-  Widget build(BuildContext context) => _ActionTile(
-      section: 'ENDLESS',
-      headline: 'Play forever.',
-      body: 'Quick MCQ. No streak burn. Beat your best run.',
-      accent: Theme.of(context).colorScheme.brandNavy,
-      mark: '∞',
-      onTap: () {
-        HapticFeedback.lightImpact();
-        context.go('/endless');
-      },
-    );
 }
