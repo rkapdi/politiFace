@@ -1,6 +1,6 @@
-// Onboarding: three pages, skippable everywhere, no account ask, sets
-// both its own flag and the old home-tour flag so orientations never
-// stack.
+// The diagnostic cold open (Move 1): value first, skippable everywhere,
+// no account ask, answers feed the readiness log, and both orientation
+// flags are set so a new user never sits through two tours.
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +9,33 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:politiface/app/providers.dart';
 import 'package:politiface/core/database/drift/app_database.dart';
+import 'package:politiface/features/fcle/application/fcle_providers.dart';
+import 'package:politiface/features/fcle/data/question_bank_loader.dart';
+import 'package:politiface/features/fcle/domain/fcle_question.dart';
 import 'package:politiface/features/home/presentation/first_run_tour.dart';
 import 'package:politiface/features/onboarding/presentation/onboarding_screen.dart';
+
+/// A tiny deterministic bank: 3 questions per domain, first option is
+/// always correct, so the walker below has stable targets.
+QuestionBank fakeBank() => QuestionBank({
+      for (final d in FcleDomain.values)
+        d: [
+          for (var i = 0; i < 3; i++)
+            FcleQuestion(
+              id: '${d.code}-q$i',
+              domain: d,
+              stem: 'Question $i about ${d.label}?',
+              options: const [
+                FcleOption(key: 'a', text: 'Right answer'),
+                FcleOption(key: 'b', text: 'Wrong answer'),
+              ],
+              answerKey: 'a',
+              explanation: 'Because the Constitution says so.',
+              citation: 'U.S. Const. art. I',
+              difficulty: 1,
+            ),
+        ],
+    });
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +51,10 @@ void main() {
   });
 
   Widget host({String start = '/onboarding'}) => ProviderScope(
-        overrides: [databaseProvider.overrideWithValue(db)],
+        overrides: [
+          databaseProvider.overrideWithValue(db),
+          questionBankProvider.overrideWith((ref) => fakeBank()),
+        ],
         child: MaterialApp.router(
           routerConfig: GoRouter(
             initialLocation: start,
@@ -40,10 +68,6 @@ void main() {
                 builder: (_, __) => const Scaffold(body: Text('HOME')),
               ),
               GoRoute(
-                path: '/fcle',
-                builder: (_, __) => const Scaffold(body: Text('FCLE HUB')),
-              ),
-              GoRoute(
                 path: '/leaderboard',
                 builder: (_, __) => const Scaffold(body: Text('CLASS')),
               ),
@@ -52,31 +76,25 @@ void main() {
         ),
       );
 
-  testWidgets('walks three pages and lands on the FCLE hook', (tester) async {
+  testWidgets(
+      'cold open leads with the question, no signup wall anywhere',
+      (tester) async {
     await tester.pumpWidget(host());
-    expect(find.text('Pass the FCLE with confidence'), findsOneWidget);
-    // No account ask anywhere in onboarding: the no-signup-wall rule.
+    expect(find.text('Could you pass the FCLE right now?'), findsOneWidget);
     expect(find.textContaining('Sign in'), findsNothing);
+    expect(find.text('START THE DIAGNOSTIC'), findsOneWidget);
+    expect(find.text('SKIP'), findsOneWidget);
+  });
 
-    await tester.tap(find.text('NEXT'));
-    await tester.pumpAndSettle();
-    expect(find.text('Learn it once, keep it for good'), findsOneWidget);
-
-    await tester.tap(find.text('NEXT'));
-    await tester.pumpAndSettle();
-    expect(find.text('Could you pass it today?'), findsOneWidget);
-
-    // Drift futures need the real event loop; fake-async would hang on
-    // the flag writes inside _finish.
+  testWidgets('SKIP exits to home from the invite and persists flags',
+      (tester) async {
+    await tester.pumpWidget(host());
     await tester.runAsync(() async {
-      await tester.tap(find.text('SEE IF YOU CAN PASS'));
-      // Real delay (not pump): lets the handler's drift awaits and the
-      // context.go continuation run to completion on the live event loop.
+      await tester.tap(find.text('SKIP'));
       await Future<void>.delayed(const Duration(milliseconds: 150));
     });
     await tester.pumpAndSettle();
-    expect(find.text('FCLE HUB'), findsOneWidget);
-
+    expect(find.text('HOME'), findsOneWidget);
     final done = await tester.runAsync(
       () => db.metaDao.get(OnboardingScreen.doneFlagKey),
     );
@@ -87,36 +105,41 @@ void main() {
     expect(tour, '1');
   });
 
-  testWidgets('SKIP exits to home from the first page and persists',
-      (tester) async {
+  testWidgets(
+      'starting the diagnostic shows a question; answering logs it '
+      'and reveals the citation', (tester) async {
     await tester.pumpWidget(host());
-    await tester.runAsync(() async {
-      await tester.tap(find.text('SKIP'));
-      // Real delay (not pump): lets the handler's drift awaits and the
-      // context.go continuation run to completion on the live event loop.
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-    });
-    await tester.pumpAndSettle();
-    expect(find.text('HOME'), findsOneWidget);
-    final done = await tester.runAsync(
-      () => db.metaDao.get(OnboardingScreen.doneFlagKey),
-    );
-    expect(done, '1');
-  });
+    await tester.tap(find.text('START THE DIAGNOSTIC'));
+    for (var f = 0; f < 6; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('THE DIAGNOSTIC'), findsOneWidget);
+    expect(find.byKey(const Key('diag-opt-0')), findsOneWidget);
 
-  testWidgets('class-code path routes to the leaderboard', (tester) async {
-    await tester.pumpWidget(host());
-    await tester.tap(find.text('NEXT'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('NEXT'));
-    await tester.pumpAndSettle();
-    await tester.runAsync(() async {
-      await tester.tap(find.text('I HAVE A CLASS CODE'));
-      // Real delay (not pump): lets the handler's drift awaits and the
-      // context.go continuation run to completion on the live event loop.
-      await Future<void>.delayed(const Duration(milliseconds: 150));
+    await tester.tap(find.byKey(const Key('diag-opt-0')));
+    // Real loop so the drift insert inside the answer handler lands.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 120)),
+    );
+    for (var f = 0; f < 4; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('NEXT'), findsOneWidget);
+    expect(find.textContaining('SOURCE'), findsOneWidget);
+
+    // The diagnostic feeds the same local log that powers readiness.
+    final counts = await tester.runAsync(() async {
+      var total = 0;
+      for (final code in [
+        'american_democracy',
+        'us_constitution',
+        'founding_documents',
+        'landmark_impact',
+      ]) {
+        total += await db.fcleAnswersDao.answerCount(code);
+      }
+      return total;
     });
-    await tester.pumpAndSettle();
-    expect(find.text('CLASS'), findsOneWidget);
+    expect(counts, 1);
   });
 }
