@@ -87,7 +87,11 @@ class WatchItem {
   final String title;
 
   /// Stable identity of this exact update, for the brain's repeat
-  /// suppression: 'eo:<num>', 'law:<bill>', 'bill:<bill>:<actiondate>'.
+  /// suppression AND for [WashingtonWatchService.commitDelivered]'s
+  /// baseline advance: 'eo:<num>', 'law:<bill>:<actiondate>',
+  /// 'bill:<bill>:<actiondate>'. The trailing segment of law/bill keys MUST
+  /// be the ISO action date: commitDelivered parses it back out to advance
+  /// the date baselines.
   final String dedupeKey;
 
   /// Extra body content (currently: a law's CRS first sentence, verbatim).
@@ -187,8 +191,19 @@ class WashingtonWatchService {
       bills.sort((a, b) => a.actionDate.compareTo(b.actionDate));
 
       final lastEo = int.tryParse(await _db.metaDao.get(_kLastEo) ?? '');
-      final lastLaw = await _db.metaDao.get(_kLastLaw);
-      final lastBill = await _db.metaDao.get(_kLastBillAction);
+      // Heal baselines poisoned by the pre-fix commitDelivered, which wrote
+      // a bill identity ("HR 100") where an ISO date belongs. A non-date
+      // baseline compares greater than every date string ('H' > '9'), which
+      // silences the channel forever. Healing re-baselines to the newest
+      // item now (no backlog dump), exactly like a first run.
+      final lastLaw = await _healDateBaseline(
+        _kLastLaw,
+        fallback: laws.isEmpty ? null : laws.last.actionDate,
+      );
+      final lastBill = await _healDateBaseline(
+        _kLastBillAction,
+        fallback: bills.isEmpty ? null : bills.last.actionDate,
+      );
 
       final newEos = lastEo == null
           ? const <LiveOrder>[]
@@ -258,7 +273,7 @@ class WashingtonWatchService {
             WatchItem(
               category: WatchCategory.law,
               title: l.title,
-              dedupeKey: 'law:${l.bill}',
+              dedupeKey: 'law:${l.bill}:${l.actionDate}',
             ),
       ];
 
@@ -295,9 +310,13 @@ class WashingtonWatchService {
   }
 
   /// Advance the baselines for items the orchestrator actually delivered
-  /// (or scheduled). Keys look like 'eo:14413', 'law:2026-07-20',
-  /// 'bill:2026-07-20'. Undelivered items are simply not passed here, so
-  /// they remain "new" and get another delivery attempt next cycle.
+  /// (or scheduled). Keys look like 'eo:14413', 'law:HR 100:2026-07-20',
+  /// 'bill:HR 100:2026-07-20' — for law/bill the LAST segment is the ISO
+  /// action date, and only a well-formed date is ever committed (the
+  /// baselines are compared against action dates in [detectNewItems], so
+  /// committing anything else silences the channel). Undelivered items are
+  /// simply not passed here, so they remain "new" and get another delivery
+  /// attempt next cycle.
   Future<void> commitDelivered(List<String> deliveredKeys) async {
     var maxEo = -1;
     String? maxLaw;
@@ -306,15 +325,19 @@ class WashingtonWatchService {
       final i = k.indexOf(':');
       if (i < 0) continue;
       final kind = k.substring(0, i);
-      final val = k.substring(i + 1);
       switch (kind) {
         case 'eo':
-          final n = int.tryParse(val);
+          final n = int.tryParse(k.substring(i + 1));
           if (n != null && n > maxEo) maxEo = n;
         case 'law':
-          if (maxLaw == null || val.compareTo(maxLaw) > 0) maxLaw = val;
         case 'bill':
-          if (maxBill == null || val.compareTo(maxBill) > 0) maxBill = val;
+          final date = k.substring(k.lastIndexOf(':') + 1);
+          if (!_isIsoDate(date)) continue;
+          if (kind == 'law') {
+            if (maxLaw == null || date.compareTo(maxLaw) > 0) maxLaw = date;
+          } else {
+            if (maxBill == null || date.compareTo(maxBill) > 0) maxBill = date;
+          }
       }
     }
     if (maxEo >= 0) {
@@ -349,8 +372,24 @@ class WashingtonWatchService {
       (await _db.metaDao.get(_kLastLaw)) == null &&
       (await _db.metaDao.get(_kLastBillAction)) == null;
 
-  bool _isLaw(LiveBillAction b) =>
-      b.action.toLowerCase().contains('became public law');
+  /// Reads a date baseline, repairing malformed values in place. Returns
+  /// null when the stored value was missing or malformed; malformed values
+  /// are rewritten to [fallback] (the newest item in the current feed) or
+  /// today's date, so the channel resumes cleanly on the next sweep.
+  Future<String?> _healDateBaseline(String key, {String? fallback}) async {
+    final raw = await _db.metaDao.get(key);
+    if (raw == null) return null;
+    if (_isIsoDate(raw)) return raw;
+    final healed =
+        fallback ?? _now().toIso8601String().substring(0, 10);
+    await _db.metaDao.set(key, healed);
+    return null;
+  }
+
+  static final _isoDateRe = RegExp(r'^\d{4}-\d{2}-\d{2}$');
+  static bool _isIsoDate(String s) => _isoDateRe.hasMatch(s);
+
+  bool _isLaw(LiveBillAction b) => isEnactedLaw(b);
 
   Future<String?> _firstSentenceOf(LiveBillAction law) async {
     if (law.congress == null) return null;

@@ -121,7 +121,45 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
         summaryTruncated: b.summaryTruncated,
       ),
   };
+  // Bundled laws, keyed for dedupe against the live feed: a bill that
+  // already appears in recent_laws.yaml must not render twice.
+  final bundledLawBills = <String>{for (final l in reference.laws) l.bill};
+  final bundledLawNumbers = <String>{
+    for (final l in reference.laws) l.lawNumber,
+  };
+
+  final liveLaws = <_PulseItem>[];
   for (final b in live.bills) {
+    // Same classifier as the Washington watch notifier: an enacted bill is
+    // a LAW here too, or a "New law" notification opens a feed where the
+    // law is filed under "Bill actions" and hidden by the "New laws"
+    // filter.
+    if (isEnactedLaw(b)) {
+      final lawNumber = publicLawNumberOf(b);
+      final dupe = bundledLawBills.contains(b.bill) ||
+          (lawNumber != null && bundledLawNumbers.contains(lawNumber));
+      if (!dupe) {
+        billsById.remove(b.bill); // never also listed as a bill action
+        liveLaws.add(
+          _PulseItem(
+            kind: _PulseKind.law,
+            date: b.actionDate,
+            title: b.title.isEmpty ? b.bill : b.title,
+            detail: lawNumber == null
+                ? '${b.bill}: ${b.action}'
+                : 'Became Public Law $lawNumber (started as ${b.bill})',
+            url: b.url,
+            bill: b.bill,
+            action: b.action,
+            originDetail: lawNumber == null
+                ? b.action
+                : 'Became Public Law $lawNumber',
+            congress: b.congress,
+          ),
+        );
+      }
+      continue;
+    }
     // Live wins on freshness, but a bundled CRS summary carries forward
     // so going online never deletes a summary.
     final prior = billsById[b.bill];
@@ -143,6 +181,7 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
 
   final items = <_PulseItem>[
     ...ordersByNumber.values,
+    ...liveLaws,
     for (final l in reference.laws)
       _PulseItem(
         kind: _PulseKind.law,

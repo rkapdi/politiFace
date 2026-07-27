@@ -189,11 +189,17 @@ Future<void> _bootstrap(AppDatabase db) async {
 
   // First launch opens the onboarding sequence; a --dart-define lets
   // QA/deep-link builds open straight onto any route instead
-  // (e.g. INITIAL_ROUTE=/pulse), and takes precedence.
+  // (e.g. INITIAL_ROUTE=/pulse), and takes precedence. A notification tap
+  // that launched the app from terminated is honored next (the running-app
+  // tap path goes through onSelectRoute above and never reaches here), but
+  // never ahead of onboarding: a brand-new install still onboards first.
   const envRoute = String.fromEnvironment('INITIAL_ROUTE');
   final onboarded = (await db.metaDao.get(OnboardingScreen.doneFlagKey)) == '1';
-  final initialRoute =
-      envRoute.isNotEmpty ? envRoute : (onboarded ? '/' : '/onboarding');
+  final launchRoute =
+      onboarded ? await NotificationService.instance.takeLaunchRoute() : null;
+  final initialRoute = envRoute.isNotEmpty
+      ? envRoute
+      : (launchRoute ?? (onboarded ? '/' : '/onboarding'));
 
   runApp(
     ProviderScope(

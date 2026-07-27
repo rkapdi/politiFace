@@ -106,6 +106,41 @@ async function sendSilent(
 }
 
 // ── detect new Washington activity ──────────────────────────────────────────
+
+type PulseBill = {
+  bill?: string;
+  action_date?: string | null;
+  action?: string | null;
+};
+
+// Same classifier as the app's WashingtonWatchService/Pulse feed: an
+// enacted bill is a law. The pulse function returns ONLY { fetched_at,
+// bills }; laws must be derived here, not read from fields it never sends.
+function isEnactedLaw(b: PulseBill): boolean {
+  return (b.action ?? "").toLowerCase().includes("became public law");
+}
+
+// Newest executive order number, straight from the Federal Register
+// (keyless, public). The pulse function does not serve EOs (the app reads
+// the Federal Register directly), so the watermark needs its own lookup.
+// Fails soft to null: an FR hiccup must not block bill/law detection.
+async function latestEoNumber(): Promise<number | null> {
+  try {
+    const res = await fetch(
+      "https://www.federalregister.gov/api/v1/documents.json" +
+        "?conditions%5Btype%5D%5B%5D=PRESDOCU" +
+        "&conditions%5Bpresidential_document_type%5D%5B%5D=executive_order" +
+        "&per_page=1&order=newest&fields%5B%5D=executive_order_number",
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const n = Number(data.results?.[0]?.executive_order_number);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  } catch (_) {
+    return null;
+  }
+}
+
 async function pollForNews(): Promise<boolean> {
   const { data: sig } = await admin.schema("app").from("push_signal")
     .select("*").eq("id", true).single();
@@ -118,9 +153,16 @@ async function pollForNews(): Promise<boolean> {
   if (!pulseRes.ok) return false;
   const pulse = await pulseRes.json();
 
-  const latestEo: number | null = pulse.executive_orders?.[0]?.eo_number ?? null;
-  const latestBillDate: string | null = pulse.bills?.[0]?.action_date ?? null;
-  const latestLaw: string | null = pulse.laws?.[0]?.bill ?? null;
+  const bills = (pulse.bills ?? []) as PulseBill[];
+  const laws = bills.filter(isEnactedLaw);
+  // Law identity includes the action date so a re-observed old law does
+  // not flap the watermark, and a genuinely new law always changes it.
+  const latestLaw: string | null = laws
+    .map((l) => `${l.bill}:${l.action_date ?? ""}`)
+    .sort()
+    .pop() ?? null;
+  const latestBillDate: string | null = bills[0]?.action_date ?? null;
+  const latestEo: number | null = await latestEoNumber();
 
   const changed = (latestEo != null && latestEo !== sig?.last_eo_number) ||
     (latestBillDate != null && latestBillDate !== sig?.last_bill_date) ||

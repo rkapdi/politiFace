@@ -210,7 +210,77 @@ void main() {
       items.single.notificationBody,
       'The New Law Act This law does a thing.',
     );
-    expect(items.single.dedupeKey, 'law:HR 100');
+    expect(items.single.dedupeKey, 'law:HR 100:2026-07-05');
+  });
+
+  test('law delivery commits the action DATE and the channel stays alive',
+      () async {
+    await seedBaselines();
+    var clock = DateTime(2026, 7, 12, 10);
+    final fetcher =
+        FakePulseFetcher(bills: [lawAction(actionDate: '2026-07-05')]);
+    final svc = service(fetcher: fetcher, now: () => clock);
+
+    final items = await svc.detectNewItems();
+    expect(items, hasLength(1));
+    await svc.commitDelivered([items.single.dedupeKey]);
+    // The regression this guards: the baseline must be the ISO action
+    // date. Committing the bill id ("HR 100") makes every later date
+    // compare as older ('2' < 'H') and silences the channel forever.
+    expect(await db.metaDao.get('watch.last_law'), '2026-07-05');
+
+    // A later law must still be detected after the commit.
+    fetcher.bills = [
+      lawAction(bill: 'S 900', title: 'A later law', actionDate: '2026-07-10'),
+    ];
+    clock = clock.add(const Duration(hours: 3));
+    final again = await svc.detectNewItems();
+    expect(again, hasLength(1));
+    expect(again.single.dedupeKey, 'law:S 900:2026-07-10');
+  });
+
+  test('bill delivery commits the action DATE from the dedupe key', () async {
+    await seedBaselines();
+    final svc = service();
+    await svc.commitDelivered(['bill:S 200:2026-07-05']);
+    expect(await db.metaDao.get('watch.last_bill_action_date'), '2026-07-05');
+  });
+
+  test('commitDelivered refuses non-date values for law/bill baselines',
+      () async {
+    await seedBaselines();
+    final svc = service();
+    // An old-format key (no trailing date) must not poison the baseline.
+    await svc.commitDelivered(['law:HR 100', 'bill:S 200']);
+    expect(await db.metaDao.get('watch.last_law'), '2026-01-01');
+    expect(await db.metaDao.get('watch.last_bill_action_date'), '2026-01-01');
+  });
+
+  test('a poisoned law baseline is healed and the channel resumes', () async {
+    // A device that delivered a law under the old commitDelivered has
+    // "HR 100" stored where a date belongs. The sweep must repair it
+    // (re-baseline to the newest law, notifying nothing) instead of
+    // staying silent forever.
+    await db.metaDao.set('watch.last_eo_number', '5');
+    await db.metaDao.set('watch.last_law', 'HR 100');
+    await db.metaDao.set('watch.last_bill_action_date', '2026-01-01');
+
+    var clock = DateTime(2026, 7, 12, 10);
+    final fetcher =
+        FakePulseFetcher(bills: [lawAction(actionDate: '2026-07-05')]);
+    final svc = service(fetcher: fetcher, now: () => clock);
+
+    expect(await svc.detectNewItems(), isEmpty);
+    expect(await db.metaDao.get('watch.last_law'), '2026-07-05');
+
+    // Healed: a law enacted after the heal is detected again.
+    fetcher.bills = [
+      lawAction(bill: 'S 900', title: 'A later law', actionDate: '2026-07-10'),
+    ];
+    clock = clock.add(const Duration(hours: 3));
+    final again = await svc.detectNewItems();
+    expect(again, hasLength(1));
+    expect(again.single.category, WatchCategory.law);
   });
 
   test('a new bill action is detected as a bill with no CRS lookup', () async {

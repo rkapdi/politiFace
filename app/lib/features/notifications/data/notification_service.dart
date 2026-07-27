@@ -48,6 +48,24 @@ class NotificationService {
     }
   }
 
+  /// The route payload of the notification that launched the app from a
+  /// fully terminated state, or null. [onDidReceiveNotificationResponse]
+  /// only fires for taps while the app is running or backgrounded; a
+  /// cold-start tap is surfaced exclusively through the launch details, so
+  /// main.dart consumes this once to pick the initial route. Fails soft to
+  /// null (plugin/platform hiccups must never block startup).
+  Future<String?> takeLaunchRoute() async {
+    try {
+      await init();
+      final details = await _plugin.getNotificationAppLaunchDetails();
+      if (details?.didNotificationLaunchApp ?? false) {
+        final payload = details!.notificationResponse?.payload;
+        if (payload != null && payload.isNotEmpty) return payload;
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<bool> requestPermission() async {
     await init();
     final granted = await _plugin
