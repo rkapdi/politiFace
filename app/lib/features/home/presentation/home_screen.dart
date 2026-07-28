@@ -36,16 +36,18 @@ class HomeScreen extends ConsumerWidget {
     final profile =
         ref.watch(profileProvider).valueOrNull ?? UserProfile.empty;
 
-    // First-visit tour, plus the Settings "show me around" replay.
-    ref.listen(tourRequestProvider, (_, requested) {
-      if (!requested) return;
-      ref.read(tourRequestProvider.notifier).state = false;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) GuidedTour.start(context, ref);
-      });
-    });
+    // First-visit tour, plus the Settings "show me around" replay. The
+    // request flag is CHECKED post-frame rather than listened to:
+    // navigating to /settings unmounts Home (top-level route), so a
+    // change listener would never see the flag flip.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) GuidedTour.maybeShow(context, ref);
+      if (!context.mounted) return;
+      if (ref.read(tourRequestProvider)) {
+        ref.read(tourRequestProvider.notifier).state = false;
+        GuidedTour.start(context, ref);
+      } else {
+        GuidedTour.maybeShow(context, ref);
+      }
     });
 
     return Scaffold(

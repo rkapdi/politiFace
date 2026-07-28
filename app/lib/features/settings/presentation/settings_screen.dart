@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:workmanager/workmanager.dart';
 
+import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../../core/sync/supabase_config.dart';
@@ -459,7 +460,7 @@ class _ThemeOptionTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = theme.colorScheme.primary;
+    final accent = theme.colorScheme.brandOchreText;
     return Material(
       color: selected
           ? accent.withOpacity(0.12)
@@ -512,9 +513,12 @@ class _SectionHeader extends StatelessWidget {
         child: Text(
           text.toUpperCase(),
           style: theme.textTheme.labelSmall?.copyWith(
-            color: theme.colorScheme.primary,
+            // Never raw signal yellow as text on a light surface
+            // (DESIGN.md 3.3): brandOchreText is signal on dark and the
+            // AA-safe dark yellow on light.
+            color: theme.colorScheme.brandOchreText,
             letterSpacing: 1,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
           ),
         ),
       );

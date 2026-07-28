@@ -176,7 +176,11 @@ class _TourOverlayState extends State<_TourOverlay> {
     final targetInTopHalf =
         _target == null || _target!.center.dy < screen.height / 2;
 
-    return Stack(
+    // Transparent Material host: the coach card's InkWells need a
+    // Material ancestor, and showGeneralDialog provides none.
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
       children: [
         // Hard-edged scrim with a cutout over the explained widget.
         Positioned.fill(
@@ -188,41 +192,55 @@ class _TourOverlayState extends State<_TourOverlay> {
             ),
           ),
         ),
-        SafeArea(
-          child: Column(
-            mainAxisAlignment: _target == null
-                ? MainAxisAlignment.center
-                : targetInTopHalf
-                    ? MainAxisAlignment.end
-                    : MainAxisAlignment.start,
-            children: [
-              if (_target != null && !targetInTopHalf)
-                const SizedBox(height: 60),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  24,
-                  0,
-                  24,
-                  _target != null && targetInTopHalf
-                      ? (screen.height - _target!.bottom)
-                              .clamp(0, screen.height * 0.55)
-                              .toDouble() -
-                          40
-                      : 24,
+        // The card never covers its own spotlight: strictly below a
+        // top-half target, strictly above a bottom-half one, centered
+        // when there is no target.
+        Positioned(
+          left: 20,
+          right: 20,
+          top: _target == null
+              ? null
+              : targetInTopHalf
+                  ? (_target!.bottom + 14)
+                      .clamp(0, screen.height - 260)
+                      .toDouble()
+                  : null,
+          bottom: _target == null
+              ? null
+              : targetInTopHalf
+                  ? null
+                  : (screen.height - _target!.top + 14)
+                      .clamp(0, screen.height - 120)
+                      .toDouble(),
+          child: _target == null
+              ? const SizedBox.shrink()
+              : SafeArea(
+                  child: _CoachCard(
+                    step: step,
+                    index: _step,
+                    total: _steps.length,
+                    onNext: _advance,
+                    onSkip: () => Navigator.of(context).pop(),
+                    theme: theme,
+                  ),
                 ),
-                child: _CoachCard(
-                  step: step,
-                  index: _step,
-                  total: _steps.length,
-                  onNext: _advance,
-                  onSkip: () => Navigator.of(context).pop(),
-                  theme: theme,
-                ),
-              ),
-            ],
-          ),
         ),
+        if (_target == null)
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: _CoachCard(
+                step: step,
+                index: _step,
+                total: _steps.length,
+                onNext: _advance,
+                onSkip: () => Navigator.of(context).pop(),
+                theme: theme,
+              ),
+            ),
+          ),
       ],
+      ),
     );
   }
 }
