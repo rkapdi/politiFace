@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
+import '../../home/presentation/guided_tour.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../../shared/widgets/mastery_stars.dart';
 import '../../shared/widgets/state_views.dart';
@@ -58,17 +59,23 @@ class _MemoryView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (stats.totalReviewed == 0) {
-      return const AppEmptyView(
-        icon: Icons.memory_outlined,
-        title: 'No memory data yet',
-        body: "Review a few cards and we'll show you how your memory is "
-            'growing.',
+      return KeyedSubtree(
+        key: GuidedTour.memoryKey,
+        child: const AppEmptyView(
+          icon: Icons.memory_outlined,
+          title: 'No memory data yet',
+          body: "Review a few cards and we'll show you how your memory is "
+              'growing.',
+        ),
       );
     }
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 12),
       children: [
-        _BrainStrengthHero(stats: stats),
+        KeyedSubtree(
+          key: GuidedTour.memoryKey,
+          child: _BrainStrengthHero(stats: stats),
+        ),
         const SizedBox(height: 8),
         _HeadlineRow(stats: stats),
         const SizedBox(height: 8),

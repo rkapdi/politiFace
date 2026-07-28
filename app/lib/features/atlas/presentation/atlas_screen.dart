@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
+import '../../home/presentation/guided_tour.dart';
 import '../../shared/widgets/state_views.dart';
 import '../data/atlas_data_provider.dart';
 import 'branch_section.dart';
@@ -115,9 +116,12 @@ class _AtlasBody extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _SearchField(
-              controller: searchController,
-              onChanged: onQueryChanged,
+            KeyedSubtree(
+              key: GuidedTour.atlasKey,
+              child: _SearchField(
+                controller: searchController,
+                onChanged: onQueryChanged,
+              ),
             ),
             const SizedBox(height: 16),
             if (showSpotlight) ...[

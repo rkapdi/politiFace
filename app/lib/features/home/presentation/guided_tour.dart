@@ -10,6 +10,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
@@ -26,10 +27,12 @@ class GuidedTour {
   static bool _checkedThisLaunch = false;
   static bool _running = false;
 
-  // Spotlight anchors, attached by Home via KeyedSubtree.
+  // Spotlight anchors, attached by the toured screens via KeyedSubtree.
   static final readinessKey = GlobalKey(debugLabel: 'tour-readiness');
   static final buttonKey = GlobalKey(debugLabel: 'tour-button');
   static final verbsKey = GlobalKey(debugLabel: 'tour-verbs');
+  static final atlasKey = GlobalKey(debugLabel: 'tour-atlas');
+  static final memoryKey = GlobalKey(debugLabel: 'tour-memory');
 
   /// First-frame check: shows the tour for installs that have never seen
   /// it. Call from Home's post-frame callback.
@@ -66,15 +69,19 @@ class _TourStep {
     required this.title,
     required this.body,
     this.targetKey,
+    this.route,
   });
 
   final String kicker;
   final String title;
   final String body;
 
-  /// Null = no spotlight; the card centers itself (used for the tabs
-  /// step, whose targets live in the shell scaffold).
+  /// Null = no spotlight; the card centers itself.
   final GlobalKey? targetKey;
+
+  /// Tab to navigate to before this step renders: the tour WALKS the
+  /// app, it does not describe it from a distance.
+  final String? route;
 }
 
 class _TourOverlay extends StatefulWidget {
@@ -96,6 +103,7 @@ class _TourOverlayState extends State<_TourOverlay> {
           'anywhere in the app. The goal: get the band past the pass '
           'line of 48 before your exam date.',
       targetKey: GuidedTour.readinessKey,
+      route: '/',
     ),
     _TourStep(
       kicker: 'THE ONE BUTTON',
@@ -113,13 +121,30 @@ class _TourOverlayState extends State<_TourOverlay> {
           'streak. Pulse is what Washington did this week.',
       targetKey: GuidedTour.verbsKey,
     ),
+    _TourStep(
+      kicker: 'THE ATLAS',
+      title: 'Look anything up',
+      body: 'This tab is the reference: every politician by branch, '
+          'executive orders, new laws, and civic vocabulary, all cited '
+          'to primary sources. Search from here reaches all of it.',
+      targetKey: GuidedTour.atlasKey,
+      route: '/map',
+    ),
+    _TourStep(
+      kicker: 'YOUR MEMORY',
+      title: 'Watch knowledge stick',
+      body: 'Everything you review lands here: what is strong, what is '
+          'fading, and when the app will resurface it, right before '
+          'you would forget.',
+      targetKey: GuidedTour.memoryKey,
+      route: '/memory',
+    ),
     const _TourStep(
-      kicker: 'TWO MORE TABS',
-      title: 'Atlas looks up, Memory looks in',
-      body: 'Atlas (bottom bar) is the reference: every politician, '
-          'executive order, and law, all cited. Memory shows what has '
-          'stuck and what is fading. Replay this tour any time from '
-          'Settings.',
+      kicker: 'THAT IS THE APP',
+      title: 'Band, button, doors, tabs',
+      body: 'Check the band, press the yellow, pick a door when you '
+          'have a mood. Replay this tour any time from Settings.',
+      route: '/',
     ),
   ];
 
@@ -130,7 +155,21 @@ class _TourOverlayState extends State<_TourOverlay> {
   }
 
   Future<void> _measure() async {
-    final key = _steps[_step].targetKey;
+    final step = _steps[_step];
+    // Walk the app: switch tabs first, then wait for the destination to
+    // actually build before measuring its anchor.
+    if (step.route != null && mounted) {
+      GoRouter.of(context).go(step.route!);
+    }
+    final key = step.targetKey;
+    if (key != null) {
+      for (var tries = 0;
+          tries < 12 && key.currentContext == null && mounted;
+          tries++) {
+        await Future<void>.delayed(const Duration(milliseconds: 80));
+      }
+    }
+    if (!mounted) return;
     if (key?.currentContext == null) {
       setState(() => _target = null);
       return;
@@ -187,7 +226,9 @@ class _TourOverlayState extends State<_TourOverlay> {
           child: CustomPaint(
             painter: _SpotlightPainter(
               target: _target,
-              scrim: Colors.black.withOpacity(0.78),
+              // Lighter when there is no cutout: those steps show a
+              // whole screen, and the user should see it.
+              scrim: Colors.black.withOpacity(_target == null ? 0.5 : 0.78),
               borderColor: EditorialPalette.signal,
             ),
           ),
