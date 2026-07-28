@@ -393,10 +393,18 @@ class _MoreWaysRow extends StatelessWidget {
   Widget build(BuildContext context) => Row(
       children: [
         for (final (label, sub, glyph, route, push) in const [
-          ('STUDY', 'keep it fresh', '▤', '/session', false),
-          ('DRILL', 'move your score', '◎', '/fcle', true),
-          ('PLAY', 'just for fun', '✦', '/trivia', false),
-          ('PULSE', 'what happened', '⚡', '/pulse', true),
+          // Icons chosen to say the job: flashcards, a target, a game
+          // controller, a newspaper.
+          ('STUDY', 'keep it fresh', Icons.style_outlined, '/session', false),
+          ('DRILL', 'move your score', Icons.track_changes, '/fcle', true),
+          (
+            'PLAY',
+            'just for fun',
+            Icons.sports_esports_outlined,
+            '/trivia',
+            false
+          ),
+          ('PULSE', 'what happened', Icons.newspaper, '/pulse', true),
         ]) ...[
           if (label != 'STUDY') const SizedBox(width: 8),
           Expanded(
@@ -425,7 +433,7 @@ class _VerbTile extends StatelessWidget {
 
   final String label;
   final String sublabel;
-  final String glyph;
+  final IconData glyph;
   final VoidCallback onTap;
 
   @override
@@ -442,14 +450,12 @@ class _VerbTile extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            Icon(
               glyph,
-              style: TextStyle(
-                fontSize: 15,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              size: 19,
+              color: theme.colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 4),
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(fontSize: 10),
