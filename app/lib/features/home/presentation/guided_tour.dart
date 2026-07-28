@@ -95,7 +95,9 @@ class _TourOverlayState extends State<_TourOverlay> {
   int _step = 0;
   Rect? _target;
 
-  static final _steps = <_TourStep>[
+  // Instance getter, deliberately not static: statics survive hot
+  // reload, which made copy edits invisible mid-session.
+  List<_TourStep> get _steps => <_TourStep>[
     _TourStep(
       kicker: 'YOUR READINESS',
       title: 'This band is the whole game',
