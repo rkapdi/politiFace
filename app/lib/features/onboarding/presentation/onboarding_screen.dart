@@ -20,7 +20,6 @@ import '../../../app/providers.dart';
 import '../../fcle/application/fcle_providers.dart';
 import '../../fcle/domain/fcle_question.dart';
 import '../../home/application/home_providers.dart';
-import '../../home/presentation/first_run_tour.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 
@@ -50,7 +49,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Future<void> _finish(String route) async {
     final db = ref.read(databaseProvider);
     await db.metaDao.set(OnboardingScreen.doneFlagKey, '1');
-    await db.metaDao.set(FirstRunTour.flagKey, '1');
+    // The guided tour deliberately stays UNfamiliar here: it fires on the
+    // first Home landing, after the diagnostic delivered value.
     if (_examDate != null) {
       await db.metaDao.set(
         OnboardingScreen.examDateKey,

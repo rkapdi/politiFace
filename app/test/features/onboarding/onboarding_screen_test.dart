@@ -12,7 +12,6 @@ import 'package:politiface/core/database/drift/app_database.dart';
 import 'package:politiface/features/fcle/application/fcle_providers.dart';
 import 'package:politiface/features/fcle/data/question_bank_loader.dart';
 import 'package:politiface/features/fcle/domain/fcle_question.dart';
-import 'package:politiface/features/home/presentation/first_run_tour.dart';
 import 'package:politiface/features/onboarding/presentation/onboarding_screen.dart';
 
 /// A tiny deterministic bank: 3 questions per domain, first option is
@@ -98,11 +97,13 @@ void main() {
     final done = await tester.runAsync(
       () => db.metaDao.get(OnboardingScreen.doneFlagKey),
     );
+    // The guided tour flag is deliberately NOT set here: the tour runs
+    // on the first Home landing, after the diagnostic delivered value.
     final tour = await tester.runAsync(
-      () => db.metaDao.get(FirstRunTour.flagKey),
+      () => db.metaDao.get('onboarding.tour_done'),
     );
     expect(done, '1');
-    expect(tour, '1');
+    expect(tour, isNull);
   });
 
   testWidgets(

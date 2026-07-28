@@ -24,7 +24,7 @@ import '../../leaderboard/application/leaderboard_providers.dart';
 import '../../profile/data/profile_service.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 import '../application/home_providers.dart';
-import 'first_run_tour.dart';
+import 'guided_tour.dart';
 import 'season_spine.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -36,8 +36,16 @@ class HomeScreen extends ConsumerWidget {
     final profile =
         ref.watch(profileProvider).valueOrNull ?? UserProfile.empty;
 
+    // First-visit tour, plus the Settings "show me around" replay.
+    ref.listen(tourRequestProvider, (_, requested) {
+      if (!requested) return;
+      ref.read(tourRequestProvider.notifier).state = false;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) GuidedTour.start(context, ref);
+      });
+    });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (context.mounted) FirstRunTour.maybeShow(context, ref);
+      if (context.mounted) GuidedTour.maybeShow(context, ref);
     });
 
     return Scaffold(
@@ -57,23 +65,32 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(width: 8),
         ],
       ),
-      body: const SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ReadinessHero(),
-              SizedBox(height: 18),
-              _TheOneButton(),
-              SizedBox(height: 18),
-              _ClassBlock(),
-              _MoreWaysRow(),
-              SizedBox(height: 26),
-              _SectionDivider(label: 'THE SEASON'),
-              SizedBox(height: 12),
-              SeasonSpine(),
-              SizedBox(height: 16),
+              KeyedSubtree(
+                key: GuidedTour.readinessKey,
+                child: const ReadinessHero(),
+              ),
+              const SizedBox(height: 18),
+              KeyedSubtree(
+                key: GuidedTour.buttonKey,
+                child: const _TheOneButton(),
+              ),
+              const SizedBox(height: 18),
+              const _ClassBlock(),
+              KeyedSubtree(
+                key: GuidedTour.verbsKey,
+                child: const _MoreWaysRow(),
+              ),
+              const SizedBox(height: 26),
+              const _SectionDivider(label: 'THE SEASON'),
+              const SizedBox(height: 12),
+              const SeasonSpine(),
+              const SizedBox(height: 16),
             ],
           ),
         ),

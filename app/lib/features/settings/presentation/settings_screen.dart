@@ -9,6 +9,7 @@ import 'package:workmanager/workmanager.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../../core/sync/supabase_config.dart';
+import '../../home/presentation/guided_tour.dart';
 import '../../notifications/data/chapter_ready_service.dart';
 import '../../notifications/data/notification_service.dart';
 import '../../notifications/data/washington_watch_service.dart';
@@ -134,6 +135,15 @@ class SettingsScreen extends ConsumerWidget {
             title: const Text('Decks'),
             subtitle: const Text('Choose what shows up in your daily practice'),
             onTap: () => context.push('/decks'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.tour_outlined),
+            title: const Text('Show me around'),
+            subtitle: const Text('Replay the guided tour of the app'),
+            onTap: () {
+              ref.read(tourRequestProvider.notifier).state = true;
+              context.go('/');
+            },
           ),
           const Divider(height: 32),
           _SectionHeader(text: 'Sound', theme: theme),
