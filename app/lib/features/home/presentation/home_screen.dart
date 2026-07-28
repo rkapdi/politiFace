@@ -93,7 +93,7 @@ class _StreakChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        border: Border.all(color: EditorialPalette.lineDim, width: 2),
+        border: Border.all(color: neoLineDim(context), width: 2),
       ),
       child: Row(
         children: [
@@ -102,7 +102,7 @@ class _StreakChip extends StatelessWidget {
           Text(
             '$days',
             style: theme.textTheme.labelLarge?.copyWith(
-              color: EditorialPalette.signal,
+              color: theme.colorScheme.brandOchreText,
               fontFeatures: const [FontFeature.tabularFigures()],
             ),
           ),
@@ -133,8 +133,8 @@ class ReadinessHero extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: EditorialPalette.slate,
-        border: Border.all(color: EditorialPalette.line, width: 4),
+        color: neoCardBg(context),
+        border: Border.all(color: neoLine(context), width: 4),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -163,8 +163,9 @@ class ReadinessHero extends ConsumerWidget {
               active: stageFor(summary),
               trailing: Text(
                 'OF 80',
-                style: theme.textTheme.labelSmall
-                    ?.copyWith(color: EditorialPalette.text2),
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -225,19 +226,21 @@ class _DomainBars extends StatelessWidget {
                   child: Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: EditorialPalette.inkInverted,
-                      border: Border.all(color: EditorialPalette.line),
+                      color: theme.brightness == Brightness.dark
+                          ? EditorialPalette.inkInverted
+                          : const Color(0xFFF0F0EB),
+                      border: Border.all(color: neoLineDim(context)),
                     ),
                     child: FractionallySizedBox(
                       alignment: Alignment.centerLeft,
                       widthFactor: (perDomain[d] ?? 0).clamp(0.0, 1.0),
                       child: ColoredBox(
                         // Below par reads not-yet orange, at pace reads
-                        // neutral paper: colour marks the problem, not
-                        // the wallpaper.
+                        // neutral: colour marks the problem, not the
+                        // wallpaper.
                         color: (perDomain[d] ?? 0) < 0.6
-                            ? EditorialPalette.notyet
-                            : EditorialPalette.text2,
+                            ? theme.colorScheme.notyetState
+                            : theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -316,8 +319,8 @@ class _ClassBlock extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
         decoration: BoxDecoration(
-          color: EditorialPalette.slate,
-          border: Border.all(color: EditorialPalette.line, width: 4),
+          color: neoCardBg(context),
+          border: Border.all(color: neoLine(context), width: 4),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -359,9 +362,9 @@ class _ClassRow extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(minHeight: 44),
         padding: const EdgeInsets.symmetric(vertical: 6),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: EditorialPalette.line),
+            top: BorderSide(color: neoLineDim(context)),
           ),
         ),
         child: Row(
@@ -372,7 +375,7 @@ class _ClassRow extends StatelessWidget {
             Text(
               '→',
               style: theme.textTheme.labelLarge
-                  ?.copyWith(color: EditorialPalette.text2),
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ],
         ),
@@ -389,16 +392,17 @@ class _MoreWaysRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
       children: [
-        for (final (label, glyph, route, push) in const [
-          ('STUDY', '▤', '/session', false),
-          ('DRILL', '◎', '/fcle', true),
-          ('PLAY', '✦', '/trivia', false),
-          ('PULSE', '⚡', '/pulse', true),
+        for (final (label, sub, glyph, route, push) in const [
+          ('STUDY', 'keep it fresh', '▤', '/session', false),
+          ('DRILL', 'move your score', '◎', '/fcle', true),
+          ('PLAY', 'just for fun', '✦', '/trivia', false),
+          ('PULSE', 'what happened', '⚡', '/pulse', true),
         ]) ...[
           if (label != 'STUDY') const SizedBox(width: 8),
           Expanded(
             child: _VerbTile(
               label: label,
+              sublabel: sub,
               glyph: glyph,
               onTap: () {
                 HapticFeedback.lightImpact();
@@ -414,11 +418,13 @@ class _MoreWaysRow extends StatelessWidget {
 class _VerbTile extends StatelessWidget {
   const _VerbTile({
     required this.label,
+    required this.sublabel,
     required this.glyph,
     required this.onTap,
   });
 
   final String label;
+  final String sublabel;
   final String glyph;
   final VoidCallback onTap;
 
@@ -428,10 +434,10 @@ class _VerbTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 56),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        constraints: const BoxConstraints(minHeight: 64),
+        padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 2),
         decoration: BoxDecoration(
-          border: Border.all(color: EditorialPalette.lineDim, width: 3),
+          border: Border.all(color: neoLineDim(context), width: 3),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -447,6 +453,17 @@ class _VerbTile extends StatelessWidget {
             Text(
               label,
               style: theme.textTheme.labelSmall?.copyWith(fontSize: 10),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              sublabel,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: 8.5,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ],
         ),
@@ -465,11 +482,11 @@ class _SectionDivider extends StatelessWidget {
     final theme = Theme.of(context);
     return Row(
       children: [
-        Expanded(child: Container(height: 1, color: EditorialPalette.line)),
+        Expanded(child: Container(height: 1, color: neoLineDim(context))),
         const SizedBox(width: 10),
         Text(label, style: theme.textTheme.labelSmall),
         const SizedBox(width: 10),
-        Expanded(child: Container(height: 1, color: EditorialPalette.line)),
+        Expanded(child: Container(height: 1, color: neoLineDim(context))),
       ],
     );
   }

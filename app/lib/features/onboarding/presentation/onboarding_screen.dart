@@ -175,7 +175,7 @@ class _InviteView extends StatelessWidget {
               child: Text(
                 'SKIP',
                 style: theme.textTheme.labelMedium
-                    ?.copyWith(color: EditorialPalette.text3),
+                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
               ),
             ),
           ),
@@ -193,7 +193,7 @@ class _InviteView extends StatelessWidget {
             'you stand. Every question is cited to a primary source. '
             'Nothing partisan. Free.',
             style: theme.textTheme.bodyLarge
-                ?.copyWith(color: EditorialPalette.text2),
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const Spacer(flex: 2),
           BrutalButton(
@@ -261,7 +261,7 @@ class _QuizView extends StatelessWidget {
                 child: Text(
                   'SKIP',
                   style: theme.textTheme.labelSmall
-                      ?.copyWith(color: EditorialPalette.text3),
+                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -288,7 +288,7 @@ class _QuizView extends StatelessWidget {
                   Text(
                     question.domain.label.toUpperCase(),
                     style: theme.textTheme.labelSmall
-                        ?.copyWith(color: EditorialPalette.text3),
+                        ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: 8),
                   Text(question.stem, style: theme.textTheme.headlineSmall),
@@ -314,21 +314,21 @@ class _QuizView extends StatelessWidget {
                       wasCorrect ? 'Correct.' : 'Not yet.',
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: wasCorrect
-                            ? EditorialPalette.correct
-                            : EditorialPalette.notyet,
+                            ? theme.colorScheme.correctState
+                            : theme.colorScheme.notyetState,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       question.explanation,
                       style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: EditorialPalette.text2),
+                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'SOURCE · ${question.citation}'.toUpperCase(),
                       style: theme.textTheme.labelSmall
-                          ?.copyWith(color: EditorialPalette.text3),
+                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ],
@@ -364,11 +364,12 @@ class _OptionRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final dark = theme.brightness == Brightness.dark;
     final (bg, border, fg, suffix) = switch (state) {
       _OptState.idle => (
-          EditorialPalette.slate2,
-          EditorialPalette.mutedBorder,
-          EditorialPalette.paperInverted,
+          dark ? EditorialPalette.slate2 : EditorialPalette.cardLt,
+          dark ? EditorialPalette.mutedBorder : const Color(0xFF000000),
+          theme.colorScheme.onSurface,
           '',
         ),
       _OptState.correct => (
@@ -379,14 +380,14 @@ class _OptionRow extends StatelessWidget {
         ),
       _OptState.notYet => (
           Colors.transparent,
-          EditorialPalette.notyet,
-          EditorialPalette.notyet,
+          theme.colorScheme.notyetState,
+          theme.colorScheme.notyetState,
           '  ○',
         ),
       _OptState.dimmed => (
           Colors.transparent,
-          EditorialPalette.line,
-          EditorialPalette.textDim,
+          neoLineDim(context),
+          theme.colorScheme.onSurfaceVariant,
           '',
         ),
     };
@@ -484,7 +485,7 @@ class _ResultView extends ConsumerWidget {
             'The pass line is 48. '
             '${high >= 48 ? "You are closer than most people start." : "Everyone starts somewhere; the daily loop is built for exactly this."}',
             style: theme.textTheme.bodyLarge
-                ?.copyWith(color: EditorialPalette.text2),
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 16),
           PowerlineBar(active: stage),

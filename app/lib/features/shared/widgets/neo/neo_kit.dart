@@ -26,6 +26,22 @@ BoxShadow neoShadow(BuildContext context, {double offset = 6}) {
   );
 }
 
+bool _isDark(BuildContext c) => Theme.of(c).brightness == Brightness.dark;
+
+/// Card border for the current surface: hairline slate on dark, solid
+/// black on light (the brutalist rule; the dark hairline is invisible on
+/// a light canvas).
+Color neoLine(BuildContext c) =>
+    _isDark(c) ? EditorialPalette.line : const Color(0xFF000000);
+
+/// Secondary border (inactive controls, quiet tiles).
+Color neoLineDim(BuildContext c) =>
+    _isDark(c) ? EditorialPalette.lineDim : const Color(0xFF6E6E7A);
+
+/// Card surface for the current mode.
+Color neoCardBg(BuildContext c) =>
+    _isDark(c) ? EditorialPalette.slate : EditorialPalette.cardLt;
+
 /// The primary CTA: signal yellow, 3px black border, hard shadow, press
 /// collapse. THE one yellow action on its screen; a second BrutalButton
 /// on the same screen should be [BrutalButton.quiet].
@@ -285,12 +301,20 @@ class PowerlineBar extends StatelessWidget {
   Widget build(BuildContext context) {
     const stages = ReadinessStage.values;
     final activeIndex = stages.indexOf(active);
-    const segmentStyle = TextStyle(
+    final dark = _isDark(context);
+    final inactiveBg =
+        dark ? EditorialPalette.slate2 : const Color(0xFFE4E4DF);
+    final spacerBg =
+        dark ? EditorialPalette.slate : const Color(0xFFDCDCD6);
+    final inactiveText =
+        dark ? EditorialPalette.textDim : const Color(0xFF55555C);
+    final separator =
+        dark ? EditorialPalette.lineDim : const Color(0xFFB9B9B2);
+    final segmentStyle = TextStyle(
       fontFamily: 'JetBrains Mono',
       fontSize: 13,
-      fontWeight: FontWeight.w400,
       letterSpacing: 0.8,
-      color: EditorialPalette.textDim,
+      color: inactiveText,
     );
 
     final children = <Widget>[];
@@ -299,14 +323,13 @@ class PowerlineBar extends StatelessWidget {
       children.add(
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 11),
-          color: isActive ? stages[i].color : EditorialPalette.slate2,
+          color: isActive ? stages[i].color : inactiveBg,
           alignment: Alignment.center,
           child: Text(
             stages[i].label,
             style: segmentStyle.copyWith(
-              color: isActive
-                  ? EditorialPalette.inkInverted
-                  : EditorialPalette.textDim,
+              color:
+                  isActive ? EditorialPalette.inkInverted : inactiveText,
               fontWeight: isActive ? FontWeight.w500 : FontWeight.w400,
             ),
           ),
@@ -316,20 +339,24 @@ class PowerlineBar extends StatelessWidget {
       // Junction: solid chevron out of the active segment, solid chevron
       // into the active segment, thin separator otherwise.
       if (i == activeIndex) {
-        children.add(_Chevron(color: stages[i].color, height: height));
+        children.add(
+          _Chevron(color: stages[i].color, bg: inactiveBg, height: height),
+        );
       } else if (i + 1 == activeIndex) {
-        children.add(_Chevron(color: stages[i + 1].color, height: height));
+        children.add(
+          _Chevron(
+            color: stages[i + 1].color,
+            bg: inactiveBg,
+            height: height,
+          ),
+        );
       } else {
         children.add(
           Container(
-            color: EditorialPalette.slate2,
+            color: inactiveBg,
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            child: Text(
-              '›',
-              style:
-                  segmentStyle.copyWith(color: EditorialPalette.lineDim),
-            ),
+            child: Text('›', style: segmentStyle.copyWith(color: separator)),
           ),
         );
       }
@@ -344,10 +371,10 @@ class PowerlineBar extends StatelessWidget {
           child: Row(
             children: [
               ...children,
-              Expanded(child: Container(color: EditorialPalette.slate)),
+              Expanded(child: ColoredBox(color: spacerBg)),
               if (trailing != null)
                 Container(
-                  color: EditorialPalette.slate2,
+                  color: inactiveBg,
                   padding: const EdgeInsets.symmetric(horizontal: 11),
                   alignment: Alignment.center,
                   child: trailing,
@@ -361,9 +388,14 @@ class PowerlineBar extends StatelessWidget {
 }
 
 class _Chevron extends StatelessWidget {
-  const _Chevron({required this.color, required this.height});
+  const _Chevron({
+    required this.color,
+    required this.bg,
+    required this.height,
+  });
 
   final Color color;
+  final Color bg;
   final double height;
 
   // The arrow's own fill is the pointing segment's colour over the
@@ -371,7 +403,7 @@ class _Chevron extends StatelessWidget {
   // rule, expressed the Flutter way).
   @override
   Widget build(BuildContext context) => ColoredBox(
-        color: EditorialPalette.slate2,
+        color: bg,
         child: ClipPath(
           clipper: _TriangleClipper(),
           child: Container(width: 13, height: height, color: color),
