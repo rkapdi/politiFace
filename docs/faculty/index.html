@@ -417,6 +417,7 @@
           <input id="q-cite" placeholder="U.S. Constitution, Article I, Section 8">
           <button class="btn" id="btn-q-save">Save question</button>
           <p class="err hidden" id="q-err"></p>
+          <p class="ok hidden" id="q-ok"></p>
         </div>
         <div class="card">
           <h2>Your questions</h2>
@@ -684,7 +685,7 @@ if (!cfg.url || !cfg.anonKey) {
     const email = $("cofac-email").value.trim();
     if (!email || !selected) return;
     const { error } = await supabase.rpc("add_co_faculty", {
-      p_cohort: selected.id, p_email: email,
+      p_cohort: selected, p_email: email,
     });
     if (error) {
       $("cofac-err").textContent = error.message;
@@ -1162,7 +1163,11 @@ if (!cfg.url || !cfg.anonKey) {
 
   $("btn-q-save").onclick = async () => {
     setErr("q-err", null);
-    if (!selected) return;
+    show("q-ok", false);
+    if (!selected) {
+      return setErr("q-err",
+        "No class is selected. Pick a class from the list, then save.");
+    }
     // Mirrors create_cohort_question: stem >= 10 chars, 2 to 6 options with
     // unique keys and non-empty text, answer key among the options.
     const stem = $("q-stem").value.trim();
@@ -1184,10 +1189,13 @@ if (!cfg.url || !cfg.anonKey) {
       p_citation: $("q-cite").value.trim() || null,
     });
     btn.disabled = false;
-    if (error) return setErr("q-err", "Could not save the question. Check every field and try again.");
+    if (error) return setErr("q-err", "Could not save the question: " + (error.message || "unknown error"));
     const domainKeep = $("q-domain").value;
     resetQuestionForm();
     $("q-domain").value = domainKeep;
+    $("q-ok").textContent =
+      "Saved. It is in Your questions below and in the live session picker.";
+    show("q-ok");
     await Promise.all([loadMyQuestions(), loadBank()]);
   };
 
