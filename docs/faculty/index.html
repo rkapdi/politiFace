@@ -308,6 +308,17 @@
         <button class="btn secondary" id="btn-signout">Sign out</button>
       </div>
       <div class="classlist" id="classlist"></div>
+      <details id="redeem-details">
+        <summary class="muted" style="cursor:pointer">Have a faculty invite code?</summary>
+        <p class="muted">Redeeming a code verifies you as an instructor so you can create classes. Codes are single-use and come from Politiface or a verified colleague.</p>
+        <div class="row">
+          <input id="redeem-code" placeholder="e.g. D7QMJA" maxlength="6"
+                 style="flex:1; text-transform:uppercase; letter-spacing:0.2em">
+          <button class="btn mini" id="btn-redeem">Redeem</button>
+        </div>
+        <p class="err hidden" id="redeem-err"></p>
+        <p class="ok hidden" id="redeem-ok"></p>
+      </details>
       <details>
         <summary class="muted" style="cursor:pointer">Create a class</summary>
         <label for="new-name">Class name</label>
@@ -652,6 +663,24 @@ if (!cfg.url || !cfg.anonKey) {
     if (el) el.textContent = data?.user?.email
       ? ("Signed in as " + data.user.email) : "";
   }
+
+  $("btn-redeem").onclick = async () => {
+    show("redeem-err", false); show("redeem-ok", false);
+    const code = $("redeem-code").value.trim().toUpperCase();
+    if (code.length < 4) return;
+    const { error } = await supabase.rpc("redeem_faculty_invite", {
+      p_code: code,
+    });
+    if (error) {
+      $("redeem-err").textContent = error.message;
+      show("redeem-err");
+      return;
+    }
+    $("redeem-ok").textContent =
+      "You're verified as an instructor. Create your first class below.";
+    show("redeem-ok");
+    $("redeem-code").value = "";
+  };
 
   $("btn-cofac-add").onclick = async () => {
     show("cofac-err", false); show("cofac-ok", false);
@@ -1055,7 +1084,7 @@ if (!cfg.url || !cfg.anonKey) {
     const { error } = await supabase.rpc("create_cohort", {
       p_name: name, p_term: $("new-term").value.trim() || null,
     });
-    if (error) return setErr("create-err", "Could not create the class.");
+    if (error) return setErr("create-err", "Could not create the class: " + (error.message || "unknown error"));
     $("new-name").value = ""; $("new-term").value = "";
     selected = null;
     await loadClasses();
