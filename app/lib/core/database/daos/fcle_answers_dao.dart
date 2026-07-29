@@ -49,6 +49,18 @@ class FcleAnswersDao extends DatabaseAccessor<AppDatabase>
     return correct / recent.length;
   }
 
+  /// Whether the user has ever answered a single FCLE question. The cheapest
+  /// possible local "is this user FCLE-engaged?" signal for the notification
+  /// orchestrator (gates the whole FCLE notification category, no network).
+  Future<bool> hasAny() async {
+    final c = countAll();
+    final row = await (selectOnly(fcleAnswers)
+          ..addColumns([c])
+          ..limit(1))
+        .getSingle();
+    return (row.read(c) ?? 0) > 0;
+  }
+
   /// How many answers a domain has ever received (readiness confidence).
   Future<int> answerCount(String domain) async {
     final c = countAll();

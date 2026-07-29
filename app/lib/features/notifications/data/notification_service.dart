@@ -2,7 +2,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-/// Schedules / cancels the daily streak-reminder local notification.
+/// Schedules / cancels local notifications: the daily streak reminder,
+/// the chapter-ready nudge, and Washington Watch alerts.
 /// iOS-only for V1; Android wiring is no-op-friendly.
 class NotificationService {
   NotificationService._();
@@ -10,12 +11,19 @@ class NotificationService {
 
   static const _streakReminderId = 1;
   static const _channelId = 'streak_reminder';
-  static const int _hour = 19;   // 7 PM local
+  static const _updatesChannelId = 'app_updates';
+  static const int _hour = 19; // 7 PM local
   static const int _minute = 0;
 
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _initialized = false;
+
+  /// Set once at app startup so a notification tap can route through the
+  /// app's GoRouter (see main.dart). Left null in contexts with no router
+  /// (tests, the BGAppRefresh background isolate) — a tap there is a no-op
+  /// beyond opening the app, which is the OS default anyway.
+  void Function(String route)? onSelectRoute;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -28,8 +36,34 @@ class NotificationService {
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     await _plugin.initialize(
       const InitializationSettings(iOS: ios, android: android),
+      onDidReceiveNotificationResponse: _handleResponse,
     );
     _initialized = true;
+  }
+
+  void _handleResponse(NotificationResponse response) {
+    final payload = response.payload;
+    if (payload != null && payload.isNotEmpty) {
+      onSelectRoute?.call(payload);
+    }
+  }
+
+  /// The route payload of the notification that launched the app from a
+  /// fully terminated state, or null. [onDidReceiveNotificationResponse]
+  /// only fires for taps while the app is running or backgrounded; a
+  /// cold-start tap is surfaced exclusively through the launch details, so
+  /// main.dart consumes this once to pick the initial route. Fails soft to
+  /// null (plugin/platform hiccups must never block startup).
+  Future<String?> takeLaunchRoute() async {
+    try {
+      await init();
+      final details = await _plugin.getNotificationAppLaunchDetails();
+      if (details?.didNotificationLaunchApp ?? false) {
+        final payload = details!.notificationResponse?.payload;
+        if (payload != null && payload.isNotEmpty) return payload;
+      }
+    } catch (_) {}
+    return null;
   }
 
   Future<bool> requestPermission() async {
@@ -82,6 +116,77 @@ class NotificationService {
   Future<void> cancel() async {
     await init();
     await _plugin.cancel(_streakReminderId);
+  }
+
+  /// Fires an immediate local notification. Used by Washington Watch —
+  /// as opposed to [scheduleDailyReminder] / [scheduleAt], which arm a
+  /// future delivery.
+  Future<void> show({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    await init();
+    await _plugin.show(
+      id,
+      title,
+      body,
+      const NotificationDetails(
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+        android: AndroidNotificationDetails(
+          _updatesChannelId,
+          'Politiface updates',
+          channelDescription: 'Washington Watch and chapter-ready alerts.',
+        ),
+      ),
+      payload: payload,
+    );
+  }
+
+  /// Schedules a one-off local notification for [when]. Used by
+  /// ChapterReadyService to arm the next-morning chapter nudge.
+  Future<void> scheduleAt({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime when,
+    String? payload,
+  }) async {
+    await init();
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(when, tz.local),
+      const NotificationDetails(
+        iOS: DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+        android: AndroidNotificationDetails(
+          _updatesChannelId,
+          'Politiface updates',
+          channelDescription: 'Washington Watch and chapter-ready alerts.',
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      payload: payload,
+    );
+  }
+
+  /// Cancels any pending/delivered notification with [id]. General-purpose
+  /// counterpart to [cancel], which only ever targets the daily reminder.
+  Future<void> cancelId(int id) async {
+    await init();
+    await _plugin.cancel(id);
   }
 
   static tz.TZDateTime _nextInstance(int hour, int minute) {

@@ -1,5 +1,7 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/account/presentation/account_screen.dart';
 import '../features/atlas/presentation/atlas_screen.dart';
 import '../features/atlas/presentation/congress_directory_screen.dart';
 import '../features/atlas/presentation/executive_orders_screen.dart';
@@ -7,6 +9,7 @@ import '../features/atlas/presentation/person_screen.dart';
 import '../features/atlas/presentation/politician_detail_screen.dart';
 import '../features/atlas/presentation/recent_laws_screen.dart';
 import '../features/atlas/presentation/vocabulary_screen.dart';
+import '../features/class_inbox/presentation/class_inbox_screen.dart';
 import '../features/decks/presentation/deck_browser_screen.dart';
 import '../features/endless/presentation/endless_result_screen.dart';
 import '../features/endless/presentation/endless_review_screen.dart';
@@ -38,7 +41,13 @@ import '../features/trivia/presentation/trivia_review_screen.dart';
 import '../features/trivia/presentation/trivia_screen.dart';
 import 'shell_scaffold.dart';
 
+/// Lets code outside the widget tree (a notification tap) navigate through
+/// the app's single GoRouter instance — see NotificationService.onSelectRoute
+/// and its wiring in main.dart.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
+
 GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
+      navigatorKey: rootNavigatorKey,
       initialLocation: initialLocation,
       routes: [
         GoRoute(
@@ -101,6 +110,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         GoRoute(
           path: '/settings',
           builder: (context, state) => const SettingsScreen(),
+        ),
+        GoRoute(
+          path: '/account',
+          builder: (context, state) => const AccountScreen(),
         ),
         GoRoute(
           path: '/decks',
@@ -182,6 +195,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           path: '/live',
           builder: (context, state) =>
               LiveSessionScreen(args: state.extra! as LiveSessionArgs),
+        ),
+        GoRoute(
+          path: '/class',
+          builder: (context, state) => const ClassInboxScreen(),
         ),
         GoRoute(
           path: '/fcle',

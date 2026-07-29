@@ -168,6 +168,18 @@ class SupabaseTransport implements SyncTransport {
       if (e.code == '23503') {
         throw Exception('profile row pending: ${e.message}');
       }
+      // PostgREST surfaces transport-ish failures as PostgrestException with
+      // an HTTP-status code too: 401 (JWT expiry race), 408/429 (timeout /
+      // rate limit), and 5xx (gateway). Those are transient, not a bad
+      // payload, so they must retry, not dead-letter a real user event.
+      final httpCode = int.tryParse(e.code ?? '');
+      if (httpCode != null &&
+          (httpCode == 401 ||
+              httpCode == 408 ||
+              httpCode == 429 ||
+              httpCode >= 500)) {
+        throw Exception('transient (${e.code}): ${e.message}');
+      }
       throw PermanentSyncError('${e.code}: ${e.message}');
     }
   }

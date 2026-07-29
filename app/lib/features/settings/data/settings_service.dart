@@ -15,11 +15,53 @@ class SettingsService {
   /// Key is read directly in main.dart before Sentry init — keep in sync.
   static const kCrashReports = 'settings.crash_reports';
 
+  static const _kNotifChapter = 'notif.chapter';
+  static const _kNotifWashington = 'notif.washington';
+  static const _kNotifWashLaws = 'notif.wash_laws';
+  static const _kNotifWashBills = 'notif.wash_bills';
+  static const _kNotifWashEos = 'notif.wash_eos';
+
   Future<bool> remindersEnabled() async =>
       (await _db.metaDao.get(_kReminders)) == '1';
 
   Future<void> setRemindersEnabled(bool value) =>
       _db.metaDao.set(_kReminders, value ? '1' : '0');
+
+  /// "New chapter ready" morning nudge. Default ON.
+  Future<bool> chapterNotifEnabled() async =>
+      (await _db.metaDao.get(_kNotifChapter)) != '0';
+
+  Future<void> setChapterNotifEnabled(bool value) =>
+      _db.metaDao.set(_kNotifChapter, value ? '1' : '0');
+
+  /// "What Washington did" master switch. Default ON; turning this off
+  /// silences all three sub-categories regardless of their own value.
+  Future<bool> washingtonNotifEnabled() async =>
+      (await _db.metaDao.get(_kNotifWashington)) != '0';
+
+  Future<void> setWashingtonNotifEnabled(bool value) =>
+      _db.metaDao.set(_kNotifWashington, value ? '1' : '0');
+
+  /// Sub-category: new laws. Default ON.
+  Future<bool> washLawsEnabled() async =>
+      (await _db.metaDao.get(_kNotifWashLaws)) != '0';
+
+  Future<void> setWashLawsEnabled(bool value) =>
+      _db.metaDao.set(_kNotifWashLaws, value ? '1' : '0');
+
+  /// Sub-category: bills advancing. Default ON.
+  Future<bool> washBillsEnabled() async =>
+      (await _db.metaDao.get(_kNotifWashBills)) != '0';
+
+  Future<void> setWashBillsEnabled(bool value) =>
+      _db.metaDao.set(_kNotifWashBills, value ? '1' : '0');
+
+  /// Sub-category: executive orders. Default ON.
+  Future<bool> washEosEnabled() async =>
+      (await _db.metaDao.get(_kNotifWashEos)) != '0';
+
+  Future<void> setWashEosEnabled(bool value) =>
+      _db.metaDao.set(_kNotifWashEos, value ? '1' : '0');
 
   /// Opt-in crash reporting (Sentry). Off by default — the toggle is the
   /// only thing that enables the app's only telemetry. Takes effect on the

@@ -75,6 +75,20 @@ class LivePulse {
   bool get isEmpty => orders.isEmpty && bills.isEmpty;
 }
 
+/// True when a congress.gov bill action means the bill was enacted.
+/// Single source of truth for "is this a law": the Washington watch
+/// notifier, the Pulse feed, and Atlas &gt; Recent laws must all agree, or a
+/// "New law" notification points at an item filed under a different name.
+bool isEnactedLaw(LiveBillAction b) =>
+    b.action.toLowerCase().contains('became public law');
+
+/// Extracts the public-law number ("119-102") from an enacted bill's
+/// action text, or null when the text carries none.
+String? publicLawNumberOf(LiveBillAction b) =>
+    RegExp(r'[Pp]ublic [Ll]aw(?:\s+No\.?)?\s+(\d+-\d+)')
+        .firstMatch(b.action)
+        ?.group(1);
+
 class PulseLiveService {
   PulseLiveService({HttpClient? client}) : _client = client ?? HttpClient();
 

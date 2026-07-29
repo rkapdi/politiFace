@@ -2,7 +2,10 @@
 //
 // Public laws of the current Congress: what actually became law, newest
 // first, each linking to congress.gov and cross-linking to the sponsor's
-// Atlas person page. Fully offline from the bundled YAML.
+// Atlas person page. The bundled YAML is the offline floor; when the
+// backend is reachable, laws enacted since the last content update are
+// merged in live so this screen is as fresh as the notification that
+// pointed here.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +13,49 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../pulse/data/pulse_live_service.dart';
 import '../data/atlas_reference_loader.dart';
+
+/// Laws visible in the live congress.gov window right now. Fails soft to
+/// empty (offline, no backend): the bundle carries the screen alone.
+final _liveLawsProvider =
+    FutureProvider.autoDispose<List<LiveBillAction>>((ref) async {
+  try {
+    final bills = await PulseLiveService().fetchRecentBills();
+    return [
+      for (final b in bills)
+        if (isEnactedLaw(b)) b,
+    ];
+  } catch (_) {
+    return const [];
+  }
+});
+
+/// Bundle + live merge: live laws not yet in the bundled YAML are mapped
+/// into [RecentLaw]s (no sponsor or CRS summary until the next content
+/// update ships them) and sorted in with the rest, newest first.
+List<RecentLaw> mergeLiveLaws(
+  List<RecentLaw> bundled,
+  List<LiveBillAction> live,
+) {
+  final bundledBills = <String>{for (final l in bundled) l.bill};
+  final bundledNumbers = <String>{for (final l in bundled) l.lawNumber};
+  final fresh = <RecentLaw>[
+    for (final b in live)
+      if (!bundledBills.contains(b.bill))
+        if (publicLawNumberOf(b) case final lawNum?
+            when !bundledNumbers.contains(lawNum))
+          RecentLaw(
+            lawNumber: lawNum,
+            title: b.title.isEmpty ? b.bill : b.title,
+            bill: b.bill,
+            enactedDate: b.actionDate,
+            url: b.url,
+          ),
+  ];
+  return [...fresh, ...bundled]
+    ..sort((a, b) => b.enactedDate.compareTo(a.enactedDate));
+}
 
 class RecentLawsScreen extends ConsumerStatefulWidget {
   const RecentLawsScreen({super.key});
@@ -26,6 +71,8 @@ class _RecentLawsScreenState extends ConsumerState<RecentLawsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final reference = ref.watch(atlasReferenceProvider);
+    // Live merge is additive: while it loads (or fails), the bundle renders.
+    final liveLaws = ref.watch(_liveLawsProvider).valueOrNull ?? const [];
 
     return Scaffold(
       appBar: AppBar(title: const Text('Recent laws')),
@@ -34,7 +81,8 @@ class _RecentLawsScreenState extends ConsumerState<RecentLawsScreen> {
         error: (e, _) =>
             const Center(child: Text('Could not load recent laws.')),
         data: (data) {
-          if (data.laws.isEmpty) {
+          final allLaws = mergeLiveLaws(data.laws, liveLaws);
+          if (allLaws.isEmpty) {
             return Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
@@ -48,9 +96,9 @@ class _RecentLawsScreenState extends ConsumerState<RecentLawsScreen> {
           }
           final q = _query.trim().toLowerCase();
           final laws = q.isEmpty
-              ? data.laws
+              ? allLaws
               : [
-                  for (final l in data.laws)
+                  for (final l in allLaws)
                     if (l.title.toLowerCase().contains(q) ||
                         l.lawNumber.contains(q) ||
                         l.bill.toLowerCase().contains(q))
@@ -75,8 +123,9 @@ class _RecentLawsScreenState extends ConsumerState<RecentLawsScreen> {
                 child: Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    '${laws.length} of ${data.laws.length} public laws of '
-                    'the ${data.lawsCongress ?? 'current'}th Congress',
+                    '${laws.length} of ${allLaws.length} public laws of '
+                    'the ${data.lawsCongress ?? 'current'}th Congress'
+                    '${liveLaws.isNotEmpty ? ' · live' : ''}',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

@@ -17,6 +17,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../features/settings/presentation/account_section.dart';
+import '../../account/domain/avatars.dart';
 import '../../live/application/live_session_controller.dart';
 import '../../live/data/live_session_api.dart';
 import '../application/leaderboard_providers.dart';
@@ -76,12 +77,26 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                   });
                 },
               )
-            : _BoardView(
-                cohorts: list,
-                selectedId: _selectedCohortId ?? list.first.id,
-                onSelect: (id) => setState(() => _selectedCohortId = id),
-                onJoinAnother: () => setState(() => _joiningAnother = true),
-              ),
+            : () {
+                // If the selected cohort is not in the freshly-fetched list
+                // yet (a just-joined class whose refetch is mid-flight),
+                // show loading rather than a header/roster from the old
+                // class stacked over the new class's board.
+                final selected = _selectedCohortId;
+                final resolved =
+                    selected != null && list.any((c) => c.id == selected)
+                        ? selected
+                        : list.first.id;
+                if (selected != null && !list.any((c) => c.id == selected)) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return _BoardView(
+                  cohorts: list,
+                  selectedId: resolved,
+                  onSelect: (id) => setState(() => _selectedCohortId = id),
+                  onJoinAnother: () => setState(() => _joiningAnother = true),
+                );
+              }(),
       );
     }
 
@@ -414,6 +429,14 @@ class _BoardViewState extends ConsumerState<_BoardView> {
               icon: const Icon(Icons.sensors, size: 16),
               label: const Text(
                 'JOIN A LIVE SESSION',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () => context.push('/class'),
+              icon: const Icon(Icons.mail_outline, size: 16),
+              label: const Text(
+                'CLASS MESSAGES',
                 style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
               ),
             ),
@@ -837,6 +860,8 @@ class _EntryRow extends StatelessWidget {
                 ),
               ),
             ),
+            PolitifaceAvatar(avatarId: entry.avatarId, size: 28),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 isMe ? '${entry.handle} (you)' : entry.handle,

@@ -2,11 +2,14 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:workmanager/workmanager.dart';
 
 import 'app/politiface_app.dart';
 import 'app/providers.dart';
+import 'app/router.dart';
 import 'core/database/drift/app_database.dart';
 import 'core/sync/restore_service.dart';
 import 'core/sync/supabase_config.dart';
@@ -14,7 +17,10 @@ import 'core/sync/sync_engine.dart';
 import 'features/atlas/data/people_seed_service.dart';
 import 'features/curriculum/data/curriculum_loader.dart';
 import 'features/government/data/government_seed_service.dart';
+import 'features/notifications/data/notification_orchestrator.dart';
 import 'features/notifications/data/notification_service.dart';
+import 'features/notifications/data/push_service.dart';
+import 'features/notifications/data/washington_watch_service.dart';
 import 'features/onboarding/presentation/onboarding_screen.dart';
 import 'features/session/data/delegation_deck_service.dart';
 import 'features/session/data/yaml_seed_service.dart';
@@ -24,6 +30,29 @@ import 'features/settings/data/settings_service.dart';
 /// yourself contain no DSN; official builds inject one via
 /// --dart-define=SENTRY_DSN=... (see codemagic.yaml).
 const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+/// Runs in a dedicated background Dart isolate for the iOS BGAppRefresh
+/// task (see AppDelegate.swift / Info.plist). Deliberately minimal: opens
+/// its own AppDatabase handle and runs the notification orchestrator (which
+/// detects Washington changes, then decides across every candidate via the
+/// on-device brain) — no Sentry, no content seeding, no Supabase SDK init.
+/// The service talks to the network with a plain HttpClient (via
+/// PulseLiveService), so none of that setup is needed here.
+@pragma('vm:entry-point')
+void washingtonWatchCallbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    final db = AppDatabase();
+    try {
+      await NotificationOrchestrator(db: db).run();
+    } catch (_) {
+      // Best-effort background refresh: a failure here must not crash the
+      // isolate.
+    } finally {
+      await db.close();
+    }
+    return true;
+  });
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +97,13 @@ Future<void> _bootstrap(AppDatabase db) async {
   await PeopleSeedService(db).ensureSeeded();
   await DelegationDeckService(db).ensureSeeded();
   await NotificationService.instance.init();
+  // Route a notification tap through the app's single GoRouter instance.
+  // The closure is only ever invoked later (on tap), by which time the
+  // widget tree — and rootNavigatorKey's context — exists.
+  NotificationService.instance.onSelectRoute = (route) {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx != null) GoRouter.of(ctx).go(route);
+  };
   // Sync the daily-reminder toggle with the OS authorization state. If the
   // user revoked notifications in iOS Settings since last launch, flip our
   // toggle off so the UI doesn't lie. If still authorized and the toggle is
@@ -81,6 +117,31 @@ Future<void> _bootstrap(AppDatabase db) async {
       await NotificationService.instance.cancel();
     }
   }
+
+  // Washington Watch: iOS BGAppRefresh task, gated by the "What Washington
+  // did" master switch. Initializing the callback dispatcher is required
+  // even when the switch is off — it just wires up the isolate entry
+  // point, it does not itself schedule anything.
+  await Workmanager().initialize(washingtonWatchCallbackDispatcher);
+  if (await SettingsService(db).washingtonNotifEnabled()) {
+    await Workmanager().registerPeriodicTask(
+      washingtonRefreshTaskId,
+      washingtonRefreshTaskId,
+      initialDelay: const Duration(minutes: 15),
+    );
+  } else {
+    await Workmanager().cancelByUniqueName(washingtonRefreshTaskId);
+  }
+  // Record this foreground open so the brain knows the user is active today
+  // (holds low-priority nudges) and can learn the hour they usually play.
+  final orchestrator = NotificationOrchestrator(db: db);
+  await orchestrator.recordAppOpen();
+  // Belt-and-braces: also run the notification sweep on every normal
+  // foreground start, not just from the BGAppRefresh task (iOS may schedule
+  // that rarely, or never, for a given install). Internally rate-limited +
+  // fail-soft.
+  unawaited(orchestrator.run());
+
   // Drain events queued in a previous run (delivers only when a user is
   // signed in; no-ops otherwise). Fire-and-forget: launch never waits on
   // the network.
@@ -99,15 +160,46 @@ Future<void> _bootstrap(AppDatabase db) async {
         loadCurriculum: () => CurriculumLoader().load(),
       ).maybeRestoreOnColdStart(),
     );
+
+    // Push: a silent-push wake is a faster path to the same notification
+    // sweep the BGAppRefresh task above already runs, so the two share one
+    // AppDatabase handle and one orchestrator run. Wired for the life of the
+    // auth session (sign-in/out, not just cold start), unlike the one-shot
+    // flush/restore calls above.
+    PushChannelBridge.instance.onSilentPush = () async {
+      await NotificationOrchestrator(db: db).run();
+      return true;
+    };
+    final pushService = PushService(db: db, api: SupabasePushTokenApi(client));
+    if (client.auth.currentSession != null) {
+      unawaited(pushService.onSignedIn());
+    }
+    client.auth.onAuthStateChange.listen((state) {
+      switch (state.event) {
+        case AuthChangeEvent.signedIn:
+        case AuthChangeEvent.initialSession:
+          unawaited(pushService.onSignedIn());
+        case AuthChangeEvent.signedOut:
+          unawaited(pushService.onSignedOut());
+        default:
+          break;
+      }
+    });
   }
 
   // First launch opens the onboarding sequence; a --dart-define lets
   // QA/deep-link builds open straight onto any route instead
-  // (e.g. INITIAL_ROUTE=/pulse), and takes precedence.
+  // (e.g. INITIAL_ROUTE=/pulse), and takes precedence. A notification tap
+  // that launched the app from terminated is honored next (the running-app
+  // tap path goes through onSelectRoute above and never reaches here), but
+  // never ahead of onboarding: a brand-new install still onboards first.
   const envRoute = String.fromEnvironment('INITIAL_ROUTE');
   final onboarded = (await db.metaDao.get(OnboardingScreen.doneFlagKey)) == '1';
-  final initialRoute =
-      envRoute.isNotEmpty ? envRoute : (onboarded ? '/' : '/onboarding');
+  final launchRoute =
+      onboarded ? await NotificationService.instance.takeLaunchRoute() : null;
+  final initialRoute = envRoute.isNotEmpty
+      ? envRoute
+      : (launchRoute ?? (onboarded ? '/' : '/onboarding'));
 
   runApp(
     ProviderScope(

@@ -29,6 +29,18 @@ class ReviewsDao extends DatabaseAccessor<AppDatabase> with _$ReviewsDaoMixin {
             ..limit(limit))
           .get();
 
+  /// Card ids the user has actually reviewed at least once (isNew == false),
+  /// restricted to [cardIds]. The notification orchestrator uses this to tell
+  /// whether a Washington newsmaker is a face the user has really studied
+  /// (never fabricated: a name only personalizes copy if its card is here).
+  Future<Set<String>> reviewedCardIdsAmong(List<String> cardIds) async {
+    if (cardIds.isEmpty) return <String>{};
+    final rows = await (select(cardMemoryStates)
+          ..where((s) => s.isNew.equals(false) & s.cardId.isIn(cardIds)))
+        .get();
+    return {for (final r in rows) r.cardId};
+  }
+
   Future<List<CardMemoryState>> newStates({int limit = 20}) =>
       (select(cardMemoryStates)
             ..where((s) => s.isNew.equals(true))

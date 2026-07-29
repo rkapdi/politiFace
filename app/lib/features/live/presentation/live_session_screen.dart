@@ -73,7 +73,11 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
     // Appear-timed sound: skipped under VoiceOver so it never lands on top
     // of the screen announcement (same guard as the mock result chime).
     final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
-    if (!a11y && outcome != null) {
+    // Only sound an actual verdict. LiveOutcome.unanswered (time ran out)
+    // stays silent, never the incorrect buzzer, which would falsely tell a
+    // sighted student they answered wrong.
+    if (!a11y &&
+        (outcome == LiveOutcome.correct || outcome == LiveOutcome.incorrect)) {
       ref.read(soundServiceProvider).play(
             outcome == LiveOutcome.correct
                 ? SoundEffect.correct
