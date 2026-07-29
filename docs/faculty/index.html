@@ -287,6 +287,10 @@
   </section>
 
   <section id="view-dash" class="hidden">
+    <div class="row" id="topbar" style="margin-bottom:14px">
+      <span class="muted" id="whoami"></span>
+      <button class="btn secondary mini" id="btn-signout-top">Sign out</button>
+    </div>
     <div class="tabs hidden" id="admin-toggle-row">
       <button class="tabbtn" id="nav-admin-btn">Admin</button>
       <button class="tabbtn active" id="nav-classes-btn">Your classes</button>
@@ -316,6 +320,16 @@
     </div>
 
     <div id="classpane" class="hidden">
+    <div class="card" id="co-faculty-card">
+      <h2>Co-instructors</h2>
+      <p class="muted">Add a verified faculty colleague to run this class with you: live sessions, announcements, and reports. They must have redeemed a faculty invite first.</p>
+      <div class="row">
+        <input id="cofac-email" type="email" placeholder="colleague@school.edu" style="flex:1">
+        <button class="btn mini" id="btn-cofac-add">Add</button>
+      </div>
+      <p class="err hidden" id="cofac-err"></p>
+      <p class="ok hidden" id="cofac-ok"></p>
+    </div>
       <div class="tabs">
         <button class="tabbtn active" id="tab-insights">Insights</button>
         <button class="tabbtn" id="tab-questions">My questions</button>
@@ -601,6 +615,7 @@ if (!cfg.url || !cfg.anonKey) {
   };
 
   async function refresh() {
+    updateWhoami();
     const { data: { session } } = await supabase.auth.getSession();
     show("view-signin", !session);
     show("view-dash", Boolean(session));
@@ -627,8 +642,35 @@ if (!cfg.url || !cfg.anonKey) {
     });
     if (error) return setErr("signin-err", "That code did not work. Try again.");
     await ensureProfile();
+    await updateWhoami();
     await refresh();
   };
+
+  async function updateWhoami() {
+    const { data } = await supabase.auth.getUser();
+    const el = $("whoami");
+    if (el) el.textContent = data?.user?.email
+      ? ("Signed in as " + data.user.email) : "";
+  }
+
+  $("btn-cofac-add").onclick = async () => {
+    show("cofac-err", false); show("cofac-ok", false);
+    const email = $("cofac-email").value.trim();
+    if (!email || !selected) return;
+    const { error } = await supabase.rpc("add_co_faculty", {
+      p_cohort: selected.id, p_email: email,
+    });
+    if (error) {
+      $("cofac-err").textContent = error.message;
+      show("cofac-err");
+      return;
+    }
+    $("cofac-ok").textContent = "Added. They will see this class the next time they open the portal.";
+    show("cofac-ok");
+    $("cofac-email").value = "";
+  };
+
+  $("btn-signout-top").onclick = () => $("btn-signout").onclick();
 
   $("btn-signout").onclick = async () => {
     await supabase.auth.signOut();
