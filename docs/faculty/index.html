@@ -303,10 +303,7 @@
     </div>
 
     <div class="card">
-      <div class="row">
-        <h2>Your classes</h2>
-        <button class="btn secondary" id="btn-signout">Sign out</button>
-      </div>
+      <h2>Your classes</h2>
       <div class="classlist" id="classlist"></div>
       <details id="redeem-details">
         <summary class="muted" style="cursor:pointer">Have a faculty invite code?</summary>
@@ -699,9 +696,7 @@ if (!cfg.url || !cfg.anonKey) {
     $("cofac-email").value = "";
   };
 
-  $("btn-signout-top").onclick = () => $("btn-signout").onclick();
-
-  $("btn-signout").onclick = async () => {
+  $("btn-signout-top").onclick = async () => {
     await supabase.auth.signOut();
     cleanupLive();
     selected = null;
