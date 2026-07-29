@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -181,6 +181,22 @@ Future<void> _bootstrap(AppDatabase db) async {
           unawaited(pushService.onSignedIn());
         case AuthChangeEvent.signedOut:
           unawaited(pushService.onSignedOut());
+          // A sign-out the user did not perform (server-side session
+          // revocation, refresh-token loss) must be visible, not a silent
+          // mystery discovered screens later. Local-first progress is
+          // unaffected either way.
+          final ctx = rootNavigatorKey.currentContext;
+          if (ctx != null) {
+            ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
+              const SnackBar(
+                duration: Duration(seconds: 6),
+                content: Text(
+                  'You were signed out. Progress on this phone is safe; '
+                  'sign in again from Settings to keep syncing.',
+                ),
+              ),
+            );
+          }
         default:
           break;
       }
