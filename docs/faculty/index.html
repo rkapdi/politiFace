@@ -1507,8 +1507,9 @@ if (!cfg.url || !cfg.anonKey) {
       const correct = o.key === rev?.correct_key;
       return `<div class="revopt${correct ? " correct" : ""}">
         <span class="optkey">${esc(o.key)}</span>
-        <span><span>${esc(o.text)}</span>
-          <span class="bar"><i style="width:${pct}%;background:${correct ? "#0B0B0F" : "#B9B9B2"}"></i></span></span>
+        <span><span>${esc(o.text)}</span>${totalAnswers
+            ? `<span class="bar"><i style="width:${pct}%;background:${correct ? "#0B0B0F" : "#B9B9B2"}"></i></span>`
+            : ""}</span>
         <span class="n">${n}</span>
       </div>`;
     }).join("");
