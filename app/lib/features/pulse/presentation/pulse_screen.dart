@@ -2,10 +2,10 @@
 //
 // The Pulse: one scrollable feed of what the federal government actually
 // did. Executive orders, laws enacted, and the latest bill actions,
-// merged chronologically, newest first. Instead of notification spam the
-// feed is there when the user opens it, fully offline from bundled
-// content; freshness comes from the weekly content refresh (and, later,
-// live checks once a keyless proxy exists).
+// merged chronologically, newest first, with the notifications this
+// device delivered pinned on top so an alert is always findable here.
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/editorial_theme.dart';
+import '../../../app/providers.dart';
 import '../../atlas/data/atlas_reference_loader.dart';
 import '../data/pulse_live_service.dart';
 import 'bill_detail_screen.dart';
@@ -63,6 +64,40 @@ class _PulseItem {
 
 final _liveProvider = FutureProvider.autoDispose<LivePulse>(
   (ref) => PulseLiveService().fetch(),
+);
+
+class _Alert {
+  const _Alert({required this.title, required this.body, required this.at});
+  final String title;
+  final String body;
+  final DateTime at;
+}
+
+/// Washington notifications this device delivered in the last 7 days,
+/// newest first. Pinned so "the notification said X" is always findable
+/// here regardless of live-feed churn.
+final _alertLogProvider = FutureProvider.autoDispose<List<_Alert>>(
+  (ref) async {
+    final raw =
+        await ref.watch(databaseProvider).metaDao.get('watch.alert_log');
+    if (raw == null) return const [];
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    try {
+      return [
+        for (final e in jsonDecode(raw) as List)
+          if (e is Map && e['at'] is int)
+            if (DateTime.fromMillisecondsSinceEpoch(e['at'] as int)
+                .isAfter(cutoff))
+              _Alert(
+                title: (e['t'] as String?) ?? '',
+                body: (e['b'] as String?) ?? '',
+                at: DateTime.fromMillisecondsSinceEpoch(e['at'] as int),
+              ),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  },
 );
 
 class _PulseFeed {
@@ -223,16 +258,10 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final feed = ref.watch(_pulseFeedProvider);
+    final alerts = ref.watch(_alertLogProvider).valueOrNull ?? const [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('The Pulse'),
-        leading: IconButton(
-          tooltip: 'Back to home',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-        ),
-      ),
+      appBar: AppBar(title: const Text('The Pulse')),
       body: feed.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => const Center(child: Text('Could not load the feed.')),
@@ -245,6 +274,11 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                 ];
           return Column(
             children: [
+              if (alerts.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+                  child: _AlertsCard(alerts: alerts, theme: theme),
+                ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 10, 24, 4),
                 child: SingleChildScrollView(
@@ -473,4 +507,48 @@ class _PulseTile extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// The notifications this device delivered, verbatim, so "the alert said
+/// X" always has a home here even after the live window churns.
+class _AlertsCard extends StatelessWidget {
+  const _AlertsCard({required this.alerts, required this.theme});
+
+  final List<_Alert> alerts;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outline, width: 3),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('FROM YOUR NOTIFICATIONS', style: theme.textTheme.labelSmall),
+            const SizedBox(height: 4),
+            for (final a in alerts.take(5))
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${a.title}: ',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(fontWeight: FontWeight.w500),
+                      ),
+                      TextSpan(text: a.body, style: theme.textTheme.bodySmall),
+                    ],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+          ],
+        ),
+      );
 }

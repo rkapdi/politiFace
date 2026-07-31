@@ -82,6 +82,14 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
                 ),
               ],
             ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/pulse',
+                  builder: (context, state) => const PulseScreen(),
+                ),
+              ],
+            ),
           ],
         ),
         // Full-screen routes — render without the bottom navigation bar.
@@ -177,10 +185,6 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         GoRoute(
           path: '/atlas/vocabulary',
           builder: (context, state) => const VocabularyScreen(),
-        ),
-        GoRoute(
-          path: '/pulse',
-          builder: (context, state) => const PulseScreen(),
         ),
         GoRoute(
           path: '/pulse/bill',

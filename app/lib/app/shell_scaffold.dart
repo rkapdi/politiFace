@@ -63,6 +63,11 @@ class _ShellScaffoldState extends ConsumerState<ShellScaffold> {
               selectedIcon: Icon(Icons.insights),
               label: 'Memory',
             ),
+            NavigationDestination(
+              icon: Icon(Icons.bolt_outlined),
+              selectedIcon: Icon(Icons.bolt),
+              label: 'Pulse',
+            ),
           ],
         ),
       );

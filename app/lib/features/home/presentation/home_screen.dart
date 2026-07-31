@@ -413,7 +413,7 @@ class _MoreWaysRow extends StatelessWidget {
       children: [
         for (final (label, sub, glyph, route, push) in const [
           // Icons chosen to say the job: flashcards, a target, a game
-          // controller, a newspaper.
+          // controller. Pulse owns a bottom tab now.
           ('STUDY', 'keep it fresh', Icons.style_outlined, '/session', false),
           ('DRILL', 'move your score', Icons.track_changes, '/fcle', true),
           (
@@ -423,7 +423,6 @@ class _MoreWaysRow extends StatelessWidget {
             '/trivia',
             false
           ),
-          ('PULSE', 'what happened', Icons.newspaper, '/pulse', true),
         ]) ...[
           if (label != 'STUDY') const SizedBox(width: 8),
           Expanded(
