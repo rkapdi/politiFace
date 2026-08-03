@@ -1,7 +1,24 @@
-updated: '2026-07-21'
+updated: '2026-08-03'
 source: Federal Register API (https://www.federalregister.gov/developers/documentation/api/v1)
 since: '2025-01-20'
 orders:
+- eo_number: 14416
+  title: Restoring Trust in the Smithsonian Institution
+  president: Donald Trump
+  signing_date: '2026-07-24'
+  federal_register_citation: 91 FR 47925
+  document_number: 2026-15357
+  url: https://www.federalregister.gov/documents/2026/07/29/2026-15357/restoring-trust-in-the-smithsonian-institution
+  abstract: null
+- eo_number: 14415
+  title: Securing America's Defense Supply Chains and Ensuring Domestic Acquisition of Critical
+    Materials
+  president: Donald Trump
+  signing_date: '2026-07-20'
+  federal_register_citation: 91 FR 46693
+  document_number: 2026-15003
+  url: https://www.federalregister.gov/documents/2026/07/23/2026-15003/securing-americas-defense-supply-chains-and-ensuring-domestic-acquisition-of-critical-materials
+  abstract: null
 - eo_number: 14414
   title: Advancing Regenerative Agriculture and Strengthening American Farm Resilience
   president: Donald Trump
