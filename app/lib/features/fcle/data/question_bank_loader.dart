@@ -32,6 +32,17 @@ class QuestionBank {
             sum +
             (countFor(d) > perDomainForMock ? perDomainForMock : countFor(d)),
       );
+
+  /// A bank containing only the questions [keep] accepts. Used by the
+  /// hold-out chokepoint; every student-facing selection surface must draw
+  /// from a filtered bank, never from the raw one.
+  QuestionBank where(bool Function(FcleQuestion) keep) => QuestionBank({
+        for (final e in byDomain.entries)
+          e.key: [
+            for (final q in e.value)
+              if (keep(q)) q,
+          ],
+      });
 }
 
 class QuestionBankLoader {

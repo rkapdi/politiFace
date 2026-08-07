@@ -137,6 +137,9 @@ Future<void> wipeLocalUserState(AppDatabase db) async {
       RestoreService.lastPullMetaKey,
       'fcle.completed_mocks',
       'fcle.completed_server_mocks',
+      // LockedQuestionsService.metaKey: one account's hold-out locks must
+      // never constrain the next account on this device.
+      'fcle.locked_qids',
     ]) {
       await db.metaDao.remove(key);
     }

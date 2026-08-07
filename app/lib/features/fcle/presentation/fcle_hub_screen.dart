@@ -20,7 +20,9 @@ class FcleHubScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final bank = ref.watch(questionBankProvider).valueOrNull;
+    // Chokepoint bank, so the mock CTA and bank counts agree with what
+    // local assembly can actually deal (hold-outs excluded from both).
+    final bank = ref.watch(practiceBankProvider).valueOrNull;
     final readiness = ref.watch(readinessProvider).valueOrNull;
     final weakest = ref.watch(weakestDomainProvider).valueOrNull;
 

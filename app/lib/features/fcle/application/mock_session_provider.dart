@@ -28,7 +28,11 @@ const kCompletedServerMocksMetaKey = 'fcle.completed_server_mocks';
 
 final mockSessionProvider = FutureProvider.autoDispose<MockSession>(
   (ref) async {
+    // Full bank for the server path (stem reconstruction must resolve any
+    // id the server returns); chokepoint-filtered bank for local assembly
+    // (a held-out item must never be dealt into a locally built mock).
     final bank = await ref.watch(questionBankProvider.future);
+    final practiceBank = await ref.watch(practiceBankProvider.future);
     final db = ref.watch(databaseProvider);
     final sync = ref.watch(syncEngineProvider);
     void tick() => ref.read(fcleTickProvider.notifier).state++;
@@ -53,7 +57,7 @@ final mockSessionProvider = FutureProvider.autoDispose<MockSession>(
     }
 
     return LocalMockSession(
-      assembly: const MockEngine().assemble(bank),
+      assembly: const MockEngine().assemble(practiceBank),
       dao: db.fcleAnswersDao,
       enqueueAnswer: ({required serverQuestionId, required chosenKey}) =>
           sync.enqueueAnswer(

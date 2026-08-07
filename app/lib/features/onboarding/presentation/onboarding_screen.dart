@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../fcle/application/fcle_providers.dart';
+import '../../fcle/data/question_bank_loader.dart';
 import '../../fcle/domain/fcle_question.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/presentation/home_screen.dart';
@@ -62,23 +63,16 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _startDiagnostic() async {
-    final bank = await ref.read(questionBankProvider.future);
+    // Chokepoint bank: a brand-new user is unlikely to have hold-outs, but
+    // a re-onboarding student in a cohort must not see reserved items.
+    final bank = await ref.read(practiceBankProvider.future);
     if (bank.all.isEmpty) {
       // Bank not shipped in this build: never promise a test we cannot
       // give (DEF-02). Fall through to the app itself.
       await _finish('/');
       return;
     }
-    // 10 questions: 3/3/2/2 across the four domains, shuffled, so the
-    // starting projection has signal in every competency.
-    final r = Random();
-    final counts = [3, 3, 2, 2];
-    final picked = <FcleQuestion>[];
-    for (var i = 0; i < FcleDomain.values.length; i++) {
-      final pool = [...?bank.byDomain[FcleDomain.values[i]]]..shuffle(r);
-      picked.addAll(pool.take(counts[i]));
-    }
-    picked.shuffle(r);
+    final picked = pickDiagnosticQuestions(bank, Random());
     setState(() {
       _questions = picked;
       _phase = _Phase.quiz;
@@ -511,4 +505,18 @@ class _ResultView extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// 10 diagnostic questions: 3/3/2/2 across the four domains, shuffled, so
+/// the starting projection has signal in every competency. Pure so the
+/// hold-out contamination test can assert reserved items never appear.
+List<FcleQuestion> pickDiagnosticQuestions(QuestionBank bank, Random r) {
+  const counts = [3, 3, 2, 2];
+  final picked = <FcleQuestion>[];
+  for (var i = 0; i < FcleDomain.values.length; i++) {
+    final pool = [...?bank.byDomain[FcleDomain.values[i]]]..shuffle(r);
+    picked.addAll(pool.take(counts[i]));
+  }
+  picked.shuffle(r);
+  return picked;
 }

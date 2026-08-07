@@ -48,7 +48,9 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   }
 
   Future<void> _load() async {
-    final bank = await ref.read(questionBankProvider.future);
+    // The chokepoint bank: hold-out items reserved for a scheduled
+    // retention check never surface in practice.
+    final bank = await ref.read(practiceBankProvider.future);
     final questions = await buildPracticeSet(
       bank: bank,
       dao: ref.read(databaseProvider).fcleAnswersDao,
