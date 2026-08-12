@@ -26,6 +26,7 @@ import '../../shared/widgets/neo/neo_kit.dart';
 import '../application/home_providers.dart';
 import 'guided_tour.dart';
 import 'season_spine.dart';
+import 'streak_hero.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -57,7 +58,7 @@ class HomeScreen extends ConsumerWidget {
           style: theme.textTheme.titleLarge?.copyWith(letterSpacing: 2),
         ),
         actions: [
-          _StreakChip(days: profile.streakDays),
+          _StreakChip(profile: profile),
           const SizedBox(width: 10),
           IconButton(
             tooltip: 'Settings and account',
@@ -103,30 +104,73 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _StreakChip extends StatelessWidget {
-  const _StreakChip({required this.days});
+  const _StreakChip({required this.profile});
 
-  final int days;
+  final UserProfile profile;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        border: Border.all(color: neoLineDim(context), width: 2),
-      ),
-      child: Row(
-        children: [
-          Text('\u{1F525}', style: theme.textTheme.labelMedium),
-          const SizedBox(width: 5),
-          Text(
-            '$days',
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.brandOchreText,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
+    return Semantics(
+      button: true,
+      label: 'Streak, ${profile.streakDays} days. Opens streak details.',
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          _showDetails(context);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            border: Border.all(color: neoLineDim(context), width: 2),
           ),
-        ],
+          child: Row(
+            children: [
+              Text('\u{1F525}', style: theme.textTheme.labelMedium),
+              const SizedBox(width: 5),
+              Text(
+                '${profile.streakDays}',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.brandOchreText,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDetails(BuildContext context) {
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StreakHero(profile: profile),
+              const SizedBox(height: 12),
+              Text(
+                'One day with any review keeps the streak alive. Miss a '
+                'day and it resets to zero. Play never burns it; '
+                'skipping does.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
