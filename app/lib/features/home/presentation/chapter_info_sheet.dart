@@ -171,6 +171,33 @@ class ChapterInfoSheet extends ConsumerWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
+                const SizedBox(height: 18),
+                // CTA first: the sheet opens with its action visible
+                // instead of hiding it below the fold.
+                _ChapterCta(
+                  isCompleted: _isCompleted,
+                  isCurrent: _isCurrent,
+                  isLocked: _isLocked,
+                  playedToday: playedToday,
+                  currentOrder: currentOrder,
+                  onContinue: () {
+                    Navigator.of(context).pop();
+                    HapticFeedback.lightImpact();
+                    context.go('/round');
+                  },
+                  // Today's round is already done — open its review instead of
+                  // /round, which would see phase==done and bounce home.
+                  onReview: () {
+                    Navigator.of(context).pop();
+                    HapticFeedback.lightImpact();
+                    context.push(
+                      reviewRunId != null
+                          ? '/round/review?runId=$reviewRunId'
+                          : '/round/review',
+                    );
+                  },
+                  onReplay: () => _startReplay(context, ref),
+                ),
                 const SizedBox(height: 22),
                 const _SectionHeader(label: 'PROGRESS'),
                 const SizedBox(height: 10),
@@ -201,7 +228,7 @@ class ChapterInfoSheet extends ConsumerWidget {
                 ],
                 if (branches.isNotEmpty) ...[
                   const SizedBox(height: 22),
-                  const _SectionHeader(label: 'TOUCHES'),
+                  const _SectionHeader(label: 'BRANCHES COVERED'),
                   const SizedBox(height: 10),
                   Wrap(
                     spacing: 8,
@@ -214,32 +241,14 @@ class ChapterInfoSheet extends ConsumerWidget {
                         ),
                     ],
                   ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Groundwork for the FCLE domains you see on Home.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
-                const SizedBox(height: 28),
-                _ChapterCta(
-                  isCompleted: _isCompleted,
-                  isCurrent: _isCurrent,
-                  isLocked: _isLocked,
-                  playedToday: playedToday,
-                  currentOrder: currentOrder,
-                  onContinue: () {
-                    Navigator.of(context).pop();
-                    HapticFeedback.lightImpact();
-                    context.go('/round');
-                  },
-                  // Today's round is already done — open its review instead of
-                  // /round, which would see phase==done and bounce home.
-                  onReview: () {
-                    Navigator.of(context).pop();
-                    HapticFeedback.lightImpact();
-                    context.push(
-                      reviewRunId != null
-                          ? '/round/review?runId=$reviewRunId'
-                          : '/round/review',
-                    );
-                  },
-                  onReplay: () => _startReplay(context, ref),
-                ),
                 const SizedBox(height: 12),
               ],
             ),
