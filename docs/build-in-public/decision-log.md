@@ -187,3 +187,15 @@ hiding features in a swipe drawer. The lesson worth publishing: decisions move f
 the evidence is assembled first. Each call took minutes because the audit had already
 made the tradeoffs legible.
 Hook: "We made five product decisions in one review because the document did the arguing beforehand."
+
+**2026-08-12. Ten founder-driven UI fixes lock the fall submission build.**
+Why: the founder walked the app like a student a week before the semester and filed ten
+changes in one sitting: the action verbs (Study, Drill, Play) move above the fold; Study
+stops duplicating Today's Review and resumes The Season instead; the chapter sheet leads
+with its Continue button instead of burying it; class selection finally persists; the
+readiness card says FCLE out loud; the Atlas puts Reference first; Pulse notifications
+become tappable and the box teaches what an executive order actually is when you filter;
+the streak chip opens details; the radar animation stops doubling on itself. One design
+rule ran through the batch: the thing a student came to do should be the first thing on
+the screen.
+Hook: "We renamed a section, moved three buttons, and fixed a radar. The real change: every screen now leads with its verb."
