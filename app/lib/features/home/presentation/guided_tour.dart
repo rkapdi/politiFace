@@ -108,20 +108,20 @@ class _TourOverlayState extends State<_TourOverlay> {
       route: '/',
     ),
     _TourStep(
+      kicker: 'THREE DOORS',
+      title: 'Pick a door when you have a mood',
+      body: 'Study picks up the season where you left off. Drill moves '
+          'your exam score. Play is the arcade, zero stakes, never '
+          'burns your streak.',
+      targetKey: GuidedTour.verbsKey,
+    ),
+    _TourStep(
       kicker: 'THE ONE BUTTON',
       title: 'When in doubt, press the yellow',
       body: 'It always holds your highest-impact next step: cards about '
           'to fade, your weakest exam domain, or today’s round. '
           'One tap, no decisions.',
       targetKey: GuidedTour.buttonKey,
-    ),
-    _TourStep(
-      kicker: 'FOUR DOORS',
-      title: 'Pick a door when you have a mood',
-      body: 'Study keeps what you know fresh. Drill moves your exam '
-          'score. Play is the arcade, zero stakes, never burns your '
-          'streak. Pulse is what Washington did this week.',
-      targetKey: GuidedTour.verbsKey,
     ),
     _TourStep(
       kicker: 'THE ATLAS',
@@ -143,9 +143,9 @@ class _TourOverlayState extends State<_TourOverlay> {
     ),
     const _TourStep(
       kicker: 'THAT IS THE APP',
-      title: 'Band, button, doors, tabs',
-      body: 'Check the band, press the yellow, pick a door when you '
-          'have a mood. Replay this tour any time from Settings.',
+      title: 'Band, doors, button, tabs',
+      body: 'Check the band, pick a door, press the yellow when in '
+          'doubt. Replay this tour any time from Settings.',
       route: '/',
     ),
   ];

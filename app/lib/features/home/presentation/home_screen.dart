@@ -5,9 +5,9 @@
 // about it right now?" Composition, top to bottom:
 //   masthead (brand + streak chip + avatar)
 //   readiness hero (powerline stage + projected range + domain bars)
+//   "More ways to play" verb row (Study / Drill / Play)
 //   THE one button (ladder-picked; the screen's single yellow action)
 //   class block (cohort members only; solo users see nothing here)
-//   "More ways to play" verb row (Study / Drill / Play / Pulse)
 //   the season spine (the long-arc narrative, below the fold)
 // The old five equal tiles and the "Almost There" rail are retired: the
 // ladder answers "what next" alone (defect DEF-07).
@@ -79,16 +79,17 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
               KeyedSubtree(
+                key: GuidedTour.verbsKey,
+                child: const _MoreWaysRow(),
+              ),
+              const SizedBox(height: 18),
+              KeyedSubtree(
                 key: GuidedTour.buttonKey,
                 child: const _TheOneButton(),
               ),
               const SizedBox(height: 18),
               const _ClassBlock(),
-              KeyedSubtree(
-                key: GuidedTour.verbsKey,
-                child: const _MoreWaysRow(),
-              ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 8),
               const _SectionDivider(label: 'THE SEASON'),
               const SizedBox(height: 12),
               const SeasonSpine(),
