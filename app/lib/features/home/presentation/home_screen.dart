@@ -332,7 +332,12 @@ class _ClassBlock extends ConsumerWidget {
     final theme = Theme.of(context);
     final cohorts = ref.watch(myCohortsProvider).valueOrNull ?? const [];
     if (cohorts.isEmpty) return const SizedBox.shrink();
-    final cohort = cohorts.first;
+    // Honor the class picked on the leaderboard; newest-joined otherwise.
+    final selectedId = ref.watch(selectedCohortIdProvider).valueOrNull;
+    final cohort = cohorts.firstWhere(
+      (c) => c.id == selectedId,
+      orElse: () => cohorts.first,
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),

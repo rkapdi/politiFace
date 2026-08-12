@@ -31,7 +31,10 @@ class LeaderboardScreen extends ConsumerStatefulWidget {
 }
 
 class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
-  String? _selectedCohortId;
+  /// A class joined this visit whose myCohorts refetch may still be in
+  /// flight; the persisted selection itself lives in
+  /// [selectedCohortIdProvider].
+  String? _justJoined;
   bool _joiningAnother = false;
 
   @override
@@ -71,29 +74,40 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
                     : () => setState(() => _joiningAnother = false),
                 onJoined: (cohortId) {
                   ref.invalidate(myCohortsProvider);
+                  unawaited(
+                    ref
+                        .read(selectedCohortIdProvider.notifier)
+                        .select(cohortId),
+                  );
                   setState(() {
-                    _selectedCohortId = cohortId;
+                    _justJoined = cohortId;
                     _joiningAnother = false;
                   });
                 },
               )
             : () {
-                // If the selected cohort is not in the freshly-fetched list
-                // yet (a just-joined class whose refetch is mid-flight),
-                // show loading rather than a header/roster from the old
-                // class stacked over the new class's board.
-                final selected = _selectedCohortId;
+                // A just-joined class whose refetch is mid-flight shows
+                // loading rather than a header/roster from the old class
+                // stacked over the new class's board. A stale persisted
+                // pick (e.g. a class left on another device) falls back
+                // to the newest-joined class silently instead.
+                final justJoined = _justJoined;
+                if (justJoined != null &&
+                    !list.any((c) => c.id == justJoined)) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final selected =
+                    ref.watch(selectedCohortIdProvider).valueOrNull;
                 final resolved =
                     selected != null && list.any((c) => c.id == selected)
                         ? selected
                         : list.first.id;
-                if (selected != null && !list.any((c) => c.id == selected)) {
-                  return const Center(child: CircularProgressIndicator());
-                }
                 return _BoardView(
                   cohorts: list,
                   selectedId: resolved,
-                  onSelect: (id) => setState(() => _selectedCohortId = id),
+                  onSelect: (id) => unawaited(
+                    ref.read(selectedCohortIdProvider.notifier).select(id),
+                  ),
                   onJoinAnother: () => setState(() => _joiningAnother = true),
                 );
               }(),
@@ -113,7 +127,7 @@ class _LeaderboardScreenState extends ConsumerState<LeaderboardScreen> {
         onRefresh: () async {
           ref.invalidate(myCohortsProvider);
           final list = ref.read(myCohortsProvider).valueOrNull;
-          final id = _selectedCohortId ??
+          final id = ref.read(selectedCohortIdProvider).valueOrNull ??
               (list == null || list.isEmpty ? null : list.first.id);
           if (id != null) ref.invalidate(leaderboardEntriesProvider(id));
         },
