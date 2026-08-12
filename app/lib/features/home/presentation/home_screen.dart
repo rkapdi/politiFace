@@ -19,11 +19,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/database/drift/app_database.dart';
 import '../../fcle/domain/fcle_question.dart';
 import '../../leaderboard/application/leaderboard_providers.dart';
 import '../../profile/data/profile_service.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 import '../application/home_providers.dart';
+import 'chapter_info_sheet.dart';
 import 'guided_tour.dart';
 import 'season_spine.dart';
 import 'streak_hero.dart';
@@ -460,42 +462,83 @@ class _ClassRow extends StatelessWidget {
   }
 }
 
-/// The three verbs plus the reference feed (approved D1). Quiet tiles:
-/// hollow, mono, no colour; the ladder button above them is the loud one.
-class _MoreWaysRow extends StatelessWidget {
+/// The three verbs (approved D1). Quiet tiles: hollow, mono, no colour;
+/// the ladder button is the loud one. Icons chosen to say the job:
+/// flashcards, a target, a game controller. Pulse owns a bottom tab now.
+class _MoreWaysRow extends ConsumerWidget {
   const _MoreWaysRow();
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context, WidgetRef ref) => Row(
       children: [
-        for (final (label, sub, glyph, route, push) in const [
-          // Icons chosen to say the job: flashcards, a target, a game
-          // controller. Pulse owns a bottom tab now.
-          ('STUDY', 'keep it fresh', Icons.style_outlined, '/session', false),
-          ('DRILL', 'move your score', Icons.track_changes, '/fcle', true),
-          (
-            'PLAY',
-            'just for fun',
-            Icons.sports_esports_outlined,
-            '/trivia',
-            false
+        Expanded(
+          child: _VerbTile(
+            label: 'STUDY',
+            sublabel: 'continue the season',
+            glyph: Icons.style_outlined,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _openSeason(context, ref);
+            },
           ),
-        ]) ...[
-          if (label != 'STUDY') const SizedBox(width: 8),
-          Expanded(
-            child: _VerbTile(
-              label: label,
-              sublabel: sub,
-              glyph: glyph,
-              onTap: () {
-                HapticFeedback.lightImpact();
-                push ? context.push(route) : context.go(route);
-              },
-            ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _VerbTile(
+            label: 'DRILL',
+            sublabel: 'move your score',
+            glyph: Icons.track_changes,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/fcle');
+            },
           ),
-        ],
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _VerbTile(
+            label: 'PLAY',
+            sublabel: 'just for fun',
+            glyph: Icons.sports_esports_outlined,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.go('/trivia');
+            },
+          ),
+        ),
       ],
     );
+
+  /// STUDY resumes The Season: the current chapter's sheet, whose
+  /// Continue button now sits at the top. Falls back to the free-study
+  /// session only if the curriculum has not loaded yet.
+  void _openSeason(BuildContext context, WidgetRef ref) {
+    final curriculum = ref.read(curriculumProvider).valueOrNull;
+    if (curriculum == null || curriculum.chapters.isEmpty) {
+      context.go('/session');
+      return;
+    }
+    final entries =
+        ref.read(seasonProgressProvider).valueOrNull ??
+            const <ChapterProgressEntry>[];
+    final byId = <String, ChapterProgressEntry>{
+      for (final e in entries) e.chapterId: e,
+    };
+    final currentOrder = SeasonSpine.resolveCurrentOrder(
+      chapters: curriculum.chapters,
+      byId: byId,
+    );
+    final chapter = curriculum.chapters.firstWhere(
+      (c) => c.order == currentOrder,
+      orElse: () => curriculum.chapters.last,
+    );
+    ChapterInfoSheet.show(
+      context,
+      chapter: chapter,
+      entry: byId[chapter.id],
+      currentOrder: currentOrder,
+    );
+  }
 }
 
 class _VerbTile extends StatelessWidget {

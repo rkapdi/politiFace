@@ -36,7 +36,7 @@ class SeasonSpine extends ConsumerWidget {
     // Determine the "current" chapter order — the first chapter that isn't
     // yet completed. Defaults to chapter 1 for a fresh user with no entries,
     // so chapter 1 always reads as available rather than locked.
-    final currentOrder = _resolveCurrentOrder(
+    final currentOrder = resolveCurrentOrder(
       chapters: curriculum.chapters,
       byId: byId,
     );
@@ -69,8 +69,9 @@ class SeasonSpine extends ConsumerWidget {
   }
 
   /// First chapter (by `order`) that hasn't been completed yet. Returns the
-  /// last chapter's order when the whole season is done.
-  static int _resolveCurrentOrder({
+  /// last chapter's order when the whole season is done. Public so the
+  /// Home STUDY tile resolves the same resume point.
+  static int resolveCurrentOrder({
     required List<Chapter> chapters,
     required Map<String, ChapterProgressEntry> byId,
   }) {
