@@ -16,6 +16,8 @@ import 'chapter_spotlight.dart';
 ///
 /// Structure (top to bottom):
 ///   - Search field (filters every branch's cards in-place).
+///   - Reference section (Congress, laws, executive orders, vocabulary)
+///     right at the top; hidden while a search is active.
 ///   - Chapter Spotlight strip (links the Atlas to the player's current
 ///     round chapter; tap to scroll to a highlighted branch).
 ///   - One BranchSection per top-level branch (Legislative → Executive →
@@ -125,6 +127,8 @@ class _AtlasBody extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             if (showSpotlight) ...[
+              const _ReferenceSection(),
+              const SizedBox(height: 20),
               ChapterSpotlight(onJumpToBranch: onJumpToBranch),
               const SizedBox(height: 20),
             ],
@@ -143,10 +147,6 @@ class _AtlasBody extends ConsumerWidget {
                   const SizedBox(height: 16),
                 ],
               ],
-            if (showSpotlight) ...[
-              const _ReferenceSection(),
-              const SizedBox(height: 16),
-            ],
             const SizedBox(height: 8),
             _MasterySummary(view: view),
             const SizedBox(height: 16),
