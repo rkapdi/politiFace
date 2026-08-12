@@ -321,7 +321,7 @@ class NotificationOrchestrator {
       // in the app afterwards, however much the live feed window has
       // churned in the meantime.
       if (c.route == '/pulse') {
-        await _appendAlertLog(c.title, c.body, deliveredAt);
+        await _appendAlertLog(c, deliveredAt);
       }
       delivered.add(c.dedupeKey);
     }
@@ -372,10 +372,13 @@ class NotificationOrchestrator {
   static const _kAlertLog = 'watch.alert_log';
 
   /// Rolling log (newest first, capped) of Washington notifications this
-  /// device actually delivered. The Pulse renders it verbatim.
+  /// device actually delivered. The Pulse renders it verbatim; the item
+  /// key ('k', e.g. 'eo:14418' or 'bill:HR 8121:2026-08-06') lets an
+  /// alert row deep-link to its feed item. Digest summaries have no
+  /// single item and carry no key, as do entries written before this
+  /// field existed.
   Future<void> _appendAlertLog(
-    String title,
-    String body,
+    NotifCandidate c,
     DateTime at,
   ) async {
     List<dynamic> log;
@@ -384,10 +387,15 @@ class NotificationOrchestrator {
     } catch (_) {
       log = [];
     }
+    final key = c.dedupeKey;
     log.insert(0, {
-      't': title,
-      'b': body,
+      't': c.title,
+      'b': c.body,
       'at': at.millisecondsSinceEpoch,
+      if (key.startsWith('eo:') ||
+          key.startsWith('law:') ||
+          key.startsWith('bill:'))
+        'k': key,
     });
     if (log.length > 20) log = log.sublist(0, 20);
     await _db.metaDao.set(_kAlertLog, jsonEncode(log));
