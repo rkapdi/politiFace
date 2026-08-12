@@ -99,7 +99,7 @@ class _TourOverlayState extends State<_TourOverlay> {
   // reload, which made copy edits invisible mid-session.
   List<_TourStep> get _steps => <_TourStep>[
     _TourStep(
-      kicker: 'YOUR READINESS',
+      kicker: 'FCLE READINESS',
       title: 'This band is the whole game',
       body: 'It projects your FCLE score from everything you answer, '
           'anywhere in the app. The goal: get the band past the pass '

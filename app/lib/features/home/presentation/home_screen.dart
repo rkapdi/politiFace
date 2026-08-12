@@ -206,9 +206,16 @@ class ReadinessHero extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('YOUR READINESS', style: theme.textTheme.labelSmall),
+              Text('FCLE READINESS', style: theme.textTheme.labelSmall),
               Text('PASS LINE 48', style: theme.textTheme.labelSmall),
             ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Florida Civic Literacy Exam · practice projection',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 10),
           if (summary == null) ...[
