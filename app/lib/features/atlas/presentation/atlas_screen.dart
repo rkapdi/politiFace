@@ -2,13 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/providers.dart';
+import '../../../core/database/drift/app_database.dart';
 import '../../home/presentation/guided_tour.dart';
 import '../../shared/widgets/state_views.dart';
 import '../data/atlas_data_provider.dart';
+import '../data/atlas_reference_loader.dart';
 import 'branch_section.dart';
 import 'chapter_spotlight.dart';
+
+/// Full-roster people search behind the Atlas search bar. The branch
+/// sections only hold the curated face cards; this reaches all 537
+/// members in the local people table, offline.
+final _peopleSearchProvider =
+    FutureProvider.autoDispose.family<List<Person>, String>((ref, q) {
+  if (q.length < 2) return Future.value(const <Person>[]);
+  return ref.watch(databaseProvider).peopleDao.directory(query: q, limit: 24);
+});
 
 /// The Learn tab, reframed as the Atlas — a vertical scroll through the
 /// territory rather than a free-form graph. Replaces the previous
@@ -110,7 +122,51 @@ class _AtlasBody extends ConsumerWidget {
     final filteredBranches = _applySortAndFilter(view.branches, query);
     final totalAfter =
         filteredBranches.fold<int>(0, (sum, b) => sum + b.cards.length);
-    final showSpotlight = query.trim().isEmpty;
+    final needle = query.trim().toLowerCase();
+    final searching = needle.isNotEmpty;
+    final showSpotlight = !searching;
+
+    // Search reaches beyond the curated face cards: the full people
+    // table, the vocabulary, executive orders, and recent laws.
+    final peopleAsync =
+        searching ? ref.watch(_peopleSearchProvider(needle)) : null;
+    final people = peopleAsync?.valueOrNull ?? const <Person>[];
+    final referenceAsync =
+        searching ? ref.watch(atlasReferenceProvider) : null;
+    final reference = referenceAsync?.valueOrNull;
+    final terms = reference == null
+        ? const <CivicTerm>[]
+        : [
+            for (final t in reference.terms)
+              if (t.term.toLowerCase().contains(needle) ||
+                  t.definition.toLowerCase().contains(needle))
+                t,
+          ].take(6).toList();
+    final orders = reference == null
+        ? const <ExecutiveOrder>[]
+        : [
+            for (final o in reference.orders)
+              if (o.title.toLowerCase().contains(needle)) o,
+          ].take(5).toList();
+    final laws = reference == null
+        ? const <RecentLaw>[]
+        : [
+            for (final l in reference.laws)
+              if (l.title.toLowerCase().contains(needle) ||
+                  l.bill.toLowerCase().contains(needle) ||
+                  l.lawNumber.toLowerCase().contains(needle))
+                l,
+          ].take(5).toList();
+    final searchStillLoading = searching &&
+        ((peopleAsync?.isLoading ?? false) ||
+            (referenceAsync?.isLoading ?? false));
+    final nothingAnywhere = searching &&
+        !searchStillLoading &&
+        totalAfter == 0 &&
+        people.isEmpty &&
+        terms.isEmpty &&
+        orders.isEmpty &&
+        laws.isEmpty;
 
     return SafeArea(
       child: SingleChildScrollView(
@@ -132,7 +188,7 @@ class _AtlasBody extends ConsumerWidget {
               ChapterSpotlight(onJumpToBranch: onJumpToBranch),
               const SizedBox(height: 20),
             ],
-            if (totalAfter == 0 && query.isNotEmpty)
+            if (nothingAnywhere)
               _NoResults(query: query)
             else
               for (final branch in filteredBranches) ...[
@@ -147,6 +203,50 @@ class _AtlasBody extends ConsumerWidget {
                   const SizedBox(height: 16),
                 ],
               ],
+            if (searching && people.isNotEmpty) ...[
+              const _SearchSectionHeader(label: 'MEMBERS OF CONGRESS'),
+              for (final p in people)
+                _SearchResultRow(
+                  title: p.name,
+                  subtitle: p.currentRole,
+                  onTap: () => context.push('/person/${p.id}'),
+                ),
+              const SizedBox(height: 16),
+            ],
+            if (searching && terms.isNotEmpty) ...[
+              const _SearchSectionHeader(label: 'CIVIC VOCABULARY'),
+              for (final t in terms)
+                _SearchResultRow(
+                  title: t.term,
+                  subtitle: t.definition,
+                  onTap: () => context.push('/atlas/vocabulary'),
+                ),
+              const SizedBox(height: 16),
+            ],
+            if (searching && orders.isNotEmpty) ...[
+              const _SearchSectionHeader(label: 'EXECUTIVE ORDERS'),
+              for (final o in orders)
+                _SearchResultRow(
+                  title: o.title,
+                  subtitle: 'Executive Order ${o.number} · ${o.signingDate}',
+                  onTap: () => launchUrl(
+                    Uri.parse(o.url),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                ),
+              const SizedBox(height: 16),
+            ],
+            if (searching && laws.isNotEmpty) ...[
+              const _SearchSectionHeader(label: 'RECENT LAWS'),
+              for (final l in laws)
+                _SearchResultRow(
+                  title: l.title,
+                  subtitle:
+                      'Public Law ${l.lawNumber} · started as ${l.bill}',
+                  onTap: () => context.push('/atlas/laws'),
+                ),
+              const SizedBox(height: 16),
+            ],
             const SizedBox(height: 8),
             _MasterySummary(view: view),
             const SizedBox(height: 16),
@@ -240,6 +340,88 @@ class _SearchField extends StatelessWidget {
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(6),
           borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchSectionHeader extends StatelessWidget {
+  const _SearchSectionHeader({required this.label});
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.6,
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+class _SearchResultRow extends StatelessWidget {
+  const _SearchResultRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium
+                          ?.copyWith(fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right, size: 18),
+            ],
+          ),
         ),
       ),
     );
