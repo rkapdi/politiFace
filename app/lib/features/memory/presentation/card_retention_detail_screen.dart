@@ -301,6 +301,17 @@ class _CurveSection extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               _CurveLegend(labelColor: theme.colorScheme.onSurfaceVariant),
+              const SizedBox(height: 6),
+              Text(
+                'The line is the chance you would recall this card. It '
+                'slides down between reviews; reviewing near DUE pushes '
+                'it back up.',
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  height: 1.35,
+                ),
+              ),
             ],
           ),
         ),
@@ -476,7 +487,9 @@ class _StatGrid extends StatelessWidget {
       (_durability, 'Memory lasts'),
       ('$reviewCount', 'Times reviewed'),
       ('$lapses', 'Times forgotten'),
-      ('$_difficultyLabel (${difficulty.toStringAsFixed(1)})', 'Difficulty'),
+      // Plain word only: the raw 1-10 FSRS scalar is an internal and
+      // stays internal (audit F17).
+      (_difficultyLabel, 'Difficulty for you'),
     ];
     return Wrap(
       spacing: 10,

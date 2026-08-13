@@ -342,7 +342,7 @@ class _OrbPopover extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: _StatChip(
-                          label: 'Stability',
+                          label: 'Memory lasts',
                           value: _formatDays(card.stability),
                         ),
                       ),
