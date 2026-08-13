@@ -521,20 +521,7 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 16),
-                FilledButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    setState(() => _filter = null);
-                  },
-                  child: const Text(
-                    'BROWSE THE FULL FEED',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 8),
               ],
             ),
           ),

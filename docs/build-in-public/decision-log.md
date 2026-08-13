@@ -199,3 +199,14 @@ the streak chip opens details; the radar animation stops doubling on itself. One
 rule ran through the batch: the thing a student came to do should be the first thing on
 the screen.
 Hook: "We renamed a section, moved three buttons, and fixed a radar. The real change: every screen now leads with its verb."
+
+**2026-08-13. Notifications stay personal for launch; the next sprint belongs to educators.**
+Why: TestFlight testing surfaced that two students see different notification counts and
+kinds. That is the current architecture working as designed (each device composes its own
+alerts from its own baseline), but a classroom tool wants sameness. The unification
+(server-authored Washington notifications, identical for every student) is deliberately
+deferred to the backlog rather than blocking the semester build; the digest detail sheets
+already self-correct in the new build. The bigger call: the coming sprints go all-in on
+what actually moves the institutional deal, the educator web app, cohort analytics, and
+student performance measurement, because that is the proof the buyer needs.
+Hook: "We shipped the student app and immediately stopped polishing it. The next sprint builds the thing the professor sees."
