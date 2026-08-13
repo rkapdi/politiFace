@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../data/atlas_data_provider.dart';
@@ -87,7 +88,20 @@ class BranchSection extends StatelessWidget {
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 6),
+                  // These sections are the curated study layer, not the
+                  // roster; say so, or they read as incomplete.
+                  Text(
+                    'STUDY DECK · ${branch.cards.length} '
+                    '${branch.cards.length == 1 ? 'FACE' : 'FACES'}',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1.4,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 9,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
                 ],
               ),
             ),
@@ -129,10 +143,64 @@ class BranchSection extends StatelessWidget {
                         branchColor: branch.color,
                       ),
                   ),
+                // The deck above is curated; the complete roster lives in
+                // Reference. Link it where the incompleteness is felt.
+                if (branch.id == 'atlas-legislative') ...[
+                  const SizedBox(height: 12),
+                  _FullRosterLink(
+                    label: 'Every member of Congress, all 537',
+                    onTap: () => context.push('/atlas/congress'),
+                  ),
+                ],
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Slim link row from a curated study deck to its complete roster.
+class _FullRosterLink extends StatelessWidget {
+  const _FullRosterLink({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.how_to_vote_outlined,
+              size: 16,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                label,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.w700),
+              ),
+            ),
+            const Icon(Icons.chevron_right, size: 16),
+          ],
+        ),
       ),
     );
   }
