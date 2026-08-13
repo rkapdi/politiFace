@@ -228,7 +228,7 @@ class ReadinessHero extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               'Answer a few exam questions and this becomes your '
-              'projected score. The Drill tab is the fastest way in.',
+              'projected score. The FCLE tile is the fastest way in.',
               style: theme.textTheme.bodySmall,
             ),
           ] else ...[
@@ -485,8 +485,8 @@ class _MoreWaysRow extends ConsumerWidget {
         const SizedBox(width: 8),
         Expanded(
           child: _VerbTile(
-            label: 'DRILL',
-            sublabel: 'move your score',
+            label: 'FCLE',
+            sublabel: 'exam prep',
             glyph: Icons.track_changes,
             onTap: () {
               HapticFeedback.lightImpact();

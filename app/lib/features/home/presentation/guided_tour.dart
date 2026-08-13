@@ -110,9 +110,9 @@ class _TourOverlayState extends State<_TourOverlay> {
     _TourStep(
       kicker: 'THREE DOORS',
       title: 'Pick a door when you have a mood',
-      body: 'Study picks up the season where you left off. Drill moves '
-          'your exam score. Play is the arcade, zero stakes, never '
-          'burns your streak.',
+      body: 'Study picks up the season where you left off. FCLE is the '
+          'exam lane: practice and mock tests. Play is the arcade, '
+          'zero stakes, never burns your streak.',
       targetKey: GuidedTour.verbsKey,
     ),
     _TourStep(
