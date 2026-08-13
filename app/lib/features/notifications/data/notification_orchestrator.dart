@@ -396,6 +396,9 @@ class NotificationOrchestrator {
           key.startsWith('law:') ||
           key.startsWith('bill:'))
         'k': key,
+      // Digest candidates list the items they cover so the Pulse can
+      // show exactly what "N updates" meant.
+      if (c.itemKeys.isNotEmpty) 'ks': c.itemKeys.take(40).toList(),
     });
     if (log.length > 20) log = log.sublist(0, 20);
     await _db.metaDao.set(_kAlertLog, jsonEncode(log));

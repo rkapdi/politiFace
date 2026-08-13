@@ -103,6 +103,7 @@ List<NotifCandidate> buildWashingtonCandidates(
         dedupeKey: 'wash:summary:${_dayKey(now)}',
         relevance: 0.1,
         route: '/pulse',
+        itemKeys: [for (final g in general) g.item.dedupeKey],
       ),
     );
   } else {
@@ -290,6 +291,7 @@ NotifCandidate _withId(NotifCandidate c, int id) => NotifCandidate(
       relevance: c.relevance,
       route: c.route,
       urgent: c.urgent,
+      itemKeys: c.itemKeys,
     );
 
 /// Local calendar day, for once-per-day dedupe keys.

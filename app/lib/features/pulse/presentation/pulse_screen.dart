@@ -72,6 +72,7 @@ class _Alert {
     required this.body,
     required this.at,
     this.itemKey,
+    this.itemKeys = const [],
   });
   final String title;
   final String body;
@@ -81,6 +82,11 @@ class _Alert {
   /// ('eo:14418', 'bill:HR 8121:2026-08-06', 'law:...'). Null for digest
   /// summaries and for entries logged before the key was recorded.
   final String? itemKey;
+
+  /// For digest notifications ("Washington was busy: N updates"), the
+  /// keys of the items the digest covered. Empty for single-item alerts
+  /// and for digests logged before keys were recorded.
+  final List<String> itemKeys;
 }
 
 /// Washington notifications this device delivered in the last 7 days,
@@ -103,6 +109,10 @@ final _alertLogProvider = FutureProvider.autoDispose<List<_Alert>>(
                 body: (e['b'] as String?) ?? '',
                 at: DateTime.fromMillisecondsSinceEpoch(e['at'] as int),
                 itemKey: e['k'] as String?,
+                itemKeys: [
+                  for (final k in e['ks'] as List? ?? const [])
+                    if (k is String) k,
+                ],
               ),
       ];
     } catch (_) {
@@ -384,20 +394,19 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
 
   /// A keyed alert deep-links to its feed item; everything else (digest
   /// summaries, pre-upgrade entries, items that have churned out of the
-  /// feed) opens a readable detail sheet.
+  /// feed) opens a detail sheet listing what the alert covered.
   void _openAlert(_Alert alert, List<_PulseItem> items) {
     HapticFeedback.lightImpact();
-    final item = _matchAlert(alert, items);
+    final key = alert.itemKey;
+    final item = key == null ? null : _itemForKey(key, items);
     if (item != null) {
       _openPulseItem(context, item);
       return;
     }
-    _showAlertDetail(alert);
+    _showAlertDetail(alert, items);
   }
 
-  _PulseItem? _matchAlert(_Alert alert, List<_PulseItem> items) {
-    final key = alert.itemKey;
-    if (key == null) return null;
+  _PulseItem? _itemForKey(String key, List<_PulseItem> items) {
     final parts = key.split(':');
     if (parts.length < 2) return null;
     if (parts[0] == 'eo') {
@@ -417,14 +426,44 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
     return null;
   }
 
-  void _showAlertDetail(_Alert alert) {
+  /// The items a digest alert covered: exact when the log entry stored
+  /// keys, approximated by delivery-date window for older entries.
+  (List<_PulseItem>, bool) _coveredItems(
+    _Alert alert,
+    List<_PulseItem> items,
+  ) {
+    if (alert.itemKeys.isNotEmpty) {
+      final covered = <_PulseItem>[];
+      for (final k in alert.itemKeys) {
+        final m = _itemForKey(k, items);
+        if (m != null && !covered.contains(m)) covered.add(m);
+      }
+      if (covered.isNotEmpty) return (covered, false);
+    }
+    String iso(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
+        '${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}';
+    final hi = iso(alert.at);
+    final lo = iso(alert.at.subtract(const Duration(days: 3)));
+    return (
+      [
+        for (final i in items)
+          if (i.date.compareTo(lo) >= 0 && i.date.compareTo(hi) <= 0) i,
+      ].take(12).toList(),
+      true,
+    );
+  }
+
+  void _showAlertDetail(_Alert alert, List<_PulseItem> items) {
     final theme = Theme.of(context);
     final at = alert.at;
     String two(int n) => n.toString().padLeft(2, '0');
     final delivered = '${at.year}-${two(at.month)}-${two(at.day)} '
         '${two(at.hour)}:${two(at.minute)}';
+    final (covered, approximate) = _coveredItems(alert, items);
     showModalBottomSheet<void>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: theme.colorScheme.surface,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
@@ -432,43 +471,141 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
       builder: (ctx) => SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('DELIVERED $delivered', style: theme.textTheme.labelSmall),
-              const SizedBox(height: 8),
-              Text(
-                alert.title,
-                style: theme.textTheme.titleLarge
-                    ?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              if (alert.body.isNotEmpty) ...[
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'DELIVERED $delivered',
+                  style: theme.textTheme.labelSmall,
+                ),
                 const SizedBox(height: 8),
                 Text(
-                  alert.body,
-                  style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
+                  alert.title,
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w800),
                 ),
-              ],
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton(
+                if (alert.body.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    alert.body,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
+                  ),
+                ],
+                if (covered.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    approximate
+                        ? 'FROM THE FEED AROUND THAT DAY'
+                        : 'WHAT IT COVERED',
+                    style: theme.textTheme.labelSmall,
+                  ),
+                  const SizedBox(height: 6),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final i in covered)
+                          _CoveredItemRow(
+                            item: i,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _openPulseItem(context, i);
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 16),
+                FilledButton(
                   onPressed: () {
                     Navigator.of(ctx).pop();
                     setState(() => _filter = null);
                   },
                   child: const Text(
-                    "SEE WHAT'S NEW IN THE PULSE",
+                    'BROWSE THE FULL FEED',
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.2,
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One compact row in the alert-detail sheet: kind badge word, title,
+/// date. Tap opens the item exactly like its feed tile would.
+class _CoveredItemRow extends StatelessWidget {
+  const _CoveredItemRow({required this.item, required this.onTap});
+
+  final _PulseItem item;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final (label, color) = switch (item.kind) {
+      _PulseKind.order => ('EO', theme.colorScheme.brandRed),
+      _PulseKind.law => ('LAW', theme.colorScheme.brandGreen),
+      _PulseKind.bill => ('BILL', theme.colorScheme.brandNavy),
+    };
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              decoration: BoxDecoration(
+                border: Border.all(color: color, width: 1.5),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.1,
+                  color: color,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                item.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.w600, height: 1.3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              item.date,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
       ),
     );
