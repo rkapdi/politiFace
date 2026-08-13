@@ -53,18 +53,6 @@ class _AtlasScreenState extends ConsumerState<AtlasScreen> {
   GlobalKey _keyFor(String branchId) =>
       _branchKeys.putIfAbsent(branchId, GlobalKey.new);
 
-  void _scrollToBranch(String branchId) {
-    final key = _branchKeys[branchId];
-    final ctx = key?.currentContext;
-    if (ctx == null) return;
-    Scrollable.ensureVisible(
-      ctx,
-      duration: const Duration(milliseconds: 420),
-      curve: Curves.easeOutCubic,
-      alignment: 0.05, // tuck just below the appbar
-    );
-  }
-
   @override
   void dispose() {
     _searchCtl.dispose();
@@ -89,7 +77,6 @@ class _AtlasScreenState extends ConsumerState<AtlasScreen> {
         data: (view) => _AtlasBody(
           view: view,
           keyFor: _keyFor,
-          onJumpToBranch: _scrollToBranch,
           searchController: _searchCtl,
           query: _query,
           onQueryChanged: (q) => setState(() => _query = q),
@@ -103,7 +90,6 @@ class _AtlasBody extends ConsumerWidget {
   const _AtlasBody({
     required this.view,
     required this.keyFor,
-    required this.onJumpToBranch,
     required this.searchController,
     required this.query,
     required this.onQueryChanged,
@@ -111,7 +97,6 @@ class _AtlasBody extends ConsumerWidget {
 
   final AtlasView view;
   final GlobalKey Function(String branchId) keyFor;
-  final void Function(String branchId) onJumpToBranch;
   final TextEditingController searchController;
   final String query;
   final ValueChanged<String> onQueryChanged;
@@ -185,7 +170,7 @@ class _AtlasBody extends ConsumerWidget {
             if (showSpotlight) ...[
               const _ReferenceSection(),
               const SizedBox(height: 20),
-              ChapterSpotlight(onJumpToBranch: onJumpToBranch),
+              const ChapterSpotlight(),
               const SizedBox(height: 20),
             ],
             if (nothingAnywhere)
