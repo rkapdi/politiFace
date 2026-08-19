@@ -210,3 +210,14 @@ already self-correct in the new build. The bigger call: the coming sprints go al
 what actually moves the institutional deal, the educator web app, cohort analytics, and
 student performance measurement, because that is the proof the buyer needs.
 Hook: "We shipped the student app and immediately stopped polishing it. The next sprint builds the thing the professor sees."
+
+**2026-08-19. Android ships as a five-day sprint aimed at the Play closed-testing clock.**
+Why: the pilot cohort includes Android students and the deadline is the semester, not the
+store. The plan inverts the usual instinct: the critical path is Google (account identity
+verification, new-account app review, and a mandatory 14-day closed test with 12 testers
+before production), so the engineering stays deliberately small (manifest, signing, icons,
+one permission request) and runs inside those external waits instead of ahead of them. The
+pilot students themselves are the 12 testers, so the compliance clock and the classroom
+rollout are the same event. CI waits until week two; a ten-line build script carries the
+reproducibility instead. Fallback if review drags: the same signed build sideloads.
+Hook: "Our Android launch plan has almost no Android engineering in it. The product this week is a Google review queue."
