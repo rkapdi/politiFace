@@ -1316,5 +1316,71 @@ begin
 end $$;
 set role authenticated;
 
+-- ── Analytics RPCs (20260821000300) ─────────────────────────────────────────
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_trend int;
+  r record;
+  v_dd jsonb;
+begin
+  select count(*) into v_trend
+    from public.cohort_engagement_trend(v_cohort, 14);
+  if v_trend <> 14 then
+    raise exception 'FAIL: trend must return one row per day, got %', v_trend;
+  end if;
+
+  -- With threshold 1.01 every student is at risk, so rows must come back
+  -- with identity, readiness, and activity fields populated.
+  select * into r from public.at_risk_students(v_cohort, 1.01) limit 1;
+  if r.student_ref is null or r.display_name is null then
+    raise exception 'FAIL: at_risk_students returned incomplete rows';
+  end if;
+
+  v_dd := public.student_drilldown(v_cohort, r.student_ref);
+  if v_dd -> 'identity' is null or v_dd -> 'domains' is null
+     or v_dd -> 'activity' is null or v_dd -> 'suggestions' is null
+     or v_dd -> 'weak_objectives' is null or v_dd -> 'live_sessions' is null
+     or v_dd -> 'mocks' is null then
+    raise exception 'FAIL: student_drilldown missing keys: %', v_dd;
+  end if;
+end $$;
+
+-- Policy applies: pseudonymous refs resolve, aggregate_only refuses.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'pseudonymous', 'pseudonym');
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record;
+  v_dd jsonb;
+begin
+  select * into r from public.at_risk_students(v_cohort, 1.01) limit 1;
+  if r.student_ref not like 'Student %' then
+    raise exception 'FAIL: pseudonymous at-risk rows must use pseudonyms';
+  end if;
+  v_dd := public.student_drilldown(v_cohort, r.student_ref);
+  if v_dd -> 'identity' ->> 'display_name' <> r.student_ref then
+    raise exception 'FAIL: drilldown must resolve pseudonym refs';
+  end if;
+end $$;
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'aggregate_only', 'pseudonym');
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform * from public.at_risk_students(v_cohort, 1.01);
+    raise exception 'FAIL: aggregate_only cohort listed at-risk students';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'per_student', 'roster');
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
