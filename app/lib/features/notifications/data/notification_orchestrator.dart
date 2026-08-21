@@ -316,6 +316,13 @@ class NotificationOrchestrator {
       // Record immediately after each successful send: a later failure in
       // the batch can never erase an item the user has already seen.
       await _appendLog([c.dedupeKey], deliveredAt, now);
+      // Washington alerts additionally land in the alert log that The
+      // Pulse pins at the top: a notification's content must be findable
+      // in the app afterwards, however much the live feed window has
+      // churned in the meantime.
+      if (c.route == '/pulse') {
+        await _appendAlertLog(c, deliveredAt);
+      }
       delivered.add(c.dedupeKey);
     }
     return delivered;
@@ -360,6 +367,41 @@ class NotificationOrchestrator {
     final raw = await _db.metaDao.get(_kLog);
     final entries = _parseLog(raw).where((e) => e.atMillis >= cutoff).toList();
     return entries;
+  }
+
+  static const _kAlertLog = 'watch.alert_log';
+
+  /// Rolling log (newest first, capped) of Washington notifications this
+  /// device actually delivered. The Pulse renders it verbatim; the item
+  /// key ('k', e.g. 'eo:14418' or 'bill:HR 8121:2026-08-06') lets an
+  /// alert row deep-link to its feed item. Digest summaries have no
+  /// single item and carry no key, as do entries written before this
+  /// field existed.
+  Future<void> _appendAlertLog(
+    NotifCandidate c,
+    DateTime at,
+  ) async {
+    List<dynamic> log;
+    try {
+      log = jsonDecode(await _db.metaDao.get(_kAlertLog) ?? '[]') as List;
+    } catch (_) {
+      log = [];
+    }
+    final key = c.dedupeKey;
+    log.insert(0, {
+      't': c.title,
+      'b': c.body,
+      'at': at.millisecondsSinceEpoch,
+      if (key.startsWith('eo:') ||
+          key.startsWith('law:') ||
+          key.startsWith('bill:'))
+        'k': key,
+      // Digest candidates list the items they cover so the Pulse can
+      // show exactly what "N updates" meant.
+      if (c.itemKeys.isNotEmpty) 'ks': c.itemKeys.take(40).toList(),
+    });
+    if (log.length > 20) log = log.sublist(0, 20);
+    await _db.metaDao.set(_kAlertLog, jsonEncode(log));
   }
 
   Future<void> _appendLog(

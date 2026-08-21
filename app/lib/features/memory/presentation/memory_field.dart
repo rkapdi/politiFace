@@ -342,7 +342,7 @@ class _OrbPopover extends StatelessWidget {
                       const SizedBox(width: 6),
                       Expanded(
                         child: _StatChip(
-                          label: 'Stability',
+                          label: 'Memory lasts',
                           value: _formatDays(card.stability),
                         ),
                       ),
@@ -475,9 +475,11 @@ class _MemoryFieldPainter extends CustomPainter {
       final pulse = 1.0 + 0.12 * localBreath;
 
       // Sweep brightness boost: 1.0 when sweep line is on top of card,
-      // fades to 0 within ~30° behind it. Trailing only — feels like radar.
+      // fading to 0 across the visible tail. Trailing only — feels like
+      // radar. Width matches _drawRadarSweep's wedge so orbs light up
+      // exactly while the tail passes over them.
       final delta = _normAngle(sweepAngle - worldAngle);
-      const sweepWidth = math.pi / 4; // 45° trail
+      const sweepWidth = math.pi / 3; // 60° trail
       final sweepBoost = delta < sweepWidth ? (1.0 - delta / sweepWidth) : 0.0;
       final selected = o.id == selectedId;
 
@@ -548,20 +550,28 @@ class _MemoryFieldPainter extends CustomPainter {
     double angle,
   ) {
     // Trailing wedge — angular fade so it reads like a radar sweep.
+    // Drawn in a rotated canvas so the gradient's angles are constants:
+    // a SweepGradient anchored at absolute angles clamps wrong whenever
+    // the wedge straddles the 0° axis, flashing a second flat-bright
+    // wedge once per loop.
     const wedge = math.pi / 3; // 60° tail
-    final start = angle - wedge;
-    final rect = Rect.fromCircle(center: center, radius: radius * 0.95);
+    final rect = Rect.fromCircle(center: Offset.zero, radius: radius * 0.95);
 
-    // Sweep gradient from transparent (tail) to bright (leading edge).
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(angle);
+
+    // In rotated space the leading edge sits at 0°, the tail at -wedge,
+    // which the gradient's [0, 2π) domain sees as [2π - wedge, 2π).
     canvas.drawArc(
       rect,
-      start,
+      -wedge,
       wedge,
       true,
       Paint()
         ..shader = SweepGradient(
-          startAngle: start,
-          endAngle: angle,
+          startAngle: 2 * math.pi - wedge,
+          // endAngle stays at its 2π default: the leading edge.
           colors: [
             primary.withOpacity(0),
             primary.withOpacity(0.18),
@@ -570,17 +580,14 @@ class _MemoryFieldPainter extends CustomPainter {
     );
 
     // Crisp leading line.
-    final end = Offset(
-      center.dx + math.cos(angle) * radius * 0.95,
-      center.dy + math.sin(angle) * radius * 0.95,
-    );
     canvas.drawLine(
-      center,
-      end,
+      Offset.zero,
+      Offset(radius * 0.95, 0),
       Paint()
         ..color = primary.withOpacity(0.55)
         ..strokeWidth = 1.3,
     );
+    canvas.restore();
   }
 
   double _stabilityForTierStart(int tier) {

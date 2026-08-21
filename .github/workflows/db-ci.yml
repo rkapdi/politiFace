@@ -1,0 +1,19 @@
+name: db-ci
+on:
+  push:
+    branches: [main, v2-planning]
+    paths: ['supabase/**', '.github/workflows/db-ci.yml']
+  pull_request:
+    paths: ['supabase/**', '.github/workflows/db-ci.yml']
+jobs:
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure Postgres binaries
+        run: |
+          if [ ! -x /usr/lib/postgresql/16/bin/initdb ]; then
+            sudo apt-get update && sudo apt-get install -y postgresql-16
+          fi
+      - name: Migrations + smoke test
+        run: PGBIN=/usr/lib/postgresql/16/bin ./supabase/tests/run_local.sh

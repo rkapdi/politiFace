@@ -12,12 +12,41 @@ import '../../../app/providers.dart';
 import '../../../core/database/daos/fcle_answers_dao.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../../core/sync/sync_engine.dart';
+import '../data/locked_questions_service.dart';
 import '../data/question_bank_loader.dart';
 import '../domain/fcle_question.dart';
 import '../domain/server_ids.dart';
 
+/// The raw bundled bank. Read-only consumers (readiness math, bank counts,
+/// server-mock stem reconstruction, notifications) use this. Selection
+/// surfaces must NOT: they draw from [practiceBankProvider], the hold-out
+/// chokepoint.
 final questionBankProvider = FutureProvider<QuestionBank>(
   (ref) => QuestionBankLoader().load(),
+);
+
+/// Server UUIDs of questions currently reserved as hold-out items for one
+/// of the user's cohorts (teaching-loop retention checks). Cached with a
+/// 15-minute freshness window; fail-soft to the cache offline.
+final lockedQuestionIdsProvider = FutureProvider.autoDispose<Set<String>>(
+  (ref) => LockedQuestionsService(
+    db: ref.watch(databaseProvider),
+    active: ref.watch(syncEngineProvider).isActive,
+  ).current(),
+);
+
+/// THE hold-out chokepoint: the bundled bank minus reserved items. Every
+/// student-facing surface that picks questions (weak-area practice, the
+/// local mock, the diagnostic) must select from this bank and only this
+/// bank; a reserved item may reach a student solely through its own check
+/// (which reads assessments.question_ids server-side).
+final practiceBankProvider = FutureProvider.autoDispose<QuestionBank>(
+  (ref) async {
+    final bank = await ref.watch(questionBankProvider.future);
+    final locked = await ref.watch(lockedQuestionIdsProvider.future);
+    if (locked.isEmpty) return bank;
+    return bank.where((q) => !locked.contains(serverUuidForQuestion(q.id)));
+  },
 );
 
 /// Bumped after every recorded answer so readiness views refetch.

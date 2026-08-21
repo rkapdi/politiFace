@@ -180,6 +180,48 @@ Please try every flow at least once. Watch for crashes, dark-mode contrast issue
 
 ---
 
+## 1.3.0 (build 27) — What's New (App Store release notes)
+
+```
+Sharper path from opening the app to passing the FCLE.
+
+- Home now leads with action: Study, Drill, and Play sit right under your readiness band.
+- Study picks up The Season where you left off, and every chapter opens with its Continue button on top.
+- Your readiness card says what it measures: FCLE readiness, projected out of 80, practice only.
+- The Atlas opens with its reference shelf: Congress, recent laws, executive orders, and civic vocabulary.
+- Pulse notifications are now tappable. Jump straight to the order or bill an alert was about, and each filter explains what an executive order, a new law, or a bill action actually is.
+- Tap the streak flame for your streak, XP, and level.
+- In more than one class? Your class pick now sticks everywhere in the app.
+- Smoother radar sweep on the Memory field, plus small fixes.
+```
+
+## 1.3.0 — What to test (TestFlight free-text field)
+
+```
+Build 27 reworks the Home flow and Pulse before the fall semester.
+
+- Home: Study / Drill / Play now sit ABOVE Today's Review. Does the order feel right on first open?
+- Tap STUDY: it should open your current Season chapter with CONTINUE TODAY'S ROUND at the top of the sheet, not the bottom.
+- Readiness card now reads "FCLE READINESS" with a Florida Civic Literacy Exam caption.
+- Tap the streak flame (top right): streak, XP, and level sheet.
+- Atlas tab: the Reference section (Members of Congress, Recent laws, Executive orders, Civic vocabulary) is now first. Search should still hide it while typing.
+- Pulse: tap rows in FROM YOUR NOTIFICATIONS. Newly delivered alerts deep-link to their item; older ones open a readable detail sheet. Tap each filter chip (Executive orders, New laws, Bill actions) and read the explainer box.
+- If you are in two classes: pick the second one on the leaderboard, go Home, come back. The pick must survive. Home's MY CLASS card must show the same class.
+- Memory tab: watch the radar for a full loop (about 10 seconds). The sweep should fade smoothly with no second bright wedge popping in.
+- Replay the guided tour (Settings, "show me around"): steps should walk downward in order without scrolling back up.
+
+Watch for dark-mode contrast, clipped text, and anything that crashes. TestFlight feedback lands in App Store Connect.
+```
+
+Reviewer-notes reminder for this submission: the 1.1-era review notes above say the app
+has no login. Since v2 the app has an optional email OTP sign-in for class leaderboards;
+core study features still need no account. Update the review notes field to say:
+"Optional sign-in (email one-time code) exists only for classroom leaderboards; all
+learning features work without an account. No demo account is required to review the
+core experience."
+
+---
+
 ## Screenshot brief (you capture these from a release build)
 
 Apple wants at minimum 3 screenshots at the **6.9" iPhone** size

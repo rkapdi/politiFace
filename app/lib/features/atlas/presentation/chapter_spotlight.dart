@@ -5,22 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../curriculum/domain/curriculum.dart';
-import '../data/atlas_data_provider.dart';
+import '../../home/presentation/chapter_info_sheet.dart';
 
-/// Top strip of the Atlas. Shows the player's current chapter and which
-/// Atlas branches it touches. Tapping the strip scrolls the Atlas to the
-/// first highlighted branch via the [onJumpToBranch] callback.
+/// Top strip of the Atlas. Shows the player's current chapter; tapping it
+/// opens the chapter's progress sheet (same sheet as the season spine on
+/// Home), so the Atlas links straight to where the player actually is.
 ///
 /// Renders nothing (zero height) until both the curriculum and the
 /// progress lookup complete — keeps the Atlas head from layout-jumping.
 class ChapterSpotlight extends ConsumerWidget {
-  const ChapterSpotlight({required this.onJumpToBranch, super.key});
-
-  /// Called with the atlas branch id (e.g. `atlas-executive`) when the
-  /// strip is tapped. Pass null-safe scrolling — silently no-op if the
-  /// branch isn't in the Atlas (which can happen for the curriculum
-  /// `foundations` branch since it has no face cards yet).
-  final void Function(String atlasBranchId) onJumpToBranch;
+  const ChapterSpotlight({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -37,21 +31,19 @@ class ChapterSpotlight extends ConsumerWidget {
     if (chapter == null) return const SizedBox.shrink();
 
     final curriculumBranchIds = curriculum.branchIdsForChapter(chapter);
-    final atlasBranchIds = <String>[
-      for (final id in curriculumBranchIds)
-        if (curriculumBranchToAtlasBranch[id] != null)
-          curriculumBranchToAtlasBranch[id]!,
-    ];
     final highlightLabel = _highlightLabel(curriculum, curriculumBranchIds);
 
     return _Strip(
       title: 'YOU\'RE LEARNING',
       subtitle: 'Chapter ${chapter.order} · ${chapter.title}',
       hint: highlightLabel,
-      enabled: atlasBranchIds.isNotEmpty,
-      onTap: atlasBranchIds.isEmpty
-          ? null
-          : () => onJumpToBranch(atlasBranchIds.first),
+      enabled: true,
+      onTap: () => ChapterInfoSheet.show(
+        context,
+        chapter: chapter,
+        entry: progress,
+        currentOrder: chapter.order,
+      ),
     );
   }
 
@@ -143,7 +135,7 @@ class _Strip extends StatelessWidget {
                         ),
                         if (enabled)
                           Icon(
-                            Icons.arrow_downward_rounded,
+                            Icons.chevron_right,
                             size: 16,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),

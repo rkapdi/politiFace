@@ -22,6 +22,30 @@ final myCohortsProvider = FutureProvider<List<CohortInfo>>((ref) async {
   return api.myCohorts();
 });
 
+/// The class the student last picked on the leaderboard, persisted in
+/// AppMeta so Home and the board agree after any amount of navigation.
+/// Null until a student with several classes makes a pick; consumers fall
+/// back to the newest-joined cohort (list.first) when the stored id is
+/// null or no longer a membership.
+final selectedCohortIdProvider =
+    AsyncNotifierProvider<SelectedCohortId, String?>(SelectedCohortId.new);
+
+class SelectedCohortId extends AsyncNotifier<String?> {
+  static const metaKey = 'class.selected_cohort_id';
+
+  @override
+  Future<String?> build() =>
+      ref.watch(databaseProvider).metaDao.get(metaKey);
+
+  Future<void> select(String cohortId) async {
+    // Let the initial load settle first or its completion would overwrite
+    // a pick made while it was still in flight.
+    await future;
+    state = AsyncData(cohortId);
+    await ref.read(databaseProvider).metaDao.set(metaKey, cohortId);
+  }
+}
+
 final leaderboardEntriesProvider =
     FutureProvider.autoDispose.family<List<LeaderboardEntry>, String>(
   (ref, cohortId) async {

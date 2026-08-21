@@ -2,10 +2,10 @@
 //
 // The Pulse: one scrollable feed of what the federal government actually
 // did. Executive orders, laws enacted, and the latest bill actions,
-// merged chronologically, newest first. Instead of notification spam the
-// feed is there when the user opens it, fully offline from bundled
-// content; freshness comes from the weekly content refresh (and, later,
-// live checks once a keyless proxy exists).
+// merged chronologically, newest first, with the notifications this
+// device delivered pinned on top so an alert is always findable here.
+
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +14,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/editorial_theme.dart';
+import '../../../app/providers.dart';
 import '../../atlas/data/atlas_reference_loader.dart';
 import '../data/pulse_live_service.dart';
 import 'bill_detail_screen.dart';
@@ -63,6 +64,61 @@ class _PulseItem {
 
 final _liveProvider = FutureProvider.autoDispose<LivePulse>(
   (ref) => PulseLiveService().fetch(),
+);
+
+class _Alert {
+  const _Alert({
+    required this.title,
+    required this.body,
+    required this.at,
+    this.itemKey,
+    this.itemKeys = const [],
+  });
+  final String title;
+  final String body;
+  final DateTime at;
+
+  /// Dedupe key of the feed item this notification was about
+  /// ('eo:14418', 'bill:HR 8121:2026-08-06', 'law:...'). Null for digest
+  /// summaries and for entries logged before the key was recorded.
+  final String? itemKey;
+
+  /// For digest notifications ("Washington was busy: N updates"), the
+  /// keys of the items the digest covered. Empty for single-item alerts
+  /// and for digests logged before keys were recorded.
+  final List<String> itemKeys;
+}
+
+/// Washington notifications this device delivered in the last 7 days,
+/// newest first. Pinned so "the notification said X" is always findable
+/// here regardless of live-feed churn.
+final _alertLogProvider = FutureProvider.autoDispose<List<_Alert>>(
+  (ref) async {
+    final raw =
+        await ref.watch(databaseProvider).metaDao.get('watch.alert_log');
+    if (raw == null) return const [];
+    final cutoff = DateTime.now().subtract(const Duration(days: 7));
+    try {
+      return [
+        for (final e in jsonDecode(raw) as List)
+          if (e is Map && e['at'] is int)
+            if (DateTime.fromMillisecondsSinceEpoch(e['at'] as int)
+                .isAfter(cutoff))
+              _Alert(
+                title: (e['t'] as String?) ?? '',
+                body: (e['b'] as String?) ?? '',
+                at: DateTime.fromMillisecondsSinceEpoch(e['at'] as int),
+                itemKey: e['k'] as String?,
+                itemKeys: [
+                  for (final k in e['ks'] as List? ?? const [])
+                    if (k is String) k,
+                ],
+              ),
+      ];
+    } catch (_) {
+      return const [];
+    }
+  },
 );
 
 class _PulseFeed {
@@ -223,16 +279,10 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final feed = ref.watch(_pulseFeedProvider);
+    final alerts = ref.watch(_alertLogProvider).valueOrNull ?? const [];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('The Pulse'),
-        leading: IconButton(
-          tooltip: 'Back to home',
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-        ),
-      ),
+      appBar: AppBar(title: const Text('The Pulse')),
       body: feed.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => const Center(child: Text('Could not load the feed.')),
@@ -245,6 +295,16 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                 ];
           return Column(
             children: [
+              if (alerts.isNotEmpty || _filter != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 10, 24, 0),
+                  child: _PulseInfoCard(
+                    filter: _filter,
+                    alerts: alerts,
+                    theme: theme,
+                    onAlertTap: (a) => _openAlert(a, data.items),
+                  ),
+                ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 10, 24, 4),
                 child: SingleChildScrollView(
@@ -331,6 +391,240 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
       ),
     );
   }
+
+  /// A keyed alert deep-links to its feed item; everything else (digest
+  /// summaries, pre-upgrade entries, items that have churned out of the
+  /// feed) opens a detail sheet listing what the alert covered.
+  void _openAlert(_Alert alert, List<_PulseItem> items) {
+    HapticFeedback.lightImpact();
+    final key = alert.itemKey;
+    final item = key == null ? null : _itemForKey(key, items);
+    if (item != null) {
+      _openPulseItem(context, item);
+      return;
+    }
+    _showAlertDetail(alert, items);
+  }
+
+  _PulseItem? _itemForKey(String key, List<_PulseItem> items) {
+    final parts = key.split(':');
+    if (parts.length < 2) return null;
+    if (parts[0] == 'eo') {
+      final prefix = 'Executive Order ${parts[1]},';
+      for (final i in items) {
+        if (i.kind == _PulseKind.order && i.detail.startsWith(prefix)) {
+          return i;
+        }
+      }
+      return null;
+    }
+    if (parts[0] == 'law' || parts[0] == 'bill') {
+      for (final i in items) {
+        if (i.bill == parts[1]) return i;
+      }
+    }
+    return null;
+  }
+
+  /// The items a digest alert covered: exact when the log entry stored
+  /// keys, approximated by delivery-date window for older entries.
+  (List<_PulseItem>, bool) _coveredItems(
+    _Alert alert,
+    List<_PulseItem> items,
+  ) {
+    if (alert.itemKeys.isNotEmpty) {
+      final covered = <_PulseItem>[];
+      for (final k in alert.itemKeys) {
+        final m = _itemForKey(k, items);
+        if (m != null && !covered.contains(m)) covered.add(m);
+      }
+      if (covered.isNotEmpty) return (covered, false);
+    }
+    String iso(DateTime d) => '${d.year.toString().padLeft(4, '0')}-'
+        '${d.month.toString().padLeft(2, '0')}-'
+        '${d.day.toString().padLeft(2, '0')}';
+    final hi = iso(alert.at);
+    final lo = iso(alert.at.subtract(const Duration(days: 3)));
+    return (
+      [
+        for (final i in items)
+          if (i.date.compareTo(lo) >= 0 && i.date.compareTo(hi) <= 0) i,
+      ].take(12).toList(),
+      true,
+    );
+  }
+
+  void _showAlertDetail(_Alert alert, List<_PulseItem> items) {
+    final theme = Theme.of(context);
+    final at = alert.at;
+    String two(int n) => n.toString().padLeft(2, '0');
+    final delivered = '${at.year}-${two(at.month)}-${two(at.day)} '
+        '${two(at.hour)}:${two(at.minute)}';
+    final (covered, approximate) = _coveredItems(alert, items);
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(ctx).size.height * 0.7,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'DELIVERED $delivered',
+                  style: theme.textTheme.labelSmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  alert.title,
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                if (alert.body.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    alert.body,
+                    style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
+                  ),
+                ],
+                if (covered.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    approximate
+                        ? 'FROM THE FEED AROUND THAT DAY'
+                        : 'WHAT IT COVERED',
+                    style: theme.textTheme.labelSmall,
+                  ),
+                  const SizedBox(height: 6),
+                  Flexible(
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        for (final i in covered)
+                          _CoveredItemRow(
+                            item: i,
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _openPulseItem(context, i);
+                            },
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// One compact row in the alert-detail sheet: kind badge word, title,
+/// date. Tap opens the item exactly like its feed tile would.
+class _CoveredItemRow extends StatelessWidget {
+  const _CoveredItemRow({required this.item, required this.onTap});
+
+  final _PulseItem item;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final (label, color) = switch (item.kind) {
+      _PulseKind.order => ('EO', theme.colorScheme.brandRed),
+      _PulseKind.law => ('LAW', theme.colorScheme.brandGreen),
+      _PulseKind.bill => ('BILL', theme.colorScheme.brandNavy),
+    };
+    return InkWell(
+      borderRadius: BorderRadius.circular(6),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        onTap();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              decoration: BoxDecoration(
+                border: Border.all(color: color, width: 1.5),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  fontSize: 9,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.1,
+                  color: color,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                item.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(fontWeight: FontWeight.w600, height: 1.3),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              item.date,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shared open behavior for a feed item: bill/law rows push the detail
+/// screen, executive orders open the Federal Register record.
+void _openPulseItem(BuildContext context, _PulseItem item) {
+  if (item.opensDetail) {
+    context.push(
+      '/pulse/bill',
+      extra: BillDetailArgs(
+        bill: item.bill ?? '',
+        congress: item.congress,
+        title: item.title,
+        action: item.kind == _PulseKind.bill ? (item.action ?? '') : '',
+        actionDate: item.date,
+        url: item.url,
+        originDetail: item.originDetail,
+        summary: item.summary,
+        summaryVersion: item.summaryVersion,
+        summaryDate: item.summaryDate,
+        summaryTruncated: item.summaryTruncated,
+      ),
+    );
+    return;
+  }
+  launchUrl(
+    Uri.parse(item.url),
+    mode: LaunchMode.externalApplication,
+  );
 }
 
 class _PulseTile extends StatelessWidget {
@@ -359,30 +653,8 @@ class _PulseTile extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(6),
         onTap: () {
-          if (item.opensDetail) {
-            HapticFeedback.lightImpact();
-            context.push(
-              '/pulse/bill',
-              extra: BillDetailArgs(
-                bill: item.bill ?? '',
-                congress: item.congress,
-                title: item.title,
-                action: item.kind == _PulseKind.bill ? (item.action ?? '') : '',
-                actionDate: item.date,
-                url: item.url,
-                originDetail: item.originDetail,
-                summary: item.summary,
-                summaryVersion: item.summaryVersion,
-                summaryDate: item.summaryDate,
-                summaryTruncated: item.summaryTruncated,
-              ),
-            );
-            return;
-          }
-          launchUrl(
-            Uri.parse(item.url),
-            mode: LaunchMode.externalApplication,
-          );
+          if (item.opensDetail) HapticFeedback.lightImpact();
+          _openPulseItem(context, item);
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -473,4 +745,127 @@ class _PulseTile extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// The context box above the feed. On "All" it holds the notifications
+/// this device delivered, verbatim and tappable, so "the alert said X"
+/// always has a home here even after the live window churns. With a
+/// filter active it becomes a short explainer of that instrument.
+class _PulseInfoCard extends StatelessWidget {
+  const _PulseInfoCard({
+    required this.filter,
+    required this.alerts,
+    required this.theme,
+    required this.onAlertTap,
+  });
+
+  final _PulseKind? filter;
+  final List<_Alert> alerts;
+  final ThemeData theme;
+  final void Function(_Alert) onAlertTap;
+
+  static const _orderExplainer =
+      'An executive order is a written directive from the President that '
+      'manages how the federal government operates. Orders draw their '
+      'force from Article II of the Constitution and from powers Congress '
+      'delegates by statute. They do not need a vote in Congress, but '
+      'they cannot override the Constitution or existing law, courts can '
+      'strike them down, and a later President can amend or revoke them. '
+      'Each order is numbered and published in the Federal Register.';
+
+  static const _lawExplainer =
+      'A bill becomes a law after both chambers of Congress pass '
+      'identical text and the President signs it, or Congress overrides a '
+      'veto with a two thirds vote in each chamber. Each new statute '
+      'receives a Public Law number and is published by the Office of the '
+      'Federal Register.';
+
+  static const _billExplainer =
+      "A bill action is any recorded step in a bill's life on "
+      'congress.gov: introduction, committee referral, floor votes, '
+      'passage in either chamber, and presidential action. Most bills '
+      'never become law; the trail of actions shows where a bill '
+      'actually stands.';
+
+  @override
+  Widget build(BuildContext context) {
+    final (header, explainer) = switch (filter) {
+      _PulseKind.order => ('WHAT IS AN EXECUTIVE ORDER?', _orderExplainer),
+      _PulseKind.law => ('HOW A BILL BECOMES A LAW', _lawExplainer),
+      _PulseKind.bill => ('WHAT ARE BILL ACTIONS?', _billExplainer),
+      null => ('FROM YOUR NOTIFICATIONS', null),
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colorScheme.outline, width: 3),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(header, style: theme.textTheme.labelSmall),
+          const SizedBox(height: 4),
+          if (explainer != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text(
+                explainer,
+                style: theme.textTheme.bodySmall?.copyWith(height: 1.4),
+              ),
+            )
+          else
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 180),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final a in alerts) _alertRow(a),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _alertRow(_Alert alert) => InkWell(
+        onTap: () => onAlertTap(alert),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '${alert.title}: ',
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(fontWeight: FontWeight.w500),
+                      ),
+                      TextSpan(
+                        text: alert.body,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                size: 14,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      );
 }

@@ -70,6 +70,7 @@ class NotifCandidate {
     this.relevance = 0.0,
     this.route = '/',
     this.urgent = false,
+    this.itemKeys = const [],
   });
 
   final NotifKind kind;
@@ -97,6 +98,12 @@ class NotifCandidate {
   /// Exam-critical timing: bypasses the already-active-today suppression
   /// (never the daily cap or quiet hours). Reserved for real deadlines.
   final bool urgent;
+
+  /// For digest candidates ("Washington was busy: N updates"), the
+  /// dedupe keys of the individual items the digest covers. Carried into
+  /// the Pulse alert log so a digest row can list exactly what it
+  /// summarized. Empty for single-item candidates.
+  final List<String> itemKeys;
 
   int get score =>
       _baseWeight(kind) + (relevance.clamp(0.0, 1.0) * 100).round();

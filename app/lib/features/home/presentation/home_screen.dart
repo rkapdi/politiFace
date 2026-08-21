@@ -5,9 +5,9 @@
 // about it right now?" Composition, top to bottom:
 //   masthead (brand + streak chip + avatar)
 //   readiness hero (powerline stage + projected range + domain bars)
+//   "More ways to play" verb row (Study / Drill / Play)
 //   THE one button (ladder-picked; the screen's single yellow action)
 //   class block (cohort members only; solo users see nothing here)
-//   "More ways to play" verb row (Study / Drill / Play / Pulse)
 //   the season spine (the long-arc narrative, below the fold)
 // The old five equal tiles and the "Almost There" rail are retired: the
 // ladder answers "what next" alone (defect DEF-07).
@@ -19,13 +19,16 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/database/drift/app_database.dart';
 import '../../fcle/domain/fcle_question.dart';
 import '../../leaderboard/application/leaderboard_providers.dart';
 import '../../profile/data/profile_service.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 import '../application/home_providers.dart';
+import 'chapter_info_sheet.dart';
 import 'guided_tour.dart';
 import 'season_spine.dart';
+import 'streak_hero.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -57,7 +60,7 @@ class HomeScreen extends ConsumerWidget {
           style: theme.textTheme.titleLarge?.copyWith(letterSpacing: 2),
         ),
         actions: [
-          _StreakChip(days: profile.streakDays),
+          _StreakChip(profile: profile),
           const SizedBox(width: 10),
           IconButton(
             tooltip: 'Settings and account',
@@ -79,16 +82,17 @@ class HomeScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 18),
               KeyedSubtree(
+                key: GuidedTour.verbsKey,
+                child: const _MoreWaysRow(),
+              ),
+              const SizedBox(height: 18),
+              KeyedSubtree(
                 key: GuidedTour.buttonKey,
                 child: const _TheOneButton(),
               ),
               const SizedBox(height: 18),
               const _ClassBlock(),
-              KeyedSubtree(
-                key: GuidedTour.verbsKey,
-                child: const _MoreWaysRow(),
-              ),
-              const SizedBox(height: 26),
+              const SizedBox(height: 8),
               const _SectionDivider(label: 'THE SEASON'),
               const SizedBox(height: 12),
               const SeasonSpine(),
@@ -102,30 +106,73 @@ class HomeScreen extends ConsumerWidget {
 }
 
 class _StreakChip extends StatelessWidget {
-  const _StreakChip({required this.days});
+  const _StreakChip({required this.profile});
 
-  final int days;
+  final UserProfile profile;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        border: Border.all(color: neoLineDim(context), width: 2),
-      ),
-      child: Row(
-        children: [
-          Text('\u{1F525}', style: theme.textTheme.labelMedium),
-          const SizedBox(width: 5),
-          Text(
-            '$days',
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: theme.colorScheme.brandOchreText,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
+    return Semantics(
+      button: true,
+      label: 'Streak, ${profile.streakDays} days. Opens streak details.',
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          _showDetails(context);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          decoration: BoxDecoration(
+            border: Border.all(color: neoLineDim(context), width: 2),
           ),
-        ],
+          child: Row(
+            children: [
+              Text('\u{1F525}', style: theme.textTheme.labelMedium),
+              const SizedBox(width: 5),
+              Text(
+                '${profile.streakDays}',
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.brandOchreText,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showDetails(BuildContext context) {
+    final theme = Theme.of(context);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              StreakHero(profile: profile),
+              const SizedBox(height: 12),
+              Text(
+                'One day with any review keeps the streak alive. Miss a '
+                'day and it resets to zero. Play never burns it; '
+                'skipping does.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -161,9 +208,16 @@ class ReadinessHero extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('YOUR READINESS', style: theme.textTheme.labelSmall),
+              Text('FCLE READINESS', style: theme.textTheme.labelSmall),
               Text('PASS LINE 48', style: theme.textTheme.labelSmall),
             ],
+          ),
+          const SizedBox(height: 2),
+          Text(
+            'Florida Civic Literacy Exam · practice projection',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 10),
           if (summary == null) ...[
@@ -174,7 +228,7 @@ class ReadinessHero extends ConsumerWidget {
             const SizedBox(height: 4),
             Text(
               'Answer a few exam questions and this becomes your '
-              'projected score. The Drill tab is the fastest way in.',
+              'projected score. The FCLE tile is the fastest way in.',
               style: theme.textTheme.bodySmall,
             ),
           ] else ...[
@@ -331,7 +385,12 @@ class _ClassBlock extends ConsumerWidget {
     final theme = Theme.of(context);
     final cohorts = ref.watch(myCohortsProvider).valueOrNull ?? const [];
     if (cohorts.isEmpty) return const SizedBox.shrink();
-    final cohort = cohorts.first;
+    // Honor the class picked on the leaderboard; newest-joined otherwise.
+    final selectedId = ref.watch(selectedCohortIdProvider).valueOrNull;
+    final cohort = cohorts.firstWhere(
+      (c) => c.id == selectedId,
+      orElse: () => cohorts.first,
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 18),
@@ -403,43 +462,83 @@ class _ClassRow extends StatelessWidget {
   }
 }
 
-/// The three verbs plus the reference feed (approved D1). Quiet tiles:
-/// hollow, mono, no colour; the ladder button above them is the loud one.
-class _MoreWaysRow extends StatelessWidget {
+/// The three verbs (approved D1). Quiet tiles: hollow, mono, no colour;
+/// the ladder button is the loud one. Icons chosen to say the job:
+/// flashcards, a target, a game controller. Pulse owns a bottom tab now.
+class _MoreWaysRow extends ConsumerWidget {
   const _MoreWaysRow();
 
   @override
-  Widget build(BuildContext context) => Row(
+  Widget build(BuildContext context, WidgetRef ref) => Row(
       children: [
-        for (final (label, sub, glyph, route, push) in const [
-          // Icons chosen to say the job: flashcards, a target, a game
-          // controller, a newspaper.
-          ('STUDY', 'keep it fresh', Icons.style_outlined, '/session', false),
-          ('DRILL', 'move your score', Icons.track_changes, '/fcle', true),
-          (
-            'PLAY',
-            'just for fun',
-            Icons.sports_esports_outlined,
-            '/trivia',
-            false
+        Expanded(
+          child: _VerbTile(
+            label: 'STUDY',
+            sublabel: 'continue the season',
+            glyph: Icons.style_outlined,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              _openSeason(context, ref);
+            },
           ),
-          ('PULSE', 'what happened', Icons.newspaper, '/pulse', true),
-        ]) ...[
-          if (label != 'STUDY') const SizedBox(width: 8),
-          Expanded(
-            child: _VerbTile(
-              label: label,
-              sublabel: sub,
-              glyph: glyph,
-              onTap: () {
-                HapticFeedback.lightImpact();
-                push ? context.push(route) : context.go(route);
-              },
-            ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _VerbTile(
+            label: 'FCLE',
+            sublabel: 'exam prep',
+            glyph: Icons.track_changes,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.push('/fcle');
+            },
           ),
-        ],
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _VerbTile(
+            label: 'PLAY',
+            sublabel: 'just for fun',
+            glyph: Icons.sports_esports_outlined,
+            onTap: () {
+              HapticFeedback.lightImpact();
+              context.go('/trivia');
+            },
+          ),
+        ),
       ],
     );
+
+  /// STUDY resumes The Season: the current chapter's sheet, whose
+  /// Continue button now sits at the top. Falls back to the free-study
+  /// session only if the curriculum has not loaded yet.
+  void _openSeason(BuildContext context, WidgetRef ref) {
+    final curriculum = ref.read(curriculumProvider).valueOrNull;
+    if (curriculum == null || curriculum.chapters.isEmpty) {
+      context.go('/session');
+      return;
+    }
+    final entries =
+        ref.read(seasonProgressProvider).valueOrNull ??
+            const <ChapterProgressEntry>[];
+    final byId = <String, ChapterProgressEntry>{
+      for (final e in entries) e.chapterId: e,
+    };
+    final currentOrder = SeasonSpine.resolveCurrentOrder(
+      chapters: curriculum.chapters,
+      byId: byId,
+    );
+    final chapter = curriculum.chapters.firstWhere(
+      (c) => c.order == currentOrder,
+      orElse: () => curriculum.chapters.last,
+    );
+    ChapterInfoSheet.show(
+      context,
+      chapter: chapter,
+      entry: byId[chapter.id],
+      currentOrder: currentOrder,
+    );
+  }
 }
 
 class _VerbTile extends StatelessWidget {

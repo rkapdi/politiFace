@@ -1143,5 +1143,333 @@ begin
 end $$;
 set role authenticated;
 
+-- ── TA role (20260821000100) ────────────────────────────────────────────────
+\set ta_uid '''00000000-0000-0000-0000-0000000000a1'''
+reset role;
+insert into auth.users (id, email) values (:ta_uid, 'ta@example.edu');
+set role authenticated;
+set app.test_uid = :ta_uid;
+insert into public.profiles (id, handle) values (:ta_uid, 'ta_person');
+
+-- Faculty adds the TA by email.
+set app.test_uid = :f_uid;
+select public.add_cohort_ta(
+  (select id from public.cohorts where name = 'POS2041 Fall'), 'ta@example.edu');
+
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  if (select role from public.cohort_members
+       where cohort_id = v_cohort
+         and user_id = '00000000-0000-0000-0000-0000000000a1') <> 'ta' then
+    raise exception 'FAIL: TA row not created';
+  end if;
+  if public.my_cohort_role(v_cohort) <> 'faculty' then
+    raise exception 'FAIL: my_cohort_role wrong for faculty';
+  end if;
+end $$;
+
+-- TA can drive a live session and read aggregates.
+set app.test_uid = :ta_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_session jsonb;
+begin
+  if public.my_cohort_role(v_cohort) <> 'ta' then
+    raise exception 'FAIL: my_cohort_role wrong for TA';
+  end if;
+  v_session := public.create_live_session(
+    v_cohort, 'TA quiz',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+       limit 3) q),
+    20);
+  perform public.advance_live_session((v_session ->> 'id')::uuid);
+  perform public.end_live_session((v_session ->> 'id')::uuid);
+  perform public.cohort_domain_stats(v_cohort, 1);
+  perform public.cohort_overview(v_cohort);
+  perform public.cohort_live_sessions(v_cohort);
+  if not exists (select 1 from public.my_faculty_overview()) then
+    raise exception 'FAIL: TA missing their class in my_faculty_overview';
+  end if;
+end $$;
+
+-- TA is blocked from per-student surfaces, invites, and authoring.
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform * from public.cohort_student_progress(v_cohort);
+    raise exception 'FAIL: TA read per-student progress';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.mint_faculty_invite('nope');
+    raise exception 'FAIL: TA minted an invite';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.create_cohort_question(
+      v_cohort, (select id from public.domains order by id limit 1),
+      'TA question that must fail?',
+      '[{"key":"a","text":"A"},{"key":"b","text":"B"}]', 'a');
+    raise exception 'FAIL: TA authored a question';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Demote and confirm.
+set app.test_uid = :f_uid;
+select public.remove_cohort_ta(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  '00000000-0000-0000-0000-0000000000a1');
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  if (select role from public.cohort_members
+       where cohort_id = v_cohort
+         and user_id = '00000000-0000-0000-0000-0000000000a1') <> 'student' then
+    raise exception 'FAIL: removed TA should become a student';
+  end if;
+end $$;
+
+-- ── Reporting policy chokepoint (20260821000200) ────────────────────────────
+set app.test_uid = :f_uid;
+
+-- Default per_student: named rows with student_ref = user_id.
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record;
+begin
+  select * into r from public.cohort_student_progress(v_cohort) limit 1;
+  if r.user_id is null or r.student_ref <> r.user_id::text then
+    raise exception 'FAIL: per_student rows must carry user_id and matching ref';
+  end if;
+end $$;
+
+-- Pseudonymous: stable pseudonym, no user_id, no roster name.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'pseudonymous', 'pseudonym');
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record; r2 record;
+begin
+  select * into r from public.cohort_student_progress(v_cohort)
+   order by student_ref limit 1;
+  if r.user_id is not null then
+    raise exception 'FAIL: pseudonymous rows must not expose user_id';
+  end if;
+  if r.roster_name not like 'Student %' then
+    raise exception 'FAIL: pseudonymous rows must use pseudonyms, got %', r.roster_name;
+  end if;
+  select * into r2 from public.cohort_student_progress(v_cohort)
+   order by student_ref limit 1;
+  if r.student_ref <> r2.student_ref then
+    raise exception 'FAIL: pseudonyms must be stable across calls';
+  end if;
+  if (public.get_reporting_policy(v_cohort) ->> 'effective') <> 'pseudonymous' then
+    raise exception 'FAIL: get_reporting_policy effective mismatch';
+  end if;
+end $$;
+
+-- Aggregate only: per-student RPCs refuse.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'aggregate_only', 'pseudonym');
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform * from public.cohort_student_progress(v_cohort);
+    raise exception 'FAIL: aggregate_only cohort returned per-student rows';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Students cannot set policy; exports are logged.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'per_student', 'roster');
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.set_reporting_policy(v_cohort, 'per_student', 'roster');
+    raise exception 'FAIL: student set reporting policy';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_uid = :f_uid;
+select public.log_report_export(
+  (select id from public.cohorts where name = 'POS2041 Fall'), 'csv_progress');
+reset role;
+do $$
+begin
+  if (select count(*) from app.export_log) < 1 then
+    raise exception 'FAIL: export was not logged';
+  end if;
+end $$;
+set role authenticated;
+
+-- ── Analytics RPCs (20260821000300) ─────────────────────────────────────────
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_trend int;
+  r record;
+  v_dd jsonb;
+begin
+  select count(*) into v_trend
+    from public.cohort_engagement_trend(v_cohort, 14);
+  if v_trend <> 14 then
+    raise exception 'FAIL: trend must return one row per day, got %', v_trend;
+  end if;
+
+  -- With threshold 1.01 every student is at risk, so rows must come back
+  -- with identity, readiness, and activity fields populated.
+  select * into r from public.at_risk_students(v_cohort, 1.01) limit 1;
+  if r.student_ref is null or r.display_name is null then
+    raise exception 'FAIL: at_risk_students returned incomplete rows';
+  end if;
+
+  v_dd := public.student_drilldown(v_cohort, r.student_ref);
+  if v_dd -> 'identity' is null or v_dd -> 'domains' is null
+     or v_dd -> 'activity' is null or v_dd -> 'suggestions' is null
+     or v_dd -> 'weak_objectives' is null or v_dd -> 'live_sessions' is null
+     or v_dd -> 'mocks' is null then
+    raise exception 'FAIL: student_drilldown missing keys: %', v_dd;
+  end if;
+end $$;
+
+-- Policy applies: pseudonymous refs resolve, aggregate_only refuses.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'pseudonymous', 'pseudonym');
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record;
+  v_dd jsonb;
+begin
+  select * into r from public.at_risk_students(v_cohort, 1.01) limit 1;
+  if r.student_ref not like 'Student %' then
+    raise exception 'FAIL: pseudonymous at-risk rows must use pseudonyms';
+  end if;
+  v_dd := public.student_drilldown(v_cohort, r.student_ref);
+  if v_dd -> 'identity' ->> 'display_name' <> r.student_ref then
+    raise exception 'FAIL: drilldown must resolve pseudonym refs';
+  end if;
+end $$;
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'aggregate_only', 'pseudonym');
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform * from public.at_risk_students(v_cohort, 1.01);
+    raise exception 'FAIL: aggregate_only cohort listed at-risk students';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'per_student', 'roster');
+
+-- ── Guest live join (20260821000400) ────────────────────────────────────────
+-- A guest (anonymous auth) joins by code, answers, appears on the
+-- scoreboard by display name, and is excluded from cohort analytics.
+\set g_uid '''00000000-0000-0000-0000-0000000000b1'''
+reset role;
+insert into auth.users (id, email) values (:g_uid, null);
+set role authenticated;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_session jsonb;
+begin
+  v_session := public.create_live_session(
+    v_cohort, 'Guest-joinable quiz',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+       limit 2) q), 20);
+  perform set_config('app.test_session', v_session ->> 'id', false);
+  perform set_config('app.test_join_code', v_session ->> 'join_code', false);
+  perform public.advance_live_session((v_session ->> 'id')::uuid);
+end $$;
+
+set app.test_uid = :g_uid;
+do $$
+declare
+  v_join jsonb;
+  v_session uuid := current_setting('app.test_session')::uuid;
+  v_q jsonb;
+begin
+  v_join := public.join_live_session_guest(
+    current_setting('app.test_join_code'), 'Alex R');
+  if (v_join ->> 'id')::uuid <> v_session then
+    raise exception 'FAIL: guest join returned wrong session';
+  end if;
+  v_q := public.get_live_question(v_session);
+  perform public.submit_live_answer(
+    v_session, (v_q -> 'question' ->> 'id')::uuid, 'b');
+end $$;
+
+-- Guest is on the scoreboard by display name (faculty view during question).
+set app.test_uid = :f_uid;
+do $$
+declare v_session uuid := current_setting('app.test_session')::uuid;
+begin
+  if not exists (select 1 from public.live_scoreboard(v_session)
+                  where handle = 'Alex R') then
+    raise exception 'FAIL: guest missing from scoreboard by display name';
+  end if;
+  perform public.advance_live_session(v_session); -- reveal
+  perform public.advance_live_session(v_session); -- question 2
+  perform public.advance_live_session(v_session); -- reveal
+  perform public.advance_live_session(v_session); -- ended + finalize
+end $$;
+
+-- Finalize must NOT have folded the guest into cohort events/leaderboard.
+reset role;
+do $$
+begin
+  if exists (select 1 from public.events
+              where user_id = '00000000-0000-0000-0000-0000000000b1') then
+    raise exception 'FAIL: guest answers leaked into cohort events';
+  end if;
+  if exists (select 1 from public.leaderboard
+              where user_id = '00000000-0000-0000-0000-0000000000b1') then
+    raise exception 'FAIL: guest leaked into leaderboard';
+  end if;
+end $$;
+
+-- Purge removes stale guest data.
+update public.live_participants set joined_at = now() - interval '60 days'
+ where is_guest;
+update public.live_answers a set created_at = now() - interval '60 days'
+  from public.live_participants lp
+ where lp.session_id = a.session_id and lp.user_id = a.user_id and lp.is_guest;
+select app.purge_live_guest_data();
+do $$
+begin
+  if exists (select 1 from public.live_participants where is_guest) then
+    raise exception 'FAIL: purge left guest participants behind';
+  end if;
+  if exists (select 1 from public.profiles
+              where id = '00000000-0000-0000-0000-0000000000b1') then
+    raise exception 'FAIL: purge left the guest profile behind';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

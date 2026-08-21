@@ -35,6 +35,9 @@ Widget _app(Map<FcleDomain, DomainReadiness> readiness) {
       // Return non-Future values so the FutureProviders resolve on first
       // build: no async, no loading spinner, no bundled assets in the test.
       questionBankProvider.overrideWith((ref) => _emptyBank),
+      // No hold-out locks in the widget test: practiceBankProvider then
+      // passes the bank through without touching the database or sync.
+      lockedQuestionIdsProvider.overrideWith((ref) => <String>{}),
       readinessProvider.overrideWith((ref) => readiness),
       weakestDomainProvider.overrideWith((ref) => null),
     ],

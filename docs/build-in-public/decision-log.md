@@ -187,3 +187,37 @@ hiding features in a swipe drawer. The lesson worth publishing: decisions move f
 the evidence is assembled first. Each call took minutes because the audit had already
 made the tradeoffs legible.
 Hook: "We made five product decisions in one review because the document did the arguing beforehand."
+
+**2026-08-12. Ten founder-driven UI fixes lock the fall submission build.**
+Why: the founder walked the app like a student a week before the semester and filed ten
+changes in one sitting: the action verbs (Study, Drill, Play) move above the fold; Study
+stops duplicating Today's Review and resumes The Season instead; the chapter sheet leads
+with its Continue button instead of burying it; class selection finally persists; the
+readiness card says FCLE out loud; the Atlas puts Reference first; Pulse notifications
+become tappable and the box teaches what an executive order actually is when you filter;
+the streak chip opens details; the radar animation stops doubling on itself. One design
+rule ran through the batch: the thing a student came to do should be the first thing on
+the screen.
+Hook: "We renamed a section, moved three buttons, and fixed a radar. The real change: every screen now leads with its verb."
+
+**2026-08-13. Notifications stay personal for launch; the next sprint belongs to educators.**
+Why: TestFlight testing surfaced that two students see different notification counts and
+kinds. That is the current architecture working as designed (each device composes its own
+alerts from its own baseline), but a classroom tool wants sameness. The unification
+(server-authored Washington notifications, identical for every student) is deliberately
+deferred to the backlog rather than blocking the semester build; the digest detail sheets
+already self-correct in the new build. The bigger call: the coming sprints go all-in on
+what actually moves the institutional deal, the educator web app, cohort analytics, and
+student performance measurement, because that is the proof the buyer needs.
+Hook: "We shipped the student app and immediately stopped polishing it. The next sprint builds the thing the professor sees."
+
+**2026-08-19. Android ships as a five-day sprint aimed at the Play closed-testing clock.**
+Why: the pilot cohort includes Android students and the deadline is the semester, not the
+store. The plan inverts the usual instinct: the critical path is Google (account identity
+verification, new-account app review, and a mandatory 14-day closed test with 12 testers
+before production), so the engineering stays deliberately small (manifest, signing, icons,
+one permission request) and runs inside those external waits instead of ahead of them. The
+pilot students themselves are the 12 testers, so the compliance clock and the classroom
+rollout are the same event. CI waits until week two; a ten-line build script carries the
+reproducibility instead. Fallback if review drags: the same signed build sideloads.
+Hook: "Our Android launch plan has almost no Android engineering in it. The product this week is a Google review queue."
