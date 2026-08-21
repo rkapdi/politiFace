@@ -1234,5 +1234,87 @@ begin
   end if;
 end $$;
 
+-- ── Reporting policy chokepoint (20260821000200) ────────────────────────────
+set app.test_uid = :f_uid;
+
+-- Default per_student: named rows with student_ref = user_id.
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record;
+begin
+  select * into r from public.cohort_student_progress(v_cohort) limit 1;
+  if r.user_id is null or r.student_ref <> r.user_id::text then
+    raise exception 'FAIL: per_student rows must carry user_id and matching ref';
+  end if;
+end $$;
+
+-- Pseudonymous: stable pseudonym, no user_id, no roster name.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'pseudonymous', 'pseudonym');
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record; r2 record;
+begin
+  select * into r from public.cohort_student_progress(v_cohort)
+   order by student_ref limit 1;
+  if r.user_id is not null then
+    raise exception 'FAIL: pseudonymous rows must not expose user_id';
+  end if;
+  if r.roster_name not like 'Student %' then
+    raise exception 'FAIL: pseudonymous rows must use pseudonyms, got %', r.roster_name;
+  end if;
+  select * into r2 from public.cohort_student_progress(v_cohort)
+   order by student_ref limit 1;
+  if r.student_ref <> r2.student_ref then
+    raise exception 'FAIL: pseudonyms must be stable across calls';
+  end if;
+  if (public.get_reporting_policy(v_cohort) ->> 'effective') <> 'pseudonymous' then
+    raise exception 'FAIL: get_reporting_policy effective mismatch';
+  end if;
+end $$;
+
+-- Aggregate only: per-student RPCs refuse.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'aggregate_only', 'pseudonym');
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform * from public.cohort_student_progress(v_cohort);
+    raise exception 'FAIL: aggregate_only cohort returned per-student rows';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Students cannot set policy; exports are logged.
+select public.set_reporting_policy(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  'per_student', 'roster');
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.set_reporting_policy(v_cohort, 'per_student', 'roster');
+    raise exception 'FAIL: student set reporting policy';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_uid = :f_uid;
+select public.log_report_export(
+  (select id from public.cohorts where name = 'POS2041 Fall'), 'csv_progress');
+reset role;
+do $$
+begin
+  if (select count(*) from app.export_log) < 1 then
+    raise exception 'FAIL: export was not logged';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
