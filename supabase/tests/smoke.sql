@@ -1382,5 +1382,94 @@ select public.set_reporting_policy(
   (select id from public.cohorts where name = 'POS2041 Fall'),
   'per_student', 'roster');
 
+-- ── Guest live join (20260821000400) ────────────────────────────────────────
+-- A guest (anonymous auth) joins by code, answers, appears on the
+-- scoreboard by display name, and is excluded from cohort analytics.
+\set g_uid '''00000000-0000-0000-0000-0000000000b1'''
+reset role;
+insert into auth.users (id, email) values (:g_uid, null);
+set role authenticated;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_session jsonb;
+begin
+  v_session := public.create_live_session(
+    v_cohort, 'Guest-joinable quiz',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+       limit 2) q), 20);
+  perform set_config('app.test_session', v_session ->> 'id', false);
+  perform set_config('app.test_join_code', v_session ->> 'join_code', false);
+  perform public.advance_live_session((v_session ->> 'id')::uuid);
+end $$;
+
+set app.test_uid = :g_uid;
+do $$
+declare
+  v_join jsonb;
+  v_session uuid := current_setting('app.test_session')::uuid;
+  v_q jsonb;
+begin
+  v_join := public.join_live_session_guest(
+    current_setting('app.test_join_code'), 'Alex R');
+  if (v_join ->> 'id')::uuid <> v_session then
+    raise exception 'FAIL: guest join returned wrong session';
+  end if;
+  v_q := public.get_live_question(v_session);
+  perform public.submit_live_answer(
+    v_session, (v_q -> 'question' ->> 'id')::uuid, 'b');
+end $$;
+
+-- Guest is on the scoreboard by display name (faculty view during question).
+set app.test_uid = :f_uid;
+do $$
+declare v_session uuid := current_setting('app.test_session')::uuid;
+begin
+  if not exists (select 1 from public.live_scoreboard(v_session)
+                  where handle = 'Alex R') then
+    raise exception 'FAIL: guest missing from scoreboard by display name';
+  end if;
+  perform public.advance_live_session(v_session); -- reveal
+  perform public.advance_live_session(v_session); -- question 2
+  perform public.advance_live_session(v_session); -- reveal
+  perform public.advance_live_session(v_session); -- ended + finalize
+end $$;
+
+-- Finalize must NOT have folded the guest into cohort events/leaderboard.
+reset role;
+do $$
+begin
+  if exists (select 1 from public.events
+              where user_id = '00000000-0000-0000-0000-0000000000b1') then
+    raise exception 'FAIL: guest answers leaked into cohort events';
+  end if;
+  if exists (select 1 from public.leaderboard
+              where user_id = '00000000-0000-0000-0000-0000000000b1') then
+    raise exception 'FAIL: guest leaked into leaderboard';
+  end if;
+end $$;
+
+-- Purge removes stale guest data.
+update public.live_participants set joined_at = now() - interval '60 days'
+ where is_guest;
+update public.live_answers a set created_at = now() - interval '60 days'
+  from public.live_participants lp
+ where lp.session_id = a.session_id and lp.user_id = a.user_id and lp.is_guest;
+select app.purge_live_guest_data();
+do $$
+begin
+  if exists (select 1 from public.live_participants where is_guest) then
+    raise exception 'FAIL: purge left guest participants behind';
+  end if;
+  if exists (select 1 from public.profiles
+              where id = '00000000-0000-0000-0000-0000000000b1') then
+    raise exception 'FAIL: purge left the guest profile behind';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
