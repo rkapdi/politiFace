@@ -1143,5 +1143,96 @@ begin
 end $$;
 set role authenticated;
 
+-- ── TA role (20260821000100) ────────────────────────────────────────────────
+\set ta_uid '''00000000-0000-0000-0000-0000000000a1'''
+reset role;
+insert into auth.users (id, email) values (:ta_uid, 'ta@example.edu');
+set role authenticated;
+set app.test_uid = :ta_uid;
+insert into public.profiles (id, handle) values (:ta_uid, 'ta_person');
+
+-- Faculty adds the TA by email.
+set app.test_uid = :f_uid;
+select public.add_cohort_ta(
+  (select id from public.cohorts where name = 'POS2041 Fall'), 'ta@example.edu');
+
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  if (select role from public.cohort_members
+       where cohort_id = v_cohort
+         and user_id = '00000000-0000-0000-0000-0000000000a1') <> 'ta' then
+    raise exception 'FAIL: TA row not created';
+  end if;
+  if public.my_cohort_role(v_cohort) <> 'faculty' then
+    raise exception 'FAIL: my_cohort_role wrong for faculty';
+  end if;
+end $$;
+
+-- TA can drive a live session and read aggregates.
+set app.test_uid = :ta_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_session jsonb;
+begin
+  if public.my_cohort_role(v_cohort) <> 'ta' then
+    raise exception 'FAIL: my_cohort_role wrong for TA';
+  end if;
+  v_session := public.create_live_session(
+    v_cohort, 'TA quiz',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+       limit 3) q),
+    20);
+  perform public.advance_live_session((v_session ->> 'id')::uuid);
+  perform public.end_live_session((v_session ->> 'id')::uuid);
+  perform public.cohort_domain_stats(v_cohort, 1);
+  perform public.cohort_overview(v_cohort);
+  perform public.cohort_live_sessions(v_cohort);
+  if not exists (select 1 from public.my_faculty_overview()) then
+    raise exception 'FAIL: TA missing their class in my_faculty_overview';
+  end if;
+end $$;
+
+-- TA is blocked from per-student surfaces, invites, and authoring.
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform * from public.cohort_student_progress(v_cohort);
+    raise exception 'FAIL: TA read per-student progress';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.mint_faculty_invite('nope');
+    raise exception 'FAIL: TA minted an invite';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.create_cohort_question(
+      v_cohort, (select id from public.domains order by id limit 1),
+      'TA question that must fail?',
+      '[{"key":"a","text":"A"},{"key":"b","text":"B"}]', 'a');
+    raise exception 'FAIL: TA authored a question';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Demote and confirm.
+set app.test_uid = :f_uid;
+select public.remove_cohort_ta(
+  (select id from public.cohorts where name = 'POS2041 Fall'),
+  '00000000-0000-0000-0000-0000000000a1');
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  if (select role from public.cohort_members
+       where cohort_id = v_cohort
+         and user_id = '00000000-0000-0000-0000-0000000000a1') <> 'student' then
+    raise exception 'FAIL: removed TA should become a student';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
