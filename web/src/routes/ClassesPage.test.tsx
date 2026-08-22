@@ -29,6 +29,12 @@ const rows: ClassOverviewRow[] = [
 
 vi.mock('../lib/api', () => ({
   useMyClasses: () => ({ data: rows, isPending: false, error: null }),
+  useCreateCohort: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+    data: undefined,
+    error: null,
+  }),
 }))
 
 import { ClassesPage } from './ClassesPage'

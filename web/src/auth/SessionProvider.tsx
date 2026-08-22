@@ -7,6 +7,7 @@ import {
 } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
+import { ensureProfile } from '../lib/api'
 
 type SessionState = {
   session: Session | null
@@ -30,6 +31,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     const { data } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next)
       setLoading(false)
+      // First sign-in bootstrapping: fire and forget; RLS makes it safe.
+      if (next && !next.user.is_anonymous) void ensureProfile(next.user.id)
     })
     return () => {
       cancelled = true

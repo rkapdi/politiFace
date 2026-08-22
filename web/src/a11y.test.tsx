@@ -54,6 +54,13 @@ vi.mock('./lib/api', () => ({
   useRemoveTa: () => ({ mutate: vi.fn(), isPending: false }),
   useAddCoFaculty: () => ({ mutate: vi.fn(), isPending: false, error: null }),
   useCohortTas: () => ({ data: [], isPending: false, error: null }),
+  useCreateCohort: () => ({
+    mutate: vi.fn(),
+    isPending: false,
+    data: undefined,
+    error: null,
+  }),
+  ensureProfile: vi.fn(),
   signInAnonymously: vi.fn(),
   joinLiveSessionGuest: vi.fn(),
   getLiveQuestion: vi.fn(),

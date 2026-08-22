@@ -111,6 +111,9 @@ const FRIENDLY: Record<string, string> = {
     'No Politiface account uses that email. They need to sign in to the app or console once first.',
   'that account has not redeemed a faculty invite code yet':
     'That account has not redeemed a faculty invite code yet.',
+  'instructor verification required':
+    'Creating classes requires instructor verification. Redeem a faculty invite code in the app or portal first.',
+  'class name too short': 'Class names need at least 3 characters.',
 }
 
 export function friendlyMessage(error: { message: string }): string {
@@ -179,6 +182,28 @@ export const joinLiveSessionGuest = (code: string, displayName: string) =>
     p_code: code,
     p_display_name: displayName,
   })
+// First sign-in bootstrapping: the console needs a profiles row (RLS lets
+// a user insert only their own). Handle is auto-generated; users can
+// change it in the app later.
+export const ensureProfile = async (userId: string): Promise<void> => {
+  const existing = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('id', userId)
+    .maybeSingle()
+  if (existing.error || existing.data) return
+  await supabase.from('profiles').insert({
+    id: userId,
+    handle: `user_${userId.replace(/-/g, '').slice(0, 8)}`,
+  })
+}
+
+export const createCohort = (name: string, term: string | null) =>
+  rpc<{ id: string; join_code: string }>('create_cohort', {
+    p_name: name,
+    p_term: term,
+  })
+
 export const signInAnonymously = async () => {
   const { data, error } = await supabase.auth.signInAnonymously()
   if (error) throw new Error(friendlyMessage(error))
@@ -371,6 +396,15 @@ function useCohortMutation<A>(fn: (args: A) => Promise<unknown>, cohortKeyOf: (a
     onSuccess: (_data, args) => {
       void qc.invalidateQueries({ queryKey: ['cohort', cohortKeyOf(args)] })
     },
+  })
+}
+
+export const useCreateCohort = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { name: string; term: string | null }) =>
+      createCohort(a.name, a.term),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['classes'] }),
   })
 }
 

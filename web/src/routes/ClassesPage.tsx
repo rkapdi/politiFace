@@ -1,5 +1,81 @@
-import { useMyClasses } from '../lib/api'
-import { Alert, Badge, Card, Spinner } from '../components/ui'
+import { useState, type FormEvent } from 'react'
+import { useCreateCohort, useMyClasses } from '../lib/api'
+import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
+
+function CreateClassCard() {
+  const create = useCreateCohort()
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [term, setTerm] = useState('')
+  const created = create.data as { join_code: string } | undefined
+
+  if (created) {
+    return (
+      <Card>
+        <h2 className="text-sm font-semibold text-slate-900">Class created</h2>
+        <p className="mt-2 text-sm text-slate-600">
+          Students join with this code in the app:
+        </p>
+        <p className="mt-1 text-3xl font-bold tracking-[0.3em] text-slate-900">
+          {created.join_code}
+        </p>
+      </Card>
+    )
+  }
+
+  if (!open) {
+    return (
+      <div>
+        <Button onClick={() => setOpen(true)}>Create a class</Button>
+      </div>
+    )
+  }
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    create.mutate({ name: name.trim(), term: term.trim() || null })
+  }
+
+  return (
+    <Card>
+      <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        Create a class
+      </h2>
+      <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
+        <label className="text-sm text-slate-700">
+          Class name
+          <input
+            required
+            minLength={3}
+            value={name}
+            onChange={e => setName(e.target.value)}
+            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+          />
+        </label>
+        <label className="text-sm text-slate-700">
+          Term, optional
+          <input
+            value={term}
+            placeholder="2026F"
+            onChange={e => setTerm(e.target.value)}
+            className="ml-2 w-24 rounded-md border border-slate-300 px-2 py-1 text-sm"
+          />
+        </label>
+        <Button type="submit" disabled={create.isPending}>
+          Create
+        </Button>
+        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+          Cancel
+        </Button>
+      </form>
+      {create.error ? (
+        <div className="mt-2">
+          <Alert tone="error">{create.error.message}</Alert>
+        </div>
+      ) : null}
+    </Card>
+  )
+}
 
 export function ClassesPage() {
   const { data, isPending, error } = useMyClasses()
@@ -9,19 +85,24 @@ export function ClassesPage() {
 
   if (!data || data.length === 0) {
     return (
-      <Card>
-        <h1 className="text-lg font-semibold">No classes yet</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Create your class in the current faculty portal; this console picks
-          it up automatically.
-        </p>
-      </Card>
+      <div className="flex flex-col gap-4">
+        <Card>
+          <h1 className="text-lg font-semibold">No classes yet</h1>
+          <p className="mt-2 text-sm text-slate-600">
+            Create your first class below. Students join it from the
+            Politiface app with the class code.
+          </p>
+        </Card>
+        <CreateClassCard />
+      </div>
     )
   }
 
   return (
     <div>
-      <h1 className="mb-4 text-xl font-semibold text-slate-900">Your classes</h1>
+      <div className="mb-4 flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-slate-900">Your classes</h1>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         {data.map(c => (
           <Card key={c.cohort_id} className="hover:border-slate-400">
@@ -67,6 +148,9 @@ export function ClassesPage() {
             </dl>
           </Card>
         ))}
+      </div>
+      <div className="mt-4">
+        <CreateClassCard />
       </div>
     </div>
   )
