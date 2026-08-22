@@ -107,3 +107,16 @@ YOU KNOW label, tour icons now use brandOchreText; HARD grade and GUESS
 confidence buttons use ink-on-ochre instead of white at 2.4:1); portrait
 labels confirmed already present on CardAvatar; memory field carries a
 descriptive label pointing to the accessible list.
+
+## Web console and live join page (added 2026-08-21)
+
+The faculty web console and the student live-join page (repo `web/`,
+served at `/app/`) were built to WCAG 2.1 AA from the start: labelled
+inputs, keyboard-reachable controls with visible focus rings, `role`
+attributes on alerts and status messages, `scope="col"` table headers,
+text alternatives for every chart (visually hidden data tables) and for
+readiness bars (aria labels with percentages), and polite live regions
+for countdowns. Automated axe-core checks run in CI (`web/src/a11y.test.tsx`,
+zero violations on sign-in, classes dashboard, guest join, and settings).
+Remaining: a manual keyboard and screen-reader walkthrough of the live
+runner and drill-down before the Sept 20 demo.
