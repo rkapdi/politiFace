@@ -232,7 +232,7 @@ function GuestEnded({ sessionId }: { sessionId: string }) {
           practice you choose.
         </p>
         <a
-          href="https://rkapdi.github.io/politiFace/"
+          href="https://politiface.app/"
           className="mt-2 inline-block text-sm font-medium text-slate-900 underline"
         >
           Get Politiface

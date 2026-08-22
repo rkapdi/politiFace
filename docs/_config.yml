@@ -1,7 +1,7 @@
 title: Politiface
 description: Local-first civics learning. Faces, roles, structure.
-url: https://rkapdi.github.io
-baseurl: /politiFace
+url: https://politiface.app
+baseurl: ""
 
 theme: jekyll-theme-minimal
 
