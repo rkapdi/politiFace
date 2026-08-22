@@ -210,7 +210,88 @@ export const cohortTas = async (cohortId: string): Promise<TaRow[]> => {
   }))
 }
 
+export type PickableQuestion = {
+  id: string
+  stem: string
+  domain_id: number
+  cohort_id: string | null
+}
+
+// Published questions a session may draw from: the system bank plus this
+// cohort's own faculty-authored items (RLS enforces the same rule server-side).
+export const pickableQuestions = async (
+  cohortId: string,
+): Promise<PickableQuestion[]> => {
+  const { data, error } = await supabase
+    .from('questions')
+    .select('id, stem, domain_id, cohort_id')
+    .eq('review_status', 'published')
+    .or(`cohort_id.is.null,cohort_id.eq.${cohortId}`)
+    .order('domain_id')
+  if (error) throw new Error(friendlyMessage(error))
+  return data ?? []
+}
+
+export type DomainRow = { id: number; code: string; name: string }
+
+export const domains = async (): Promise<DomainRow[]> => {
+  const { data, error } = await supabase
+    .from('domains')
+    .select('id, code, name')
+    .order('ordinal')
+  if (error) throw new Error(friendlyMessage(error))
+  return data ?? []
+}
+
+export type LiveSessionMeta = {
+  id: string
+  title: string
+  status: string
+  join_code: string
+  question_seconds: number
+}
+
+export const liveSessionMeta = async (
+  sessionId: string,
+): Promise<LiveSessionMeta> => {
+  const { data, error } = await supabase
+    .from('live_sessions')
+    .select('id, title, status, join_code, question_seconds')
+    .eq('id', sessionId)
+    .single()
+  if (error) throw new Error(friendlyMessage(error))
+  return data
+}
+
+export const participantCount = async (sessionId: string): Promise<number> => {
+  const { count, error } = await supabase
+    .from('live_participants')
+    .select('*', { count: 'exact', head: true })
+    .eq('session_id', sessionId)
+  if (error) throw new Error(friendlyMessage(error))
+  return count ?? 0
+}
+
 // ── query hooks ─────────────────────────────────────────────────────────────
+export const usePickableQuestions = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'pickable'],
+    queryFn: () => pickableQuestions(cohortId),
+  })
+export const useDomains = () =>
+  useQuery({ queryKey: ['domains'], queryFn: domains, staleTime: Infinity })
+export const useLiveSessionMeta = (sessionId: string) =>
+  useQuery({
+    queryKey: ['session', sessionId, 'meta'],
+    queryFn: () => liveSessionMeta(sessionId),
+  })
+export const useParticipantCount = (sessionId: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ['session', sessionId, 'participants'],
+    queryFn: () => participantCount(sessionId),
+    enabled,
+    refetchInterval: 3000,
+  })
 export const useCohortTas = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'tas'],
