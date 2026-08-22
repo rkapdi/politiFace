@@ -185,7 +185,37 @@ export const signInAnonymously = async () => {
   return data
 }
 
+export type TaRow = { user_id: string; display: string }
+
+// TAs on a cohort: membership rows are member-readable under RLS; handles
+// come from profiles (co-cohort members may read them).
+export const cohortTas = async (cohortId: string): Promise<TaRow[]> => {
+  const members = await supabase
+    .from('cohort_members')
+    .select('user_id, roster_name')
+    .eq('cohort_id', cohortId)
+    .eq('role', 'ta')
+  if (members.error) throw new Error(friendlyMessage(members.error))
+  const rows = members.data ?? []
+  if (rows.length === 0) return []
+  const profiles = await supabase
+    .from('profiles')
+    .select('id, handle')
+    .in('id', rows.map(r => r.user_id))
+  if (profiles.error) throw new Error(friendlyMessage(profiles.error))
+  const handles = new Map((profiles.data ?? []).map(p => [p.id, p.handle]))
+  return rows.map(r => ({
+    user_id: r.user_id,
+    display: r.roster_name ?? handles.get(r.user_id) ?? r.user_id,
+  }))
+}
+
 // ── query hooks ─────────────────────────────────────────────────────────────
+export const useCohortTas = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'tas'],
+    queryFn: () => cohortTas(cohortId),
+  })
 export const useMyClasses = () =>
   useQuery({ queryKey: ['classes'], queryFn: myClasses })
 export const useCohortRole = (cohortId: string) =>
