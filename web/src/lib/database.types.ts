@@ -1,9 +1,7 @@
-// GENERATED from the hosted schema (Supabase MCP generate_typescript_types),
-// then hand-merged with the 20260821* spine migrations pending hosted apply
-// (at_risk_students, student_drilldown, cohort_engagement_trend, TA and
-// policy RPCs, guest join, student_ref columns). After the founder applies
-// those migrations to hosted, REGENERATE this file cleanly and drop the
-// hand-merged note: supabase gen types typescript --project-id sbjpiajjlufrhigmovnk
+// GENERATED from the hosted schema, which now matches the repo
+// migrations exactly. Regenerate after every hosted apply:
+//   supabase gen types typescript --project-id sbjpiajjlufrhigmovnk
+// (or the Supabase MCP generate_typescript_types tool). Never hand-edit.
 export type Json =
   | string
   | number
@@ -289,6 +287,7 @@ export type Database = {
           exam_window: unknown
           id: string
           identity_display: string
+          is_demo: boolean
           join_code: string
           name: string
           org_id: string | null
@@ -302,6 +301,7 @@ export type Database = {
           exam_window?: unknown
           id?: string
           identity_display?: string
+          is_demo?: boolean
           join_code?: string
           name: string
           org_id?: string | null
@@ -315,6 +315,7 @@ export type Database = {
           exam_window?: unknown
           id?: string
           identity_display?: string
+          is_demo?: boolean
           join_code?: string
           name?: string
           org_id?: string | null
@@ -764,16 +765,22 @@ export type Database = {
       }
       live_participants: {
         Row: {
+          display_name: string | null
+          is_guest: boolean
           joined_at: string
           session_id: string
           user_id: string
         }
         Insert: {
+          display_name?: string | null
+          is_guest?: boolean
           joined_at?: string
           session_id: string
           user_id: string
         }
         Update: {
+          display_name?: string | null
+          is_guest?: boolean
           joined_at?: string
           session_id?: string
           user_id?: string
@@ -797,6 +804,7 @@ export type Database = {
       }
       live_sessions: {
         Row: {
+          allow_guests: boolean
           cohort_id: string
           created_at: string
           created_by: string
@@ -812,6 +820,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          allow_guests?: boolean
           cohort_id: string
           created_at?: string
           created_by: string
@@ -827,6 +836,7 @@ export type Database = {
           title: string
         }
         Update: {
+          allow_guests?: boolean
           cohort_id?: string
           created_at?: string
           created_by?: string
@@ -979,6 +989,7 @@ export type Database = {
           created_at: string
           handle: string
           id: string
+          is_guest: boolean
           school: string | null
         }
         Insert: {
@@ -986,6 +997,7 @@ export type Database = {
           created_at?: string
           handle: string
           id: string
+          is_guest?: boolean
           school?: string | null
         }
         Update: {
@@ -993,6 +1005,7 @@ export type Database = {
           created_at?: string
           handle?: string
           id?: string
+          is_guest?: boolean
           school?: string | null
         }
         Relationships: []
@@ -1393,6 +1406,11 @@ export type Database = {
         Args: { p_cohort: string; p_email: string }
         Returns: undefined
       }
+      add_cohort_ta: {
+        Args: { p_cohort: string; p_email: string }
+        Returns: undefined
+      }
+      admin_canary_status: { Args: never; Returns: Json }
       admin_list_cohorts: {
         Args: never
         Returns: {
@@ -1452,6 +1470,23 @@ export type Database = {
       am_admin: { Args: never; Returns: boolean }
       am_verified_faculty: { Args: never; Returns: boolean }
       assemble_mock: { Args: { p_kind: string }; Returns: Json }
+      at_risk_students: {
+        Args: { p_cohort: string; p_threshold?: number }
+        Returns: {
+          answers_14d: number
+          display_name: string
+          last_active: string
+          overall_readiness: number
+          student_ref: string
+          weakest_domain_id: number
+          weakest_domain_name: string
+          weakest_readiness: number
+        }[]
+      }
+      capture_cohort_baseline: {
+        Args: { p_cohort: string }
+        Returns: undefined
+      }
       cohort_domain_stats: {
         Args: { p_cohort: string; p_min_n?: number }
         Returns: {
@@ -1460,6 +1495,14 @@ export type Database = {
           domain_code: string
           domain_name: string
           students: number
+        }[]
+      }
+      cohort_engagement_trend: {
+        Args: { p_cohort: string; p_days?: number }
+        Returns: {
+          active_students: number
+          answers: number
+          day: string
         }[]
       }
       cohort_live_sessions: {
@@ -1484,31 +1527,6 @@ export type Database = {
           students: number
         }[]
       }
-      add_cohort_ta: {
-        Args: { p_cohort: string; p_email: string }
-        Returns: undefined
-      }
-      at_risk_students: {
-        Args: { p_cohort: string; p_threshold?: number }
-        Returns: {
-          answers_14d: number
-          display_name: string
-          last_active: string | null
-          overall_readiness: number
-          student_ref: string
-          weakest_domain_id: number | null
-          weakest_domain_name: string | null
-          weakest_readiness: number | null
-        }[]
-      }
-      cohort_engagement_trend: {
-        Args: { p_cohort: string; p_days?: number }
-        Returns: {
-          active_students: number
-          answers: number
-          day: string
-        }[]
-      }
       cohort_student_progress: {
         Args: { p_cohort: string }
         Returns: {
@@ -1520,7 +1538,7 @@ export type Database = {
           mocks_completed: number
           roster_name: string
           student_ref: string
-          user_id: string | null
+          user_id: string
         }[]
       }
       cohort_top_misses: {
@@ -1574,6 +1592,7 @@ export type Database = {
       end_live_session: { Args: { p_session: string }; Returns: undefined }
       enter_live_session: { Args: { p_session: string }; Returns: undefined }
       finalize_mock: { Args: { p_attempt_id: string }; Returns: Json }
+      get_cohort_baseline: { Args: { p_cohort: string }; Returns: Json }
       get_live_question: { Args: { p_session: string }; Returns: Json }
       get_open_assessments: {
         Args: never
@@ -1587,11 +1606,16 @@ export type Database = {
           question_ids: Json
         }[]
       }
+      get_reporting_policy: { Args: { p_cohort: string }; Returns: Json }
       join_cohort: {
         Args: { p_code: string; p_roster_name?: string }
         Returns: string
       }
       join_live_session: { Args: { p_code: string }; Returns: Json }
+      join_live_session_guest: {
+        Args: { p_code: string; p_display_name: string }
+        Returns: Json
+      }
       live_reveal: { Args: { p_session: string }; Returns: Json }
       live_scoreboard: {
         Args: { p_session: string }
@@ -1603,11 +1627,6 @@ export type Database = {
           score: number
         }[]
       }
-      get_reporting_policy: { Args: { p_cohort: string }; Returns: Json }
-      join_live_session_guest: {
-        Args: { p_code: string; p_display_name: string }
-        Returns: Json
-      }
       live_session_report: {
         Args: { p_session: string }
         Returns: {
@@ -1618,30 +1637,8 @@ export type Database = {
           roster_name: string
           score: number
           student_ref: string
-          user_id: string | null
+          user_id: string
         }[]
-      }
-      log_report_export: {
-        Args: { p_cohort: string; p_kind: string }
-        Returns: undefined
-      }
-      my_cohort_role: { Args: { p_cohort: string }; Returns: string }
-      remove_cohort_ta: {
-        Args: { p_cohort: string; p_user: string }
-        Returns: undefined
-      }
-      set_reporting_policy: {
-        Args: {
-          p_cohort: string
-          p_identity_display: string
-          p_resolution: string
-          p_retention_days?: number | null
-        }
-        Returns: undefined
-      }
-      student_drilldown: {
-        Args: { p_cohort: string; p_student_ref: string }
-        Returns: Json
       }
       live_session_stats: {
         Args: { p_session: string }
@@ -1653,7 +1650,12 @@ export type Database = {
         }[]
       }
       locked_question_ids: { Args: never; Returns: string[] }
+      log_report_export: {
+        Args: { p_cohort: string; p_kind: string }
+        Returns: undefined
+      }
       mint_faculty_invite: { Args: { p_note?: string }; Returns: string }
+      my_cohort_role: { Args: { p_cohort: string }; Returns: string }
       my_faculty_overview: {
         Args: never
         Returns: {
@@ -1675,6 +1677,10 @@ export type Database = {
         Args: { p_environment?: string; p_token: string }
         Returns: undefined
       }
+      remove_cohort_ta: {
+        Args: { p_cohort: string; p_user: string }
+        Returns: undefined
+      }
       retire_cohort_question: {
         Args: { p_question: string }
         Returns: undefined
@@ -1683,9 +1689,22 @@ export type Database = {
         Args: { p_body: string; p_cohort: string }
         Returns: Json
       }
+      set_reporting_policy: {
+        Args: {
+          p_cohort: string
+          p_identity_display: string
+          p_resolution: string
+          p_retention_days?: number
+        }
+        Returns: undefined
+      }
       set_roster_name: {
         Args: { p_cohort: string; p_name: string }
         Returns: undefined
+      }
+      student_drilldown: {
+        Args: { p_cohort: string; p_student_ref: string }
+        Returns: Json
       }
       submit_answer: {
         Args: {
