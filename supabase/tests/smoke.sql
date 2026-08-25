@@ -1523,5 +1523,124 @@ begin
   end if;
 end $$;
 
+-- ── Canary, baselines, demo quarantine (20260824000200) ─────────────────────
+reset role;
+
+-- Canary passes on a clean database.
+do $$
+declare v_failures jsonb;
+begin
+  perform app.run_measurement_canary();
+  select failures into v_failures from app.canary_runs
+   order by id desc limit 1;
+  if (select ok from app.canary_runs order by id desc limit 1) is not true then
+    raise exception 'FAIL: canary must pass on a clean db: %', v_failures;
+  end if;
+end $$;
+
+-- Canary catches a tampered grading row, then passes again after revert.
+do $$
+declare
+  v_event uuid;
+begin
+  select event_id into v_event from public.events
+   where type = 'answer' and correct is not null
+   order by server_ts asc limit 1;
+  update public.events set correct = not correct where event_id = v_event;
+  perform app.run_measurement_canary();
+  if (select ok from app.canary_runs order by id desc limit 1) then
+    raise exception 'FAIL: canary missed a tampered grading row';
+  end if;
+  update public.events set correct = not correct where event_id = v_event;
+  perform app.run_measurement_canary();
+  if not (select ok from app.canary_runs order by id desc limit 1) then
+    raise exception 'FAIL: canary must recover after revert';
+  end if;
+end $$;
+
+-- Baselines refuse below the 5-student floor.
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform app.capture_cohort_baseline(v_cohort);
+    raise exception 'FAIL: baseline captured below the 5-student floor';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- With 5 students the baseline captures, aggregate-only.
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000c1', 'c1@example.edu'),
+  ('00000000-0000-0000-0000-0000000000c2', 'c2@example.edu');
+insert into public.profiles (id, handle) values
+  ('00000000-0000-0000-0000-0000000000c1', 'extra_one'),
+  ('00000000-0000-0000-0000-0000000000c2', 'extra_two');
+insert into public.cohort_members (cohort_id, user_id, role)
+select c.id, u.uid, 'student'
+  from public.cohorts c,
+       (values ('00000000-0000-0000-0000-0000000000c1'::uuid),
+               ('00000000-0000-0000-0000-0000000000c2'::uuid)) u(uid)
+ where c.name = 'POS2041 Fall';
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  b record;
+begin
+  perform app.capture_cohort_baseline(v_cohort);
+  select * into b from app.cohort_baselines where cohort_id = v_cohort;
+  if b.cohort_id is null then raise exception 'FAIL: baseline missing'; end if;
+  if b.students < 5 then raise exception 'FAIL: baseline student count wrong'; end if;
+  if b.distribution::text ~ '[0-9a-f]{8}-[0-9a-f]{4}' then
+    raise exception 'FAIL: baseline must not contain student identifiers';
+  end if;
+  -- Idempotent: a second capture must not overwrite the first.
+  perform app.capture_cohort_baseline(v_cohort);
+  if (select count(*) from app.cohort_baselines where cohort_id = v_cohort) <> 1 then
+    raise exception 'FAIL: baseline must capture exactly once';
+  end if;
+end $$;
+
+-- Students cannot trigger captures through the RPC.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.capture_cohort_baseline(v_cohort);
+    raise exception 'FAIL: student captured a baseline';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+reset role;
+
+-- Demo cohorts produce no rollups and no baselines.
+do $$
+declare
+  v_demo uuid;
+begin
+  insert into public.cohorts (name, term, created_by, is_demo)
+  values ('DEMO smoke cohort', 'DEMO', '00000000-0000-0000-0000-00000000000f', true)
+  returning id into v_demo;
+  perform app.compute_all_cohort_rollups();
+  if exists (select 1 from public.cohort_rollups where cohort_id = v_demo) then
+    raise exception 'FAIL: demo cohort leaked into rollups';
+  end if;
+  perform app.capture_due_baselines();
+  if exists (select 1 from app.cohort_baselines where cohort_id = v_demo) then
+    raise exception 'FAIL: demo cohort leaked into baselines';
+  end if;
+  begin
+    perform app.capture_cohort_baseline(v_demo);
+    raise exception 'FAIL: manual baseline captured for a demo cohort';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
