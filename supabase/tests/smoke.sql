@@ -1471,5 +1471,57 @@ begin
 end $$;
 set role authenticated;
 
+-- ── Readiness v2: shrunk, windowed, versioned (20260824000100) ─────────────
+reset role;
+do $$
+declare
+  r record;
+  v_rows int := 0;
+begin
+  if length(app.readiness_model_version()) < 3 then
+    raise exception 'FAIL: readiness model version missing';
+  end if;
+  -- s1 has real graded history from earlier sections. Shrinkage bounds:
+  -- readiness always in (0,1) and NEVER 1.0 even at perfect raw accuracy.
+  for r in select * from app.readiness_v2('00000000-0000-0000-0000-000000000001') loop
+    v_rows := v_rows + 1;
+    if r.readiness <= 0.0 or r.readiness >= 0.95 then
+      raise exception 'FAIL: readiness % out of shrunk bounds', r.readiness;
+    end if;
+    if r.answers > 0 and r.correct = r.answers and r.readiness >= 1.0 then
+      raise exception 'FAIL: perfect raw accuracy must still shrink';
+    end if;
+  end loop;
+  if v_rows <> 4 then
+    raise exception 'FAIL: readiness_v2 must return one row per domain, got %', v_rows;
+  end if;
+  -- A student with no evidence sits at the 0.40 prior exactly.
+  if exists (select 1 from app.readiness_v2('00000000-0000-0000-0000-0000000000a1')
+              where abs(readiness - 0.40) > 0.01) then
+    raise exception 'FAIL: zero-evidence readiness must equal the prior';
+  end if;
+end $$;
+
+-- The at-risk list reads v2: the evidence-free student shows ~0.40 overall.
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record;
+begin
+  select * into r from public.at_risk_students(v_cohort, 1.01)
+   where student_ref = '00000000-0000-0000-0000-0000000000a1';
+  if r.student_ref is null then
+    raise exception 'FAIL: evidence-free student missing from at-risk list';
+  end if;
+  if abs(r.overall_readiness - 0.40) > 0.01 then
+    raise exception 'FAIL: evidence-free overall readiness was %', r.overall_readiness;
+  end if;
+  if r.weakest_domain_name is null then
+    raise exception 'FAIL: weakest domain must always resolve under v2';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
