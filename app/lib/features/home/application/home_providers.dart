@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/providers.dart';
 import '../../fcle/application/fcle_providers.dart';
 import '../../fcle/domain/fcle_question.dart';
+import '../../fcle/domain/readiness_projection.dart';
 
 /// Cards due for review right now, capped at the visible-queue limit
 /// (never show a raw backlog: DESIGN of the forgiving streak, Move 5).
@@ -26,9 +27,9 @@ final dueReviewCountProvider = FutureProvider<int>((ref) async {
 });
 
 /// The four-stage readiness read: projected score range out of 80 plus
-/// the stage band, derived from per-domain rolling accuracy. Null until
-/// enough answers exist to say anything honest (the diagnostic is the
-/// intended first filler of this).
+/// the stage band, derived from RECENT per-domain evidence with
+/// conservative shrinkage (see readiness_projection.dart). Null until
+/// enough recent answers exist to say anything honest.
 class ReadinessSummary {
   const ReadinessSummary({
     required this.low,
@@ -39,32 +40,40 @@ class ReadinessSummary {
 
   final int low;
   final int high;
+
+  /// Raw windowed accuracy per domain (null = no recent history), for the
+  /// domain bars and the weakest-domain ladder rung.
   final Map<FcleDomain, double?> perDomain;
+
+  /// Answers inside the recency window, all domains.
   final int totalAnswers;
 }
 
 final readinessSummaryProvider = FutureProvider<ReadinessSummary?>(
   (ref) async {
-    final readiness = await ref.watch(readinessProvider.future);
-    var totalAnswers = 0;
-    var mid = 0.0;
+    ref.watch(fcleTickProvider);
+    final dao = ref.watch(databaseProvider).fcleAnswersDao;
+    final since = DateTime.now()
+        .subtract(const Duration(days: kRecencyDays))
+        .millisecondsSinceEpoch;
+
+    var totalRecent = 0;
+    final evidence = <({int correct, int count})>[];
     final perDomain = <FcleDomain, double?>{};
-    for (final r in readiness.values) {
-      totalAnswers += r.answerCount;
-      perDomain[r.domain] = r.accuracy;
-      // Domains with no history contribute a conservative prior rather
-      // than an optimistic blank: an unstudied domain is a risk, and the
-      // projection must be honest about precision.
-      mid += (r.accuracy ?? 0.40) * 20;
+    for (final d in FcleDomain.values) {
+      final s = await dao.windowedStats(d.code, sinceMs: since);
+      evidence.add(s);
+      totalRecent += s.count;
+      perDomain[d] = s.count == 0 ? null : s.correct / s.count;
     }
-    if (totalAnswers < 8) return null; // no honest signal yet
-    // Range narrows as evidence accumulates; never a point estimate.
-    final width = (10 - totalAnswers ~/ 25).clamp(4, 10);
+
+    final p = projectScore(evidence);
+    if (p == null) return null;
     return ReadinessSummary(
-      low: (mid - width).round().clamp(0, 80),
-      high: (mid + width).round().clamp(0, 80),
+      low: p.low,
+      high: p.high,
       perDomain: perDomain,
-      totalAnswers: totalAnswers,
+      totalAnswers: totalRecent,
     );
   },
 );
