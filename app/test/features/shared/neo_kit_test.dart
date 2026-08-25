@@ -60,6 +60,41 @@ void main() {
     expect(inactiveText, EditorialPalette.textDim);
   });
 
+  testWidgets('PowerlineBar never clips "locked in" on narrow screens',
+      (tester) async {
+    await tester.pumpWidget(
+      host(
+        const SizedBox(
+          width: 300,
+          child: PowerlineBar(
+            active: ReadinessStage.lockedIn,
+            trailing: Text('OF 80'),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull); // no RenderFlex overflow
+    expect(find.text('locked in'), findsOneWidget);
+    expect(find.text('OF 80'), findsOneWidget);
+  });
+
+  testWidgets('PowerlineBar survives large accessibility text sizes',
+      (tester) async {
+    await tester.pumpWidget(
+      host(
+        const MediaQuery(
+          data: MediaQueryData(textScaler: TextScaler.linear(1.4)),
+          child: SizedBox(
+            width: 340,
+            child: PowerlineBar(active: ReadinessStage.notYet),
+          ),
+        ),
+      ),
+    );
+    expect(tester.takeException(), isNull);
+    expect(find.text('locked in'), findsOneWidget);
+  });
+
   testWidgets('ResultsTicket shows ribbon only when a state earned it',
       (tester) async {
     await tester.pumpWidget(
