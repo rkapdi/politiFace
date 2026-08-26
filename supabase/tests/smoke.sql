@@ -366,33 +366,39 @@ begin
     raise exception 'FAIL: create_cohort join code';
   end if;
 
-  -- Overview: below the 5-student k-anonymity floor, activity stats are
-  -- withheld (null) and only the student count reports.
+  -- Per-student-first (2026-08-26): on the default per_student policy the
+  -- faculty already see individuals, so class statistics render at ANY
+  -- size. Overview reports real activity even for a tiny class.
+  perform 1 from public.cohort_overview(v_cohort)
+    where students is not null and answers_total is not null;
+  if not found then
+    raise exception 'FAIL: per_student overview must report at any size';
+  end if;
+
+  -- Domain stats render for a tiny per_student cohort when asked.
+  select count(*) into n from public.cohort_domain_stats(v_cohort, 1);
+  if n = 0 then
+    raise exception 'FAIL: per_student domain stats must render at any size';
+  end if;
+
+  -- The floor returns the moment the class goes aggregate_only: that is
+  -- the one place where aggregates could be reversed into individuals.
+  perform public.set_reporting_policy(v_cohort, 'aggregate_only', 'pseudonym');
   perform 1 from public.cohort_overview(v_cohort)
     where students is not null and answers_total is null
       and active_7d is null and mocks_completed is null;
-  if not found then raise exception 'FAIL: cohort_overview floor not applied'; end if;
-
-  -- With the floor lowered (one student answered), stats appear...
+  if not found then
+    raise exception 'FAIL: aggregate_only keeps the small-class floor';
+  end if;
   select count(*) into n from public.cohort_domain_stats(v_cohort, 1);
-  -- p_min_n is clamped server-side to 5; a 1-student cohort gets nothing
-  -- even when the caller asks for a floor of 1.
   if n <> 0 then
-    raise exception 'FAIL: min_n clamp bypassed, got % rows', n;
+    raise exception 'FAIL: aggregate_only min_n clamp bypassed, got % rows', n;
   end if;
-
-  -- ...but at the default floor of 5 students, NOTHING renders.
-  select count(*) into n from public.cohort_domain_stats(v_cohort);
-  if n <> 0 then
-    raise exception 'FAIL: min-n floor leaked stats for a tiny cohort';
-  end if;
-
-  -- Top misses: the clamp holds here too; a 1-student cohort exposes no
-  -- per-question rows even when the caller requests a floor of 1.
   select count(*) into n from public.cohort_top_misses(v_cohort, 1, 10);
   if n <> 0 then
-    raise exception 'FAIL: top-misses min_n clamp bypassed, got % rows', n;
+    raise exception 'FAIL: aggregate_only top-misses clamp bypassed';
   end if;
+  perform public.set_reporting_policy(v_cohort, 'per_student', 'roster');
 end $$;
 
 -- Students cannot call the faculty aggregates.
@@ -1719,6 +1725,54 @@ begin
   end if;
   if not (public.cohort_distribution(v_tiny) ->> 'below_floor')::boolean then
     raise exception 'FAIL: distribution must report below_floor under 5 students';
+  end if;
+end $$;
+
+-- ── Per-student first: no floors for per_student classes (20260826000200) ───
+-- A 2-student class with the default per_student policy gets full
+-- statistics; the floor only applies where aggregates are the ONLY view
+-- (aggregate_only policy, TAs).
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid;
+  v_pulse jsonb;
+begin
+  v_tiny := (public.create_cohort('Coaching pair') ->> 'id')::uuid;
+  perform set_config('app.test_tiny', v_tiny::text, false);
+end $$;
+reset role;
+insert into public.cohort_members (cohort_id, user_id, role)
+values (current_setting('app.test_tiny')::uuid,
+        '00000000-0000-0000-0000-000000000001', 'student'),
+       (current_setting('app.test_tiny')::uuid,
+        '00000000-0000-0000-0000-000000000002', 'student');
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid := current_setting('app.test_tiny')::uuid;
+  v_pulse jsonb;
+begin
+  v_pulse := public.cohort_pulse(v_tiny);
+  if coalesce((v_pulse ->> 'below_floor')::boolean, false) then
+    raise exception 'FAIL: per_student class must get a pulse at any size';
+  end if;
+  if (v_pulse ->> 'students')::int <> 2 then
+    raise exception 'FAIL: tiny pulse students wrong';
+  end if;
+  if coalesce((public.cohort_distribution(v_tiny) ->> 'below_floor')::boolean, false) then
+    raise exception 'FAIL: per_student class must get a distribution at any size';
+  end if;
+  -- Aggregate RPCs answer too (rows may be empty; they must not refuse).
+  perform public.cohort_overview(v_tiny);
+  perform public.cohort_domain_stats(v_tiny, 1);
+  -- Flip to aggregate_only: the floor comes back, because aggregates are
+  -- now the only view and must not leak individuals.
+  perform public.set_reporting_policy(v_tiny, 'aggregate_only', 'pseudonym');
+  if not (public.cohort_pulse(v_tiny) ->> 'below_floor')::boolean then
+    raise exception 'FAIL: aggregate_only keeps the small-class floor';
   end if;
 end $$;
 
