@@ -906,15 +906,14 @@ begin
   if not ok then raise exception 'FAIL: session history missing ended session'; end if;
 end $$;
 
--- Cross-class rollup: one row per taught cohort, floored below 5 students.
+-- Cross-class rollup: one row per taught cohort. Per-student-first
+-- (2026-08-26): per_student classes report at any size; the floor lives
+-- in the aggregate_only path, asserted in its own section below.
 do $$
 declare n int := 0; r record;
 begin
   for r in select * from public.my_faculty_overview() loop
     n := n + 1;
-    if r.students < 5 and r.answers_total is not null then
-      raise exception 'FAIL: rollup leaked stats below the floor';
-    end if;
   end loop;
   if n < 1 then raise exception 'FAIL: faculty overview empty'; end if;
 end $$;
@@ -1841,6 +1840,33 @@ begin
   exception when others then
     if sqlerrm like 'FAIL:%' then raise; end if;
   end;
+end $$;
+
+-- ── Classes dashboard honors per-student-first too (20260826000400) ─────────
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid := current_setting('app.test_tiny')::uuid;
+  r record;
+begin
+  perform public.set_reporting_policy(v_tiny, 'per_student', 'roster');
+  select * into r from public.my_faculty_overview() o
+   where o.cohort_id = v_tiny;
+  if r.cohort_id is null then
+    raise exception 'FAIL: tiny cohort missing from faculty overview';
+  end if;
+  if r.answers_total is null then
+    raise exception 'FAIL: per_student class card must report stats at any size';
+  end if;
+  -- aggregate_only flips the card back to withheld.
+  perform public.set_reporting_policy(v_tiny, 'aggregate_only', 'pseudonym');
+  select * into r from public.my_faculty_overview() o
+   where o.cohort_id = v_tiny;
+  if r.answers_total is not null then
+    raise exception 'FAIL: aggregate_only card must withhold small-class stats';
+  end if;
+  perform public.set_reporting_policy(v_tiny, 'per_student', 'roster');
 end $$;
 
 reset role;
