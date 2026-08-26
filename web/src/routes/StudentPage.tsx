@@ -1,10 +1,17 @@
 import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
 import * as Dialog from '@radix-ui/react-dialog'
-import { useDrilldown, useLogExport, useSendAnnouncement } from '../lib/api'
+import {
+  useAssignPractice,
+  useDrilldown,
+  useLogExport,
+  useSendAnnouncement,
+  useStudentTrend,
+} from '../lib/api'
 import { downloadCsv } from '../lib/csv'
 import { Alert, Button, Card, Spinner, Stat } from '../components/ui'
 import { DomainBars } from '../components/DomainBars'
+import { StudentTrendChart } from '../components/StudentTrendChart'
 import { daysAgo } from '../components/StudentsTab'
 
 export function StudentPage() {
@@ -81,6 +88,8 @@ export function StudentView({
   studentRef: string
 }) {
   const { data, isPending, error } = useDrilldown(cohortId, studentRef)
+  const trend = useStudentTrend(cohortId, studentRef)
+  const assign = useAssignPractice()
   const logExport = useLogExport()
   const [messagePrefill, setMessagePrefill] = useState<string | null>(null)
 
@@ -157,6 +166,12 @@ export function StudentView({
         </Card>
       ) : null}
 
+      {trend.data ? (
+        <Card>
+          <StudentTrendChart trend={trend.data} />
+        </Card>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-slate-900">
@@ -169,6 +184,37 @@ export function StudentView({
               metric: 'readiness',
             }))}
           />
+          {d.domains.some(dom => (dom.readiness ?? 0) < 0.6) ? (
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+              {d.domains
+                .filter(dom => (dom.readiness ?? 0) < 0.6)
+                .map(dom => (
+                  <Button
+                    key={dom.domain_id}
+                    variant="ghost"
+                    disabled={assign.isPending}
+                    onClick={() =>
+                      assign.mutate({ cohortId, domainId: dom.domain_id })
+                    }
+                  >
+                    Assign {dom.name} practice
+                  </Button>
+                ))}
+            </div>
+          ) : null}
+          {assign.isSuccess ? (
+            <div className="mt-2">
+              <Alert tone="success">
+                Practice assigned and announced to the class. Retention
+                checks run automatically at 7 and 21 days.
+              </Alert>
+            </div>
+          ) : null}
+          {assign.error ? (
+            <div className="mt-2">
+              <Alert tone="error">{assign.error.message}</Alert>
+            </div>
+          ) : null}
         </Card>
         <Card>
           <h2 className="mb-3 text-sm font-semibold text-slate-900">

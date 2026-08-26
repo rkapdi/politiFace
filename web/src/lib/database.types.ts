@@ -1470,6 +1470,10 @@ export type Database = {
       am_admin: { Args: never; Returns: boolean }
       am_verified_faculty: { Args: never; Returns: boolean }
       assemble_mock: { Args: { p_kind: string }; Returns: Json }
+      assign_domain_practice: {
+        Args: { p_cohort: string; p_count?: number; p_domain: number }
+        Returns: Json
+      }
       at_risk_students: {
         Args: { p_cohort: string; p_threshold?: number }
         Returns: {
@@ -1705,6 +1709,10 @@ export type Database = {
         Returns: undefined
       }
       student_drilldown: {
+        Args: { p_cohort: string; p_student_ref: string }
+        Returns: Json
+      }
+      student_trend: {
         Args: { p_cohort: string; p_student_ref: string }
         Returns: Json
       }

@@ -3,7 +3,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import type { Drilldown } from '../lib/api'
 
-const { sendMutate } = vi.hoisted(() => ({ sendMutate: vi.fn() }))
+const { sendMutate, assignMutate } = vi.hoisted(() => ({
+  sendMutate: vi.fn(),
+  assignMutate: vi.fn(),
+}))
 
 const drilldown: Drilldown = {
   identity: { student_ref: 'u1', display_name: 'Sam P' },
@@ -32,6 +35,25 @@ vi.mock('../lib/api', () => ({
   useDrilldown: () => ({ data: drilldown, isPending: false, error: null }),
   useSendAnnouncement: () => ({ mutate: sendMutate, isPending: false, isSuccess: false }),
   useLogExport: () => ({ mutate: vi.fn() }),
+  useStudentTrend: () => ({
+    data: {
+      pass_line: 48,
+      weeks: [
+        { week_start: '2026-07-06', projected: 34, answers: 12, accuracy: 0.5 },
+        { week_start: '2026-07-13', projected: 39, answers: 20, accuracy: 0.6 },
+        { week_start: '2026-07-20', projected: 44, answers: 15, accuracy: 0.65 },
+        { week_start: '2026-07-27', projected: 52, answers: 25, accuracy: 0.7 },
+      ],
+    },
+    isPending: false,
+    error: null,
+  }),
+  useAssignPractice: () => ({
+    mutate: assignMutate,
+    isPending: false,
+    isSuccess: false,
+    error: null,
+  }),
 }))
 vi.mock('../lib/csv', () => ({ downloadCsv: vi.fn() }))
 
@@ -56,5 +78,25 @@ describe('StudentView', () => {
       expect.objectContaining({ cohortId: 'c1' }),
       expect.anything(),
     )
+  })
+
+  it('shows the weekly trend against the pass line', () => {
+    render(<StudentView cohortId="c1" studentRef="u1" />)
+    expect(screen.getByText(/projected score by week/i)).toBeInTheDocument()
+    // sr table carries the weekly projections.
+    expect(screen.getByRole('cell', { name: '52' })).toBeInTheDocument()
+  })
+
+  it('assigns weak-domain practice in one click', async () => {
+    render(<StudentView cohortId="c1" studentRef="u1" />)
+    // Only the weak domain (readiness 0.2) gets an assign button.
+    const assign = screen.getByRole('button', {
+      name: /assign u\.s\. constitution practice/i,
+    })
+    expect(
+      screen.queryByRole('button', { name: /assign american democracy/i }),
+    ).toBeNull()
+    await userEvent.click(assign)
+    expect(assignMutate).toHaveBeenCalledWith({ cohortId: 'c1', domainId: 2 })
   })
 })

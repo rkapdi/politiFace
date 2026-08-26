@@ -242,6 +242,42 @@ export const cohortPulse = (cohortId: string) =>
 export const cohortDistribution = (cohortId: string) =>
   rpc<CohortDistribution>('cohort_distribution', { p_cohort: cohortId })
 
+export type StudentTrend = {
+  pass_line: number
+  model_version?: string
+  weeks: {
+    week_start: string
+    projected: number | null
+    answers: number
+    accuracy: number | null
+  }[]
+}
+
+export const studentTrend = (cohortId: string, studentRef: string) =>
+  rpc<StudentTrend>('student_trend', {
+    p_cohort: cohortId,
+    p_student_ref: studentRef,
+  })
+export const useStudentTrend = (cohortId: string, studentRef: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'student', studentRef, 'trend'],
+    queryFn: () => studentTrend(cohortId, studentRef),
+  })
+
+export const useAssignPractice = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { cohortId: string; domainId: number }) =>
+      rpc<{ input_id: string; domain: string }>('assign_domain_practice', {
+        p_cohort: a.cohortId,
+        p_domain: a.domainId,
+      }),
+    onSuccess: (_d, a) => {
+      void qc.invalidateQueries({ queryKey: ['cohort', a.cohortId] })
+    },
+  })
+}
+
 export type TaRow = { user_id: string; display: string }
 
 // TAs on a cohort: membership rows are member-readable under RLS; handles
