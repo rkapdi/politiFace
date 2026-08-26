@@ -17,7 +17,8 @@ function readinessTone(r: number): 'red' | 'amber' | 'green' {
 }
 
 export function StudentsTab({ cohortId }: { cohortId: string }) {
-  const atRisk = useAtRisk(cohortId)
+  // Threshold above the model's ceiling: every student, coaching order.
+  const atRisk = useAtRisk(cohortId, 1.01)
   const progress = useStudentProgress(cohortId)
   const logExport = useLogExport()
 
@@ -68,24 +69,25 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
       <Card>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-900">
-            Who needs you first
+            Every student, lowest projected first
           </h2>
           <Button variant="ghost" onClick={exportAtRisk}>
-            Export at-risk CSV
+            Export students CSV
           </Button>
         </div>
         {atRiskRows.length === 0 ? (
-          <p className="text-sm text-slate-500">
-            Nobody is below the readiness threshold right now.
-          </p>
+          <p className="text-sm text-slate-500">No students yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <caption className="sr-only">At-risk students</caption>
+              <caption className="sr-only">
+                Every student by projected score, lowest first; the pass
+                line is 48 of 80
+              </caption>
               <thead>
                 <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
                   <th scope="col" className="py-2 pr-3 font-medium">Student</th>
-                  <th scope="col" className="py-2 pr-3 font-medium">Readiness</th>
+                  <th scope="col" className="py-2 pr-3 font-medium">Projected</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Weakest domain</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Last active</th>
                   <th scope="col" className="py-2 font-medium">Answers, 14d</th>
@@ -104,7 +106,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
                     </td>
                     <td className="py-2 pr-3">
                       <Badge tone={readinessTone(r.overall_readiness)}>
-                        {Math.round(r.overall_readiness * 100)}%
+                        {Math.round(r.overall_readiness * 80)} of 80
                       </Badge>
                     </td>
                     <td className="py-2 pr-3">
@@ -125,7 +127,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
 
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">Whole class</h2>
+          <h2 className="text-sm font-semibold text-slate-900">Practice detail</h2>
           <Button variant="ghost" onClick={exportProgress}>
             Export class CSV
           </Button>
