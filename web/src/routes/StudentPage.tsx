@@ -15,7 +15,7 @@ export function StudentPage() {
   return <StudentView cohortId={cohortId} studentRef={studentRef} />
 }
 
-function MessageClassDialog({
+export function MessageClassDialog({
   cohortId,
   prefill,
   open,

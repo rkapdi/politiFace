@@ -14,7 +14,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.17"
   }
   public: {
     Tables: {
@@ -1487,6 +1487,7 @@ export type Database = {
         Args: { p_cohort: string }
         Returns: undefined
       }
+      cohort_distribution: { Args: { p_cohort: string }; Returns: Json }
       cohort_domain_stats: {
         Args: { p_cohort: string; p_min_n?: number }
         Returns: {
@@ -1527,6 +1528,7 @@ export type Database = {
           students: number
         }[]
       }
+      cohort_pulse: { Args: { p_cohort: string }; Returns: Json }
       cohort_student_progress: {
         Args: { p_cohort: string }
         Returns: {

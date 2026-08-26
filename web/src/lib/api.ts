@@ -210,6 +210,38 @@ export const signInAnonymously = async () => {
   return data
 }
 
+export type PulseCardData = {
+  kind: 'at_risk' | 'weak_domain' | 'participation'
+  headline: string
+  detail: string
+}
+
+export type CohortPulse = {
+  below_floor?: boolean
+  students: number
+  active_7d?: number
+  above_line?: number
+  at_risk?: number
+  model_version?: string
+  sentence: string
+  cards: PulseCardData[]
+}
+
+export type CohortDistribution = {
+  below_floor?: boolean
+  students: number
+  bins?: Record<string, number>
+  avg?: number
+  above_line?: number
+  pass_line: number
+  model_version?: string
+}
+
+export const cohortPulse = (cohortId: string) =>
+  rpc<CohortPulse>('cohort_pulse', { p_cohort: cohortId })
+export const cohortDistribution = (cohortId: string) =>
+  rpc<CohortDistribution>('cohort_distribution', { p_cohort: cohortId })
+
 export type TaRow = { user_id: string; display: string }
 
 // TAs on a cohort: membership rows are member-readable under RLS; handles
@@ -298,6 +330,16 @@ export const participantCount = async (sessionId: string): Promise<number> => {
 }
 
 // ── query hooks ─────────────────────────────────────────────────────────────
+export const useCohortPulse = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'pulse'],
+    queryFn: () => cohortPulse(cohortId),
+  })
+export const useCohortDistribution = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'distribution'],
+    queryFn: () => cohortDistribution(cohortId),
+  })
 export const usePickableQuestions = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'pickable'],
