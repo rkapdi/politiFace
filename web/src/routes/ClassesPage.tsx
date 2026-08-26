@@ -125,7 +125,9 @@ export function ClassesPage() {
               </div>
               {c.active_7d === null ? (
                 <div className="col-span-3 self-center text-xs text-slate-400">
-                  Stats appear at 5 students
+                  {c.students === 0
+                    ? 'No students yet, share the class code'
+                    : 'Stats withheld for privacy (aggregate-only class under 5 students)'}
                 </div>
               ) : (
                 <>
