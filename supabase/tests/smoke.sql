@@ -1642,5 +1642,85 @@ begin
 end $$;
 set role authenticated;
 
+-- ── Class pulse + distribution (20260826000100) ─────────────────────────────
+-- POS2041 Fall has exactly 5 students by this point (s1, s2, the demoted
+-- TA, c1, c2), so it clears the k-anonymity floor.
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_pulse jsonb;
+  v_dist jsonb;
+  v_sum int;
+begin
+  v_pulse := public.cohort_pulse(v_cohort);
+  if coalesce((v_pulse ->> 'below_floor')::boolean, false) then
+    raise exception 'FAIL: pulse below floor at 5 students';
+  end if;
+  if (v_pulse ->> 'students')::int <> 5 then
+    raise exception 'FAIL: pulse students wrong: %', v_pulse ->> 'students';
+  end if;
+  if length(v_pulse ->> 'sentence') < 20 then
+    raise exception 'FAIL: pulse sentence missing';
+  end if;
+  if jsonb_typeof(v_pulse -> 'cards') <> 'array'
+     or jsonb_array_length(v_pulse -> 'cards') > 3 then
+    raise exception 'FAIL: pulse cards must be an array of at most 3';
+  end if;
+  if v_pulse ->> 'sentence' like '%—%' then
+    raise exception 'FAIL: no em-dashes in pulse copy';
+  end if;
+
+  v_dist := public.cohort_distribution(v_cohort);
+  if (v_dist ->> 'pass_line')::int <> 48 then
+    raise exception 'FAIL: distribution pass line missing';
+  end if;
+  select coalesce(sum(value::int), 0) into v_sum
+    from jsonb_each_text(v_dist -> 'bins');
+  if v_sum <> 5 then
+    raise exception 'FAIL: distribution bins must sum to students, got %', v_sum;
+  end if;
+end $$;
+
+-- Students are blocked from both.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.cohort_pulse(v_cohort);
+    raise exception 'FAIL: student read the class pulse';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.cohort_distribution(v_cohort);
+    raise exception 'FAIL: student read the distribution';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Below the 5-student floor both answer honestly instead of leaking.
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid;
+  v_pulse jsonb;
+begin
+  v_tiny := (public.create_cohort('Tiny pulse class') ->> 'id')::uuid;
+  v_pulse := public.cohort_pulse(v_tiny);
+  if not (v_pulse ->> 'below_floor')::boolean then
+    raise exception 'FAIL: pulse must report below_floor under 5 students';
+  end if;
+  if length(v_pulse ->> 'sentence') < 10 then
+    raise exception 'FAIL: below-floor pulse still needs a sentence';
+  end if;
+  if not (public.cohort_distribution(v_tiny) ->> 'below_floor')::boolean then
+    raise exception 'FAIL: distribution must report below_floor under 5 students';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
