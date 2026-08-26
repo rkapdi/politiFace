@@ -1776,5 +1776,72 @@ begin
   end if;
 end $$;
 
+-- ── Student trend + one-click assignment (20260826000300) ───────────────────
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_t jsonb;
+  v_res jsonb;
+  v_input uuid;
+begin
+  -- Trend: 8 weekly points, each with a projected score; pass line named.
+  v_t := public.student_trend(v_cohort, '00000000-0000-0000-0000-000000000001');
+  if jsonb_typeof(v_t -> 'weeks') <> 'array'
+     or jsonb_array_length(v_t -> 'weeks') <> 8 then
+    raise exception 'FAIL: trend must return 8 weekly points, got %', v_t;
+  end if;
+  if (v_t -> 'weeks' -> 7 ->> 'projected') is null then
+    raise exception 'FAIL: latest trend week missing a projection';
+  end if;
+  if (v_t ->> 'pass_line')::int <> 48 then
+    raise exception 'FAIL: trend pass line missing';
+  end if;
+
+  -- Assignment: one call creates the measured practice set, opens the
+  -- immediate phase as an async assessment TODAY, and announces it.
+  v_res := public.assign_domain_practice(
+    v_cohort, (select id from public.domains order by id limit 1), 10);
+  v_input := (v_res ->> 'input_id')::uuid;
+  if v_input is null then
+    raise exception 'FAIL: assignment returned no input id';
+  end if;
+  if (select count(*) from public.assessments where input_id = v_input) <> 3 then
+    raise exception 'FAIL: assignment must create all three assessment phases';
+  end if;
+  perform 1 from public.assessments a
+   where a.input_id = v_input and a.phase = 'immediate'
+     and a.mode = 'async' and a.opens_at <= now() and a.closes_at > now();
+  if not found then
+    raise exception 'FAIL: assignment immediate phase must be open async now';
+  end if;
+  if not exists (select 1 from public.class_announcements
+                  where cohort_id = v_cohort
+                    and body like 'New practice assigned%') then
+    raise exception 'FAIL: assignment must announce itself to the class';
+  end if;
+end $$;
+
+-- Students are blocked from both.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.student_trend(v_cohort, '00000000-0000-0000-0000-000000000002');
+    raise exception 'FAIL: student read another student trend';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.assign_domain_practice(
+      v_cohort, (select id from public.domains order by id limit 1), 10);
+    raise exception 'FAIL: student assigned practice';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
