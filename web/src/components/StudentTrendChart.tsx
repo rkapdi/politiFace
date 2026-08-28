@@ -31,14 +31,14 @@ export function StudentTrendChart({ trend }: { trend: StudentTrend }) {
             <Tooltip />
             <ReferenceLine
               y={trend.pass_line}
-              stroke="#dc2626"
+              stroke="var(--color-risk)"
               strokeDasharray="4 4"
             />
             <Line
               type="monotone"
               dataKey="projected"
               name="Projected of 80"
-              stroke="#0f172a"
+              stroke="var(--color-ink)"
               strokeWidth={2}
               dot={{ r: 3 }}
             />

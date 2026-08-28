@@ -1,6 +1,8 @@
 import { Link, Outlet } from '@tanstack/react-router'
+import { LogOut } from 'lucide-react'
 import { RequireAuth } from '../auth/RequireAuth'
 import { useSession } from '../auth/SessionProvider'
+import { S } from '../lib/strings'
 import { Button } from '../components/ui'
 
 function Nav() {
@@ -20,7 +22,8 @@ function Nav() {
           </nav>
         </div>
         <Button variant="ghost" onClick={() => void signOut()}>
-          Sign out
+          <LogOut aria-hidden="true" className="size-4" />
+          {S.common.signOut}
         </Button>
       </div>
     </header>

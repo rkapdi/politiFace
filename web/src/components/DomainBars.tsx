@@ -30,11 +30,7 @@ export function DomainBars({ bars }: { bars: DomainBar[] }) {
             >
               <div
                 className={`h-2 rounded-full ${
-                  pct === null
-                    ? ''
-                    : pct >= 60
-                      ? 'bg-green-600'
-                      : 'bg-amber-500'
+                  pct === null ? '' : pct >= 60 ? 'bg-pass' : 'bg-borderline'
                 }`}
                 style={{ width: `${pct ?? 0}%` }}
               />

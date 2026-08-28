@@ -25,9 +25,9 @@ const BIN_ORDER = [
 // as risk, the straddling bin as borderline, bins above as clear.
 function binColor(bin: string): string {
   const lower = Number(bin.split('-')[0])
-  if (lower >= 50) return '#16a34a'
-  if (lower >= 40) return '#d97706'
-  return '#dc2626'
+  if (lower >= 50) return 'var(--color-pass)'
+  if (lower >= 40) return 'var(--color-borderline)'
+  return 'var(--color-risk)'
 }
 
 export function DistributionChart({

@@ -1,6 +1,10 @@
+import { Download, Users } from 'lucide-react'
 import { useAtRisk, useLogExport, useStudentProgress } from '../lib/api'
 import { downloadCsv } from '../lib/csv'
-import { Alert, Badge, Button, Card, Spinner } from './ui'
+import { S } from '../lib/strings'
+import { Alert, Badge, Button, Card } from './ui'
+import { EmptyState } from './EmptyState'
+import { SkeletonTable } from './Skeleton'
 
 export function daysAgo(iso: string | null): string {
   if (!iso) return 'never'
@@ -23,7 +27,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
   const logExport = useLogExport()
 
   if (atRisk.isPending || progress.isPending) {
-    return <Spinner label="Loading students" />
+    return <SkeletonTable rows={8} />
   }
 
   // aggregate_only classes: the RPCs refuse; show the explainer, no tables.
@@ -72,11 +76,16 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
             Every student, lowest projected first
           </h2>
           <Button variant="ghost" onClick={exportAtRisk}>
-            Export students CSV
+            <Download aria-hidden="true" className="size-4" />
+            {S.common.exportStudentsCsv}
           </Button>
         </div>
         {atRiskRows.length === 0 ? (
-          <p className="text-sm text-slate-500">No students yet.</p>
+          <EmptyState
+            icon={Users}
+            title={S.empty.studentsTitle}
+            hint={S.empty.studentsHint}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -129,7 +138,8 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-slate-900">Practice detail</h2>
           <Button variant="ghost" onClick={exportProgress}>
-            Export class CSV
+            <Download aria-hidden="true" className="size-4" />
+            {S.common.exportClassCsv}
           </Button>
         </div>
         <div className="overflow-x-auto">

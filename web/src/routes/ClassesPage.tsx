@@ -1,6 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { GraduationCap } from 'lucide-react'
 import { useCreateCohort, useMyClasses } from '../lib/api'
-import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
+import { S } from '../lib/strings'
+import { Alert, Badge, Button, Card } from '../components/ui'
+import { EmptyState } from '../components/EmptyState'
+import { SkeletonStats } from '../components/Skeleton'
 
 function CreateClassCard() {
   const create = useCreateCohort()
@@ -80,19 +84,17 @@ function CreateClassCard() {
 export function ClassesPage() {
   const { data, isPending, error } = useMyClasses()
 
-  if (isPending) return <Spinner label="Loading your classes" />
+  if (isPending) return <SkeletonStats count={2} />
   if (error) return <Alert tone="error">{error.message}</Alert>
 
   if (!data || data.length === 0) {
     return (
       <div className="flex flex-col gap-4">
-        <Card>
-          <h1 className="text-lg font-semibold">No classes yet</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            Create your first class below. Students join it from the
-            Politiface app with the class code.
-          </p>
-        </Card>
+        <EmptyState
+          icon={GraduationCap}
+          title={S.empty.classesTitle}
+          hint={S.empty.classesHint}
+        />
         <CreateClassCard />
       </div>
     )

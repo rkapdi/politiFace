@@ -16,13 +16,20 @@ export function Countdown({
   return (
     <div className="flex items-center gap-2">
       <svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
-        <circle cx="32" cy="32" r={r} fill="none" stroke="#e2e8f0" strokeWidth="6" />
         <circle
           cx="32"
           cy="32"
           r={r}
           fill="none"
-          stroke={left <= 5 ? '#dc2626' : '#0f172a'}
+          stroke="var(--color-line)"
+          strokeWidth="6"
+        />
+        <circle
+          cx="32"
+          cy="32"
+          r={r}
+          fill="none"
+          stroke={left <= 5 ? 'var(--color-risk)' : 'var(--color-ink)'}
           strokeWidth="6"
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - fraction)}
@@ -34,7 +41,7 @@ export function Countdown({
           textAnchor="middle"
           fontSize="18"
           fontWeight="600"
-          fill="#0f172a"
+          fill="var(--color-ink)"
         >
           {left}
         </text>

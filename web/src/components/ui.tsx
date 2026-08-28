@@ -64,9 +64,9 @@ export function Badge({
 }) {
   const tones = {
     slate: 'bg-slate-100 text-slate-700',
-    green: 'bg-green-100 text-green-800',
-    amber: 'bg-amber-100 text-amber-800',
-    red: 'bg-red-100 text-red-800',
+    green: 'bg-pass-soft text-pass',
+    amber: 'bg-borderline-soft text-borderline',
+    red: 'bg-risk-soft text-risk',
   }
   return (
     <span
@@ -85,8 +85,8 @@ export function Alert({
   tone?: 'error' | 'success' | 'info'
 }) {
   const tones = {
-    error: 'border-red-300 bg-red-50 text-red-800',
-    success: 'border-green-300 bg-green-50 text-green-800',
+    error: 'border-risk/30 bg-risk-soft text-risk',
+    success: 'border-pass/30 bg-pass-soft text-pass',
     info: 'border-slate-300 bg-slate-50 text-slate-700',
   }
   return (

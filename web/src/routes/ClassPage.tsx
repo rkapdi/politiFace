@@ -26,6 +26,7 @@ import {
   TabsTrigger,
 } from '../components/ui'
 import { PolicyBanner } from '../components/PolicyBanner'
+import { SkeletonChart, SkeletonStats } from '../components/Skeleton'
 import { DomainBars } from '../components/DomainBars'
 import { TrendChart } from '../components/TrendChart'
 import { TopMisses } from '../components/TopMisses'
@@ -49,7 +50,14 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
   const distribution = useCohortDistribution(cohortId)
   const logExport = useLogExport()
 
-  if (overview.isPending) return <Spinner label="Loading class analytics" />
+  if (overview.isPending) {
+    return (
+      <div className="flex flex-col gap-4">
+        <SkeletonStats />
+        <SkeletonChart />
+      </div>
+    )
+  }
   if (overview.error) return <Alert tone="error">{overview.error.message}</Alert>
 
   const o = overview.data

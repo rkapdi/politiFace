@@ -1,10 +1,11 @@
 import type { CohortPulse, PulseCardData } from '../lib/api'
+import { S } from '../lib/strings'
 import { Button, Card } from './ui'
 
 const ACTION_LABEL: Record<PulseCardData['kind'], string> = {
-  at_risk: 'See who',
-  weak_domain: 'Run a reteach session',
-  participation: 'Message the class',
+  at_risk: S.pulse.seeWho,
+  weak_domain: S.pulse.reteach,
+  participation: S.pulse.message,
 }
 
 export function PulseBanner({

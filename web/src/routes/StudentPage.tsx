@@ -9,9 +9,10 @@ import {
   useStudentTrend,
 } from '../lib/api'
 import { downloadCsv } from '../lib/csv'
-import { Alert, Button, Card, Spinner, Stat } from '../components/ui'
+import { Alert, Button, Card, Stat } from '../components/ui'
 import { DomainBars } from '../components/DomainBars'
 import { StudentTrendChart } from '../components/StudentTrendChart'
+import { SkeletonChart, SkeletonStats } from '../components/Skeleton'
 import { daysAgo } from '../components/StudentsTab'
 
 export function StudentPage() {
@@ -93,7 +94,14 @@ export function StudentView({
   const logExport = useLogExport()
   const [messagePrefill, setMessagePrefill] = useState<string | null>(null)
 
-  if (isPending) return <Spinner label="Loading student detail" />
+  if (isPending) {
+    return (
+      <div className="flex flex-col gap-4">
+        <SkeletonStats />
+        <SkeletonChart height="h-40" />
+      </div>
+    )
+  }
   if (error) return <Alert tone="info">{error.message}</Alert>
   if (!data) return null
 
