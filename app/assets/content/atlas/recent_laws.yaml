@@ -1,4 +1,4 @@
-updated: '2026-07-27'
+updated: '2026-08-24'
 source: api.congress.gov v3 law endpoint; summaries from the /summaries endpoint, written
   by the Congressional Research Service
 congress: 119
@@ -15,22 +15,22 @@ laws:
   summary: 'Emergency Conservation Program Improvement Act of 2025
 
 
-    This bill revises the Emergency Conservation Program (ECP) and the Emergency Forest Restoration
+    This act revises the Emergency Conservation Program (ECP) and the Emergency Forest Restoration
     Program (EFRP) to expand eligibility for payments to agricultural producers and owners
-    of forest land impacted by natural disasters. The bill also provides additional options
+    of forest land impacted by natural disasters. The act also provides additional options
     to receive an advance on cost-sharing payments before carrying out emergency measures.
 
 
-    The bill expands advance ECP payments to include the replacement, repair, or restoration
+    The act expands advance ECP payments to include the replacement, repair, or restoration
     of farmland or conservation structures requiring an immediate response. Producers may
     receive an advance on cost-sharing payments for 75% of the cost of the replacement and
     50% of the cost of the repair or restoration. Current law limits advance payments to 25%
     of the cost of the repair or replacement of fencing.
 
 
-    Under EFRP, the bill allows owners of nonindustrial private forest land impacted by a
-    natural disaster to receive an advance on cost-sharing payments for up to 75% of the cost
-    of the emergency measures. Currently, advance payments are not available under the program.
+    Under EFRP, the act allows owners of nonindustrial private forest land impacted by a natural
+    disaster to receive an advance on cost-sharing payments for up to 75% of the cost of the
+    emergency measures. Currently, advance payments are not available under the program.
 
 
     ECP and EFRP recipients must use the funds within 180 days after the funds are disbursed.
@@ -38,12 +38,12 @@ laws:
     60 days.
 
 
-    The bill also expands eligibility for payments under the programs to include emergency
+    The act also expands eligibility for payments under the programs to include emergency
     measures to address damages caused by (1) a wildfire that is not caused naturally, if
     the damage is caused by the spread of the wildfire due to natural causes; and (2) a wildfire
     that is caused by the federal government.'
-  summary_version: Introduced in Senate
-  summary_date: '2025-02-19'
+  summary_version: Public Law
+  summary_date: '2026-07-12'
   summary_truncated: false
 - law_number: 119-101
   title: 21st Century ROAD to Housing Act
@@ -54,56 +54,64 @@ laws:
     bioguide: H001072
     name: Rep. Hill, J. French [R-AR-2]
   url: https://www.congress.gov/bill/119th-congress/house-bill/6644
-  summary: 'Housing for the 21st Century Act
+  summary: '21st Century ROAD to Housing Act
 
 
-    This bill revises federal housing programs, including by expanding available financing
-    for affordable housing and providing grants for planning and community development activities.
+    This act establishes and modifies various federal housing programs.
 
 
-    For example, the bill increases the statutory maximum loan limits for mortgage insurance
-    programs administered by the Federal Housing Administration for multifamily homes and
-    requires the use of a more specific inflation index for such loans.
+    TITLE I--OPPORTUNITIES FOR HOUSING
 
 
-    The bill also increases the maximum eligible income for the Department of Housing and
-    Urban Development''s (HUD''s) HOME Investment Partnerships Program (grants to states and
-    localities to support housing for low-income households) and establishes a grant program
-    to assist regional, state, and local entities with strategies to support affordable housing.
+    (Sec. 101) This section requires the Department of Housing and Urban Development (HUD)
+    to review the performance of organizations that receive grants to provide housing counseling
+    services. Such review may take into account the performance of individual counselors.
 
 
-    In addition, the bill
+    HUD may terminate assistance for such organizations that are not in compliance with the
+    program''s requirements.
 
 
-    exempts certain housing-related activities from the environmental review process, including
-    certain construction, improvement, or rehabilitation of residential buildings;
+    (Sec. 102) This section requires HUD to establish best practices and provide technical
+    assistance to state and local entities to support permitting for point-access block buildings
+    (i.e., apartments with a single staircase to access the dwelling units and that are no
+    more than six stories high).
 
 
-    excludes veterans'' disability benefits from being considered as income for purposes of
-    determining eligibility for the Veterans Affairs Supportive Housing (VASH) program;
+    It also allows HUD to award competitive grants to state and local entities to assess the
+    feasibility, safety, and cost-effectiveness of such buildings. This authority expires
+    after seven years.
 
 
-    establishes a pilot program to provide grants to public housing agencies (PHAs) and other
-    owners of federally assisted housing to test the efficacy of temperature sensors to support
-    compliance with temperature requirements;
+    (Sec. 103) This section exempts from environmental review specified rural housing projects
+    located on an infill site (i.e., a site served by existing infrastructure, including water
+    lines, sewer lines, and roads).
 
 
-    eliminates the requirement that manufactured homes must be constructed with a permanent
-    chassis; and
+    (Sec. 104) This section requires Community Development Block Grant (CDBG) grantees to
+    maintain a publicly accessible, searchable database identifying undeveloped land owned
+    by the grantee.
 
 
-    authorizes HUD to conduct performance reviews of organizations that provide housing counseling
-    services.
+    (Sec. 105) This section authorizes the Federal Housing Administration (FHA) to establish
+    a four-year pilot program to increase the number of mortgages originated with a principal
+    balance of $100,000 or less.
 
 
-    The bill also expands oversight of HUD and PHAs, such as by requiring PHAs to post information
-    about contracts on their websites.
+    (Sec. 106) This section requires HUD to establish a three-year pilot program to award
+    grants to public housing agencies (PHAs) and owners of federally assisted rental housing
+    to install temperature sensors in residential dwelling units.
 
 
-    For more information about this bill, see CRS Report R48849.'
-  summary_version: Reported to House
-  summary_date: '2026-01-15'
-  summary_truncated: false
+    (Sec. 107) This section requires HUD to publish guidelines and best practices for state
+    and local zoning frameworks that support production of adequate housing to meet the needs
+    of communities and provide housing opportunities for individuals of all income levels.
+
+
+    TITLE II--BUILDING MORE IN AMERICA'
+  summary_version: Public Law
+  summary_date: '2026-07-11'
+  summary_truncated: true
 - law_number: 119-100
   title: Lulu’s Law
   bill: S 1003
