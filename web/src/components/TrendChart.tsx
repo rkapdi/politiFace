@@ -30,15 +30,15 @@ export function TrendChart({ rows }: { rows: TrendRow[] }) {
               type="monotone"
               dataKey="answers"
               name="Answers"
-              stroke="#0f172a"
-              fill="#cbd5e1"
+              stroke="var(--color-ink)"
+              fill="var(--color-chart-neutral)"
             />
             <Area
               type="monotone"
               dataKey="active_students"
               name="Active students"
-              stroke="#16a34a"
-              fill="#bbf7d0"
+              stroke="var(--color-pass)"
+              fill="var(--color-pass-soft)"
             />
           </AreaChart>
         </ResponsiveContainer>

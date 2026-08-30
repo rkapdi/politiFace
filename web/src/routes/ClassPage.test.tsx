@@ -42,6 +42,39 @@ vi.mock('../lib/api', () => ({
   }),
   useCohortRole: () => ({ data: 'ta', isPending: false, error: null }),
   useLogExport: () => ({ mutate: vi.fn() }),
+  useCohortPulse: () => ({
+    data: {
+      students: 32,
+      above_line: 18,
+      at_risk: 14,
+      sentence:
+        '18 of 32 students project above the pass line. U.S. Constitution is the weakest domain at 46%. 12 of 32 practiced this week.',
+      cards: [
+        {
+          kind: 'at_risk',
+          headline: '14 students project below the pass line',
+          detail: 'The Students tab ranks them lowest readiness first.',
+        },
+      ],
+    },
+    isPending: false,
+    error: null,
+  }),
+  useCohortDistribution: () => ({
+    data: {
+      students: 32,
+      bins: { '40-49': 10, '50-59': 12 },
+      avg: 49.5,
+      above_line: 18,
+      pass_line: 48,
+    },
+    isPending: false,
+    error: null,
+  }),
+  useAtRisk: () => ({ data: [], isPending: false, error: null }),
+  useStudentProgress: () => ({ data: [], isPending: false, error: null }),
+  useCohortSessions: () => ({ data: [], isPending: false, error: null }),
+  useSendAnnouncement: () => ({ mutate: vi.fn(), isPending: false }),
 }))
 
 import { ClassView } from './ClassPage'
@@ -58,5 +91,19 @@ describe('ClassView overview', () => {
     expect(screen.getByText(/judiciary/)).toBeInTheDocument()
     // TA callers never see the Settings tab.
     expect(screen.queryByRole('tab', { name: /settings/i })).toBeNull()
+    // The pulse leads, and its at-risk card routes to the Students tab.
+    expect(
+      screen.getByText(/18 of 32 students project above the pass line/),
+    ).toBeInTheDocument()
+    expect(screen.getByText(/pass line 48/i)).toBeInTheDocument()
+  })
+
+  it('pulse card action switches to the Students tab', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('button', { name: /see who/i }))
+    expect(
+      screen.getByRole('tab', { name: /students/i }),
+    ).toHaveAttribute('aria-selected', 'true')
   })
 })

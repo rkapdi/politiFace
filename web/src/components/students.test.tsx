@@ -53,15 +53,20 @@ vi.mock('../lib/csv', () => ({ downloadCsv: downloadCsvMock }))
 import { StudentsTab } from './StudentsTab'
 
 describe('StudentsTab', () => {
-  it('ranks at-risk students, links drill-down, and logs exports', async () => {
+  it('ranks every student by projected score and logs exports', async () => {
     render(<StudentsTab cohortId="c1" />)
     const links = screen.getAllByRole('link', { name: /Sam P/ })
-    expect(links.length).toBe(2) // at-risk row and roster row
+    expect(links.length).toBe(2) // coaching row and practice-detail row
     expect(links[0]).toHaveAttribute('href', '#/class/c1/student/u1')
+    // Coaching framing: a projected score out of 80, not a percentage.
+    expect(screen.getByText('28 of 80')).toBeInTheDocument()
+    expect(
+      screen.getByText(/every student, lowest projected first/i),
+    ).toBeInTheDocument()
     expect(screen.getByText(/U.S. Constitution/)).toBeInTheDocument()
     expect(screen.getByText(/3 days ago/)).toBeInTheDocument()
     await userEvent.click(
-      screen.getByRole('button', { name: /export at-risk csv/i }),
+      screen.getByRole('button', { name: /export students csv/i }),
     )
     expect(logMutate).toHaveBeenCalledWith({ cohortId: 'c1', kind: 'csv_at_risk' })
     expect(downloadCsvMock).toHaveBeenCalled()

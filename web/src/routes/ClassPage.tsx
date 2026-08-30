@@ -1,12 +1,16 @@
+import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
 import {
+  useCohortDistribution,
   useCohortOverview,
+  useCohortPulse,
   useCohortRole,
   useDomainStats,
   useEngagementTrend,
   useLogExport,
   useReportingPolicy,
   useTopMisses,
+  type PulseCardData,
 } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { SUPABASE_URL } from '../lib/config'
@@ -22,12 +26,16 @@ import {
   TabsTrigger,
 } from '../components/ui'
 import { PolicyBanner } from '../components/PolicyBanner'
+import { SkeletonChart, SkeletonStats } from '../components/Skeleton'
 import { DomainBars } from '../components/DomainBars'
 import { TrendChart } from '../components/TrendChart'
 import { TopMisses } from '../components/TopMisses'
 import { StudentsTab } from '../components/StudentsTab'
 import { SettingsTab } from '../components/SettingsTab'
 import { LiveTab } from '../components/LiveTab'
+import { PulseBanner } from '../components/PulseBanner'
+import { DistributionChart } from '../components/DistributionChart'
+import { MessageClassDialog } from './StudentPage'
 
 export function ClassPage() {
   const { cohortId } = useParams({ strict: false }) as { cohortId: string }
@@ -39,9 +47,17 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
   const domains = useDomainStats(cohortId)
   const misses = useTopMisses(cohortId)
   const trend = useEngagementTrend(cohortId)
+  const distribution = useCohortDistribution(cohortId)
   const logExport = useLogExport()
 
-  if (overview.isPending) return <Spinner label="Loading class analytics" />
+  if (overview.isPending) {
+    return (
+      <div className="flex flex-col gap-4">
+        <SkeletonStats />
+        <SkeletonChart />
+      </div>
+    )
+  }
   if (overview.error) return <Alert tone="error">{overview.error.message}</Alert>
 
   const o = overview.data
@@ -76,6 +92,11 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
         <Alert tone="info">
           Activity statistics appear once the class reaches 5 students.
         </Alert>
+      ) : null}
+      {distribution.data && !distribution.data.below_floor ? (
+        <Card>
+          <DistributionChart distribution={distribution.data} />
+        </Card>
       ) : null}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
@@ -116,12 +137,34 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
 export function ClassView({ cohortId }: { cohortId: string }) {
   const policy = useReportingPolicy(cohortId)
   const role = useCohortRole(cohortId)
+  const pulse = useCohortPulse(cohortId)
   const isFaculty = role.data === 'faculty'
+  const [tab, setTab] = useState('overview')
+  const [announcing, setAnnouncing] = useState(false)
+
+  const onPulseAction = (kind: PulseCardData['kind']) => {
+    if (kind === 'at_risk') setTab('students')
+    else if (kind === 'weak_domain') setTab('live')
+    else setAnnouncing(true)
+  }
 
   return (
     <div className="flex flex-col gap-4">
       {policy.data ? <PolicyBanner policy={policy.data} /> : null}
-      <Tabs defaultValue="overview">
+      {pulse.data ? (
+        <PulseBanner pulse={pulse.data} onAction={onPulseAction} />
+      ) : null}
+      {announcing ? (
+        <MessageClassDialog
+          cohortId={cohortId}
+          prefill="Quick reminder: a few minutes of FCLE practice this week keeps your projection moving."
+          open={true}
+          onOpenChange={open => {
+            if (!open) setAnnouncing(false)
+          }}
+        />
+      ) : null}
+      <Tabs value={tab} onValueChange={setTab}>
         <TabsList aria-label="Class sections">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="students">Students</TabsTrigger>

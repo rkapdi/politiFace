@@ -313,7 +313,7 @@ class PowerlineBar extends StatelessWidget {
     final segmentStyle = TextStyle(
       fontFamily: 'JetBrains Mono',
       fontSize: 13,
-      letterSpacing: 0.8,
+      letterSpacing: 0.5,
       color: inactiveText,
     );
 
@@ -322,7 +322,7 @@ class PowerlineBar extends StatelessWidget {
       final isActive = i == activeIndex;
       children.add(
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 11),
+          padding: const EdgeInsets.symmetric(horizontal: 8),
           color: isActive ? stages[i].color : inactiveBg,
           alignment: Alignment.center,
           child: Text(
@@ -370,8 +370,28 @@ class PowerlineBar extends StatelessWidget {
           height: height,
           child: Row(
             children: [
-              ...children,
-              Expanded(child: ColoredBox(color: spacerBg)),
+              // The segment strip scales down as ONE unit when the screen
+              // is narrower than its natural width: the last chip must
+              // never clip (beta feedback 2026-08-23, "locked in" cut off
+              // on the right). The spacer paints behind the scaled strip.
+              Expanded(
+                child: ColoredBox(
+                  color: spacerBg,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: SizedBox(
+                        height: height,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: children,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               if (trailing != null)
                 Container(
                   color: inactiveBg,

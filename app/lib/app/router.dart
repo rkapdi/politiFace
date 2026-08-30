@@ -29,6 +29,7 @@ import '../features/live/presentation/live_session_screen.dart';
 import '../features/memory/presentation/card_retention_detail_screen.dart';
 import '../features/memory/presentation/memory_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
+import '../features/pulse/presentation/action_detail_screen.dart';
 import '../features/pulse/presentation/bill_detail_screen.dart';
 import '../features/pulse/presentation/pulse_screen.dart';
 import '../features/round/presentation/daily_round_screen.dart';
@@ -190,6 +191,15 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           path: '/pulse/bill',
           builder: (context, state) =>
               BillDetailScreen(args: state.extra! as BillDetailArgs),
+        ),
+        // In-app taps pass extra; notification deep links carry query
+        // parameters, so both shapes must build the screen.
+        GoRoute(
+          path: '/pulse/action',
+          builder: (context, state) => ActionDetailScreen(
+            args: state.extra as ActionDetailArgs? ??
+                ActionDetailArgs.fromQuery(state.uri.queryParameters),
+          ),
         ),
         GoRoute(
           path: '/leaderboard',

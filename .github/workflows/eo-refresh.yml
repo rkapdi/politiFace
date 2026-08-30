@@ -6,7 +6,7 @@ name: eo-refresh
 
 on:
   schedule:
-    - cron: "23 11 * * 1" # Mondays 11:23 UTC
+    - cron: "23 11 * * *" # daily 11:23 UTC (was weekly; a pulse cannot be weekly)
   workflow_dispatch: {}
 
 permissions:

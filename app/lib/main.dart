@@ -211,8 +211,13 @@ Future<void> _bootstrap(AppDatabase db) async {
   // never ahead of onboarding: a brand-new install still onboards first.
   const envRoute = String.fromEnvironment('INITIAL_ROUTE');
   final onboarded = (await db.metaDao.get(OnboardingScreen.doneFlagKey)) == '1';
-  final launchRoute =
-      onboarded ? await NotificationService.instance.takeLaunchRoute() : null;
+  // Cold-start taps: local notifications report through the plugin;
+  // visible REMOTE pushes (Washington alerts) only surface through the
+  // native launchOptions stash. Check both.
+  final launchRoute = onboarded
+      ? (await NotificationService.instance.takeLaunchRoute() ??
+          await PushChannelBridge.instance.takeLaunchRoute())
+      : null;
   final initialRoute = envRoute.isNotEmpty
       ? envRoute
       : (launchRoute ?? (onboarded ? '/' : '/onboarding'));

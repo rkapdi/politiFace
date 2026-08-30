@@ -78,6 +78,7 @@ import { SignIn } from './auth/SignIn'
 import { ClassesPage } from './routes/ClassesPage'
 import { JoinPage } from './routes/JoinPage'
 import { SettingsTab } from './components/SettingsTab'
+import { StyleguidePage } from './routes/StyleguidePage'
 
 async function expectNoViolations(ui: React.ReactElement) {
   const { container } = render(ui)
@@ -100,5 +101,9 @@ describe('accessibility', () => {
 
   it('settings tab has no axe violations', async () => {
     await expectNoViolations(<SettingsTab cohortId="c1" />)
+  })
+
+  it('the styleguide (every component, every state) has no axe violations', async () => {
+    await expectNoViolations(<StyleguidePage />)
   })
 })

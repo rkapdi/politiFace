@@ -3,6 +3,7 @@
 // sentences here, once.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
+import { S } from './strings'
 import type { Database, Json } from './database.types'
 
 type Fns = Database['public']['Functions']
@@ -95,29 +96,35 @@ export type ScoreboardRow = {
 }
 
 const FRIENDLY: Record<string, string> = {
-  'this class reports aggregate data only':
-    'This class reports aggregate data only, so per-student views are off.',
-  'not faculty of this cohort':
-    'Your account does not have faculty access to this class.',
-  'invalid or ended session code':
-    'That code does not match a running session. Check it with your instructor.',
-  'enter a display name (2 to 40 characters)':
-    'Enter a display name between 2 and 40 characters.',
-  'this session is limited to class members':
-    'This session is limited to class members. Join the class in the app first.',
-  'question is not open': 'That question just closed.',
-  'time is up': 'Time is up for this question.',
-  'no Politiface account uses that email':
-    'No Politiface account uses that email. They need to sign in to the app or console once first.',
+  'this class reports aggregate data only': S.errors.aggregateOnly,
+  'not faculty of this cohort': S.errors.notFaculty,
+  'invalid or ended session code': S.errors.badSessionCode,
+  'enter a display name (2 to 40 characters)': S.errors.displayName,
+  'this session is limited to class members': S.errors.membersOnly,
+  'question is not open': S.errors.questionClosed,
+  'time is up': S.errors.timeUp,
+  'no Politiface account uses that email': S.errors.noAccount,
   'that account has not redeemed a faculty invite code yet':
-    'That account has not redeemed a faculty invite code yet.',
-  'instructor verification required':
-    'Creating classes requires instructor verification. Redeem a faculty invite code in the app or portal first.',
-  'class name too short': 'Class names need at least 3 characters.',
+    S.errors.needsInvite,
+  'instructor verification required': S.errors.needsVerification,
+  'class name too short': S.errors.classNameShort,
 }
 
 export function friendlyMessage(error: { message: string }): string {
-  return FRIENDLY[error.message] ?? 'Something went wrong on our side. Try again.'
+  const exact = FRIENDLY[error.message]
+  if (exact) return exact
+  const msg = error.message.toLowerCase()
+  if (msg.includes('jwt') || msg.includes('expired')) {
+    return S.errors.sessionExpired
+  }
+  if (
+    msg.includes('failed to fetch') ||
+    msg.includes('networkerror') ||
+    msg.includes('load failed')
+  ) {
+    return S.errors.offline
+  }
+  return S.errors.generic
 }
 
 type FnName = keyof Fns & string
@@ -210,6 +217,74 @@ export const signInAnonymously = async () => {
   return data
 }
 
+export type PulseCardData = {
+  kind: 'at_risk' | 'weak_domain' | 'participation'
+  headline: string
+  detail: string
+}
+
+export type CohortPulse = {
+  below_floor?: boolean
+  students: number
+  active_7d?: number
+  above_line?: number
+  at_risk?: number
+  model_version?: string
+  sentence: string
+  cards: PulseCardData[]
+}
+
+export type CohortDistribution = {
+  below_floor?: boolean
+  students: number
+  bins?: Record<string, number>
+  avg?: number
+  above_line?: number
+  pass_line: number
+  model_version?: string
+}
+
+export const cohortPulse = (cohortId: string) =>
+  rpc<CohortPulse>('cohort_pulse', { p_cohort: cohortId })
+export const cohortDistribution = (cohortId: string) =>
+  rpc<CohortDistribution>('cohort_distribution', { p_cohort: cohortId })
+
+export type StudentTrend = {
+  pass_line: number
+  model_version?: string
+  weeks: {
+    week_start: string
+    projected: number | null
+    answers: number
+    accuracy: number | null
+  }[]
+}
+
+export const studentTrend = (cohortId: string, studentRef: string) =>
+  rpc<StudentTrend>('student_trend', {
+    p_cohort: cohortId,
+    p_student_ref: studentRef,
+  })
+export const useStudentTrend = (cohortId: string, studentRef: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'student', studentRef, 'trend'],
+    queryFn: () => studentTrend(cohortId, studentRef),
+  })
+
+export const useAssignPractice = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { cohortId: string; domainId: number }) =>
+      rpc<{ input_id: string; domain: string }>('assign_domain_practice', {
+        p_cohort: a.cohortId,
+        p_domain: a.domainId,
+      }),
+    onSuccess: (_d, a) => {
+      void qc.invalidateQueries({ queryKey: ['cohort', a.cohortId] })
+    },
+  })
+}
+
 export type TaRow = { user_id: string; display: string }
 
 // TAs on a cohort: membership rows are member-readable under RLS; handles
@@ -298,6 +373,16 @@ export const participantCount = async (sessionId: string): Promise<number> => {
 }
 
 // ── query hooks ─────────────────────────────────────────────────────────────
+export const useCohortPulse = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'pulse'],
+    queryFn: () => cohortPulse(cohortId),
+  })
+export const useCohortDistribution = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'distribution'],
+    queryFn: () => cohortDistribution(cohortId),
+  })
 export const usePickableQuestions = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'pickable'],

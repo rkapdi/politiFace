@@ -21,6 +21,13 @@ describe('friendlyMessage', () => {
     expect(friendlyMessage({ message: 'deadlock detected on relation xyz' }))
       .toBe('Something went wrong on our side. Try again.')
   })
+
+  it('recognizes expired sessions and network failures', () => {
+    expect(friendlyMessage({ message: 'JWT expired' })).toMatch(/sign in again/i)
+    expect(friendlyMessage({ message: 'TypeError: Failed to fetch' })).toMatch(
+      /offline/i,
+    )
+  })
 })
 
 describe('rpc fetchers', () => {

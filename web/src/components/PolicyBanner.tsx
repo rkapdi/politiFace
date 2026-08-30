@@ -1,10 +1,11 @@
 import type { ReportingPolicy } from '../lib/api'
+import { S } from '../lib/strings'
 import { Alert } from './ui'
 
 const COPY: Record<ReportingPolicy['effective'], string> = {
-  per_student: 'This class reports per-student detail to faculty.',
-  pseudonymous: 'Students appear under stable pseudonyms, never names.',
-  aggregate_only: 'This class reports aggregate data only.',
+  per_student: S.policy.perStudent,
+  pseudonymous: S.policy.pseudonymous,
+  aggregate_only: S.policy.aggregateOnly,
 }
 
 export function PolicyBanner({ policy }: { policy: ReportingPolicy }) {

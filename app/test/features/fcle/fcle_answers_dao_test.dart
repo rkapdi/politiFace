@@ -49,6 +49,23 @@ void main() {
     expect(await db.fcleAnswersDao.answerCount('us_constitution'), 100);
   });
 
+  test('windowedStats ignores answers older than the cutoff', () async {
+    await log('stale1', 'us_constitution', true, 1000);
+    await log('stale2', 'us_constitution', true, 2000);
+    await log('fresh1', 'us_constitution', true, 10000);
+    await log('fresh2', 'us_constitution', false, 11000);
+
+    final s = await db.fcleAnswersDao
+        .windowedStats('us_constitution', sinceMs: 5000);
+    expect(s.count, 2);
+    expect(s.correct, 1);
+
+    final none = await db.fcleAnswersDao
+        .windowedStats('us_constitution', sinceMs: 99999);
+    expect(none.count, 0);
+    expect(none.correct, 0);
+  });
+
   test('missedQuestionIds uses the LATEST answer per question', () async {
     await log('q1', 'us_constitution', false, 1); // missed...
     await log('q1', 'us_constitution', true, 2); // ...then corrected

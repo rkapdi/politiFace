@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import { Radio } from 'lucide-react'
 import { useCohortSessions } from '../lib/api'
-import { Alert, Badge, Button, Card, Spinner } from './ui'
+import { S } from '../lib/strings'
+import { Alert, Badge, Button, Card } from './ui'
+import { EmptyState } from './EmptyState'
+import { SkeletonTable } from './Skeleton'
 import { QuestionPicker } from './QuestionPicker'
 
 export function LiveTab({ cohortId }: { cohortId: string }) {
@@ -36,12 +40,16 @@ export function LiveTab({ cohortId }: { cohortId: string }) {
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
           Past sessions
         </h2>
-        {sessions.isPending ? <Spinner /> : null}
+        {sessions.isPending ? <SkeletonTable rows={3} /> : null}
         {sessions.error ? (
           <Alert tone="error">{sessions.error.message}</Alert>
         ) : null}
         {sessions.data && sessions.data.length === 0 ? (
-          <p className="text-sm text-slate-500">No sessions yet.</p>
+          <EmptyState
+            icon={Radio}
+            title={S.empty.sessionsTitle}
+            hint={S.empty.sessionsHint}
+          />
         ) : null}
         {sessions.data && sessions.data.length > 0 ? (
           <div className="overflow-x-auto">

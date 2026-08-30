@@ -49,6 +49,29 @@ class FcleAnswersDao extends DatabaseAccessor<AppDatabase>
     return correct / recent.length;
   }
 
+  /// Correct/total counts for one domain over the most recent [limit]
+  /// answers no older than [sinceMs]. Readiness evidence: answers outside
+  /// the recency window contribute nothing, so stale mastery fades.
+  Future<({int correct, int count})> windowedStats(
+    String domain, {
+    required int sinceMs,
+    int limit = rollingWindow,
+  }) async {
+    final recent = await (select(fcleAnswers)
+          ..where(
+            (t) =>
+                t.domain.equals(domain) &
+                t.answeredAt.isBiggerOrEqualValue(sinceMs),
+          )
+          ..orderBy([(t) => OrderingTerm.desc(t.answeredAt)])
+          ..limit(limit))
+        .get();
+    return (
+      correct: recent.where((r) => r.correct).length,
+      count: recent.length,
+    );
+  }
+
   /// Whether the user has ever answered a single FCLE question. The cheapest
   /// possible local "is this user FCLE-engaged?" signal for the notification
   /// orchestrator (gates the whole FCLE notification category, no network).

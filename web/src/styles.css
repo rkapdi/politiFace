@@ -1,5 +1,24 @@
 @import 'tailwindcss';
 
+/* Design tokens: the single source of truth for semantic color. Neutral
+   grays stay on Tailwind's slate scale; anything carrying MEANING
+   (status, risk bands, chart marks) uses these names, in classes
+   (bg-pass, text-risk) and in charts (var(--color-pass)). All values
+   meet WCAG AA (4.5:1) as text on white. */
+@theme {
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-canvas: #f8fafc;
+  --color-pass: #15803d;
+  --color-pass-soft: #dcfce7;
+  --color-borderline: #b45309;
+  --color-borderline-soft: #fef3c7;
+  --color-risk: #b91c1c;
+  --color-risk-soft: #fee2e2;
+  --color-chart-neutral: #cbd5e1;
+}
+
 body {
-  @apply bg-slate-50 text-slate-900 antialiased;
+  @apply bg-canvas text-ink antialiased;
 }

@@ -20,6 +20,7 @@ import '../../../app/providers.dart';
 import '../../fcle/application/fcle_providers.dart';
 import '../../fcle/data/question_bank_loader.dart';
 import '../../fcle/domain/fcle_question.dart';
+import '../../fcle/domain/readiness_projection.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
@@ -452,9 +453,11 @@ class _ResultView extends ConsumerWidget {
     final theme = Theme.of(context);
     // The diagnostic just wrote 10 answers, so the shared readiness
     // provider has a real projection: the same numbers Home will show.
+    // The fallback uses the same shrunk math, never a raw extrapolation.
     final summary = ref.watch(readinessSummaryProvider).valueOrNull;
-    final low = summary?.low ?? ((correct / total) * 80 - 8).round();
-    final high = summary?.high ?? ((correct / total) * 80 + 8).round();
+    final fallback = fallbackProjection(correct, total);
+    final low = summary?.low ?? fallback.low;
+    final high = summary?.high ?? fallback.high;
     final stage = summary == null
         ? (high >= 48 ? ReadinessStage.onTrack : ReadinessStage.notYet)
         : ReadinessHero.stageFor(summary);

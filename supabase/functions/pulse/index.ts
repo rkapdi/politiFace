@@ -196,8 +196,24 @@ Deno.serve(async (req) => {
     SERVICE_KEY,
   );
 
-  const billParam = new URL(req.url).searchParams.get("bill");
+  const url = new URL(req.url);
+  const billParam = url.searchParams.get("bill");
   if (billParam !== null) return serveSummary(admin, billParam);
+
+  // Presidential actions lane: served straight from the cache, which the
+  // push-washington poller refreshes every 15 minutes from the White
+  // House feed. This function never fetches whitehouse.gov itself.
+  if (url.searchParams.get("feed") === "actions") {
+    const { data: acts } = await admin
+      .from("pulse_cache")
+      .select("payload, fetched_at")
+      .eq("key", "presidential_actions")
+      .maybeSingle();
+    return Response.json({
+      fetched_at: acts?.fetched_at ?? null,
+      actions: acts?.payload ?? [],
+    });
+  }
 
   const { data: cached } = await admin
     .from("pulse_cache")

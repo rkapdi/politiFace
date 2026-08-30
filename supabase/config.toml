@@ -416,3 +416,7 @@ verify_jwt = false
 # the congress.gov key is a function secret, not a client credential.
 [functions.pulse]
 verify_jwt = false
+
+# Cron/service-only; the function gates itself with X-Cron-Secret.
+[functions.push-washington]
+verify_jwt = false

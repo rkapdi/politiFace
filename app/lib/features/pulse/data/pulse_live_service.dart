@@ -66,13 +66,71 @@ class LiveBillSummary {
   final bool truncated;
 }
 
+/// A White House presidential action from the fast lane (posted same-day
+/// on whitehouse.gov; the Federal Register publishes days later).
+class LiveWhAction {
+  const LiveWhAction({
+    required this.guid,
+    required this.title,
+    required this.url,
+    required this.publishedAt,
+    required this.kind,
+  });
+
+  final String guid;
+  final String title;
+  final String url;
+  final String publishedAt; // ISO timestamp
+  final String kind; // executive_order | proclamation | memorandum | ...
+
+  String get kindLabel => switch (kind) {
+        'executive_order' => 'EXECUTIVE ORDER',
+        'proclamation' => 'PROCLAMATION',
+        'memorandum' => 'MEMORANDUM',
+        _ => 'PRESIDENTIAL ACTION',
+      };
+}
+
+/// Parses the `pulse?feed=actions` payload. Pure, so the shape contract
+/// with the server is unit-testable without HTTP.
+List<LiveWhAction> parseWhActions(Map<String, dynamic> data) => [
+      for (final a in data['actions'] as List? ?? const [])
+        if ((a['title'] as String? ?? '').isNotEmpty)
+          LiveWhAction(
+            guid: a['guid'] as String? ?? a['url'] as String? ?? '',
+            title: (a['title'] as String).trim(),
+            url: a['url'] as String? ?? '',
+            publishedAt: a['published_at'] as String? ?? '',
+            kind: a['kind'] as String? ?? 'presidential_action',
+          ),
+    ];
+
+/// True when a Federal Register order already covers this White House
+/// action (the FR entry is richer: it carries the EO number), so the
+/// feed should show only one of the two.
+bool whActionCoveredByOrder(LiveWhAction action, Iterable<LiveOrder> orders) {
+  String norm(String s) =>
+      s.toLowerCase().replaceAll(RegExp(r'[^a-z0-9 ]'), '').trim();
+  final a = norm(action.title);
+  if (a.isEmpty) return false;
+  return orders.any((o) {
+    final b = norm(o.title);
+    return b.isNotEmpty && (a.startsWith(b) || b.startsWith(a));
+  });
+}
+
 class LivePulse {
-  const LivePulse({required this.orders, required this.bills});
+  const LivePulse({
+    required this.orders,
+    required this.bills,
+    this.actions = const [],
+  });
 
   final List<LiveOrder> orders;
   final List<LiveBillAction> bills;
+  final List<LiveWhAction> actions;
 
-  bool get isEmpty => orders.isEmpty && bills.isEmpty;
+  bool get isEmpty => orders.isEmpty && bills.isEmpty && actions.isEmpty;
 }
 
 /// True when a congress.gov bill action means the bill was enacted.
@@ -199,17 +257,38 @@ class PulseLiveService {
     );
   }
 
+  /// White House presidential actions via the backend fast lane (the
+  /// push-washington poller refreshes it every ~15 minutes). Returns
+  /// empty when no backend is configured.
+  Future<List<LiveWhAction>> fetchPresidentialActions() async {
+    if (!SupabaseConfig.isConfigured) return const [];
+    final uri =
+        Uri.parse('${SupabaseConfig.url}/functions/v1/pulse?feed=actions');
+    final data = await _getJson(
+      uri,
+      headers: {
+        'apikey': SupabaseConfig.anonKey,
+        'authorization': 'Bearer ${SupabaseConfig.anonKey}',
+      },
+    ) as Map<String, dynamic>;
+    return parseWhActions(data);
+  }
+
   /// Everything live that is reachable right now. Sources fail
   /// independently: EOs can be live while bills ride the bundle.
   Future<LivePulse> fetch() async {
     var orders = const <LiveOrder>[];
     var bills = const <LiveBillAction>[];
+    var actions = const <LiveWhAction>[];
     try {
       orders = await fetchRecentOrders();
     } catch (_) {/* offline or blocked: bundled EOs cover it */}
     try {
       bills = await fetchRecentBills();
     } catch (_) {/* no backend yet or offline */}
-    return LivePulse(orders: orders, bills: bills);
+    try {
+      actions = await fetchPresidentialActions();
+    } catch (_) {/* no backend yet or offline */}
+    return LivePulse(orders: orders, bills: bills, actions: actions);
   }
 }

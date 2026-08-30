@@ -366,33 +366,39 @@ begin
     raise exception 'FAIL: create_cohort join code';
   end if;
 
-  -- Overview: below the 5-student k-anonymity floor, activity stats are
-  -- withheld (null) and only the student count reports.
+  -- Per-student-first (2026-08-26): on the default per_student policy the
+  -- faculty already see individuals, so class statistics render at ANY
+  -- size. Overview reports real activity even for a tiny class.
+  perform 1 from public.cohort_overview(v_cohort)
+    where students is not null and answers_total is not null;
+  if not found then
+    raise exception 'FAIL: per_student overview must report at any size';
+  end if;
+
+  -- Domain stats render for a tiny per_student cohort when asked.
+  select count(*) into n from public.cohort_domain_stats(v_cohort, 1);
+  if n = 0 then
+    raise exception 'FAIL: per_student domain stats must render at any size';
+  end if;
+
+  -- The floor returns the moment the class goes aggregate_only: that is
+  -- the one place where aggregates could be reversed into individuals.
+  perform public.set_reporting_policy(v_cohort, 'aggregate_only', 'pseudonym');
   perform 1 from public.cohort_overview(v_cohort)
     where students is not null and answers_total is null
       and active_7d is null and mocks_completed is null;
-  if not found then raise exception 'FAIL: cohort_overview floor not applied'; end if;
-
-  -- With the floor lowered (one student answered), stats appear...
+  if not found then
+    raise exception 'FAIL: aggregate_only keeps the small-class floor';
+  end if;
   select count(*) into n from public.cohort_domain_stats(v_cohort, 1);
-  -- p_min_n is clamped server-side to 5; a 1-student cohort gets nothing
-  -- even when the caller asks for a floor of 1.
   if n <> 0 then
-    raise exception 'FAIL: min_n clamp bypassed, got % rows', n;
+    raise exception 'FAIL: aggregate_only min_n clamp bypassed, got % rows', n;
   end if;
-
-  -- ...but at the default floor of 5 students, NOTHING renders.
-  select count(*) into n from public.cohort_domain_stats(v_cohort);
-  if n <> 0 then
-    raise exception 'FAIL: min-n floor leaked stats for a tiny cohort';
-  end if;
-
-  -- Top misses: the clamp holds here too; a 1-student cohort exposes no
-  -- per-question rows even when the caller requests a floor of 1.
   select count(*) into n from public.cohort_top_misses(v_cohort, 1, 10);
   if n <> 0 then
-    raise exception 'FAIL: top-misses min_n clamp bypassed, got % rows', n;
+    raise exception 'FAIL: aggregate_only top-misses clamp bypassed';
   end if;
+  perform public.set_reporting_policy(v_cohort, 'per_student', 'roster');
 end $$;
 
 -- Students cannot call the faculty aggregates.
@@ -900,15 +906,14 @@ begin
   if not ok then raise exception 'FAIL: session history missing ended session'; end if;
 end $$;
 
--- Cross-class rollup: one row per taught cohort, floored below 5 students.
+-- Cross-class rollup: one row per taught cohort. Per-student-first
+-- (2026-08-26): per_student classes report at any size; the floor lives
+-- in the aggregate_only path, asserted in its own section below.
 do $$
 declare n int := 0; r record;
 begin
   for r in select * from public.my_faculty_overview() loop
     n := n + 1;
-    if r.students < 5 and r.answers_total is not null then
-      raise exception 'FAIL: rollup leaked stats below the floor';
-    end if;
   end loop;
   if n < 1 then raise exception 'FAIL: faculty overview empty'; end if;
 end $$;
@@ -1470,6 +1475,490 @@ begin
   end if;
 end $$;
 set role authenticated;
+
+-- ── Readiness v2: shrunk, windowed, versioned (20260824000100) ─────────────
+reset role;
+do $$
+declare
+  r record;
+  v_rows int := 0;
+begin
+  if length(app.readiness_model_version()) < 3 then
+    raise exception 'FAIL: readiness model version missing';
+  end if;
+  -- s1 has real graded history from earlier sections. Shrinkage bounds:
+  -- readiness always in (0,1) and NEVER 1.0 even at perfect raw accuracy.
+  for r in select * from app.readiness_v2('00000000-0000-0000-0000-000000000001') loop
+    v_rows := v_rows + 1;
+    if r.readiness <= 0.0 or r.readiness >= 0.95 then
+      raise exception 'FAIL: readiness % out of shrunk bounds', r.readiness;
+    end if;
+    if r.answers > 0 and r.correct = r.answers and r.readiness >= 1.0 then
+      raise exception 'FAIL: perfect raw accuracy must still shrink';
+    end if;
+  end loop;
+  if v_rows <> 4 then
+    raise exception 'FAIL: readiness_v2 must return one row per domain, got %', v_rows;
+  end if;
+  -- A student with no evidence sits at the 0.40 prior exactly.
+  if exists (select 1 from app.readiness_v2('00000000-0000-0000-0000-0000000000a1')
+              where abs(readiness - 0.40) > 0.01) then
+    raise exception 'FAIL: zero-evidence readiness must equal the prior';
+  end if;
+end $$;
+
+-- The at-risk list reads v2: the evidence-free student shows ~0.40 overall.
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  r record;
+begin
+  select * into r from public.at_risk_students(v_cohort, 1.01)
+   where student_ref = '00000000-0000-0000-0000-0000000000a1';
+  if r.student_ref is null then
+    raise exception 'FAIL: evidence-free student missing from at-risk list';
+  end if;
+  if abs(r.overall_readiness - 0.40) > 0.01 then
+    raise exception 'FAIL: evidence-free overall readiness was %', r.overall_readiness;
+  end if;
+  if r.weakest_domain_name is null then
+    raise exception 'FAIL: weakest domain must always resolve under v2';
+  end if;
+end $$;
+
+-- ── Canary, baselines, demo quarantine (20260824000200) ─────────────────────
+reset role;
+
+-- Canary passes on a clean database.
+do $$
+declare v_failures jsonb;
+begin
+  perform app.run_measurement_canary();
+  select failures into v_failures from app.canary_runs
+   order by id desc limit 1;
+  if (select ok from app.canary_runs order by id desc limit 1) is not true then
+    raise exception 'FAIL: canary must pass on a clean db: %', v_failures;
+  end if;
+end $$;
+
+-- Canary catches a tampered grading row, then passes again after revert.
+do $$
+declare
+  v_event uuid;
+begin
+  select event_id into v_event from public.events
+   where type = 'answer' and correct is not null
+   order by server_ts asc limit 1;
+  update public.events set correct = not correct where event_id = v_event;
+  perform app.run_measurement_canary();
+  if (select ok from app.canary_runs order by id desc limit 1) then
+    raise exception 'FAIL: canary missed a tampered grading row';
+  end if;
+  update public.events set correct = not correct where event_id = v_event;
+  perform app.run_measurement_canary();
+  if not (select ok from app.canary_runs order by id desc limit 1) then
+    raise exception 'FAIL: canary must recover after revert';
+  end if;
+end $$;
+
+-- Baselines refuse below the 5-student floor.
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform app.capture_cohort_baseline(v_cohort);
+    raise exception 'FAIL: baseline captured below the 5-student floor';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- With 5 students the baseline captures, aggregate-only.
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000c1', 'c1@example.edu'),
+  ('00000000-0000-0000-0000-0000000000c2', 'c2@example.edu');
+insert into public.profiles (id, handle) values
+  ('00000000-0000-0000-0000-0000000000c1', 'extra_one'),
+  ('00000000-0000-0000-0000-0000000000c2', 'extra_two');
+insert into public.cohort_members (cohort_id, user_id, role)
+select c.id, u.uid, 'student'
+  from public.cohorts c,
+       (values ('00000000-0000-0000-0000-0000000000c1'::uuid),
+               ('00000000-0000-0000-0000-0000000000c2'::uuid)) u(uid)
+ where c.name = 'POS2041 Fall';
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  b record;
+begin
+  perform app.capture_cohort_baseline(v_cohort);
+  select * into b from app.cohort_baselines where cohort_id = v_cohort;
+  if b.cohort_id is null then raise exception 'FAIL: baseline missing'; end if;
+  if b.students < 5 then raise exception 'FAIL: baseline student count wrong'; end if;
+  if b.distribution::text ~ '[0-9a-f]{8}-[0-9a-f]{4}' then
+    raise exception 'FAIL: baseline must not contain student identifiers';
+  end if;
+  -- Idempotent: a second capture must not overwrite the first.
+  perform app.capture_cohort_baseline(v_cohort);
+  if (select count(*) from app.cohort_baselines where cohort_id = v_cohort) <> 1 then
+    raise exception 'FAIL: baseline must capture exactly once';
+  end if;
+end $$;
+
+-- Students cannot trigger captures through the RPC.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.capture_cohort_baseline(v_cohort);
+    raise exception 'FAIL: student captured a baseline';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+reset role;
+
+-- Demo cohorts produce no rollups and no baselines.
+do $$
+declare
+  v_demo uuid;
+begin
+  insert into public.cohorts (name, term, created_by, is_demo)
+  values ('DEMO smoke cohort', 'DEMO', '00000000-0000-0000-0000-00000000000f', true)
+  returning id into v_demo;
+  perform app.compute_all_cohort_rollups();
+  if exists (select 1 from public.cohort_rollups where cohort_id = v_demo) then
+    raise exception 'FAIL: demo cohort leaked into rollups';
+  end if;
+  perform app.capture_due_baselines();
+  if exists (select 1 from app.cohort_baselines where cohort_id = v_demo) then
+    raise exception 'FAIL: demo cohort leaked into baselines';
+  end if;
+  begin
+    perform app.capture_cohort_baseline(v_demo);
+    raise exception 'FAIL: manual baseline captured for a demo cohort';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set role authenticated;
+
+-- ── Class pulse + distribution (20260826000100) ─────────────────────────────
+-- POS2041 Fall has exactly 5 students by this point (s1, s2, the demoted
+-- TA, c1, c2), so it clears the k-anonymity floor.
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_pulse jsonb;
+  v_dist jsonb;
+  v_sum int;
+begin
+  v_pulse := public.cohort_pulse(v_cohort);
+  if coalesce((v_pulse ->> 'below_floor')::boolean, false) then
+    raise exception 'FAIL: pulse below floor at 5 students';
+  end if;
+  if (v_pulse ->> 'students')::int <> 5 then
+    raise exception 'FAIL: pulse students wrong: %', v_pulse ->> 'students';
+  end if;
+  if length(v_pulse ->> 'sentence') < 20 then
+    raise exception 'FAIL: pulse sentence missing';
+  end if;
+  if jsonb_typeof(v_pulse -> 'cards') <> 'array'
+     or jsonb_array_length(v_pulse -> 'cards') > 3 then
+    raise exception 'FAIL: pulse cards must be an array of at most 3';
+  end if;
+  if v_pulse ->> 'sentence' like '%—%' then
+    raise exception 'FAIL: no em-dashes in pulse copy';
+  end if;
+
+  v_dist := public.cohort_distribution(v_cohort);
+  if (v_dist ->> 'pass_line')::int <> 48 then
+    raise exception 'FAIL: distribution pass line missing';
+  end if;
+  select coalesce(sum(value::int), 0) into v_sum
+    from jsonb_each_text(v_dist -> 'bins');
+  if v_sum <> 5 then
+    raise exception 'FAIL: distribution bins must sum to students, got %', v_sum;
+  end if;
+end $$;
+
+-- Students are blocked from both.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.cohort_pulse(v_cohort);
+    raise exception 'FAIL: student read the class pulse';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.cohort_distribution(v_cohort);
+    raise exception 'FAIL: student read the distribution';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Below the 5-student floor both answer honestly instead of leaking.
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid;
+  v_pulse jsonb;
+begin
+  v_tiny := (public.create_cohort('Tiny pulse class') ->> 'id')::uuid;
+  v_pulse := public.cohort_pulse(v_tiny);
+  if not (v_pulse ->> 'below_floor')::boolean then
+    raise exception 'FAIL: pulse must report below_floor under 5 students';
+  end if;
+  if length(v_pulse ->> 'sentence') < 10 then
+    raise exception 'FAIL: below-floor pulse still needs a sentence';
+  end if;
+  if not (public.cohort_distribution(v_tiny) ->> 'below_floor')::boolean then
+    raise exception 'FAIL: distribution must report below_floor under 5 students';
+  end if;
+end $$;
+
+-- ── Per-student first: no floors for per_student classes (20260826000200) ───
+-- A 2-student class with the default per_student policy gets full
+-- statistics; the floor only applies where aggregates are the ONLY view
+-- (aggregate_only policy, TAs).
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid;
+  v_pulse jsonb;
+begin
+  v_tiny := (public.create_cohort('Coaching pair') ->> 'id')::uuid;
+  perform set_config('app.test_tiny', v_tiny::text, false);
+end $$;
+reset role;
+insert into public.cohort_members (cohort_id, user_id, role)
+values (current_setting('app.test_tiny')::uuid,
+        '00000000-0000-0000-0000-000000000001', 'student'),
+       (current_setting('app.test_tiny')::uuid,
+        '00000000-0000-0000-0000-000000000002', 'student');
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid := current_setting('app.test_tiny')::uuid;
+  v_pulse jsonb;
+begin
+  v_pulse := public.cohort_pulse(v_tiny);
+  if coalesce((v_pulse ->> 'below_floor')::boolean, false) then
+    raise exception 'FAIL: per_student class must get a pulse at any size';
+  end if;
+  if (v_pulse ->> 'students')::int <> 2 then
+    raise exception 'FAIL: tiny pulse students wrong';
+  end if;
+  if coalesce((public.cohort_distribution(v_tiny) ->> 'below_floor')::boolean, false) then
+    raise exception 'FAIL: per_student class must get a distribution at any size';
+  end if;
+  -- Aggregate RPCs answer too (rows may be empty; they must not refuse).
+  perform public.cohort_overview(v_tiny);
+  perform public.cohort_domain_stats(v_tiny, 1);
+  -- Flip to aggregate_only: the floor comes back, because aggregates are
+  -- now the only view and must not leak individuals.
+  perform public.set_reporting_policy(v_tiny, 'aggregate_only', 'pseudonym');
+  if not (public.cohort_pulse(v_tiny) ->> 'below_floor')::boolean then
+    raise exception 'FAIL: aggregate_only keeps the small-class floor';
+  end if;
+end $$;
+
+-- ── Student trend + one-click assignment (20260826000300) ───────────────────
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_t jsonb;
+  v_res jsonb;
+  v_input uuid;
+begin
+  -- Trend: 8 weekly points, each with a projected score; pass line named.
+  v_t := public.student_trend(v_cohort, '00000000-0000-0000-0000-000000000001');
+  if jsonb_typeof(v_t -> 'weeks') <> 'array'
+     or jsonb_array_length(v_t -> 'weeks') <> 8 then
+    raise exception 'FAIL: trend must return 8 weekly points, got %', v_t;
+  end if;
+  if (v_t -> 'weeks' -> 7 ->> 'projected') is null then
+    raise exception 'FAIL: latest trend week missing a projection';
+  end if;
+  if (v_t ->> 'pass_line')::int <> 48 then
+    raise exception 'FAIL: trend pass line missing';
+  end if;
+
+  -- Assignment: one call creates the measured practice set, opens the
+  -- immediate phase as an async assessment TODAY, and announces it.
+  v_res := public.assign_domain_practice(
+    v_cohort, (select id from public.domains order by id limit 1), 10);
+  v_input := (v_res ->> 'input_id')::uuid;
+  if v_input is null then
+    raise exception 'FAIL: assignment returned no input id';
+  end if;
+  if (select count(*) from public.assessments where input_id = v_input) <> 3 then
+    raise exception 'FAIL: assignment must create all three assessment phases';
+  end if;
+  perform 1 from public.assessments a
+   where a.input_id = v_input and a.phase = 'immediate'
+     and a.mode = 'async' and a.opens_at <= now() and a.closes_at > now();
+  if not found then
+    raise exception 'FAIL: assignment immediate phase must be open async now';
+  end if;
+  if not exists (select 1 from public.class_announcements
+                  where cohort_id = v_cohort
+                    and body like 'New practice assigned%') then
+    raise exception 'FAIL: assignment must announce itself to the class';
+  end if;
+end $$;
+
+-- Students are blocked from both.
+set app.test_uid = :s1_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.student_trend(v_cohort, '00000000-0000-0000-0000-000000000002');
+    raise exception 'FAIL: student read another student trend';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.assign_domain_practice(
+      v_cohort, (select id from public.domains order by id limit 1), 10);
+    raise exception 'FAIL: student assigned practice';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- ── Classes dashboard honors per-student-first too (20260826000400) ─────────
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_tiny uuid := current_setting('app.test_tiny')::uuid;
+  r record;
+begin
+  perform public.set_reporting_policy(v_tiny, 'per_student', 'roster');
+  select * into r from public.my_faculty_overview() o
+   where o.cohort_id = v_tiny;
+  if r.cohort_id is null then
+    raise exception 'FAIL: tiny cohort missing from faculty overview';
+  end if;
+  if r.answers_total is null then
+    raise exception 'FAIL: per_student class card must report stats at any size';
+  end if;
+  -- aggregate_only flips the card back to withheld.
+  perform public.set_reporting_policy(v_tiny, 'aggregate_only', 'pseudonym');
+  select * into r from public.my_faculty_overview() o
+   where o.cohort_id = v_tiny;
+  if r.answers_total is not null then
+    raise exception 'FAIL: aggregate_only card must withhold small-class stats';
+  end if;
+  perform public.set_reporting_policy(v_tiny, 'per_student', 'roster');
+end $$;
+
+-- ── Washington watch: watermark RPCs + poller-alive canary (20260829000100) ─
+reset role;
+do $$
+declare r jsonb;
+begin
+  -- First poll ever baselines silently: no push, watermarks written.
+  r := public.washington_advance(
+    14420, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-1', 'First action');
+  if not (r ->> 'first_run')::boolean or (r ->> 'changed')::boolean then
+    raise exception 'FAIL: first poll must baseline silently: %', r;
+  end if;
+  if (select last_wh from app.push_signal where id) <> 'wh-guid-1' then
+    raise exception 'FAIL: baseline must persist the WH watermark';
+  end if;
+
+  -- Same values again: quiet.
+  r := public.washington_advance(
+    14420, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-1', 'First action');
+  if (r ->> 'changed')::boolean then
+    raise exception 'FAIL: unchanged poll must stay quiet: %', r;
+  end if;
+
+  -- New White House action: changed AND wh_new.
+  r := public.washington_advance(
+    14420, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-2', 'Lake America EO');
+  if not (r ->> 'changed')::boolean or not (r ->> 'wh_new')::boolean then
+    raise exception 'FAIL: new WH action must flag wh_new: %', r;
+  end if;
+
+  -- New EO number only: changed but NOT wh_new.
+  r := public.washington_advance(
+    14421, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-2', null);
+  if not (r ->> 'changed')::boolean or (r ->> 'wh_new')::boolean then
+    raise exception 'FAIL: EO bump must not flag wh_new: %', r;
+  end if;
+
+  -- Upstream hiccup (nulls) never regresses watermarks or fires.
+  r := public.washington_advance(null, null, null, null, null);
+  if (r ->> 'changed')::boolean then
+    raise exception 'FAIL: null poll must stay quiet: %', r;
+  end if;
+  if (select last_eo_number from app.push_signal where id) <> 14421 then
+    raise exception 'FAIL: null poll must preserve watermarks';
+  end if;
+
+  -- Push log records fan-outs.
+  perform public.washington_log_push('washington_alert', 'Lake America EO', 6);
+  if not exists (select 1 from app.push_log
+                  where category = 'washington_alert'
+                    and title = 'Lake America EO' and sent = 6) then
+    raise exception 'FAIL: push log row missing';
+  end if;
+end $$;
+
+-- The canary now watches the poller: a stale heartbeat is an alarm.
+do $$
+declare v jsonb;
+begin
+  update app.push_signal set updated_at = now() - interval '3 hours' where id;
+  perform app.run_measurement_canary();
+  select failures into v from app.canary_runs order by id desc limit 1;
+  if (select ok from app.canary_runs order by id desc limit 1)
+     or v::text not like '%push_poller_alive%' then
+    raise exception 'FAIL: canary must flag a stale push poller: %', v;
+  end if;
+  update app.push_signal set updated_at = now() where id;
+  perform app.run_measurement_canary();
+  if not (select ok from app.canary_runs order by id desc limit 1) then
+    raise exception 'FAIL: canary must recover once the poller is fresh';
+  end if;
+end $$;
+
+-- Clients can never touch the watermark machinery.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.washington_advance(null, null, null, null, null);
+    raise exception 'FAIL: client called washington_advance';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.washington_log_push('washington_alert', 'x', 1);
+    raise exception 'FAIL: client wrote the push log';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
 
 reset role;
 select 'SMOKE TEST PASSED' as result;
