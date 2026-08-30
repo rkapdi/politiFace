@@ -1,22 +1,22 @@
-updated: '2026-07-27'
+updated: '2026-08-24'
 source: api.congress.gov v3 member endpoint
 members:
   A000055:
     honorific: Mr.
     sponsored_count: 104
-    cosponsored_count: 2301
+    cosponsored_count: 2302
     leadership: []
     portrait_attribution: Image courtesy of the Member
   A000148:
     honorific: Mr.
     sponsored_count: 24
-    cosponsored_count: 981
+    cosponsored_count: 990
     leadership: []
     portrait_attribution: Image courtesy of the Member
   A000369:
     honorific: Mr.
     sponsored_count: 107
-    cosponsored_count: 1585
+    cosponsored_count: 1587
     leadership: []
     portrait_attribution: Image courtesy of the Member
   A000370:
@@ -28,7 +28,7 @@ members:
   A000371:
     honorific: Mr.
     sponsored_count: 92
-    cosponsored_count: 1838
+    cosponsored_count: 1840
     leadership:
     - type: Democratic Caucus Chairman
       congress: 118
@@ -44,43 +44,43 @@ members:
   A000375:
     honorific: Mr.
     sponsored_count: 192
-    cosponsored_count: 784
+    cosponsored_count: 785
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   A000379:
     honorific: Mr.
     sponsored_count: 54
-    cosponsored_count: 380
+    cosponsored_count: 381
     leadership: []
     portrait_attribution: Image courtesy of the Member
   A000380:
     honorific: Mr.
     sponsored_count: 27
-    cosponsored_count: 651
+    cosponsored_count: 657
     leadership: []
     portrait_attribution: Image courtesy of the Member
   A000381:
     honorific: Ms.
     sponsored_count: 32
-    cosponsored_count: 531
+    cosponsored_count: 546
     leadership: []
     portrait_attribution: Image courtesy of the Member
   A000382:
     honorific: Ms.
-    sponsored_count: 99
-    cosponsored_count: 483
+    sponsored_count: 101
+    cosponsored_count: 497
     leadership: []
     portrait_attribution: null
   A000383:
     honorific: Mr.
     sponsored_count: 2
-    cosponsored_count: 24
+    cosponsored_count: 31
     leadership: []
     portrait_attribution: null
   B000490:
     honorific: Mr.
     sponsored_count: 144
-    cosponsored_count: 6345
+    cosponsored_count: 6350
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   B000668:
@@ -92,51 +92,51 @@ members:
   B000740:
     honorific: Mrs.
     sponsored_count: 84
-    cosponsored_count: 797
+    cosponsored_count: 801
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B000825:
     honorific: Ms.
-    sponsored_count: 160
-    cosponsored_count: 912
+    sponsored_count: 161
+    cosponsored_count: 915
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001230:
     honorific: Ms.
-    sponsored_count: 755
-    cosponsored_count: 6867
+    sponsored_count: 756
+    cosponsored_count: 6885
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   B001236:
     honorific: Mr.
-    sponsored_count: 402
-    cosponsored_count: 4241
+    sponsored_count: 404
+    cosponsored_count: 4246
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   B001243:
     honorific: Mrs.
-    sponsored_count: 805
-    cosponsored_count: 4882
+    sponsored_count: 810
+    cosponsored_count: 4895
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001257:
     honorific: Mr.
-    sponsored_count: 299
-    cosponsored_count: 3066
+    sponsored_count: 301
+    cosponsored_count: 3070
     leadership: []
     portrait_attribution: GPO Member Guide
   B001260:
     honorific: Mr.
     sponsored_count: 214
-    cosponsored_count: 1908
+    cosponsored_count: 1913
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001261:
     honorific: Mr.
-    sponsored_count: 712
-    cosponsored_count: 2460
+    sponsored_count: 713
+    cosponsored_count: 2471
     leadership:
     - type: Majority Whip
       congress: 119
@@ -144,65 +144,65 @@ members:
       U.S. Senate Historical Office</a>
   B001267:
     honorific: Mr.
-    sponsored_count: 965
-    cosponsored_count: 3278
+    sponsored_count: 974
+    cosponsored_count: 3297
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   B001277:
     honorific: Mr.
-    sponsored_count: 1147
-    cosponsored_count: 6243
+    sponsored_count: 1155
+    cosponsored_count: 6274
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   B001278:
     honorific: Ms.
     sponsored_count: 292
-    cosponsored_count: 4123
+    cosponsored_count: 4132
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001281:
     honorific: Mrs.
     sponsored_count: 183
-    cosponsored_count: 3226
+    cosponsored_count: 3230
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001282:
     honorific: Mr.
-    sponsored_count: 221
-    cosponsored_count: 1729
+    sponsored_count: 222
+    cosponsored_count: 1733
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001285:
     honorific: Ms.
     sponsored_count: 307
-    cosponsored_count: 4069
+    cosponsored_count: 4081
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001287:
     honorific: Mr.
     sponsored_count: 118
-    cosponsored_count: 1960
+    cosponsored_count: 1965
     leadership: []
     portrait_attribution: GPO Member Guide
   B001288:
     honorific: Mr.
-    sponsored_count: 1038
-    cosponsored_count: 4282
+    sponsored_count: 1044
+    cosponsored_count: 4308
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   B001291:
     honorific: Mr.
     sponsored_count: 106
-    cosponsored_count: 2210
+    cosponsored_count: 2212
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001292:
     honorific: Mr.
-    sponsored_count: 271
-    cosponsored_count: 2539
+    sponsored_count: 274
+    cosponsored_count: 2543
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001295:
@@ -214,31 +214,31 @@ members:
   B001296:
     honorific: Mr.
     sponsored_count: 133
-    cosponsored_count: 2311
+    cosponsored_count: 2317
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001298:
     honorific: Mr.
     sponsored_count: 197
-    cosponsored_count: 2940
+    cosponsored_count: 2949
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   B001299:
     honorific: Mr.
-    sponsored_count: 267
-    cosponsored_count: 1379
+    sponsored_count: 270
+    cosponsored_count: 1389
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   B001300:
     honorific: Ms.
-    sponsored_count: 134
-    cosponsored_count: 3159
+    sponsored_count: 135
+    cosponsored_count: 3167
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001301:
     honorific: Mr.
     sponsored_count: 105
-    cosponsored_count: 1084
+    cosponsored_count: 1089
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001302:
@@ -249,116 +249,116 @@ members:
     portrait_attribution: Image courtesy of the Member
   B001303:
     honorific: Ms.
-    sponsored_count: 218
-    cosponsored_count: 2433
+    sponsored_count: 219
+    cosponsored_count: 2446
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001305:
     honorific: Mr.
-    sponsored_count: 273
-    cosponsored_count: 2005
+    sponsored_count: 276
+    cosponsored_count: 2015
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   B001306:
     honorific: Mr.
     sponsored_count: 62
-    cosponsored_count: 1087
+    cosponsored_count: 1089
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   B001307:
     honorific: Mr.
     sponsored_count: 44
-    cosponsored_count: 1078
+    cosponsored_count: 1082
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001309:
     honorific: Mr.
     sponsored_count: 148
-    cosponsored_count: 792
+    cosponsored_count: 794
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001313:
     honorific: Ms.
     sponsored_count: 45
-    cosponsored_count: 1005
+    cosponsored_count: 1009
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001314:
     honorific: Mr.
     sponsored_count: 48
-    cosponsored_count: 402
+    cosponsored_count: 408
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001315:
     honorific: Ms.
     sponsored_count: 34
-    cosponsored_count: 954
+    cosponsored_count: 966
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001316:
     honorific: Mr.
-    sponsored_count: 54
-    cosponsored_count: 385
+    sponsored_count: 55
+    cosponsored_count: 387
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001317:
     honorific: Mr.
     sponsored_count: 46
-    cosponsored_count: 480
+    cosponsored_count: 482
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001318:
     honorific: Ms.
-    sponsored_count: 46
-    cosponsored_count: 829
+    sponsored_count: 47
+    cosponsored_count: 833
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001319:
     honorific: Mrs.
-    sponsored_count: 59
-    cosponsored_count: 707
+    sponsored_count: 61
+    cosponsored_count: 718
     leadership: []
     portrait_attribution: <p>Official U.S. Senate Photo</p>
   B001321:
     honorific: Mr.
-    sponsored_count: 45
-    cosponsored_count: 194
+    sponsored_count: 51
+    cosponsored_count: 197
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001322:
     honorific: Mr.
-    sponsored_count: 24
-    cosponsored_count: 182
+    sponsored_count: 25
+    cosponsored_count: 183
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001323:
     honorific: Mr.
-    sponsored_count: 38
-    cosponsored_count: 195
+    sponsored_count: 39
+    cosponsored_count: 196
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001324:
     honorific: Mr.
     sponsored_count: 30
-    cosponsored_count: 496
+    cosponsored_count: 503
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001325:
     honorific: Mrs.
     sponsored_count: 16
-    cosponsored_count: 288
+    cosponsored_count: 293
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001326:
     honorific: Ms.
-    sponsored_count: 21
-    cosponsored_count: 347
+    sponsored_count: 22
+    cosponsored_count: 356
     leadership: []
     portrait_attribution: Image courtesy of the Member
   B001327:
     honorific: Mr.
     sponsored_count: 21
-    cosponsored_count: 300
+    cosponsored_count: 301
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C000059:
@@ -369,8 +369,8 @@ members:
     portrait_attribution: Image courtesy of the Member
   C000127:
     honorific: Ms.
-    sponsored_count: 1004
-    cosponsored_count: 4276
+    sponsored_count: 1006
+    cosponsored_count: 4284
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
@@ -395,14 +395,14 @@ members:
   C000880:
     honorific: Mr.
     sponsored_count: 623
-    cosponsored_count: 4418
+    cosponsored_count: 4429
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   C001035:
     honorific: Ms.
-    sponsored_count: 1205
-    cosponsored_count: 6625
+    sponsored_count: 1208
+    cosponsored_count: 6633
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
@@ -414,33 +414,33 @@ members:
     portrait_attribution: Image courtesy of the Member
   C001047:
     honorific: Mrs.
-    sponsored_count: 396
-    cosponsored_count: 3973
+    sponsored_count: 398
+    cosponsored_count: 3985
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   C001051:
     honorific: Mr.
     sponsored_count: 143
-    cosponsored_count: 2303
+    cosponsored_count: 2304
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001053:
     honorific: Mr.
     sponsored_count: 229
-    cosponsored_count: 3259
+    cosponsored_count: 3260
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001055:
     honorific: Mr.
     sponsored_count: 137
-    cosponsored_count: 3108
+    cosponsored_count: 3125
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001056:
     honorific: Mr.
-    sponsored_count: 1642
-    cosponsored_count: 4071
+    sponsored_count: 1646
+    cosponsored_count: 4080
     leadership:
     - type: Assistant Democratic Leader
       congress: 113
@@ -453,62 +453,62 @@ members:
   C001059:
     honorific: Mr.
     sponsored_count: 187
-    cosponsored_count: 3938
+    cosponsored_count: 3943
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001061:
     honorific: Mr.
     sponsored_count: 233
-    cosponsored_count: 4311
+    cosponsored_count: 4317
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   C001063:
     honorific: Mr.
     sponsored_count: 123
-    cosponsored_count: 2498
+    cosponsored_count: 2502
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   C001066:
     honorific: Ms.
-    sponsored_count: 214
-    cosponsored_count: 3691
+    sponsored_count: 215
+    cosponsored_count: 3696
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001067:
     honorific: Ms.
     sponsored_count: 205
-    cosponsored_count: 5947
+    cosponsored_count: 5963
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001068:
     honorific: Mr.
     sponsored_count: 492
-    cosponsored_count: 8504
+    cosponsored_count: 8510
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001069:
     honorific: Mr.
     sponsored_count: 188
-    cosponsored_count: 3678
+    cosponsored_count: 3688
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001072:
     honorific: Mr.
     sponsored_count: 171
-    cosponsored_count: 6333
+    cosponsored_count: 6350
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001075:
     honorific: Mr.
-    sponsored_count: 723
-    cosponsored_count: 2508
+    sponsored_count: 727
+    cosponsored_count: 2519
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   C001080:
     honorific: Ms.
-    sponsored_count: 255
-    cosponsored_count: 5356
+    sponsored_count: 256
+    cosponsored_count: 5378
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001087:
@@ -519,34 +519,34 @@ members:
     portrait_attribution: Image courtesy of the Member
   C001088:
     honorific: Mr.
-    sponsored_count: 793
-    cosponsored_count: 4174
+    sponsored_count: 798
+    cosponsored_count: 4197
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   C001091:
     honorific: Mr.
     sponsored_count: 187
-    cosponsored_count: 1686
+    cosponsored_count: 1688
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001095:
     honorific: Mr.
     sponsored_count: 578
-    cosponsored_count: 1953
+    cosponsored_count: 1959
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   C001096:
     honorific: Mr.
     sponsored_count: 251
-    cosponsored_count: 3319
+    cosponsored_count: 3332
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001098:
     honorific: Mr.
-    sponsored_count: 1137
-    cosponsored_count: 2091
+    sponsored_count: 1144
+    cosponsored_count: 2099
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
@@ -565,7 +565,7 @@ members:
   C001103:
     honorific: Mr.
     sponsored_count: 213
-    cosponsored_count: 1915
+    cosponsored_count: 1923
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001108:
@@ -576,81 +576,81 @@ members:
     portrait_attribution: Image courtesy of the Member
   C001110:
     honorific: Mr.
-    sponsored_count: 121
-    cosponsored_count: 1875
+    sponsored_count: 122
+    cosponsored_count: 1881
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   C001112:
     honorific: Mr.
-    sponsored_count: 146
-    cosponsored_count: 2882
+    sponsored_count: 147
+    cosponsored_count: 2895
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   C001113:
     honorific: Ms.
-    sponsored_count: 698
-    cosponsored_count: 2306
+    sponsored_count: 709
+    cosponsored_count: 2322
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   C001114:
     honorific: Mr.
-    sponsored_count: 208
-    cosponsored_count: 965
+    sponsored_count: 212
+    cosponsored_count: 972
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001115:
     honorific: Mr.
-    sponsored_count: 73
-    cosponsored_count: 798
+    sponsored_count: 76
+    cosponsored_count: 801
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   C001116:
     honorific: Mr.
     sponsored_count: 78
-    cosponsored_count: 548
+    cosponsored_count: 550
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001117:
     honorific: Mr.
     sponsored_count: 138
-    cosponsored_count: 1807
+    cosponsored_count: 1815
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001118:
     honorific: Mr.
-    sponsored_count: 60
-    cosponsored_count: 1091
+    sponsored_count: 61
+    cosponsored_count: 1093
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001119:
     honorific: Ms.
     sponsored_count: 119
-    cosponsored_count: 2274
+    cosponsored_count: 2276
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001120:
     honorific: Mr.
     sponsored_count: 97
-    cosponsored_count: 1263
+    cosponsored_count: 1264
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001121:
     honorific: Mr.
     sponsored_count: 165
-    cosponsored_count: 1626
+    cosponsored_count: 1629
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001123:
     honorific: Mr.
-    sponsored_count: 32
-    cosponsored_count: 1197
+    sponsored_count: 34
+    cosponsored_count: 1199
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001125:
     honorific: Mr.
-    sponsored_count: 69
-    cosponsored_count: 1420
+    sponsored_count: 70
+    cosponsored_count: 1458
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001126:
@@ -668,85 +668,85 @@ members:
   C001130:
     honorific: Ms.
     sponsored_count: 43
-    cosponsored_count: 974
+    cosponsored_count: 975
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001131:
     honorific: Mr.
-    sponsored_count: 16
-    cosponsored_count: 672
+    sponsored_count: 17
+    cosponsored_count: 701
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001132:
     honorific: Mr.
     sponsored_count: 54
-    cosponsored_count: 1008
+    cosponsored_count: 1010
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001133:
     honorific: Mr.
     sponsored_count: 63
-    cosponsored_count: 670
+    cosponsored_count: 674
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001136:
     honorific: Mr.
     sponsored_count: 15
-    cosponsored_count: 224
+    cosponsored_count: 227
     leadership: []
     portrait_attribution: Image courtesy of the Member
   C001137:
     honorific: Mr.
-    sponsored_count: 9
+    sponsored_count: 10
     cosponsored_count: 132
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000032:
     honorific: Mr.
     sponsored_count: 147
-    cosponsored_count: 1307
+    cosponsored_count: 1309
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000096:
     honorific: Mr.
     sponsored_count: 407
-    cosponsored_count: 7701
+    cosponsored_count: 7712
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000197:
     honorific: Ms.
     sponsored_count: 249
-    cosponsored_count: 4474
+    cosponsored_count: 4483
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000216:
     honorific: Ms.
     sponsored_count: 641
-    cosponsored_count: 6521
+    cosponsored_count: 6522
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000230:
     honorific: Mr.
-    sponsored_count: 55
-    cosponsored_count: 1520
+    sponsored_count: 56
+    cosponsored_count: 1532
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000399:
     honorific: Mr.
-    sponsored_count: 265
-    cosponsored_count: 3801
+    sponsored_count: 266
+    cosponsored_count: 3808
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   D000530:
     honorific: Mr.
-    sponsored_count: 54
-    cosponsored_count: 1033
+    sponsored_count: 57
+    cosponsored_count: 1040
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000563:
     honorific: Mr.
-    sponsored_count: 2180
-    cosponsored_count: 10516
+    sponsored_count: 2182
+    cosponsored_count: 10526
     leadership:
     - type: Assistant Democratic Leader
       congress: 114
@@ -768,75 +768,75 @@ members:
       U.S. Senate Historical Office</a>
   D000594:
     honorific: Ms.
-    sponsored_count: 64
-    cosponsored_count: 480
+    sponsored_count: 65
+    cosponsored_count: 484
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000600:
     honorific: Mr.
     sponsored_count: 111
-    cosponsored_count: 2174
+    cosponsored_count: 2176
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000616:
     honorific: Mr.
     sponsored_count: 52
-    cosponsored_count: 1519
+    cosponsored_count: 1520
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000617:
     honorific: Ms.
     sponsored_count: 154
-    cosponsored_count: 3325
+    cosponsored_count: 3329
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000618:
     honorific: Mr.
-    sponsored_count: 643
-    cosponsored_count: 2517
+    sponsored_count: 644
+    cosponsored_count: 2529
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   D000622:
     honorific: Ms.
-    sponsored_count: 588
-    cosponsored_count: 3344
+    sponsored_count: 591
+    cosponsored_count: 3368
     leadership: []
     portrait_attribution: Courtesy U.S. Senate Historical Office
   D000623:
     honorific: Mr.
-    sponsored_count: 222
-    cosponsored_count: 3719
+    sponsored_count: 226
+    cosponsored_count: 3733
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000624:
     honorific: Mrs.
-    sponsored_count: 278
-    cosponsored_count: 3092
+    sponsored_count: 280
+    cosponsored_count: 3096
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000626:
     honorific: Mr.
     sponsored_count: 155
-    cosponsored_count: 862
+    cosponsored_count: 867
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000628:
     honorific: Mr.
     sponsored_count: 92
-    cosponsored_count: 1163
+    cosponsored_count: 1164
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   D000629:
     honorific: Ms.
     sponsored_count: 70
-    cosponsored_count: 1543
+    cosponsored_count: 1552
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000631:
     honorific: Ms.
-    sponsored_count: 117
-    cosponsored_count: 2149
+    sponsored_count: 118
+    cosponsored_count: 2160
     leadership: []
     portrait_attribution: Image courtesy of the Member
   D000634:
@@ -848,31 +848,31 @@ members:
   D000635:
     honorific: Ms.
     sponsored_count: 17
-    cosponsored_count: 358
+    cosponsored_count: 365
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000071:
     honorific: Mr.
     sponsored_count: 11
-    cosponsored_count: 696
+    cosponsored_count: 699
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000235:
     honorific: Mr.
     sponsored_count: 43
-    cosponsored_count: 424
+    cosponsored_count: 426
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000246:
     honorific: Mr.
     sponsored_count: 42
-    cosponsored_count: 522
+    cosponsored_count: 523
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000294:
     honorific: Mr.
     sponsored_count: 128
-    cosponsored_count: 1136
+    cosponsored_count: 1137
     leadership:
     - type: Majority Whip
       congress: 118
@@ -881,21 +881,21 @@ members:
     portrait_attribution: Image courtesy of the Member
   E000295:
     honorific: Ms.
-    sponsored_count: 667
-    cosponsored_count: 1925
+    sponsored_count: 669
+    cosponsored_count: 1930
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   E000296:
     honorific: Mr.
-    sponsored_count: 63
-    cosponsored_count: 3102
+    sponsored_count: 64
+    cosponsored_count: 3111
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   E000297:
     honorific: Mr.
     sponsored_count: 233
-    cosponsored_count: 2932
+    cosponsored_count: 2942
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000298:
@@ -907,151 +907,151 @@ members:
   E000299:
     honorific: Ms.
     sponsored_count: 80
-    cosponsored_count: 1523
+    cosponsored_count: 1537
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000300:
     honorific: Mr.
     sponsored_count: 22
-    cosponsored_count: 237
+    cosponsored_count: 245
     leadership: []
     portrait_attribution: Image courtesy of the Member
   E000301:
     honorific: Ms.
     sponsored_count: 17
-    cosponsored_count: 337
+    cosponsored_count: 339
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000110:
     honorific: Mr.
     sponsored_count: 28
-    cosponsored_count: 592
+    cosponsored_count: 593
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000246:
     honorific: Mr.
     sponsored_count: 65
-    cosponsored_count: 682
+    cosponsored_count: 683
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000446:
     honorific: Mr.
     sponsored_count: 103
-    cosponsored_count: 816
+    cosponsored_count: 817
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000450:
     honorific: Ms.
     sponsored_count: 264
-    cosponsored_count: 1757
+    cosponsored_count: 1760
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   F000454:
     honorific: Mr.
     sponsored_count: 286
-    cosponsored_count: 2613
+    cosponsored_count: 2615
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000459:
     honorific: Mr.
     sponsored_count: 51
-    cosponsored_count: 1497
+    cosponsored_count: 1504
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000462:
     honorific: Ms.
-    sponsored_count: 100
-    cosponsored_count: 2278
+    sponsored_count: 101
+    cosponsored_count: 2282
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000463:
     honorific: Mrs.
-    sponsored_count: 349
-    cosponsored_count: 1591
+    sponsored_count: 350
+    cosponsored_count: 1601
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   F000466:
     honorific: Mr.
     sponsored_count: 250
-    cosponsored_count: 5598
+    cosponsored_count: 5621
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   F000468:
     honorific: Mrs.
     sponsored_count: 58
-    cosponsored_count: 1221
+    cosponsored_count: 1230
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000469:
     honorific: Mr.
     sponsored_count: 50
-    cosponsored_count: 654
+    cosponsored_count: 656
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000470:
     honorific: Mrs.
-    sponsored_count: 69
-    cosponsored_count: 537
+    sponsored_count: 70
+    cosponsored_count: 541
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000471:
     honorific: Mr.
     sponsored_count: 79
-    cosponsored_count: 539
+    cosponsored_count: 542
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000472:
     honorific: Mr.
     sponsored_count: 47
-    cosponsored_count: 811
+    cosponsored_count: 814
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000474:
     honorific: Mr.
-    sponsored_count: 49
-    cosponsored_count: 436
+    sponsored_count: 50
+    cosponsored_count: 439
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000475:
     honorific: Mr.
-    sponsored_count: 64
-    cosponsored_count: 730
+    sponsored_count: 65
+    cosponsored_count: 734
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000476:
     honorific: Mr.
     sponsored_count: 46
-    cosponsored_count: 979
+    cosponsored_count: 990
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000477:
     honorific: Mrs.
-    sponsored_count: 43
-    cosponsored_count: 827
+    sponsored_count: 45
+    cosponsored_count: 834
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000478:
     honorific: Mr.
     sponsored_count: 32
-    cosponsored_count: 414
+    cosponsored_count: 423
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000479:
     honorific: Mr.
-    sponsored_count: 82
-    cosponsored_count: 869
+    sponsored_count: 83
+    cosponsored_count: 888
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   F000480:
     honorific: Mr.
-    sponsored_count: 18
-    cosponsored_count: 166
+    sponsored_count: 19
+    cosponsored_count: 171
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000481:
     honorific: Mr.
     sponsored_count: 23
-    cosponsored_count: 361
+    cosponsored_count: 362
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000482:
@@ -1063,25 +1063,25 @@ members:
   F000483:
     honorific: Ms.
     sponsored_count: 11
-    cosponsored_count: 322
+    cosponsored_count: 325
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000484:
     honorific: Mr.
     sponsored_count: 31
-    cosponsored_count: 198
+    cosponsored_count: 204
     leadership: []
     portrait_attribution: Image courtesy of the Member
   F000485:
     honorific: Mr.
     sponsored_count: 11
-    cosponsored_count: 68
+    cosponsored_count: 70
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000386:
     honorific: Mr.
-    sponsored_count: 2487
-    cosponsored_count: 7579
+    sponsored_count: 2492
+    cosponsored_count: 7590
     leadership:
     - type: President Pro Tempore
       congress: 116
@@ -1101,33 +1101,33 @@ members:
     portrait_attribution: Collection of the U.S. House of Representatives
   G000553:
     honorific: Mr.
-    sponsored_count: 371
-    cosponsored_count: 3987
+    sponsored_count: 372
+    cosponsored_count: 3988
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   G000555:
     honorific: Mrs.
-    sponsored_count: 911
-    cosponsored_count: 5241
+    sponsored_count: 913
+    cosponsored_count: 5265
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   G000558:
     honorific: Mr.
     sponsored_count: 140
-    cosponsored_count: 1774
+    cosponsored_count: 1775
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000559:
     honorific: Mr.
-    sponsored_count: 239
-    cosponsored_count: 3742
+    sponsored_count: 240
+    cosponsored_count: 3747
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000565:
     honorific: Mr.
     sponsored_count: 376
-    cosponsored_count: 2708
+    cosponsored_count: 2716
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000568:
@@ -1138,116 +1138,116 @@ members:
     portrait_attribution: Image courtesy of the Member
   G000574:
     honorific: Mr.
-    sponsored_count: 276
-    cosponsored_count: 2768
+    sponsored_count: 281
+    cosponsored_count: 2781
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000576:
     honorific: Mr.
-    sponsored_count: 189
-    cosponsored_count: 2015
+    sponsored_count: 190
+    cosponsored_count: 2017
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   G000581:
     honorific: Mr.
     sponsored_count: 52
-    cosponsored_count: 1585
+    cosponsored_count: 1592
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   G000583:
     honorific: Mr.
-    sponsored_count: 209
-    cosponsored_count: 3258
+    sponsored_count: 212
+    cosponsored_count: 3296
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   G000585:
     honorific: Mr.
-    sponsored_count: 86
-    cosponsored_count: 1693
+    sponsored_count: 87
+    cosponsored_count: 1700
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   G000586:
     honorific: Mr.
     sponsored_count: 73
-    cosponsored_count: 2588
+    cosponsored_count: 2599
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000587:
     honorific: Ms.
     sponsored_count: 89
-    cosponsored_count: 1797
+    cosponsored_count: 1809
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000589:
     honorific: Mr.
     sponsored_count: 68
-    cosponsored_count: 1084
+    cosponsored_count: 1086
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000591:
     honorific: Mr.
     sponsored_count: 54
-    cosponsored_count: 1149
+    cosponsored_count: 1150
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000592:
     honorific: Mr.
     sponsored_count: 88
-    cosponsored_count: 926
+    cosponsored_count: 928
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000593:
     honorific: Mr.
     sponsored_count: 57
-    cosponsored_count: 764
+    cosponsored_count: 766
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000597:
     honorific: Mr.
     sponsored_count: 96
-    cosponsored_count: 1069
+    cosponsored_count: 1071
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000598:
     honorific: Mr.
     sponsored_count: 47
-    cosponsored_count: 795
+    cosponsored_count: 800
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000599:
     honorific: Mr.
     sponsored_count: 66
-    cosponsored_count: 1370
+    cosponsored_count: 1377
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000600:
     honorific: Ms.
     sponsored_count: 60
-    cosponsored_count: 541
+    cosponsored_count: 544
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000601:
     honorific: Mr.
-    sponsored_count: 13
-    cosponsored_count: 210
+    sponsored_count: 14
+    cosponsored_count: 211
     leadership: []
     portrait_attribution: null
   G000602:
     honorific: Ms.
     sponsored_count: 19
-    cosponsored_count: 279
+    cosponsored_count: 280
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000603:
     honorific: Mr.
     sponsored_count: 25
-    cosponsored_count: 317
+    cosponsored_count: 321
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000604:
     honorific: Ms.
     sponsored_count: 13
-    cosponsored_count: 330
+    cosponsored_count: 336
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000605:
@@ -1259,39 +1259,39 @@ members:
   G000606:
     honorific: Mrs.
     sponsored_count: 11
-    cosponsored_count: 389
+    cosponsored_count: 416
     leadership: []
     portrait_attribution: Image courtesy of the Member
   G000607:
     honorific: Mr.
-    sponsored_count: 2
-    cosponsored_count: 24
+    sponsored_count: 5
+    cosponsored_count: 39
     leadership: []
     portrait_attribution: null
   G000608:
     honorific: Ms.
-    sponsored_count: 1
-    cosponsored_count: 21
+    sponsored_count: 3
+    cosponsored_count: 49
     leadership: []
     portrait_attribution: null
   H000273:
     honorific: Mr.
-    sponsored_count: 281
-    cosponsored_count: 1112
+    sponsored_count: 284
+    cosponsored_count: 1138
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H000601:
     honorific: Mr.
-    sponsored_count: 331
-    cosponsored_count: 868
+    sponsored_count: 333
+    cosponsored_count: 871
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H000874:
     honorific: Mr.
     sponsored_count: 375
-    cosponsored_count: 4088
+    cosponsored_count: 4092
     leadership:
     - type: Democratic Whip
       congress: 113
@@ -1308,97 +1308,97 @@ members:
     portrait_attribution: Congressional Pictorial Directory
   H001042:
     honorific: Ms.
-    sponsored_count: 801
-    cosponsored_count: 5097
+    sponsored_count: 804
+    cosponsored_count: 5116
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H001046:
     honorific: Mr.
-    sponsored_count: 655
-    cosponsored_count: 3308
+    sponsored_count: 659
+    cosponsored_count: 3323
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H001047:
     honorific: Mr.
-    sponsored_count: 110
-    cosponsored_count: 2544
+    sponsored_count: 112
+    cosponsored_count: 2547
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001052:
     honorific: Mr.
     sponsored_count: 50
-    cosponsored_count: 1912
+    cosponsored_count: 1914
     leadership: []
     portrait_attribution: GPO Member Guide
   H001058:
     honorific: Mr.
     sponsored_count: 177
-    cosponsored_count: 1722
+    cosponsored_count: 1724
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001061:
     honorific: Mr.
     sponsored_count: 507
-    cosponsored_count: 2034
+    cosponsored_count: 2038
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H001066:
     honorific: Mr.
     sponsored_count: 119
-    cosponsored_count: 1758
+    cosponsored_count: 1763
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001067:
     honorific: Mr.
     sponsored_count: 143
-    cosponsored_count: 1684
+    cosponsored_count: 1686
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001068:
     honorific: Mr.
-    sponsored_count: 241
-    cosponsored_count: 3902
+    sponsored_count: 242
+    cosponsored_count: 3908
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001072:
     honorific: Mr.
     sponsored_count: 148
-    cosponsored_count: 1139
+    cosponsored_count: 1144
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001076:
     honorific: Ms.
-    sponsored_count: 411
-    cosponsored_count: 2504
+    sponsored_count: 415
+    cosponsored_count: 2512
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H001077:
     honorific: Mr.
     sponsored_count: 163
-    cosponsored_count: 1083
+    cosponsored_count: 1085
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001079:
     honorific: Mrs.
-    sponsored_count: 157
-    cosponsored_count: 1550
+    sponsored_count: 160
+    cosponsored_count: 1562
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   H001081:
     honorific: Mrs.
-    sponsored_count: 130
-    cosponsored_count: 2883
+    sponsored_count: 132
+    cosponsored_count: 2888
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001082:
     honorific: Mr.
     sponsored_count: 71
-    cosponsored_count: 727
+    cosponsored_count: 728
     leadership:
     - type: Republican Policy Committee Chairman
       congress: 119
@@ -1406,116 +1406,116 @@ members:
   H001085:
     honorific: Ms.
     sponsored_count: 117
-    cosponsored_count: 1573
+    cosponsored_count: 1577
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001086:
     honorific: Mrs.
     sponsored_count: 77
-    cosponsored_count: 855
+    cosponsored_count: 859
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001089:
     honorific: Mr.
-    sponsored_count: 346
-    cosponsored_count: 967
+    sponsored_count: 348
+    cosponsored_count: 970
     leadership: []
     portrait_attribution: null
   H001090:
     honorific: Mr.
-    sponsored_count: 156
-    cosponsored_count: 1905
+    sponsored_count: 157
+    cosponsored_count: 1908
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001091:
     honorific: Mrs.
-    sponsored_count: 93
-    cosponsored_count: 919
+    sponsored_count: 95
+    cosponsored_count: 923
     leadership: []
     portrait_attribution: Image Courtesy of Member
   H001093:
     honorific: Mrs.
-    sponsored_count: 68
-    cosponsored_count: 485
+    sponsored_count: 69
+    cosponsored_count: 489
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001094:
     honorific: Ms.
-    sponsored_count: 24
-    cosponsored_count: 634
+    sponsored_count: 25
+    cosponsored_count: 647
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001095:
     honorific: Mr.
     sponsored_count: 30
-    cosponsored_count: 356
+    cosponsored_count: 359
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001096:
     honorific: Ms.
-    sponsored_count: 131
-    cosponsored_count: 537
+    sponsored_count: 133
+    cosponsored_count: 540
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001098:
     honorific: Mr.
-    sponsored_count: 31
-    cosponsored_count: 256
+    sponsored_count: 33
+    cosponsored_count: 261
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001099:
     honorific: Mr.
     sponsored_count: 5
-    cosponsored_count: 242
+    cosponsored_count: 245
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001100:
     honorific: Mr.
     sponsored_count: 26
-    cosponsored_count: 193
+    cosponsored_count: 197
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001101:
     honorific: Mr.
-    sponsored_count: 29
-    cosponsored_count: 306
+    sponsored_count: 30
+    cosponsored_count: 311
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001102:
     honorific: Mr.
     sponsored_count: 17
-    cosponsored_count: 200
+    cosponsored_count: 202
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001103:
     honorific: Mr.
     sponsored_count: 29
-    cosponsored_count: 205
+    cosponsored_count: 210
     leadership: []
     portrait_attribution: Image courtesy of the Member
   H001104:
     honorific: Mr.
-    sponsored_count: 72
-    cosponsored_count: 158
+    sponsored_count: 82
+    cosponsored_count: 165
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   I000056:
     honorific: Mr.
-    sponsored_count: 398
-    cosponsored_count: 2483
+    sponsored_count: 400
+    cosponsored_count: 2486
     leadership: []
     portrait_attribution: Collection of the U.S. House of Representatives <a href="http://history.house.gov/Collection/Detail/15032430738?ret=True">About
       this object</a>
   I000058:
     honorific: Mr.
     sponsored_count: 10
-    cosponsored_count: 634
+    cosponsored_count: 638
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000288:
     honorific: Mr.
-    sponsored_count: 257
-    cosponsored_count: 6055
+    sponsored_count: 258
+    cosponsored_count: 6068
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000289:
@@ -1526,8 +1526,8 @@ members:
     portrait_attribution: Image courtesy of the Member
   J000293:
     honorific: Mr.
-    sponsored_count: 609
-    cosponsored_count: 1333
+    sponsored_count: 610
+    cosponsored_count: 1334
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
@@ -1548,13 +1548,13 @@ members:
   J000295:
     honorific: Mr.
     sponsored_count: 141
-    cosponsored_count: 1839
+    cosponsored_count: 1842
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000298:
     honorific: Ms.
-    sponsored_count: 196
-    cosponsored_count: 3149
+    sponsored_count: 197
+    cosponsored_count: 3163
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   J000299:
@@ -1570,125 +1570,125 @@ members:
   J000301:
     honorific: Mr.
     sponsored_count: 134
-    cosponsored_count: 729
+    cosponsored_count: 730
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000302:
     honorific: Mr.
-    sponsored_count: 65
-    cosponsored_count: 815
+    sponsored_count: 66
+    cosponsored_count: 818
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000304:
     honorific: Mr.
-    sponsored_count: 101
-    cosponsored_count: 947
+    sponsored_count: 102
+    cosponsored_count: 960
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000305:
     honorific: Ms.
     sponsored_count: 81
-    cosponsored_count: 1374
+    cosponsored_count: 1379
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000307:
     honorific: Mr.
     sponsored_count: 65
-    cosponsored_count: 294
+    cosponsored_count: 299
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000309:
     honorific: Mr.
     sponsored_count: 15
-    cosponsored_count: 1081
+    cosponsored_count: 1094
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000310:
     honorific: Ms.
     sponsored_count: 25
-    cosponsored_count: 443
+    cosponsored_count: 450
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000311:
     honorific: Mr.
     sponsored_count: 9
-    cosponsored_count: 116
+    cosponsored_count: 117
     leadership: []
     portrait_attribution: Image courtesy of the Member
   J000312:
     honorific: Mr.
-    sponsored_count: 15
-    cosponsored_count: 291
+    sponsored_count: 17
+    cosponsored_count: 302
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   K000009:
     honorific: Ms.
     sponsored_count: 509
-    cosponsored_count: 10222
+    cosponsored_count: 10229
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000367:
     honorific: Ms.
-    sponsored_count: 1429
-    cosponsored_count: 5667
+    sponsored_count: 1431
+    cosponsored_count: 5687
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   K000375:
     honorific: Mr.
-    sponsored_count: 171
-    cosponsored_count: 2918
+    sponsored_count: 172
+    cosponsored_count: 2930
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000376:
     honorific: Mr.
     sponsored_count: 186
-    cosponsored_count: 2371
+    cosponsored_count: 2375
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000377:
     honorific: Mr.
-    sponsored_count: 287
-    cosponsored_count: 1262
+    sponsored_count: 290
+    cosponsored_count: 1280
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   K000383:
     honorific: Mr.
-    sponsored_count: 467
-    cosponsored_count: 3194
+    sponsored_count: 470
+    cosponsored_count: 3206
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   K000384:
     honorific: Mr.
-    sponsored_count: 649
-    cosponsored_count: 2919
+    sponsored_count: 651
+    cosponsored_count: 2944
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   K000385:
     honorific: Ms.
     sponsored_count: 160
-    cosponsored_count: 2771
+    cosponsored_count: 2774
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   K000388:
     honorific: Mr.
     sponsored_count: 67
-    cosponsored_count: 1058
+    cosponsored_count: 1061
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   K000389:
     honorific: Mr.
-    sponsored_count: 191
-    cosponsored_count: 3684
+    sponsored_count: 195
+    cosponsored_count: 3698
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000391:
     honorific: Mr.
     sponsored_count: 168
-    cosponsored_count: 2622
+    cosponsored_count: 2633
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000392:
@@ -1699,81 +1699,81 @@ members:
     portrait_attribution: Congressional Pictorial Directory
   K000393:
     honorific: Mr.
-    sponsored_count: 685
-    cosponsored_count: 1162
+    sponsored_count: 691
+    cosponsored_count: 1169
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   K000394:
     honorific: Mr.
-    sponsored_count: 230
-    cosponsored_count: 1982
+    sponsored_count: 232
+    cosponsored_count: 2013
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   K000397:
     honorific: Mrs.
-    sponsored_count: 111
-    cosponsored_count: 1080
+    sponsored_count: 112
+    cosponsored_count: 1084
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000398:
     honorific: Mr.
-    sponsored_count: 57
-    cosponsored_count: 709
+    sponsored_count: 58
+    cosponsored_count: 741
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000399:
     honorific: Mrs.
     sponsored_count: 82
-    cosponsored_count: 686
+    cosponsored_count: 692
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000400:
     honorific: Ms.
-    sponsored_count: 66
-    cosponsored_count: 852
+    sponsored_count: 69
+    cosponsored_count: 858
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000401:
     honorific: Mr.
     sponsored_count: 44
-    cosponsored_count: 290
+    cosponsored_count: 295
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000402:
     honorific: Mr.
     sponsored_count: 34
-    cosponsored_count: 692
+    cosponsored_count: 704
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000403:
     honorific: Mr.
     sponsored_count: 36
-    cosponsored_count: 141
+    cosponsored_count: 143
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000404:
     honorific: Ms.
-    sponsored_count: 18
-    cosponsored_count: 137
+    sponsored_count: 19
+    cosponsored_count: 140
     leadership: []
     portrait_attribution: Image courtesy of the Member
   K000405:
     honorific: Mr.
-    sponsored_count: 5
+    sponsored_count: 6
     cosponsored_count: 77
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000273:
     honorific: Ms.
-    sponsored_count: 102
-    cosponsored_count: 868
+    sponsored_count: 103
+    cosponsored_count: 871
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000397:
     honorific: Ms.
     sponsored_count: 374
-    cosponsored_count: 8436
+    cosponsored_count: 8452
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000491:
@@ -1784,48 +1784,48 @@ members:
     portrait_attribution: Congressional Pictorial Directory
   L000557:
     honorific: Mr.
-    sponsored_count: 261
-    cosponsored_count: 4351
+    sponsored_count: 262
+    cosponsored_count: 4355
     leadership:
     - type: Democratic Caucus Chairman
       congress: 112
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   L000560:
     honorific: Mr.
-    sponsored_count: 179
-    cosponsored_count: 3663
+    sponsored_count: 180
+    cosponsored_count: 3665
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   L000562:
     honorific: Mr.
     sponsored_count: 254
-    cosponsored_count: 4507
+    cosponsored_count: 4524
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000566:
     honorific: Mr.
     sponsored_count: 241
-    cosponsored_count: 2324
+    cosponsored_count: 2325
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000570:
     honorific: Mr.
-    sponsored_count: 563
-    cosponsored_count: 3278
+    sponsored_count: 571
+    cosponsored_count: 3300
     leadership:
     - type: Assistant Democratic Leader
       congress: 116
     portrait_attribution: Image courtesy of the Member
   L000571:
     honorific: Ms.
-    sponsored_count: 245
-    cosponsored_count: 2254
+    sponsored_count: 248
+    cosponsored_count: 2270
     leadership: []
     portrait_attribution: Collection of the U.S. House of Representatives
   L000575:
     honorific: Mr.
-    sponsored_count: 672
-    cosponsored_count: 2400
+    sponsored_count: 676
+    cosponsored_count: 2414
     leadership:
     - type: Republican Policy Committee Chairman
       congress: 113
@@ -1833,15 +1833,15 @@ members:
       U.S. Senate Historical Office</a>
   L000577:
     honorific: Mr.
-    sponsored_count: 2103
-    cosponsored_count: 1783
+    sponsored_count: 2110
+    cosponsored_count: 1797
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   L000582:
     honorific: Mr.
-    sponsored_count: 272
-    cosponsored_count: 4081
+    sponsored_count: 273
+    cosponsored_count: 4087
     leadership:
     - type: Democratic Caucus Vice Chair
       congress: 119
@@ -1854,117 +1854,117 @@ members:
     portrait_attribution: Congressional Pictorial Directory
   L000585:
     honorific: Mr.
-    sponsored_count: 140
-    cosponsored_count: 1091
+    sponsored_count: 141
+    cosponsored_count: 1092
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   L000590:
     honorific: Ms.
-    sponsored_count: 99
-    cosponsored_count: 1267
+    sponsored_count: 100
+    cosponsored_count: 1275
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000593:
     honorific: Mr.
     sponsored_count: 123
-    cosponsored_count: 1866
+    cosponsored_count: 1876
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000595:
     honorific: Ms.
     sponsored_count: 32
-    cosponsored_count: 451
+    cosponsored_count: 454
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000596:
     honorific: Mrs.
-    sponsored_count: 82
-    cosponsored_count: 595
+    sponsored_count: 83
+    cosponsored_count: 598
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000597:
     honorific: Ms.
     sponsored_count: 45
-    cosponsored_count: 364
+    cosponsored_count: 369
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000598:
     honorific: Mr.
     sponsored_count: 62
-    cosponsored_count: 659
+    cosponsored_count: 668
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000599:
     honorific: Mr.
-    sponsored_count: 190
-    cosponsored_count: 2249
+    sponsored_count: 195
+    cosponsored_count: 2274
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000600:
     honorific: Mr.
     sponsored_count: 80
-    cosponsored_count: 667
+    cosponsored_count: 674
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000601:
     honorific: Mr.
     sponsored_count: 49
-    cosponsored_count: 962
+    cosponsored_count: 973
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000602:
     honorific: Ms.
     sponsored_count: 43
-    cosponsored_count: 998
+    cosponsored_count: 1005
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000603:
     honorific: Mr.
     sponsored_count: 45
-    cosponsored_count: 255
+    cosponsored_count: 256
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000606:
     honorific: Mr.
     sponsored_count: 9
-    cosponsored_count: 446
+    cosponsored_count: 449
     leadership: []
     portrait_attribution: Image courtesy of the Member
   L000607:
     honorific: Mr.
     sponsored_count: 17
-    cosponsored_count: 173
+    cosponsored_count: 176
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M000133:
     honorific: Mr.
-    sponsored_count: 1674
-    cosponsored_count: 10208
+    sponsored_count: 1680
+    cosponsored_count: 10228
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   M000194:
     honorific: Ms.
-    sponsored_count: 204
-    cosponsored_count: 1016
+    sponsored_count: 208
+    cosponsored_count: 1019
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M000312:
     honorific: Mr.
     sponsored_count: 439
-    cosponsored_count: 11895
+    cosponsored_count: 11900
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   M000317:
     honorific: Ms.
-    sponsored_count: 137
-    cosponsored_count: 1126
+    sponsored_count: 138
+    cosponsored_count: 1129
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M000355:
     honorific: Mr.
     sponsored_count: 1295
-    cosponsored_count: 2840
+    cosponsored_count: 2842
     leadership:
     - type: Majority Leader
       congress: 114
@@ -1985,26 +1985,26 @@ members:
   M000687:
     honorific: Mr.
     sponsored_count: 95
-    cosponsored_count: 2865
+    cosponsored_count: 2873
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M000871:
     honorific: Mr.
     sponsored_count: 76
-    cosponsored_count: 1175
+    cosponsored_count: 1176
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M000934:
     honorific: Mr.
-    sponsored_count: 782
-    cosponsored_count: 3847
+    sponsored_count: 788
+    cosponsored_count: 3850
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   M001111:
     honorific: Mrs.
-    sponsored_count: 1203
-    cosponsored_count: 6385
+    sponsored_count: 1206
+    cosponsored_count: 6404
     leadership:
     - type: Assistant Democratic Leader
       congress: 117
@@ -2022,58 +2022,58 @@ members:
   M001137:
     honorific: Mr.
     sponsored_count: 244
-    cosponsored_count: 5860
+    cosponsored_count: 5862
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   M001143:
     honorific: Ms.
-    sponsored_count: 171
-    cosponsored_count: 6948
+    sponsored_count: 173
+    cosponsored_count: 6952
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   M001153:
     honorific: Ms.
-    sponsored_count: 1234
-    cosponsored_count: 3622
+    sponsored_count: 1236
+    cosponsored_count: 3636
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   M001157:
     honorific: Mr.
-    sponsored_count: 259
-    cosponsored_count: 3241
+    sponsored_count: 260
+    cosponsored_count: 3243
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   M001160:
     honorific: Ms.
-    sponsored_count: 288
-    cosponsored_count: 6215
+    sponsored_count: 290
+    cosponsored_count: 6225
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   M001163:
     honorific: Ms.
-    sponsored_count: 293
-    cosponsored_count: 4489
+    sponsored_count: 294
+    cosponsored_count: 4494
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001169:
     honorific: Mr.
-    sponsored_count: 619
-    cosponsored_count: 3466
+    sponsored_count: 620
+    cosponsored_count: 3476
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   M001176:
     honorific: Mr.
-    sponsored_count: 1257
-    cosponsored_count: 4988
+    sponsored_count: 1266
+    cosponsored_count: 5019
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   M001177:
     honorific: Mr.
-    sponsored_count: 154
-    cosponsored_count: 1895
+    sponsored_count: 155
+    cosponsored_count: 1896
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001184:
@@ -2084,320 +2084,320 @@ members:
     portrait_attribution: Image courtesy of the Member
   M001188:
     honorific: Ms.
-    sponsored_count: 318
-    cosponsored_count: 3625
+    sponsored_count: 320
+    cosponsored_count: 3635
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001194:
     honorific: Mr.
     sponsored_count: 110
-    cosponsored_count: 1590
+    cosponsored_count: 1594
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001196:
     honorific: Mr.
-    sponsored_count: 110
-    cosponsored_count: 3182
+    sponsored_count: 111
+    cosponsored_count: 3203
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001198:
     honorific: Mr.
-    sponsored_count: 521
-    cosponsored_count: 1827
+    sponsored_count: 523
+    cosponsored_count: 1850
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   M001199:
     honorific: Mr.
-    sponsored_count: 156
+    sponsored_count: 157
     cosponsored_count: 1220
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   M001204:
     honorific: Mr.
     sponsored_count: 68
-    cosponsored_count: 1250
+    cosponsored_count: 1256
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001205:
     honorific: Mrs.
     sponsored_count: 98
-    cosponsored_count: 968
+    cosponsored_count: 976
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001206:
     honorific: Mr.
-    sponsored_count: 139
-    cosponsored_count: 1876
+    sponsored_count: 141
+    cosponsored_count: 1879
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001208:
     honorific: Mrs.
-    sponsored_count: 72
-    cosponsored_count: 1364
+    sponsored_count: 73
+    cosponsored_count: 1367
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001210:
     honorific: Mr.
     sponsored_count: 125
-    cosponsored_count: 863
+    cosponsored_count: 864
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001211:
     honorific: Mrs.
     sponsored_count: 84
-    cosponsored_count: 1278
+    cosponsored_count: 1279
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001212:
     honorific: Mr.
     sponsored_count: 66
-    cosponsored_count: 1160
+    cosponsored_count: 1166
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001213:
     honorific: Mr.
     sponsored_count: 97
-    cosponsored_count: 620
+    cosponsored_count: 622
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001214:
     honorific: Mr.
     sponsored_count: 17
-    cosponsored_count: 780
+    cosponsored_count: 783
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001215:
     honorific: Mrs.
     sponsored_count: 133
-    cosponsored_count: 1217
+    cosponsored_count: 1218
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001216:
     honorific: Mr.
     sponsored_count: 53
-    cosponsored_count: 408
+    cosponsored_count: 415
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001217:
     honorific: Mr.
     sponsored_count: 38
-    cosponsored_count: 804
+    cosponsored_count: 808
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001218:
     honorific: Mr.
-    sponsored_count: 56
-    cosponsored_count: 544
+    sponsored_count: 57
+    cosponsored_count: 552
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001219:
     honorific: Mr.
-    sponsored_count: 59
-    cosponsored_count: 611
+    sponsored_count: 60
+    cosponsored_count: 612
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001220:
     honorific: Mr.
     sponsored_count: 48
-    cosponsored_count: 681
+    cosponsored_count: 684
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001222:
     honorific: Mr.
     sponsored_count: 45
-    cosponsored_count: 452
+    cosponsored_count: 453
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001223:
     honorific: Mr.
     sponsored_count: 47
-    cosponsored_count: 1083
+    cosponsored_count: 1088
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001224:
     honorific: Mr.
     sponsored_count: 45
-    cosponsored_count: 458
+    cosponsored_count: 461
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001225:
     honorific: Mr.
-    sponsored_count: 38
-    cosponsored_count: 1115
+    sponsored_count: 40
+    cosponsored_count: 1127
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001226:
     honorific: Mr.
     sponsored_count: 35
-    cosponsored_count: 567
+    cosponsored_count: 577
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001227:
     honorific: Ms.
     sponsored_count: 49
-    cosponsored_count: 903
+    cosponsored_count: 909
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001228:
     honorific: Ms.
-    sponsored_count: 40
-    cosponsored_count: 207
+    sponsored_count: 41
+    cosponsored_count: 208
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001229:
     honorific: Mrs.
     sponsored_count: 19
-    cosponsored_count: 637
+    cosponsored_count: 643
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001230:
     honorific: Mr.
-    sponsored_count: 26
-    cosponsored_count: 249
+    sponsored_count: 29
+    cosponsored_count: 255
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001231:
     honorific: Mr.
     sponsored_count: 9
-    cosponsored_count: 292
+    cosponsored_count: 299
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001232:
     honorific: Mrs.
     sponsored_count: 29
-    cosponsored_count: 431
+    cosponsored_count: 438
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001233:
     honorific: Mr.
     sponsored_count: 16
-    cosponsored_count: 214
+    cosponsored_count: 217
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001234:
     honorific: Ms.
     sponsored_count: 17
-    cosponsored_count: 236
+    cosponsored_count: 239
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001235:
     honorific: Mr.
     sponsored_count: 19
-    cosponsored_count: 133
+    cosponsored_count: 135
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001236:
     honorific: Mr.
-    sponsored_count: 28
-    cosponsored_count: 283
+    sponsored_count: 31
+    cosponsored_count: 290
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001237:
     honorific: Ms.
     sponsored_count: 18
-    cosponsored_count: 337
+    cosponsored_count: 339
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001238:
     honorific: Ms.
     sponsored_count: 10
-    cosponsored_count: 626
+    cosponsored_count: 638
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001239:
     honorific: Mr.
     sponsored_count: 22
-    cosponsored_count: 295
+    cosponsored_count: 297
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001240:
     honorific: Mr.
     sponsored_count: 18
-    cosponsored_count: 266
+    cosponsored_count: 267
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001241:
     honorific: Mr.
-    sponsored_count: 29
-    cosponsored_count: 365
+    sponsored_count: 30
+    cosponsored_count: 368
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001242:
     honorific: Mr.
-    sponsored_count: 33
-    cosponsored_count: 198
+    sponsored_count: 36
+    cosponsored_count: 207
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   M001243:
     honorific: Mr.
-    sponsored_count: 72
-    cosponsored_count: 300
+    sponsored_count: 78
+    cosponsored_count: 378
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   M001244:
     honorific: Mrs.
-    sponsored_count: 56
-    cosponsored_count: 207
+    sponsored_count: 62
+    cosponsored_count: 212
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   M001245:
     honorific: Mr.
     sponsored_count: 4
-    cosponsored_count: 90
+    cosponsored_count: 94
     leadership: []
     portrait_attribution: Image courtesy of the Member
   M001246:
     honorific: Ms.
     sponsored_count: null
-    cosponsored_count: 85
+    cosponsored_count: 101
     leadership: []
     portrait_attribution: Image courtesy of the Member
   N000002:
     honorific: Mr.
-    sponsored_count: 544
-    cosponsored_count: 7646
+    sponsored_count: 546
+    cosponsored_count: 7650
     leadership: []
     portrait_attribution: Image courtesy of the Member
   N000015:
     honorific: Mr.
-    sponsored_count: 237
-    cosponsored_count: 4686
+    sponsored_count: 238
+    cosponsored_count: 4688
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   N000026:
     honorific: Mr.
     sponsored_count: 91
-    cosponsored_count: 806
+    cosponsored_count: 807
     leadership: []
     portrait_attribution: Image courtesy of the Member
   N000147:
     honorific: Ms.
-    sponsored_count: 1137
-    cosponsored_count: 17456
+    sponsored_count: 1143
+    cosponsored_count: 17489
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   N000188:
     honorific: Mr.
     sponsored_count: 108
-    cosponsored_count: 1849
+    cosponsored_count: 1850
     leadership: []
     portrait_attribution: Image courtesy of the Member
   N000189:
     honorific: Mr.
     sponsored_count: 168
-    cosponsored_count: 1567
+    cosponsored_count: 1569
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   N000190:
     honorific: Mr.
     sponsored_count: 178
-    cosponsored_count: 2020
+    cosponsored_count: 2024
     leadership: []
     portrait_attribution: Image courtesy of the Member
   N000191:
     honorific: Mr.
-    sponsored_count: 359
-    cosponsored_count: 2731
+    sponsored_count: 363
+    cosponsored_count: 2735
     leadership:
     - type: Assistant Democratic Leader
       congress: 118
@@ -2407,81 +2407,81 @@ members:
   N000193:
     honorific: Mr.
     sponsored_count: 121
-    cosponsored_count: 862
+    cosponsored_count: 867
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000019:
     honorific: Mr.
-    sponsored_count: 71
-    cosponsored_count: 746
+    sponsored_count: 72
+    cosponsored_count: 749
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000086:
     honorific: Mr.
     sponsored_count: 65
-    cosponsored_count: 887
+    cosponsored_count: 889
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000172:
     honorific: Ms.
-    sponsored_count: 73
-    cosponsored_count: 1641
+    sponsored_count: 74
+    cosponsored_count: 1643
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000173:
     honorific: Ms.
     sponsored_count: 126
-    cosponsored_count: 2239
+    cosponsored_count: 2243
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000174:
     honorific: Mr.
-    sponsored_count: 223
-    cosponsored_count: 818
+    sponsored_count: 225
+    cosponsored_count: 830
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   O000175:
     honorific: Mr.
-    sponsored_count: 206
-    cosponsored_count: 684
+    sponsored_count: 208
+    cosponsored_count: 685
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000176:
     honorific: Mr.
-    sponsored_count: 16
-    cosponsored_count: 276
+    sponsored_count: 18
+    cosponsored_count: 280
     leadership: []
     portrait_attribution: Image courtesy of the Member
   O000177:
     honorific: Mr.
     sponsored_count: 19
-    cosponsored_count: 162
+    cosponsored_count: 163
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000034:
     honorific: Mr.
     sponsored_count: 579
-    cosponsored_count: 6721
+    cosponsored_count: 6722
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   P000048:
     honorific: Mr.
-    sponsored_count: 160
-    cosponsored_count: 892
+    sponsored_count: 162
+    cosponsored_count: 908
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000145:
     honorific: Mr.
-    sponsored_count: 607
-    cosponsored_count: 2160
+    sponsored_count: 616
+    cosponsored_count: 2194
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   P000197:
     honorific: Ms.
     sponsored_count: 199
-    cosponsored_count: 5086
+    cosponsored_count: 5087
     leadership:
     - type: Democratic Leader
       congress: 113
@@ -2498,46 +2498,46 @@ members:
     portrait_attribution: Image courtesy of the Member
   P000595:
     honorific: Mr.
-    sponsored_count: 914
-    cosponsored_count: 3547
+    sponsored_count: 917
+    cosponsored_count: 3557
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   P000597:
     honorific: Ms.
     sponsored_count: 180
-    cosponsored_count: 4859
+    cosponsored_count: 4868
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000603:
     honorific: Mr.
-    sponsored_count: 1106
-    cosponsored_count: 1127
+    sponsored_count: 1111
+    cosponsored_count: 1131
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   P000605:
     honorific: Mr.
     sponsored_count: 340
-    cosponsored_count: 1627
+    cosponsored_count: 1628
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000607:
     honorific: Mr.
     sponsored_count: 171
-    cosponsored_count: 4765
+    cosponsored_count: 4770
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000608:
     honorific: Mr.
     sponsored_count: 242
-    cosponsored_count: 3472
+    cosponsored_count: 3479
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000609:
     honorific: Mr.
-    sponsored_count: 112
-    cosponsored_count: 716
+    sponsored_count: 113
+    cosponsored_count: 717
     leadership:
     - type: Republican Policy Committee Chairman
       congress: 116
@@ -2549,62 +2549,62 @@ members:
   P000610:
     honorific: Ms.
     sponsored_count: 138
-    cosponsored_count: 1018
+    cosponsored_count: 1019
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   P000613:
     honorific: Mr.
     sponsored_count: 229
-    cosponsored_count: 3058
+    cosponsored_count: 3068
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   P000614:
     honorific: Mr.
-    sponsored_count: 179
-    cosponsored_count: 2110
+    sponsored_count: 180
+    cosponsored_count: 2118
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000617:
     honorific: Ms.
     sponsored_count: 156
-    cosponsored_count: 1859
+    cosponsored_count: 1863
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000620:
     honorific: Ms.
-    sponsored_count: 66
-    cosponsored_count: 902
+    sponsored_count: 72
+    cosponsored_count: 907
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000621:
     honorific: Ms.
     sponsored_count: 13
-    cosponsored_count: 221
+    cosponsored_count: 228
     leadership: []
     portrait_attribution: Image courtesy of the Member
   P000622:
     honorific: Mr.
     sponsored_count: 18
-    cosponsored_count: 104
+    cosponsored_count: 105
     leadership: []
     portrait_attribution: Image courtesy of the Member
   Q000023:
     honorific: Mr.
-    sponsored_count: 195
-    cosponsored_count: 3794
+    sponsored_count: 196
+    cosponsored_count: 3810
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000122:
     honorific: Mr.
-    sponsored_count: 1286
-    cosponsored_count: 4997
+    sponsored_count: 1289
+    cosponsored_count: 5008
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   R000305:
     honorific: Ms.
-    sponsored_count: 88
-    cosponsored_count: 1835
+    sponsored_count: 90
+    cosponsored_count: 1841
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000395:
@@ -2616,57 +2616,57 @@ members:
   R000575:
     honorific: Mr.
     sponsored_count: 115
-    cosponsored_count: 1995
+    cosponsored_count: 1998
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   R000579:
     honorific: Mr.
     sponsored_count: 41
-    cosponsored_count: 607
+    cosponsored_count: 611
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000584:
     honorific: Mr.
-    sponsored_count: 644
-    cosponsored_count: 2858
+    sponsored_count: 649
+    cosponsored_count: 2865
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   R000599:
     honorific: Mr.
     sponsored_count: 284
-    cosponsored_count: 1979
+    cosponsored_count: 1980
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000600:
     honorific: Mrs.
     sponsored_count: 45
-    cosponsored_count: 938
+    cosponsored_count: 940
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000603:
     honorific: Mr.
     sponsored_count: 102
-    cosponsored_count: 1684
+    cosponsored_count: 1685
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000605:
     honorific: Mr.
-    sponsored_count: 398
-    cosponsored_count: 1903
+    sponsored_count: 405
+    cosponsored_count: 1920
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   R000606:
     honorific: Mr.
     sponsored_count: 144
-    cosponsored_count: 3725
+    cosponsored_count: 3730
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000608:
     honorific: Ms.
-    sponsored_count: 531
-    cosponsored_count: 2602
+    sponsored_count: 536
+    cosponsored_count: 2626
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000609:
@@ -2678,7 +2678,7 @@ members:
   R000610:
     honorific: Mr.
     sponsored_count: 58
-    cosponsored_count: 1164
+    cosponsored_count: 1165
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000612:
@@ -2689,57 +2689,57 @@ members:
     portrait_attribution: Image courtesy of the Member
   R000614:
     honorific: Mr.
-    sponsored_count: 233
-    cosponsored_count: 673
+    sponsored_count: 234
+    cosponsored_count: 675
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000617:
     honorific: Mrs.
     sponsored_count: 44
-    cosponsored_count: 1090
+    cosponsored_count: 1096
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000618:
     honorific: Mr.
-    sponsored_count: 138
-    cosponsored_count: 752
+    sponsored_count: 142
+    cosponsored_count: 770
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   R000619:
     honorific: Mr.
     sponsored_count: 19
-    cosponsored_count: 358
+    cosponsored_count: 367
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000620:
     honorific: Ms.
-    sponsored_count: 13
-    cosponsored_count: 180
+    sponsored_count: 14
+    cosponsored_count: 182
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000621:
     honorific: Ms.
     sponsored_count: 13
-    cosponsored_count: 382
+    cosponsored_count: 400
     leadership: []
     portrait_attribution: Image courtesy of the Member
   R000622:
     honorific: Mr.
     sponsored_count: 16
-    cosponsored_count: 389
+    cosponsored_count: 396
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S000033:
     honorific: Mr.
-    sponsored_count: 1181
-    cosponsored_count: 7917
+    sponsored_count: 1184
+    cosponsored_count: 7927
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   S000148:
     honorific: Mr.
-    sponsored_count: 2450
-    cosponsored_count: 8109
+    sponsored_count: 2453
+    cosponsored_count: 8115
     leadership:
     - type: Democratic Leader
       congress: 116
@@ -2756,80 +2756,80 @@ members:
   S000168:
     honorific: Ms.
     sponsored_count: 73
-    cosponsored_count: 1334
+    cosponsored_count: 1343
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S000185:
     honorific: Mr.
     sponsored_count: 331
-    cosponsored_count: 4531
+    cosponsored_count: 4534
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S000250:
     honorific: Mr.
-    sponsored_count: 457
-    cosponsored_count: 4660
+    sponsored_count: 458
+    cosponsored_count: 4662
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S000344:
     honorific: Mr.
     sponsored_count: 230
-    cosponsored_count: 5394
+    cosponsored_count: 5398
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   S000510:
     honorific: Mr.
-    sponsored_count: 235
-    cosponsored_count: 5023
+    sponsored_count: 237
+    cosponsored_count: 5028
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S000522:
     honorific: Mr.
     sponsored_count: 946
-    cosponsored_count: 7643
+    cosponsored_count: 7645
     leadership: []
     portrait_attribution: Collection of the U.S. House of Representatives <a href="http://history.house.gov/Collection/Detail/15032401950?ret=True">About
       this object</a>
   S000929:
     honorific: Mrs.
     sponsored_count: 46
-    cosponsored_count: 312
+    cosponsored_count: 314
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001145:
     honorific: Ms.
-    sponsored_count: 459
-    cosponsored_count: 10324
+    sponsored_count: 460
+    cosponsored_count: 10334
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S001148:
     honorific: Mr.
     sponsored_count: 160
-    cosponsored_count: 2236
+    cosponsored_count: 2237
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001150:
     honorific: Mr.
-    sponsored_count: 576
-    cosponsored_count: 5936
+    sponsored_count: 588
+    cosponsored_count: 5963
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   S001156:
     honorific: Ms.
     sponsored_count: 251
-    cosponsored_count: 4871
+    cosponsored_count: 4880
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S001159:
     honorific: Ms.
     sponsored_count: 57
-    cosponsored_count: 1282
+    cosponsored_count: 1287
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001172:
     honorific: Mr.
     sponsored_count: 137
-    cosponsored_count: 1797
+    cosponsored_count: 1798
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001176:
@@ -2854,52 +2854,52 @@ members:
     portrait_attribution: Image courtesy of the Member
   S001181:
     honorific: Mrs.
-    sponsored_count: 1251
-    cosponsored_count: 4333
+    sponsored_count: 1255
+    cosponsored_count: 4357
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   S001183:
     honorific: Mr.
     sponsored_count: 190
-    cosponsored_count: 1522
+    cosponsored_count: 1523
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001184:
     honorific: Mr.
     sponsored_count: 468
-    cosponsored_count: 1908
+    cosponsored_count: 1912
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   S001185:
     honorific: Ms.
     sponsored_count: 123
-    cosponsored_count: 3205
+    cosponsored_count: 3210
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001188:
     honorific: Mr.
     sponsored_count: 43
-    cosponsored_count: 628
+    cosponsored_count: 631
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001189:
     honorific: Mr.
     sponsored_count: 89
-    cosponsored_count: 1640
+    cosponsored_count: 1641
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001190:
     honorific: Mr.
     sponsored_count: 218
-    cosponsored_count: 2099
+    cosponsored_count: 2104
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001194:
     honorific: Mr.
-    sponsored_count: 722
-    cosponsored_count: 2353
+    sponsored_count: 726
+    cosponsored_count: 2362
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
@@ -2921,58 +2921,58 @@ members:
     portrait_attribution: Image courtesy of the Member
   S001198:
     honorific: Mr.
-    sponsored_count: 546
-    cosponsored_count: 1811
+    sponsored_count: 549
+    cosponsored_count: 1819
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   S001199:
     honorific: Mr.
     sponsored_count: 110
-    cosponsored_count: 964
+    cosponsored_count: 965
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001200:
     honorific: Mr.
     sponsored_count: 154
-    cosponsored_count: 3599
+    cosponsored_count: 3603
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S001201:
     honorific: Mr.
     sponsored_count: 85
-    cosponsored_count: 2822
+    cosponsored_count: 2830
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S001203:
     honorific: Ms.
-    sponsored_count: 356
-    cosponsored_count: 2817
+    sponsored_count: 357
+    cosponsored_count: 2827
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   S001205:
     honorific: Ms.
-    sponsored_count: 119
-    cosponsored_count: 2237
+    sponsored_count: 120
+    cosponsored_count: 2246
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   S001208:
     honorific: Ms.
-    sponsored_count: 220
-    cosponsored_count: 1567
+    sponsored_count: 225
+    cosponsored_count: 1579
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001211:
     honorific: Mr.
     sponsored_count: 80
-    cosponsored_count: 1150
+    cosponsored_count: 1166
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001212:
     honorific: Mr.
     sponsored_count: 99
-    cosponsored_count: 1282
+    cosponsored_count: 1283
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001213:
@@ -2983,121 +2983,121 @@ members:
     portrait_attribution: Image courtesy of the Member
   S001214:
     honorific: Mr.
-    sponsored_count: 283
-    cosponsored_count: 1663
+    sponsored_count: 287
+    cosponsored_count: 1668
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001215:
     honorific: Ms.
     sponsored_count: 128
-    cosponsored_count: 1535
+    cosponsored_count: 1537
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001216:
     honorific: Ms.
     sponsored_count: 104
-    cosponsored_count: 1315
+    cosponsored_count: 1326
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001217:
     honorific: Mr.
-    sponsored_count: 668
-    cosponsored_count: 1761
+    sponsored_count: 673
+    cosponsored_count: 1774
     leadership: []
     portrait_attribution: null
   S001218:
     honorific: Ms.
-    sponsored_count: 54
-    cosponsored_count: 1592
+    sponsored_count: 55
+    cosponsored_count: 1604
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001220:
     honorific: Mr.
     sponsored_count: 31
-    cosponsored_count: 215
+    cosponsored_count: 219
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001221:
     honorific: Ms.
-    sponsored_count: 57
-    cosponsored_count: 702
+    sponsored_count: 61
+    cosponsored_count: 706
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001223:
     honorific: Mrs.
     sponsored_count: 62
-    cosponsored_count: 506
+    cosponsored_count: 511
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001224:
     honorific: Mr.
     sponsored_count: 92
-    cosponsored_count: 607
+    cosponsored_count: 609
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001225:
     honorific: Mr.
     sponsored_count: 24
-    cosponsored_count: 702
+    cosponsored_count: 709
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001226:
     honorific: Ms.
-    sponsored_count: 57
-    cosponsored_count: 1260
+    sponsored_count: 61
+    cosponsored_count: 1270
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001227:
     honorific: Mr.
-    sponsored_count: 119
-    cosponsored_count: 401
+    sponsored_count: 124
+    cosponsored_count: 404
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   S001228:
     honorific: Mr.
     sponsored_count: 17
-    cosponsored_count: 313
+    cosponsored_count: 317
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001229:
     honorific: Mr.
     sponsored_count: 18
-    cosponsored_count: 210
+    cosponsored_count: 211
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001230:
     honorific: Mr.
     sponsored_count: 37
-    cosponsored_count: 372
+    cosponsored_count: 376
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001231:
     honorific: Ms.
     sponsored_count: 11
-    cosponsored_count: 612
+    cosponsored_count: 633
     leadership: []
     portrait_attribution: Image courtesy of the Member
   S001232:
     honorific: Mr.
-    sponsored_count: 88
-    cosponsored_count: 324
+    sponsored_count: 93
+    cosponsored_count: 337
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   T000165:
     honorific: Mr.
     sponsored_count: 72
-    cosponsored_count: 935
+    cosponsored_count: 936
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000193:
     honorific: Mr.
     sponsored_count: 256
-    cosponsored_count: 5571
+    cosponsored_count: 5577
     leadership: []
     portrait_attribution: Image, Congressional Pictorial Directory, 109th.
   T000250:
     honorific: Mr.
-    sponsored_count: 1063
+    sponsored_count: 1076
     cosponsored_count: 2803
     leadership:
     - type: Majority Whip
@@ -3113,75 +3113,75 @@ members:
   T000278:
     honorific: Mr.
     sponsored_count: 313
-    cosponsored_count: 687
+    cosponsored_count: 705
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   T000460:
     honorific: Mr.
     sponsored_count: 366
-    cosponsored_count: 4410
+    cosponsored_count: 4419
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   T000463:
     honorific: Mr.
     sponsored_count: 193
-    cosponsored_count: 2150
+    cosponsored_count: 2151
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000467:
     honorific: Mr.
-    sponsored_count: 178
-    cosponsored_count: 2432
+    sponsored_count: 180
+    cosponsored_count: 2443
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   T000468:
     honorific: Ms.
-    sponsored_count: 249
-    cosponsored_count: 4472
+    sponsored_count: 251
+    cosponsored_count: 4480
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000469:
     honorific: Mr.
-    sponsored_count: 219
-    cosponsored_count: 4684
+    sponsored_count: 220
+    cosponsored_count: 4692
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000472:
     honorific: Mr.
     sponsored_count: 229
-    cosponsored_count: 3883
+    cosponsored_count: 3892
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000474:
     honorific: Mrs.
-    sponsored_count: 191
-    cosponsored_count: 1739
+    sponsored_count: 193
+    cosponsored_count: 1745
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000476:
     honorific: Mr.
-    sponsored_count: 683
-    cosponsored_count: 2656
+    sponsored_count: 684
+    cosponsored_count: 2666
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   T000478:
     honorific: Ms.
-    sponsored_count: 231
-    cosponsored_count: 1847
+    sponsored_count: 233
+    cosponsored_count: 1850
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000480:
     honorific: Mr.
     sponsored_count: 39
-    cosponsored_count: 921
+    cosponsored_count: 924
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000481:
     honorific: Ms.
-    sponsored_count: 145
-    cosponsored_count: 3384
+    sponsored_count: 146
+    cosponsored_count: 3400
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000482:
@@ -3192,265 +3192,265 @@ members:
     portrait_attribution: Image courtesy of the Member
   T000486:
     honorific: Mr.
-    sponsored_count: 169
-    cosponsored_count: 1308
+    sponsored_count: 170
+    cosponsored_count: 1314
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000487:
     honorific: Ms.
     sponsored_count: 76
-    cosponsored_count: 1702
+    cosponsored_count: 1708
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000488:
     honorific: Mr.
-    sponsored_count: 64
-    cosponsored_count: 1561
+    sponsored_count: 67
+    cosponsored_count: 1581
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000490:
     honorific: Mr.
     sponsored_count: 34
-    cosponsored_count: 184
+    cosponsored_count: 189
     leadership: []
     portrait_attribution: Image courtesy of the Member
   T000491:
     honorific: Mr.
-    sponsored_count: 14
-    cosponsored_count: 313
+    sponsored_count: 15
+    cosponsored_count: 317
     leadership: []
     portrait_attribution: Image courtesy of the Member
   U000040:
     honorific: Ms.
     sponsored_count: 129
-    cosponsored_count: 1113
+    cosponsored_count: 1114
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000081:
     honorific: Ms.
     sponsored_count: 512
-    cosponsored_count: 5727
+    cosponsored_count: 5735
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000128:
     honorific: Mr.
-    sponsored_count: 627
-    cosponsored_count: 6886
+    sponsored_count: 628
+    cosponsored_count: 6912
     leadership: []
     portrait_attribution: Courtesy U.S. Senate Historical Office
   V000129:
     honorific: Mr.
-    sponsored_count: 88
-    cosponsored_count: 1859
+    sponsored_count: 91
+    cosponsored_count: 1866
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000130:
     honorific: Mr.
     sponsored_count: 91
-    cosponsored_count: 3167
+    cosponsored_count: 3170
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000131:
     honorific: Mr.
     sponsored_count: 124
-    cosponsored_count: 2553
+    cosponsored_count: 2557
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000133:
     honorific: Mr.
     sponsored_count: 170
-    cosponsored_count: 2116
+    cosponsored_count: 2120
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000134:
     honorific: Ms.
-    sponsored_count: 113
-    cosponsored_count: 790
+    sponsored_count: 114
+    cosponsored_count: 792
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000135:
     honorific: Mr.
-    sponsored_count: 61
-    cosponsored_count: 680
+    sponsored_count: 62
+    cosponsored_count: 684
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000136:
     honorific: Mr.
     sponsored_count: 64
-    cosponsored_count: 589
+    cosponsored_count: 603
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000138:
     honorific: Mr.
-    sponsored_count: 63
-    cosponsored_count: 969
+    sponsored_count: 66
+    cosponsored_count: 998
     leadership: []
     portrait_attribution: Image courtesy of the Member
   V000139:
     honorific: Mr.
     sponsored_count: 6
-    cosponsored_count: 75
+    cosponsored_count: 76
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000187:
     honorific: Ms.
     sponsored_count: 624
-    cosponsored_count: 4803
+    cosponsored_count: 4809
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000437:
     honorific: Mr.
-    sponsored_count: 757
-    cosponsored_count: 4511
+    sponsored_count: 760
+    cosponsored_count: 4522
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000779:
     honorific: Mr.
-    sponsored_count: 2032
-    cosponsored_count: 8606
+    sponsored_count: 2033
+    cosponsored_count: 8633
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   W000788:
     honorific: Ms.
     sponsored_count: 159
-    cosponsored_count: 1988
+    cosponsored_count: 1994
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000790:
     honorific: Mr.
-    sponsored_count: 283
-    cosponsored_count: 1282
+    sponsored_count: 287
+    cosponsored_count: 1292
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   W000795:
     honorific: Mr.
     sponsored_count: 346
-    cosponsored_count: 4755
+    cosponsored_count: 4758
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   W000797:
     honorific: Ms.
-    sponsored_count: 180
-    cosponsored_count: 4477
+    sponsored_count: 183
+    cosponsored_count: 4492
     leadership: []
     portrait_attribution: Congressional Pictorial Directory
   W000798:
     honorific: Mr.
     sponsored_count: 225
-    cosponsored_count: 2119
+    cosponsored_count: 2120
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000800:
     honorific: Mr.
-    sponsored_count: 761
-    cosponsored_count: 5473
+    sponsored_count: 764
+    cosponsored_count: 5492
     leadership: []
     portrait_attribution: Official U.S. Senate Photo
   W000802:
     honorific: Mr.
-    sponsored_count: 773
-    cosponsored_count: 4910
+    sponsored_count: 778
+    cosponsored_count: 4924
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   W000804:
     honorific: Mr.
     sponsored_count: 212
-    cosponsored_count: 2864
+    cosponsored_count: 2868
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000805:
     honorific: Mr.
-    sponsored_count: 760
-    cosponsored_count: 2527
+    sponsored_count: 765
+    cosponsored_count: 2544
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   W000806:
     honorific: Mr.
     sponsored_count: 60
-    cosponsored_count: 1342
+    cosponsored_count: 1345
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000808:
     honorific: Ms.
-    sponsored_count: 173
-    cosponsored_count: 3909
+    sponsored_count: 174
+    cosponsored_count: 3949
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000809:
     honorific: Mr.
     sponsored_count: 63
-    cosponsored_count: 1162
+    cosponsored_count: 1164
     leadership: []
     portrait_attribution: GPO Member Guide
   W000812:
     honorific: Mrs.
     sponsored_count: 136
-    cosponsored_count: 1622
+    cosponsored_count: 1627
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000814:
     honorific: Mr.
     sponsored_count: 108
-    cosponsored_count: 3111
+    cosponsored_count: 3115
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000816:
     honorific: Mr.
-    sponsored_count: 140
-    cosponsored_count: 1386
+    sponsored_count: 141
+    cosponsored_count: 1390
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000817:
     honorific: Ms.
     sponsored_count: 908
-    cosponsored_count: 4399
+    cosponsored_count: 4419
     leadership: []
     portrait_attribution: <a href="http://www.senate.gov/artandhistory/history/common/generic/Photo_Collection_of_the_Senate_Historical_Office.htm">Courtesy
       U.S. Senate Historical Office</a>
   W000821:
     honorific: Mr.
-    sponsored_count: 93
+    sponsored_count: 94
     cosponsored_count: 1157
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000822:
     honorific: Mrs.
     sponsored_count: 205
-    cosponsored_count: 4103
+    cosponsored_count: 4116
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000829:
     honorific: Mr.
-    sponsored_count: 19
-    cosponsored_count: 228
+    sponsored_count: 20
+    cosponsored_count: 229
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000830:
     honorific: Mr.
-    sponsored_count: 16
-    cosponsored_count: 274
+    sponsored_count: 19
+    cosponsored_count: 279
     leadership: []
     portrait_attribution: Image courtesy of the Member
   W000831:
     honorific: Mr.
     sponsored_count: 21
-    cosponsored_count: 347
+    cosponsored_count: 351
     leadership: []
     portrait_attribution: Image courtesy of the Member
   Y000064:
     honorific: Mr.
-    sponsored_count: 437
-    cosponsored_count: 2128
+    sponsored_count: 440
+    cosponsored_count: 2135
     leadership: []
     portrait_attribution: Image courtesy of the Member
   Y000067:
     honorific: Mr.
     sponsored_count: 52
-    cosponsored_count: 544
+    cosponsored_count: 546
     leadership: []
     portrait_attribution: Image courtesy of the Member
   Z000018:
