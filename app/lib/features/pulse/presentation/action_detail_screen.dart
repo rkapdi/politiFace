@@ -19,8 +19,7 @@ class ActionDetailArgs {
     required this.date,
   });
 
-  factory ActionDetailArgs.fromQuery(Map<String, String> q) =>
-      ActionDetailArgs(
+  factory ActionDetailArgs.fromQuery(Map<String, String> q) => ActionDetailArgs(
         title: q['t'] ?? '',
         url: q['u'] ?? '',
         kind: q['k'] ?? 'presidential_action',
@@ -49,8 +48,7 @@ class ActionDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
-    final day =
-        args.date.length >= 10 ? args.date.substring(0, 10) : args.date;
+    final day = args.date.length >= 10 ? args.date.substring(0, 10) : args.date;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Presidential action')),
@@ -60,9 +58,8 @@ class ActionDetailScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
-              color: args.kind == 'executive_order'
-                  ? cs.brandRed
-                  : cs.brandNavy,
+              color:
+                  args.kind == 'executive_order' ? cs.brandRed : cs.brandNavy,
               borderRadius: BorderRadius.circular(3),
             ),
             child: Text(

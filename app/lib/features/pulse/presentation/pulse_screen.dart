@@ -213,9 +213,8 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
             url: b.url,
             bill: b.bill,
             action: b.action,
-            originDetail: lawNumber == null
-                ? b.action
-                : 'Became Public Law $lawNumber',
+            originDetail:
+                lawNumber == null ? b.action : 'Became Public Law $lawNumber',
             congress: b.congress,
           ),
         );
@@ -245,14 +244,16 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
   // Federal Register already covers (that entry is richer: EO number).
   final whItems = <_PulseItem>[
     for (final a in live.actions)
-      if (!whActionCoveredByOrder(
-          a, [...live.orders, ...reference.orders.map((o) => LiveOrder(
-                number: o.number,
-                title: o.title,
-                president: o.president,
-                signingDate: o.signingDate,
-                url: o.url,
-              ))]))
+      if (!whActionCoveredByOrder(a, [
+        ...live.orders,
+        ...reference.orders.map((o) => LiveOrder(
+              number: o.number,
+              title: o.title,
+              president: o.president,
+              signingDate: o.signingDate,
+              url: o.url,
+            ))
+      ]))
         _PulseItem(
           kind: _PulseKind.action,
           date: a.publishedAt.length >= 10
@@ -803,7 +804,6 @@ class _PulseTile extends StatelessWidget {
   }
 }
 
-
 /// The context box above the feed. On "All" it holds the notifications
 /// this device delivered, verbatim and tappable, so "the alert said X"
 /// always has a home here even after the live window churns. With a
@@ -854,8 +854,7 @@ class _PulseInfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final (header, explainer) = switch (filter) {
       _PulseKind.order => ('WHAT IS AN EXECUTIVE ORDER?', _orderExplainer),
-      _PulseKind.action =>
-        ('WHAT ARE PRESIDENTIAL ACTIONS?', _actionExplainer),
+      _PulseKind.action => ('WHAT ARE PRESIDENTIAL ACTIONS?', _actionExplainer),
       _PulseKind.law => ('HOW A BILL BECOMES A LAW', _lawExplainer),
       _PulseKind.bill => ('WHAT ARE BILL ACTIONS?', _billExplainer),
       null => ('FROM YOUR NOTIFICATIONS', null),
