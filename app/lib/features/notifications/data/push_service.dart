@@ -90,6 +90,19 @@ class PushChannelBridge {
     return (token == null || token.isEmpty) ? null : token;
   }
 
+  /// One-shot: the deep-link route from a visible push notification that
+  /// launched the app cold (AppDelegate stashes it from launchOptions).
+  /// Null when the app started any other way, or off iOS.
+  Future<String?> takeLaunchRoute() async {
+    _ensureHandler();
+    try {
+      final route = await _channel.invokeMethod<String>('takeLaunchRoute');
+      return (route == null || route.isEmpty) ? null : route;
+    } catch (_) {
+      return null;
+    }
+  }
+
   void _ensureHandler() {
     if (_handlerSet) return;
     _handlerSet = true;

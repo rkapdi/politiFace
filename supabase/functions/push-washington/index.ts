@@ -108,6 +108,7 @@ async function sendAlert(
   token: string,
   title: string,
   body: string,
+  route: string,
 ): Promise<number> {
   const topic = Deno.env.get("APNS_TOPIC") ?? "io.politiface.politiface";
   const res = await fetch(`${APNS_HOST}/3/device/${token}`, {
@@ -119,9 +120,14 @@ async function sendAlert(
       "apns-priority": "10",
     },
     body: JSON.stringify({
+      // "payload" is the deep-link route in the dialect the app's
+      // notification-tap handler already speaks (it is what
+      // flutter_local_notifications surfaces as the response payload);
+      // "route" stays for the cold-start stash and older builds.
       aps: { alert: { title, body }, sound: "default" },
       category: "washington",
-      route: "/pulse",
+      route,
+      payload: route,
     }),
   });
   return res.status;
@@ -245,6 +251,7 @@ type PollResult = {
   first_run: boolean;
   wh_title: string | null;
   wh_kind: string | null;
+  wh_route: string | null;
   errors: string[];
 };
 
@@ -306,9 +313,21 @@ async function pollForNews(): Promise<PollResult> {
       first_run: false,
       wh_title: null,
       wh_kind: null,
+      wh_route: null,
       errors,
     };
   }
+
+  // Deep link the app opens on tap: the action detail screen, with
+  // everything it needs to render without a network round trip.
+  const whRoute = newestWh
+    ? "/pulse/action?" + new URLSearchParams({
+      t: newestWh.title,
+      u: newestWh.url,
+      k: newestWh.kind,
+      d: newestWh.published_at,
+    }).toString()
+    : null;
 
   return {
     changed: Boolean(data?.changed),
@@ -316,6 +335,7 @@ async function pollForNews(): Promise<PollResult> {
     first_run: Boolean(data?.first_run),
     wh_title: (data?.wh_title as string) ?? null,
     wh_kind: newestWh?.kind ?? null,
+    wh_route: whRoute,
     errors,
   };
 }
@@ -364,7 +384,13 @@ Deno.serve(async (req) => {
   for (const row of tokens) {
     try {
       const status = alertTitle
-        ? await sendAlert(jwt, row.token, alertTitle, poll.wh_title!)
+        ? await sendAlert(
+          jwt,
+          row.token,
+          alertTitle,
+          poll.wh_title!,
+          poll.wh_route ?? "/pulse",
+        )
         : await sendSilent(jwt, row.token);
       if (status === 200) sent++;
       else if (status === 410) dead.push(row.token);

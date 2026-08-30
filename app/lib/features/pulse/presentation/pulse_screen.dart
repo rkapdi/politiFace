@@ -17,9 +17,10 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../atlas/data/atlas_reference_loader.dart';
 import '../data/pulse_live_service.dart';
+import 'action_detail_screen.dart';
 import 'bill_detail_screen.dart';
 
-enum _PulseKind { order, law, bill }
+enum _PulseKind { order, action, law, bill }
 
 class _PulseItem {
   const _PulseItem({
@@ -38,6 +39,7 @@ class _PulseItem {
     this.summaryVersion,
     this.summaryDate,
     this.summaryTruncated = false,
+    this.whKind,
   });
 
   final _PulseKind kind;
@@ -56,9 +58,13 @@ class _PulseItem {
   final String? summaryDate;
   final bool summaryTruncated;
 
-  /// Bill and law rows with anything to show open the detail screen.
+  /// White House action rows: executive_order | proclamation | memorandum.
+  final String? whKind;
+
+  /// Bill, law, and White House action rows open a detail screen.
   bool get opensDetail =>
       kind == _PulseKind.bill ||
+      kind == _PulseKind.action ||
       (kind == _PulseKind.law && (summary != null || congress != null));
 }
 
@@ -235,7 +241,33 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
     );
   }
 
+  // White House fast lane: same-day presidential actions. Skip any the
+  // Federal Register already covers (that entry is richer: EO number).
+  final whItems = <_PulseItem>[
+    for (final a in live.actions)
+      if (!whActionCoveredByOrder(
+          a, [...live.orders, ...reference.orders.map((o) => LiveOrder(
+                number: o.number,
+                title: o.title,
+                president: o.president,
+                signingDate: o.signingDate,
+                url: o.url,
+              ))]))
+        _PulseItem(
+          kind: _PulseKind.action,
+          date: a.publishedAt.length >= 10
+              ? a.publishedAt.substring(0, 10)
+              : a.publishedAt,
+          title: a.title,
+          detail: 'Announced by the White House. '
+              'Federal Register publication pending.',
+          url: a.url,
+          whKind: a.kind,
+        ),
+  ];
+
   final items = <_PulseItem>[
+    ...whItems,
     ...ordersByNumber.values,
     ...liveLaws,
     for (final l in reference.laws)
@@ -314,6 +346,7 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                       for (final (label, kind) in [
                         ('All', null),
                         ('Executive orders', _PulseKind.order),
+                        ('White House', _PulseKind.action),
                         ('New laws', _PulseKind.law),
                         ('Bill actions', _PulseKind.bill),
                       ]) ...[
@@ -544,6 +577,7 @@ class _CoveredItemRow extends StatelessWidget {
     final theme = Theme.of(context);
     final (label, color) = switch (item.kind) {
       _PulseKind.order => ('EO', theme.colorScheme.brandRed),
+      _PulseKind.action => ('WH', theme.colorScheme.brandRed),
       _PulseKind.law => ('LAW', theme.colorScheme.brandGreen),
       _PulseKind.bill => ('BILL', theme.colorScheme.brandNavy),
     };
@@ -602,6 +636,18 @@ class _CoveredItemRow extends StatelessWidget {
 /// Shared open behavior for a feed item: bill/law rows push the detail
 /// screen, executive orders open the Federal Register record.
 void _openPulseItem(BuildContext context, _PulseItem item) {
+  if (item.kind == _PulseKind.action) {
+    context.push(
+      '/pulse/action',
+      extra: ActionDetailArgs(
+        title: item.title,
+        url: item.url,
+        kind: item.whKind ?? 'presidential_action',
+        date: item.date,
+      ),
+    );
+    return;
+  }
   if (item.opensDetail) {
     context.push(
       '/pulse/bill',
@@ -637,6 +683,16 @@ class _PulseTile extends StatelessWidget {
     switch (item.kind) {
       case _PulseKind.order:
         return ('EXECUTIVE ORDER', cs.brandRed);
+      case _PulseKind.action:
+        return (
+          switch (item.whKind) {
+            'executive_order' => 'EXECUTIVE ORDER',
+            'proclamation' => 'PROCLAMATION',
+            'memorandum' => 'MEMORANDUM',
+            _ => 'WHITE HOUSE',
+          },
+          item.whKind == 'executive_order' ? cs.brandRed : cs.brandNavy,
+        );
       case _PulseKind.law:
         return ('NEW LAW', cs.brandGreen);
       case _PulseKind.bill:
@@ -788,10 +844,18 @@ class _PulseInfoCard extends StatelessWidget {
       'never become law; the trail of actions shows where a bill '
       'actually stands.';
 
+  static const _actionExplainer =
+      'Presidential actions are executive orders, proclamations, and '
+      'memoranda as announced by the White House, often days before the '
+      'Federal Register publishes the official numbered text. Items here '
+      'update automatically once that publication happens.';
+
   @override
   Widget build(BuildContext context) {
     final (header, explainer) = switch (filter) {
       _PulseKind.order => ('WHAT IS AN EXECUTIVE ORDER?', _orderExplainer),
+      _PulseKind.action =>
+        ('WHAT ARE PRESIDENTIAL ACTIONS?', _actionExplainer),
       _PulseKind.law => ('HOW A BILL BECOMES A LAW', _lawExplainer),
       _PulseKind.bill => ('WHAT ARE BILL ACTIONS?', _billExplainer),
       null => ('FROM YOUR NOTIFICATIONS', null),

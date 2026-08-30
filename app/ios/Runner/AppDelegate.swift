@@ -16,12 +16,25 @@ import workmanager
   private static let pushChannelName = "app.politiface/push"
   private var pushChannel: FlutterMethodChannel?
   private var lastApnsToken: String?
+  // Route from a visible-push tap that launched the app cold. Warm taps
+  // ride flutter_local_notifications' delegate (the alert payload carries
+  // a top-level "payload" route string it understands); cold-start taps
+  // arrive only through launchOptions, so they are stashed here for Dart
+  // to collect during startup.
+  private var pendingLaunchRoute: String?
 
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+
+    if let remote =
+      launchOptions?[UIApplication.LaunchOptionsKey.remoteNotification]
+        as? [AnyHashable: Any] {
+      pendingLaunchRoute =
+        (remote["payload"] as? String) ?? (remote["route"] as? String)
+    }
 
     if let controller = window?.rootViewController as? FlutterViewController {
       let channel = FlutterMethodChannel(
@@ -35,6 +48,10 @@ import workmanager
           // registration hasn't completed yet); PushService re-checks on
           // its next activation rather than blocking on this.
           result(self?.lastApnsToken)
+        case "takeLaunchRoute":
+          // One-shot: the route from a cold-start notification tap.
+          result(self?.pendingLaunchRoute)
+          self?.pendingLaunchRoute = nil
         default:
           result(FlutterMethodNotImplemented)
         }
