@@ -1869,5 +1869,96 @@ begin
   perform public.set_reporting_policy(v_tiny, 'per_student', 'roster');
 end $$;
 
+-- ── Washington watch: watermark RPCs + poller-alive canary (20260829000100) ─
+reset role;
+do $$
+declare r jsonb;
+begin
+  -- First poll ever baselines silently: no push, watermarks written.
+  r := public.washington_advance(
+    14420, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-1', 'First action');
+  if not (r ->> 'first_run')::boolean or (r ->> 'changed')::boolean then
+    raise exception 'FAIL: first poll must baseline silently: %', r;
+  end if;
+  if (select last_wh from app.push_signal where id) <> 'wh-guid-1' then
+    raise exception 'FAIL: baseline must persist the WH watermark';
+  end if;
+
+  -- Same values again: quiet.
+  r := public.washington_advance(
+    14420, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-1', 'First action');
+  if (r ->> 'changed')::boolean then
+    raise exception 'FAIL: unchanged poll must stay quiet: %', r;
+  end if;
+
+  -- New White House action: changed AND wh_new.
+  r := public.washington_advance(
+    14420, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-2', 'Lake America EO');
+  if not (r ->> 'changed')::boolean or not (r ->> 'wh_new')::boolean then
+    raise exception 'FAIL: new WH action must flag wh_new: %', r;
+  end if;
+
+  -- New EO number only: changed but NOT wh_new.
+  r := public.washington_advance(
+    14421, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-2', null);
+  if not (r ->> 'changed')::boolean or (r ->> 'wh_new')::boolean then
+    raise exception 'FAIL: EO bump must not flag wh_new: %', r;
+  end if;
+
+  -- Upstream hiccup (nulls) never regresses watermarks or fires.
+  r := public.washington_advance(null, null, null, null, null);
+  if (r ->> 'changed')::boolean then
+    raise exception 'FAIL: null poll must stay quiet: %', r;
+  end if;
+  if (select last_eo_number from app.push_signal where id) <> 14421 then
+    raise exception 'FAIL: null poll must preserve watermarks';
+  end if;
+
+  -- Push log records fan-outs.
+  perform public.washington_log_push('washington_alert', 'Lake America EO', 6);
+  if not exists (select 1 from app.push_log
+                  where category = 'washington_alert'
+                    and title = 'Lake America EO' and sent = 6) then
+    raise exception 'FAIL: push log row missing';
+  end if;
+end $$;
+
+-- The canary now watches the poller: a stale heartbeat is an alarm.
+do $$
+declare v jsonb;
+begin
+  update app.push_signal set updated_at = now() - interval '3 hours' where id;
+  perform app.run_measurement_canary();
+  select failures into v from app.canary_runs order by id desc limit 1;
+  if (select ok from app.canary_runs order by id desc limit 1)
+     or v::text not like '%push_poller_alive%' then
+    raise exception 'FAIL: canary must flag a stale push poller: %', v;
+  end if;
+  update app.push_signal set updated_at = now() where id;
+  perform app.run_measurement_canary();
+  if not (select ok from app.canary_runs order by id desc limit 1) then
+    raise exception 'FAIL: canary must recover once the poller is fresh';
+  end if;
+end $$;
+
+-- Clients can never touch the watermark machinery.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.washington_advance(null, null, null, null, null);
+    raise exception 'FAIL: client called washington_advance';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.washington_log_push('washington_alert', 'x', 1);
+    raise exception 'FAIL: client wrote the push log';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
