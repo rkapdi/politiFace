@@ -1,7 +1,32 @@
-updated: '2026-08-24'
+updated: '2026-09-05'
 source: Federal Register API (https://www.federalregister.gov/developers/documentation/api/v1)
 since: '2025-01-20'
 orders:
+- eo_number: 14423
+  title: Establishing the United States Space Academy
+  president: Donald Trump
+  signing_date: '2026-08-28'
+  federal_register_citation: 91 FR 56737
+  document_number: 2026-18141
+  url: https://www.federalregister.gov/documents/2026/09/03/2026-18141/establishing-the-united-states-space-academy
+  abstract: null
+- eo_number: 14422
+  title: Honoring the American History of the Great Lakes and Renaming Lake Ontario as Lake
+    America
+  president: Donald Trump
+  signing_date: '2026-08-27'
+  federal_register_citation: 91 FR 56543
+  document_number: 2026-18020
+  url: https://www.federalregister.gov/documents/2026/09/02/2026-18020/honoring-the-american-history-of-the-great-lakes-and-renaming-lake-ontario-as-lake-america
+  abstract: null
+- eo_number: 14421
+  title: Declaring a National Emergency To Secure the United States Bulk-Power System
+  president: Donald Trump
+  signing_date: '2026-08-26'
+  federal_register_citation: 91 FR 55995
+  document_number: 2026-17843
+  url: https://www.federalregister.gov/documents/2026/08/31/2026-17843/declaring-a-national-emergency-to-secure-the-united-states-bulk-power-system
+  abstract: null
 - eo_number: 14420
   title: Delivering Gold Standard Childhood Vaccine Recommendations for Americans
   president: Donald Trump
