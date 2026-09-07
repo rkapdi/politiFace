@@ -75,6 +75,19 @@ vi.mock('../lib/api', () => ({
   useStudentProgress: () => ({ data: [], isPending: false, error: null }),
   useCohortSessions: () => ({ data: [], isPending: false, error: null }),
   useSendAnnouncement: () => ({ mutate: vi.fn(), isPending: false }),
+  usePickableQuestions: () => ({
+    data: [
+      { id: 'q1', stem: 'Which article establishes the judiciary?', domain_id: 2, cohort_id: null },
+    ],
+    isPending: false,
+    error: null,
+  }),
+  useDomains: () => ({
+    data: [{ id: 2, name: 'U.S. Constitution' }],
+    isPending: false,
+    error: null,
+  }),
+  useCreateLiveSession: () => ({ mutate: vi.fn(), isPending: false, error: null }),
 }))
 
 import { ClassView } from './ClassPage'
@@ -105,5 +118,18 @@ describe('ClassView overview', () => {
     expect(
       screen.getByRole('tab', { name: /students/i }),
     ).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('keeps the live session draft when switching tabs and back', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('tab', { name: /live/i }))
+    await userEvent.click(screen.getByRole('button', { name: /set one up/i }))
+    await userEvent.type(screen.getByLabelText(/session title/i), 'Friday review')
+    await userEvent.click(screen.getByRole('checkbox', { name: /judiciary/i }))
+    await userEvent.click(screen.getByRole('tab', { name: /overview/i }))
+    await userEvent.click(screen.getByRole('tab', { name: /live/i }))
+    expect(screen.getByLabelText(/session title/i)).toHaveValue('Friday review')
+    expect(screen.getByRole('checkbox', { name: /judiciary/i })).toBeChecked()
   })
 })

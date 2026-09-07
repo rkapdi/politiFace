@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Radio } from 'lucide-react'
 import { useCohortSessions } from '../lib/api'
 import { S } from '../lib/strings'
@@ -7,9 +6,33 @@ import { EmptyState } from './EmptyState'
 import { SkeletonTable } from './Skeleton'
 import { QuestionPicker } from './QuestionPicker'
 
-export function LiveTab({ cohortId }: { cohortId: string }) {
+// The session draft lives in ClassView, not here: tab content unmounts on
+// every tab switch, and a half-built session must survive a detour through
+// Settings.
+export type LiveDraft = {
+  composing: boolean
+  title: string
+  seconds: number
+  selected: Set<string>
+}
+
+export const emptyLiveDraft = (): LiveDraft => ({
+  composing: false,
+  title: '',
+  seconds: 20,
+  selected: new Set(),
+})
+
+export function LiveTab({
+  cohortId,
+  draft,
+  onDraftChange,
+}: {
+  cohortId: string
+  draft: LiveDraft
+  onDraftChange: (draft: LiveDraft) => void
+}) {
   const sessions = useCohortSessions(cohortId)
-  const [composing, setComposing] = useState(false)
 
   return (
     <div className="flex flex-col gap-4">
@@ -18,14 +41,19 @@ export function LiveTab({ cohortId }: { cohortId: string }) {
           <h2 className="text-sm font-semibold text-slate-900">
             Run a live session
           </h2>
-          {!composing ? (
-            <Button onClick={() => setComposing(true)}>Set one up</Button>
+          {!draft.composing ? (
+            <Button onClick={() => onDraftChange({ ...draft, composing: true })}>
+              Set one up
+            </Button>
           ) : null}
         </div>
-        {composing ? (
+        {draft.composing ? (
           <QuestionPicker
             cohortId={cohortId}
+            draft={draft}
+            onDraftChange={onDraftChange}
             onCreated={sessionId => {
+              onDraftChange(emptyLiveDraft())
               window.location.hash = `#/class/${cohortId}/live/${sessionId}`
             }}
           />

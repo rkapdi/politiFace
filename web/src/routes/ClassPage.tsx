@@ -32,7 +32,7 @@ import { TrendChart } from '../components/TrendChart'
 import { TopMisses } from '../components/TopMisses'
 import { StudentsTab } from '../components/StudentsTab'
 import { SettingsTab } from '../components/SettingsTab'
-import { LiveTab } from '../components/LiveTab'
+import { LiveTab, emptyLiveDraft } from '../components/LiveTab'
 import { PulseBanner } from '../components/PulseBanner'
 import { DistributionChart } from '../components/DistributionChart'
 import { MessageClassDialog } from './StudentPage'
@@ -141,6 +141,9 @@ export function ClassView({ cohortId }: { cohortId: string }) {
   const isFaculty = role.data === 'faculty'
   const [tab, setTab] = useState('overview')
   const [announcing, setAnnouncing] = useState(false)
+  // Held here so a half-built session survives tab switches (tab content
+  // unmounts when inactive).
+  const [liveDraft, setLiveDraft] = useState(emptyLiveDraft)
 
   const onPulseAction = (kind: PulseCardData['kind']) => {
     if (kind === 'at_risk') setTab('students')
@@ -178,7 +181,11 @@ export function ClassView({ cohortId }: { cohortId: string }) {
           <StudentsTab cohortId={cohortId} />
         </TabsContent>
         <TabsContent value="live">
-          <LiveTab cohortId={cohortId} />
+          <LiveTab
+            cohortId={cohortId}
+            draft={liveDraft}
+            onDraftChange={setLiveDraft}
+          />
         </TabsContent>
         {isFaculty ? (
           <TabsContent value="settings">
