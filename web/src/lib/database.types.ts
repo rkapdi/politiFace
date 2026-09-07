@@ -1410,6 +1410,9 @@ export type Database = {
         Args: { p_cohort: string; p_email: string }
         Returns: undefined
       }
+      // Hand-added from 20260906000100_web_account_management.sql until the
+      // migration is applied to hosted and types are regenerated.
+      account_deletion_blockers: { Args: never; Returns: Json }
       admin_canary_status: { Args: never; Returns: Json }
       admin_list_cohorts: {
         Args: never
@@ -1741,6 +1744,12 @@ export type Database = {
           p_question_id: string
         }
         Returns: Json
+      }
+      // Hand-added from 20260906000100_web_account_management.sql until the
+      // migration is applied to hosted and types are regenerated.
+      transfer_cohort_ownership: {
+        Args: { p_cohort: string; p_new_owner: string }
+        Returns: undefined
       }
       unregister_push_token: { Args: { p_token: string }; Returns: undefined }
       update_my_profile: {

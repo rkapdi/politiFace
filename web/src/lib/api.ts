@@ -108,12 +108,19 @@ const FRIENDLY: Record<string, string> = {
     S.errors.needsInvite,
   'instructor verification required': S.errors.needsVerification,
   'class name too short': S.errors.classNameShort,
+  'Handle must be 3 to 20 letters, numbers, or underscores.':
+    S.errors.badHandle,
+  'That handle is taken.': S.errors.handleTaken,
+  deletion_incomplete: S.errors.deletionIncomplete,
 }
 
 export function friendlyMessage(error: { message: string }): string {
   const exact = FRIENDLY[error.message]
   if (exact) return exact
   const msg = error.message.toLowerCase()
+  if (msg.startsWith('blocked_by_cohorts')) {
+    return S.errors.deletionBlocked
+  }
   if (msg.includes('jwt') || msg.includes('expired')) {
     return S.errors.sessionExpired
   }
@@ -310,6 +317,46 @@ export const cohortTas = async (cohortId: string): Promise<TaRow[]> => {
   }))
 }
 
+// Co-faculty on a cohort (excluding the caller), for ownership transfer.
+export const cohortCoFaculty = async (
+  cohortId: string,
+  selfId: string,
+): Promise<TaRow[]> => {
+  const members = await supabase
+    .from('cohort_members')
+    .select('user_id, roster_name')
+    .eq('cohort_id', cohortId)
+    .eq('role', 'faculty')
+    .neq('user_id', selfId)
+  if (members.error) throw new Error(friendlyMessage(members.error))
+  const rows = members.data ?? []
+  if (rows.length === 0) return []
+  const profiles = await supabase
+    .from('profiles')
+    .select('id, handle')
+    .in('id', rows.map(r => r.user_id))
+  if (profiles.error) throw new Error(friendlyMessage(profiles.error))
+  const handles = new Map((profiles.data ?? []).map(p => [p.id, p.handle]))
+  return rows.map(r => ({
+    user_id: r.user_id,
+    display: r.roster_name ?? handles.get(r.user_id) ?? r.user_id,
+  }))
+}
+
+export type MyProfile = { handle: string; school: string | null }
+
+export const myProfile = async (userId: string): Promise<MyProfile> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('handle, school')
+    .eq('id', userId)
+    .single()
+  if (error) throw new Error(friendlyMessage(error))
+  return data
+}
+
+export type DeletionBlocker = { cohort_id: string; name: string; others: number }
+
 export type PickableQuestion = {
   id: string
   stem: string
@@ -472,6 +519,59 @@ export const useSessionReport = (sessionId: string, enabled = true) =>
     enabled,
     retry: false,
   })
+
+// ── account ─────────────────────────────────────────────────────────────────
+export const useMyProfile = (userId: string) =>
+  useQuery({
+    queryKey: ['me', 'profile', userId],
+    queryFn: () => myProfile(userId),
+    enabled: userId !== '',
+  })
+
+export const useUpdateMyProfile = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { handle?: string; school?: string }) =>
+      rpc<Json>('update_my_profile', {
+        ...(a.handle !== undefined ? { p_handle: a.handle } : {}),
+        ...(a.school !== undefined ? { p_school: a.school } : {}),
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me'] })
+    },
+  })
+}
+
+export const useDeletionBlockers = () =>
+  useQuery({
+    queryKey: ['me', 'deletion-blockers'],
+    queryFn: () => rpc<DeletionBlocker[]>('account_deletion_blockers'),
+  })
+
+export const useCohortCoFaculty = (cohortId: string, selfId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'co-faculty', selfId],
+    queryFn: () => cohortCoFaculty(cohortId, selfId),
+    enabled: selfId !== '',
+  })
+
+export const useTransferOwnership = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { cohortId: string; newOwner: string }) =>
+      rpc('transfer_cohort_ownership', {
+        p_cohort: a.cohortId,
+        p_new_owner: a.newOwner,
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me'] })
+      void qc.invalidateQueries({ queryKey: ['classes'] })
+    },
+  })
+}
+
+export const useDeleteAccount = () =>
+  useMutation({ mutationFn: () => rpc<undefined>('delete_my_account') })
 
 // ── mutations ───────────────────────────────────────────────────────────────
 function useCohortMutation<A>(fn: (args: A) => Promise<unknown>, cohortKeyOf: (args: A) => string) {

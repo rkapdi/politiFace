@@ -25,6 +25,12 @@ export const S = {
     classNameShort: 'Class names need at least 3 characters.',
     somethingBroke:
       'This view hit an unexpected error. Reload the page; your data is safe.',
+    badHandle: 'Display names use 3 to 20 letters, numbers, or underscores.',
+    handleTaken: 'That display name is taken.',
+    deletionBlocked:
+      'Your classes must be transferred or deleted before your account can be.',
+    deletionIncomplete:
+      'Something still references this account. Contact support to finish deletion.',
   },
   empty: {
     classesTitle: 'No classes yet',
@@ -67,5 +73,34 @@ export const S = {
   },
   provenance: {
     verified: 'Server-verified',
+  },
+  account: {
+    title: 'Account',
+    profileHeading: 'Profile',
+    displayName: 'Display name',
+    displayNameHint:
+      'Shown to co-faculty and on announcements. 3 to 20 letters, numbers, or underscores.',
+    school: 'School',
+    saved: 'Saved.',
+    emailHeading: 'Sign-in email',
+    changeEmail: 'Change email',
+    newEmail: 'New email',
+    emailPending:
+      'Check both inboxes. Confirmation links went to the old and the new address; the change completes when both are confirmed.',
+    sessionsHeading: 'Sessions',
+    signOutEverywhere: 'Sign out of all devices',
+    signOutEverywhereHint:
+      'Use this if you signed in on a shared or lost device. Every device, this one included, then needs a fresh emailed code.',
+    dangerHeading: 'Danger zone',
+    deleteAccount: 'Delete account',
+    deleteWarning:
+      'This permanently deletes your account, profile, and activity history. It cannot be undone.',
+    deleteConfirmPrompt: 'Type DELETE to confirm.',
+    blockedIntro:
+      'These classes still have members, so your account cannot be deleted yet. Transfer each class to a co-faculty, or remove it first.',
+    transferOwnership: 'Transfer ownership',
+    transferTo: 'New owner',
+    noCoFaculty:
+      'No co-faculty on this class yet. Add one in the class Settings tab, then transfer ownership here.',
   },
 } as const
