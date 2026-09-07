@@ -1,4 +1,4 @@
-updated: '2026-08-24'
+updated: '2026-09-07'
 source: unitedstates/congress-legislators (public domain); committee names from committees-current.yaml
 people:
 - id: A000055
@@ -3282,6 +3282,30 @@ people:
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/B001327
+- id: B001328
+  name: Everton Blair Jr.
+  first: Everton
+  last: Blair
+  birthday: '1992-04-23'
+  wikidata: Q141178872
+  chamber: house
+  state: GA
+  district: 13
+  party: Democrat
+  current_term:
+    start: '2026-09-01'
+    end: '2027-01-03'
+    url: null
+  terms:
+  - type: rep
+    start: '2026-09-01'
+    end: '2027-01-03'
+    state: GA
+    district: 13
+    party: Democrat
+  committees: []
+  citations:
+  - https://bioguide.congress.gov/search/bio/B001328
 - id: C000059
   name: Ken Calvert
   first: Ken
@@ -3686,7 +3710,7 @@ people:
     title: null
   - code: SSBU
     name: Senate Committee on the Budget
-    rank: 2
+    rank: 3
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/C000880
@@ -9910,12 +9934,12 @@ people:
     name: Senate Committee on the Judiciary
     rank: 1
     title: Chairman
-  - code: SSBU
-    name: Senate Committee on the Budget
-    rank: 1
-    title: null
   - code: SSFI
     name: Senate Committee on Finance
+    rank: 2
+    title: null
+  - code: SSBU
+    name: Senate Committee on the Budget
     rank: 2
     title: null
   - code: JSTX
@@ -13691,13 +13715,13 @@ people:
     district: null
     party: Republican
   committees:
+  - code: SSBU
+    name: Senate Committee on the Budget
+    rank: 1
+    title: Chairman
   - code: SSGA
     name: Senate Committee on Homeland Security and Governmental Affairs
     rank: 2
-    title: null
-  - code: SSBU
-    name: Senate Committee on the Budget
-    rank: 3
     title: null
   - code: SPAG
     name: Senate Special Committee on Aging
@@ -26854,6 +26878,11 @@ people:
     district: 3
     party: Democrat
   committees:
+  - code: HSZS
+    name: House Select Committee on the Strategic Competition Between the United States and
+      the Chinese Communist Party
+    rank: 11
+    title: null
   - code: HSWM
     name: House Committee on Ways and Means
     rank: 19
@@ -31609,6 +31638,30 @@ people:
     title: null
   citations:
   - https://bioguide.congress.gov/search/bio/W000831
+- id: W000832
+  name: Aisha Wahab
+  first: Aisha
+  last: Wahab
+  birthday: '1987-01-11'
+  wikidata: Q115794283
+  chamber: house
+  state: CA
+  district: 14
+  party: Democrat
+  current_term:
+    start: '2026-09-02'
+    end: '2027-01-03'
+    url: null
+  terms:
+  - type: rep
+    start: '2026-09-02'
+    end: '2027-01-03'
+    state: CA
+    district: 14
+    party: Democrat
+  committees: []
+  citations:
+  - https://bioguide.congress.gov/search/bio/W000832
 - id: Y000064
   name: Todd Young
   first: Todd

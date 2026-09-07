@@ -1,8 +1,101 @@
-updated: '2026-08-24'
+updated: '2026-09-07'
 source: api.congress.gov v3 law endpoint; summaries from the /summaries endpoint, written
   by the Congressional Research Service
 congress: 119
 laws:
+- law_number: 119-103
+  title: Continuing Appropriations and Extensions Act, 2027
+  bill: HR 6500
+  enacted_date: '2026-09-02'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001195
+    name: Rep. Smith, Jason [R-MO-8]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6500
+  summary: 'Continuing Appropriations and Extensions Act, 2027
+
+
+    This bill provides continuing FY2027 appropriations for federal agencies and extends various
+    expiring programs and authorities.
+
+
+    Specifically, the bill provides continuing FY2027 appropriations to federal agencies through
+    the earlier of December 11, 2026, or the enactment of the applicable appropriations act.
+    It is known as a continuing resolution (CR) and prevents a government shutdown that would
+    otherwise occur if the FY2027 appropriations bills have not been enacted when FY2027 begins
+    on October 1, 2026.
+
+
+    The CR funds most programs and activities at the FY2026 levels with several exceptions
+    that provide funding flexibility or additional appropriations for various programs. For
+    example, the CR includes exceptions for
+
+
+    the Special Supplemental Nutrition Program for Women, Infants, and Children (WIC);
+
+
+    Small Business Administration loans;
+
+
+    the Disaster Relief Fund;
+
+
+    the Indian Health Service;
+
+
+    the Department of Justice; and
+
+
+    wildfire suppression activities.
+
+
+    In addition, the bill extends several expiring authorizations, including authorities and
+    programs related to
+
+
+    agriculture,
+
+
+    flood insurance,
+
+
+    cybersecurity,
+
+
+    surface transportation,
+
+
+    veterans benefits,
+
+
+    housing,
+
+
+    defense production, and
+
+
+    trade preferences for Haiti and certain countries in sub-Saharan Africa.
+
+
+    The bill also includes provisions that
+
+
+    temporarily prohibit the implementation of a regulation that revises guidance for federal
+    financial assistance,
+
+
+    delay the implementation of certain changes to the statutory definition of hemp,
+
+
+    extend the freeze on cost-of-living adjustments for Members of Congress and limits on
+    pay increases for the Vice President and certain senior political appointees, and
+
+
+    provide death gratuities to beneficiaries of two Members of Congress who died while in
+    office.'
+  summary_version: Passed Senate
+  summary_date: '2026-08-08'
+  summary_truncated: false
 - law_number: 119-102
   title: Emergency Conservation Program Improvement Act of 2025
   bill: S 629
@@ -1823,16 +1916,6 @@ laws:
     bioguide: V000135
     name: Rep. Van Orden, Derrick [R-WI-3]
   url: https://www.congress.gov/bill/119th-congress/house-bill/983
-  summary: 'Montgomery GI Bill Selected Reserves Tuition Fairness Act of 2025
-
-
-    This act requires that the Department of Veterans Affairs disapprove courses of education
-    provided by educational institutions that charge higher than in-state tuition for individuals
-    utilizing the Montgomery GI Bill-Selected Reserve education benefits while living in the
-    state where the education is located, regardless of the individual’s state of residence.'
-  summary_version: Public Law
-  summary_date: '2025-12-12'
-  summary_truncated: false
 - law_number: 119-54
   title: Fairness for Servicemembers and their Families Act of 2025
   bill: HR 970
