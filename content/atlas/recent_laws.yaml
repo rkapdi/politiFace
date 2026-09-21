@@ -1,8 +1,211 @@
-updated: '2026-08-24'
+updated: '2026-09-21'
 source: api.congress.gov v3 law endpoint; summaries from the /summaries endpoint, written
   by the Congressional Research Service
 congress: 119
 laws:
+- law_number: 119-111
+  title: Lindsey O. Graham Sanctioning Russia and Iran Act of 2026
+  bill: HR 5334
+  enacted_date: '2026-09-18'
+  origin_chamber: House
+  sponsor:
+    bioguide: P000613
+    name: Rep. Panetta, Jimmy [D-CA-19]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5334
+  summary: 'Lindsey O. Graham Sanctioning Russia and Iran Act of 2026
+
+
+    This bill imposes a variety of sanctions, tariffs, and prohibitions related to Russia,
+    extends an Iran-related sanctions law, and expands a tax deduction for teacher expenses
+    to include early childhood educators.
+
+
+    For example, under the bill, the President must impose visa- and property-blocking sanctions
+    on specified persons (individuals and entities) such as the Russian president and certain
+    Russian military commanders. The President must also increase the rate of duty up to 100%
+    ad valorem (i.e., relative to the value) on all goods imported into the United States
+    from a country that was among the five largest importers of Russian-origin crude oil or
+    natural gas if such country knowingly makes new purchases of such products after enactment
+    of the bill.
+
+
+    The bill prohibits (1) the export, reexport, or in-country transfer to or in Russia of
+    any U.S.-produced energy or energy product; (2) U.S. persons from making new investments
+    in Russia or purchasing Russian sovereign debt; and (3) trading the securities of Russian
+    government-owned, -controlled, or -affiliated entities on U.S. national securities exchanges.
+
+
+    The bill extends through 2031 the Iran Sanctions Act of 1996, which requires the President,
+    with some exceptions, to impose sanctions on certain persons engaged in specified transactions
+    related to Iran''s energy sector or Iran''s efforts to acquire or develop certain weapons.
+
+
+    The bill expands eligibility for federal tax deductions of certain educator expenses to
+    early childhood educators providing educational or childcare services to those under age
+    6.'
+  summary_version: Passed Senate
+  summary_date: '2026-08-07'
+  summary_truncated: false
+- law_number: 119-110
+  title: Prison Staff Safety Enhancement Act
+  bill: S 307
+  enacted_date: '2026-09-16'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: B001243
+    name: Sen. Blackburn, Marsha [R-TN]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/307
+  summary: 'Prison Staff Safety Enhancement Act
+
+
+    This act establishes requirements for the Department of Justice (DOJ) and component agencies
+    to assess and respond to incidents of sexual harassment and sexual assault by incarcerated
+    individuals against Bureau of Prisons (BOP) staff.
+
+
+    Specifically, the act requires DOJ to adopt national standards for the prevention, reduction,
+    and punishment of sexual harassment and sexual assault by incarcerated individuals against
+    correctional officers or other employees of the BOP.
+
+
+    Additionally, the act requires the BOP to fully implement the recommendations of the DOJ
+    Inspector General contained in the report titled Evaluation of the Federal Bureau of Prisons’
+    Efforts to Address Sexual Harassment and Sexual Assault Committed by Inmates Toward Staff.'
+  summary_version: Public Law
+  summary_date: '2026-09-16'
+  summary_truncated: false
+- law_number: 119-109
+  title: LACA
+  bill: S 32
+  enacted_date: '2026-09-16'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: C001098
+    name: Sen. Cruz, Ted [R-TX]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/32
+  summary: 'Local Access to Courts Act or LACA
+
+
+    This act adds College Station to the list of places where court must be held in the Galveston
+    Division of the Southern District of Texas.
+
+
+    Additionally, the act adds El Centro to the list of places where court must be held in
+    the Southern District of California.'
+  summary_version: Public Law
+  summary_date: '2026-09-16'
+  summary_truncated: false
+- law_number: 119-104
+  title: Hershel ‘Woody' Williams National Medal of Honor Monument Location Act
+  bill: S 858
+  enacted_date: '2026-09-10'
+  origin_chamber: Senate
+  sponsor:
+    bioguide: J000312
+    name: Sen. Justice, James C. [R-WV]
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/858
+  summary: 'Hershel "Woody" Williams National Medal of Honor Monument Location Act
+
+
+    This bill requires the authorized monument honoring Medal of Honor recipients to be located
+    within the Reserve (the great cross-axis of the National Mall, which generally extends
+    from the Capitol to the Lincoln Memorial and from the White House to the Jefferson Memorial).'
+  summary_version: Introduced in Senate
+  summary_date: '2025-03-05'
+  summary_truncated: false
+- law_number: 119-103
+  title: Continuing Appropriations and Extensions Act, 2027
+  bill: HR 6500
+  enacted_date: '2026-09-02'
+  origin_chamber: House
+  sponsor:
+    bioguide: S001195
+    name: Rep. Smith, Jason [R-MO-8]
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6500
+  summary: 'Continuing Appropriations and Extensions Act, 2027
+
+
+    This bill provides continuing FY2027 appropriations for federal agencies and extends various
+    expiring programs and authorities.
+
+
+    Specifically, the bill provides continuing FY2027 appropriations to federal agencies through
+    the earlier of December 11, 2026, or the enactment of the applicable appropriations act.
+    It is known as a continuing resolution (CR) and prevents a government shutdown that would
+    otherwise occur if the FY2027 appropriations bills have not been enacted when FY2027 begins
+    on October 1, 2026.
+
+
+    The CR funds most programs and activities at the FY2026 levels with several exceptions
+    that provide funding flexibility or additional appropriations for various programs. For
+    example, the CR includes exceptions for
+
+
+    the Special Supplemental Nutrition Program for Women, Infants, and Children (WIC);
+
+
+    Small Business Administration loans;
+
+
+    the Disaster Relief Fund;
+
+
+    the Indian Health Service;
+
+
+    the Department of Justice; and
+
+
+    wildfire suppression activities.
+
+
+    In addition, the bill extends several expiring authorizations, including authorities and
+    programs related to
+
+
+    agriculture,
+
+
+    flood insurance,
+
+
+    cybersecurity,
+
+
+    surface transportation,
+
+
+    veterans benefits,
+
+
+    housing,
+
+
+    defense production, and
+
+
+    trade preferences for Haiti and certain countries in sub-Saharan Africa.
+
+
+    The bill also includes provisions that
+
+
+    temporarily prohibit the implementation of a regulation that revises guidance for federal
+    financial assistance,
+
+
+    delay the implementation of certain changes to the statutory definition of hemp,
+
+
+    extend the freeze on cost-of-living adjustments for Members of Congress and limits on
+    pay increases for the Vice President and certain senior political appointees, and
+
+
+    provide death gratuities to beneficiaries of two Members of Congress who died while in
+    office.'
+  summary_version: House agreed to Senate amendment
+  summary_date: '2026-09-01'
+  summary_truncated: false
 - law_number: 119-102
   title: Emergency Conservation Program Improvement Act of 2025
   bill: S 629
@@ -1696,11 +1899,6 @@ laws:
     bioguide: L000575
     name: Sen. Lankford, James [R-OK]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/2283
-  summary: This bill designates the facility of the United States Postal Service located at
-    201 West Oklahoma Avenue in Guthrie, Oklahoma, as the "Oscar J. Upham Post Office".
-  summary_version: Introduced in Senate
-  summary_date: '2025-07-15'
-  summary_truncated: false
 - law_number: 119-58
   title: Secure Rural Schools Reauthorization Act of 2025
   bill: S 356
@@ -1710,33 +1908,6 @@ laws:
     bioguide: C000880
     name: Sen. Crapo, Mike [R-ID]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/356
-  summary: 'Secure Rural Schools Reauthorization Act of 2025
-
-
-    This act extends and modifies the Secure Rural Schools (SRS) program, under which states
-    and counties containing certain federal land may receive payments from the Forest Service
-    or the Bureau of Land Management (BLM) for schools, roads, and certain other municipal
-    services.
-
-
-    The act modifies the SRS program, including by
-
-
-    extending payments made to states and counties containing federal land through FY2026,
-
-
-    providing lapsed payments for FY2024 and FY2025,
-
-
-    extending the authority of counties to initiate projects using such funds through FY2028,
-    and
-
-
-    extending the authority to initiate projects proposed by resource advisory committees
-    through FY2028.'
-  summary_version: Public Law
-  summary_date: '2025-12-18'
-  summary_truncated: false
 - law_number: 119-57
   title: Foundation of the Federal Bar Association Charter Amendments Act of 2025
   bill: S 616
@@ -1746,46 +1917,6 @@ laws:
     bioguide: K000393
     name: Sen. Kennedy, John [R-LA]
   url: https://www.congress.gov/bill/119th-congress/senate-bill/616
-  summary: 'Foundation of the Federal Bar Association Charter Amendments Act of 2025
-
-
-    This act revises the federal charter for the Foundation of the Federal Bar Association
-    to shift authority from the charter to the bylaws.
-
-
-    Specifically, it makes the following changes:
-
-
-    removes the requirement for the foundation to be incorporated and domiciled in the District
-    of Columbia;
-
-
-    requires the board of directors to decide, and specify in the bylaws, the location of
-    the principal office;
-
-
-    specifies that the bylaws—not the charter—must provide for the terms of membership, the
-    responsibilities of the board of directors, and the election of officers;
-
-
-    prohibits a director or officer, in his or her corporate capacity, from contributing to,
-    supporting, or participating in political activities;
-
-
-    allows income and assets of the corporation to be used to reasonably compensate or reimburse
-    expenses of an officer, director, or member; to award a grant to the Federal Bar Association
-    chapter of an officer, director, or member; and to reasonably compensate employees;
-
-
-    expands a prohibition on loans for directors and officers to include members and employees;
-    and
-
-
-    specifies that on dissolution or final liquidation, any remaining assets must be distributed
-    as provided by the board of directors instead of deposited in the Treasury.'
-  summary_version: Public Law
-  summary_date: '2025-12-12'
-  summary_truncated: false
 - law_number: 119-56
   title: Veteran Fraud Reimbursement Act of 2025
   bill: HR 1912
@@ -1795,25 +1926,6 @@ laws:
     bioguide: C001078
     name: Rep. Connolly, Gerald E. [D-VA-11]
   url: https://www.congress.gov/bill/119th-congress/house-bill/1912
-  summary: 'Veteran Fraud Reimbursement Act of 2025
-
-
-    This act modifies the procedures by which the Department of Veterans Affairs (VA) reissues
-    misused benefits to a beneficiary, including by requiring the VA to establish methods
-    and timing with respect to determining whether an instance of misuse by a fiduciary is
-    the result of negligence by the VA. The act also provides that if a beneficiary predeceases
-    a reissuance, the VA must pay the amount to a surviving beneficiary in the same method
-    as certain other VA benefits are paid upon the death of a beneficiary.
-
-
-    Under the act, the VA may not withhold the reissuing of a benefit payment by reason of
-    a pending determination regarding the VA''s negligence in relation to the instance of
-    misuse by a fiduciary. Additionally, the VA is not required to make a determination regarding
-    its negligence for each instance of misuse by a fiduciary of all or part of an individual''s
-    benefit paid to such fiduciary.'
-  summary_version: Public Law
-  summary_date: '2025-12-12'
-  summary_truncated: false
 - law_number: 119-55
   title: Montgomery GI Bill Selected Reserves Tuition Fairness Act of 2025
   bill: HR 983
@@ -1823,16 +1935,6 @@ laws:
     bioguide: V000135
     name: Rep. Van Orden, Derrick [R-WI-3]
   url: https://www.congress.gov/bill/119th-congress/house-bill/983
-  summary: 'Montgomery GI Bill Selected Reserves Tuition Fairness Act of 2025
-
-
-    This act requires that the Department of Veterans Affairs disapprove courses of education
-    provided by educational institutions that charge higher than in-state tuition for individuals
-    utilizing the Montgomery GI Bill-Selected Reserve education benefits while living in the
-    state where the education is located, regardless of the individual’s state of residence.'
-  summary_version: Public Law
-  summary_date: '2025-12-12'
-  summary_truncated: false
 - law_number: 119-54
   title: Fairness for Servicemembers and their Families Act of 2025
   bill: HR 970
