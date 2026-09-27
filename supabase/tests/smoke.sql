@@ -1115,6 +1115,32 @@ begin
   end;
 end $$;
 
+-- display names with spaces (20260927000100): real names save, whitespace
+-- collapses, markup and doubled-up junk stay out, uniqueness ignores case.
+do $$
+declare res jsonb;
+begin
+  res := public.update_my_profile('  José   O''Brien-Díaz ', null, null);
+  if res ->> 'handle' <> 'José O''Brien-Díaz' then
+    raise exception 'FAIL: spaced name not saved and normalized (got %)', res ->> 'handle';
+  end if;
+  begin
+    perform public.update_my_profile('<b>bold</b>', null, null);
+    raise exception 'FAIL: accepted markup in a display name';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.update_my_profile(repeat('a', 31), null, null);
+    raise exception 'FAIL: accepted a 31-character display name';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.update_my_profile('JORDAN_A', null, null);
+    raise exception 'FAIL: case-variant duplicate accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 -- account deletion cascades: create a throwaway user, give them a token +
 -- membership, delete, assert everything is gone.
 reset role;

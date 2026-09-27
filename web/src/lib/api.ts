@@ -110,6 +110,8 @@ const FRIENDLY: Record<string, string> = {
   'class name too short': S.errors.classNameShort,
   'Handle must be 3 to 20 letters, numbers, or underscores.':
     S.errors.badHandle,
+  "Display names use 3 to 30 letters, numbers, spaces, or . ' - _":
+    S.errors.badHandle,
   'That handle is taken.': S.errors.handleTaken,
   deletion_incomplete: S.errors.deletionIncomplete,
 }

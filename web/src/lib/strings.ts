@@ -25,7 +25,8 @@ export const S = {
     classNameShort: 'Class names need at least 3 characters.',
     somethingBroke:
       'This view hit an unexpected error. Reload the page; your data is safe.',
-    badHandle: 'Display names use 3 to 20 letters, numbers, or underscores.',
+    badHandle:
+      "Display names use 3 to 30 letters, numbers, spaces, or . ' - _",
     handleTaken: 'That display name is taken.',
     deletionBlocked:
       'Your classes must be transferred or deleted before your account can be.',
@@ -113,7 +114,7 @@ export const S = {
     profileHeading: 'Profile',
     displayName: 'Display name',
     displayNameHint:
-      'Shown to co-faculty and on announcements. 3 to 20 letters, numbers, or underscores.',
+      "Shown to co-faculty and on announcements. 3 to 30 letters, numbers, spaces, or . ' - _",
     school: 'School',
     saved: 'Saved.',
     emailHeading: 'Sign-in email',
