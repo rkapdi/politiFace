@@ -195,7 +195,8 @@ merge is out of scope.
   app in the last 7 days); live now (running sessions with class, professor,
   participants, current question index); pending requests count; system
   health (existing `admin_canary_status`).
-- **Users**: search by email (owner), display name, or roster name; filters
+- **Users**: search by email (owner: everyone; support: faculty and staff
+  only), display name, or roster name; filters
   faculty, student, staff, unverified, guest. **User detail**: identity (email
   for owner, display name, created, last sign-in), roles (staff, verified
   faculty, per-class role), classes with roster names, live sessions joined,
