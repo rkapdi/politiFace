@@ -1,15 +1,41 @@
-import { useState } from 'react'
 import { Radio } from 'lucide-react'
-import { useCohortSessions } from '../lib/api'
+import { useCohortRole, useCohortSessions } from '../lib/api'
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card } from './ui'
 import { EmptyState } from './EmptyState'
 import { SkeletonTable } from './Skeleton'
 import { QuestionPicker } from './QuestionPicker'
+import { OwnQuestions } from './OwnQuestions'
 
-export function LiveTab({ cohortId }: { cohortId: string }) {
+// The session draft lives in ClassView, not here: tab content unmounts on
+// every tab switch, and a half-built session must survive a detour through
+// Settings.
+export type LiveDraft = {
+  composing: boolean
+  title: string
+  seconds: number
+  selected: Set<string>
+}
+
+export const emptyLiveDraft = (): LiveDraft => ({
+  composing: false,
+  title: '',
+  seconds: 20,
+  selected: new Set(),
+})
+
+export function LiveTab({
+  cohortId,
+  draft,
+  onDraftChange,
+}: {
+  cohortId: string
+  draft: LiveDraft
+  onDraftChange: (draft: LiveDraft) => void
+}) {
   const sessions = useCohortSessions(cohortId)
-  const [composing, setComposing] = useState(false)
+  // Authoring is faculty-only; TAs run sessions from the existing bank.
+  const isFaculty = useCohortRole(cohortId).data === 'faculty'
 
   return (
     <div className="flex flex-col gap-4">
@@ -18,14 +44,19 @@ export function LiveTab({ cohortId }: { cohortId: string }) {
           <h2 className="text-sm font-semibold text-slate-900">
             Run a live session
           </h2>
-          {!composing ? (
-            <Button onClick={() => setComposing(true)}>Set one up</Button>
+          {!draft.composing ? (
+            <Button onClick={() => onDraftChange({ ...draft, composing: true })}>
+              Set one up
+            </Button>
           ) : null}
         </div>
-        {composing ? (
+        {draft.composing ? (
           <QuestionPicker
             cohortId={cohortId}
+            draft={draft}
+            onDraftChange={onDraftChange}
             onCreated={sessionId => {
+              onDraftChange(emptyLiveDraft())
               window.location.hash = `#/class/${cohortId}/live/${sessionId}`
             }}
           />
@@ -36,6 +67,17 @@ export function LiveTab({ cohortId }: { cohortId: string }) {
           </p>
         )}
       </Card>
+      {isFaculty ? (
+        <OwnQuestions
+          cohortId={cohortId}
+          onRemoved={id => {
+            if (!draft.selected.has(id)) return
+            const selected = new Set(draft.selected)
+            selected.delete(id)
+            onDraftChange({ ...draft, selected })
+          }}
+        />
+      ) : null}
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
           Past sessions

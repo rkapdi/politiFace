@@ -25,6 +25,12 @@ export const S = {
     classNameShort: 'Class names need at least 3 characters.',
     somethingBroke:
       'This view hit an unexpected error. Reload the page; your data is safe.',
+    badHandle: 'Display names use 3 to 20 letters, numbers, or underscores.',
+    handleTaken: 'That display name is taken.',
+    deletionBlocked:
+      'Your classes must be transferred or deleted before your account can be.',
+    deletionIncomplete:
+      'Something still references this account. Contact support to finish deletion.',
   },
   empty: {
     classesTitle: 'No classes yet',
@@ -65,7 +71,70 @@ export const S = {
     assigned:
       'Practice assigned and announced to the class. Retention checks run automatically at 7 and 21 days.',
   },
+  onePager: {
+    preparing: 'Preparing the class summary',
+    blocked:
+      'Your browser blocked the summary tab. Allow pop-ups for this site and try again.',
+    noData:
+      'No summary is available yet. It appears after the first nightly rollup for this class.',
+    failed: 'The summary could not be loaded. Try again.',
+  },
+  ownQuestions: {
+    heading: 'Your own questions',
+    hint: 'Questions you write are visible only to this class and can be used in live sessions right away.',
+    add: 'Add a question',
+    edit: 'Edit',
+    remove: 'Remove',
+    confirmRemove: 'Remove this question?',
+    removeHint:
+      'It leaves the question picker. Past session results that used it are kept.',
+    stem: 'Question',
+    domain: 'FCLE domain',
+    option: 'Option',
+    correct: 'Correct answer',
+    explanation: 'Explanation (optional)',
+    citation: 'Source (optional)',
+    create: 'Save question',
+    update: 'Save changes',
+    editNote:
+      'Saving replaces the question with a new version. Select the correct answer again to confirm it.',
+    emptyTitle: 'No questions of your own yet',
+    emptyHint: 'Add one and it appears in the question picker marked as yours.',
+    stemShort: 'Write a question of at least 10 characters.',
+    optionsShort: 'Fill in at least two options.',
+    pickCorrect: 'Select the correct answer.',
+    correctBlank: 'The correct answer needs text.',
+  },
   provenance: {
     verified: 'Server-verified',
+  },
+  account: {
+    title: 'Account',
+    profileHeading: 'Profile',
+    displayName: 'Display name',
+    displayNameHint:
+      'Shown to co-faculty and on announcements. 3 to 20 letters, numbers, or underscores.',
+    school: 'School',
+    saved: 'Saved.',
+    emailHeading: 'Sign-in email',
+    changeEmail: 'Change email',
+    newEmail: 'New email',
+    emailPending:
+      'Check both inboxes. Confirmation links went to the old and the new address; the change completes when both are confirmed.',
+    sessionsHeading: 'Sessions',
+    signOutEverywhere: 'Sign out of all devices',
+    signOutEverywhereHint:
+      'Use this if you signed in on a shared or lost device. Every device, this one included, then needs a fresh emailed code.',
+    dangerHeading: 'Danger zone',
+    deleteAccount: 'Delete account',
+    deleteWarning:
+      'This permanently deletes your account, profile, and activity history. It cannot be undone.',
+    deleteConfirmPrompt: 'Type DELETE to confirm.',
+    blockedIntro:
+      'These classes still have members, so your account cannot be deleted yet. Transfer each class to a co-faculty, or remove it first.',
+    transferOwnership: 'Transfer ownership',
+    transferTo: 'New owner',
+    noCoFaculty:
+      'No co-faculty on this class yet. Add one in the class Settings tab, then transfer ownership here.',
   },
 } as const

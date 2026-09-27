@@ -108,12 +108,19 @@ const FRIENDLY: Record<string, string> = {
     S.errors.needsInvite,
   'instructor verification required': S.errors.needsVerification,
   'class name too short': S.errors.classNameShort,
+  'Handle must be 3 to 20 letters, numbers, or underscores.':
+    S.errors.badHandle,
+  'That handle is taken.': S.errors.handleTaken,
+  deletion_incomplete: S.errors.deletionIncomplete,
 }
 
 export function friendlyMessage(error: { message: string }): string {
   const exact = FRIENDLY[error.message]
   if (exact) return exact
   const msg = error.message.toLowerCase()
+  if (msg.startsWith('blocked_by_cohorts')) {
+    return S.errors.deletionBlocked
+  }
   if (msg.includes('jwt') || msg.includes('expired')) {
     return S.errors.sessionExpired
   }
@@ -310,6 +317,46 @@ export const cohortTas = async (cohortId: string): Promise<TaRow[]> => {
   }))
 }
 
+// Co-faculty on a cohort (excluding the caller), for ownership transfer.
+export const cohortCoFaculty = async (
+  cohortId: string,
+  selfId: string,
+): Promise<TaRow[]> => {
+  const members = await supabase
+    .from('cohort_members')
+    .select('user_id, roster_name')
+    .eq('cohort_id', cohortId)
+    .eq('role', 'faculty')
+    .neq('user_id', selfId)
+  if (members.error) throw new Error(friendlyMessage(members.error))
+  const rows = members.data ?? []
+  if (rows.length === 0) return []
+  const profiles = await supabase
+    .from('profiles')
+    .select('id, handle')
+    .in('id', rows.map(r => r.user_id))
+  if (profiles.error) throw new Error(friendlyMessage(profiles.error))
+  const handles = new Map((profiles.data ?? []).map(p => [p.id, p.handle]))
+  return rows.map(r => ({
+    user_id: r.user_id,
+    display: r.roster_name ?? handles.get(r.user_id) ?? r.user_id,
+  }))
+}
+
+export type MyProfile = { handle: string; school: string | null }
+
+export const myProfile = async (userId: string): Promise<MyProfile> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('handle, school')
+    .eq('id', userId)
+    .single()
+  if (error) throw new Error(friendlyMessage(error))
+  return data
+}
+
+export type DeletionBlocker = { cohort_id: string; name: string; others: number }
+
 export type PickableQuestion = {
   id: string
   stem: string
@@ -330,6 +377,32 @@ export const pickableQuestions = async (
     .order('domain_id')
   if (error) throw new Error(friendlyMessage(error))
   return data ?? []
+}
+
+export type QuestionOption = { key: string; text: string }
+
+export type OwnQuestion = {
+  id: string
+  stem: string
+  domain_id: number
+  options: QuestionOption[]
+}
+
+// This cohort's faculty-authored questions that are currently in use.
+// Answer keys are server-only, so they never come back here.
+export const ownQuestions = async (cohortId: string): Promise<OwnQuestion[]> => {
+  const { data, error } = await supabase
+    .from('questions')
+    .select('id, stem, domain_id, options')
+    .eq('cohort_id', cohortId)
+    .eq('author', 'faculty')
+    .eq('review_status', 'published')
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(friendlyMessage(error))
+  return (data ?? []).map(q => ({
+    ...q,
+    options: (q.options ?? []) as QuestionOption[],
+  }))
 }
 
 export type DomainRow = { id: number; code: string; name: string }
@@ -387,6 +460,12 @@ export const usePickableQuestions = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'pickable'],
     queryFn: () => pickableQuestions(cohortId),
+  })
+export const useOwnQuestions = (cohortId: string, enabled = true) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'own-questions'],
+    queryFn: () => ownQuestions(cohortId),
+    enabled,
   })
 export const useDomains = () =>
   useQuery({ queryKey: ['domains'], queryFn: domains, staleTime: Infinity })
@@ -473,6 +552,59 @@ export const useSessionReport = (sessionId: string, enabled = true) =>
     retry: false,
   })
 
+// ── account ─────────────────────────────────────────────────────────────────
+export const useMyProfile = (userId: string) =>
+  useQuery({
+    queryKey: ['me', 'profile', userId],
+    queryFn: () => myProfile(userId),
+    enabled: userId !== '',
+  })
+
+export const useUpdateMyProfile = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { handle?: string; school?: string }) =>
+      rpc<Json>('update_my_profile', {
+        ...(a.handle !== undefined ? { p_handle: a.handle } : {}),
+        ...(a.school !== undefined ? { p_school: a.school } : {}),
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me'] })
+    },
+  })
+}
+
+export const useDeletionBlockers = () =>
+  useQuery({
+    queryKey: ['me', 'deletion-blockers'],
+    queryFn: () => rpc<DeletionBlocker[]>('account_deletion_blockers'),
+  })
+
+export const useCohortCoFaculty = (cohortId: string, selfId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'co-faculty', selfId],
+    queryFn: () => cohortCoFaculty(cohortId, selfId),
+    enabled: selfId !== '',
+  })
+
+export const useTransferOwnership = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { cohortId: string; newOwner: string }) =>
+      rpc('transfer_cohort_ownership', {
+        p_cohort: a.cohortId,
+        p_new_owner: a.newOwner,
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['me'] })
+      void qc.invalidateQueries({ queryKey: ['classes'] })
+    },
+  })
+}
+
+export const useDeleteAccount = () =>
+  useMutation({ mutationFn: () => rpc<undefined>('delete_my_account') })
+
 // ── mutations ───────────────────────────────────────────────────────────────
 function useCohortMutation<A>(fn: (args: A) => Promise<unknown>, cohortKeyOf: (args: A) => string) {
   const qc = useQueryClient()
@@ -554,6 +686,44 @@ export const useSendAnnouncement = () => {
       }),
   })
 }
+
+export type OwnQuestionInput = {
+  cohortId: string
+  domainId: number
+  stem: string
+  options: QuestionOption[]
+  answerKey: string
+  explanation?: string
+  citation?: string
+  // Set when editing: the old version is retired once the new one exists.
+  // Questions are never edited in place, so past session results keep the
+  // wording students actually saw.
+  replaces?: string
+}
+
+export const useSaveOwnQuestion = () =>
+  useCohortMutation(async (a: OwnQuestionInput) => {
+    const id = await rpc<string>('create_cohort_question', {
+      p_cohort: a.cohortId,
+      p_domain: a.domainId,
+      p_stem: a.stem,
+      p_options: a.options as unknown as Json,
+      p_answer_key: a.answerKey,
+      p_explanation: a.explanation || undefined,
+      p_citation: a.citation || undefined,
+    })
+    if (a.replaces) {
+      await rpc('retire_cohort_question', { p_question: a.replaces })
+    }
+    return id
+  }, a => a.cohortId)
+
+export const useRetireOwnQuestion = () =>
+  useCohortMutation(
+    (a: { cohortId: string; questionId: string }) =>
+      rpc('retire_cohort_question', { p_question: a.questionId }),
+    a => a.cohortId,
+  )
 
 export const useCreateLiveSession = () =>
   useCohortMutation(

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 
 vi.mock('../lib/api', () => ({
   useCohortOverview: () => ({
@@ -75,11 +75,83 @@ vi.mock('../lib/api', () => ({
   useStudentProgress: () => ({ data: [], isPending: false, error: null }),
   useCohortSessions: () => ({ data: [], isPending: false, error: null }),
   useSendAnnouncement: () => ({ mutate: vi.fn(), isPending: false }),
+  usePickableQuestions: () => ({
+    data: [
+      { id: 'q1', stem: 'Which article establishes the judiciary?', domain_id: 2, cohort_id: null },
+    ],
+    isPending: false,
+    error: null,
+  }),
+  useDomains: () => ({
+    data: [{ id: 2, name: 'U.S. Constitution' }],
+    isPending: false,
+    error: null,
+  }),
+  useCreateLiveSession: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+}))
+
+vi.mock('../lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: async () => ({
+        data: { session: { access_token: 'test-token' } },
+      }),
+    },
+  },
 }))
 
 import { ClassView } from './ClassPage'
 
 describe('ClassView overview', () => {
+  it('one-pager requests the report by cohort_id and renders it in the new tab', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const doc = {
+      title: '',
+      body: { textContent: '' },
+      open: vi.fn(),
+      write: vi.fn(),
+      close: vi.fn(),
+    }
+    const open = vi
+      .spyOn(window, 'open')
+      .mockReturnValue({ document: doc, close: vi.fn() } as unknown as Window)
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('<h1>summary</h1>', { status: 200 }))
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(
+      screen.getByRole('button', { name: /summary one-pager/i }),
+    )
+    expect(open).toHaveBeenCalledWith('', '_blank')
+    await waitFor(() => expect(doc.write).toHaveBeenCalled())
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      '/functions/v1/efficacy-report?cohort_id=c1',
+    )
+    expect(doc.write).toHaveBeenCalledWith('<h1>summary</h1>')
+    open.mockRestore()
+    fetchMock.mockRestore()
+  })
+
+  it('one-pager explains when the class has no summary yet', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const close = vi.fn()
+    const open = vi.spyOn(window, 'open').mockReturnValue({
+      document: { title: '', body: { textContent: '' } },
+      close,
+    } as unknown as Window)
+    const fetchMock = vi
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(new Response('not found', { status: 404 }))
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(
+      screen.getByRole('button', { name: /summary one-pager/i }),
+    )
+    expect(await screen.findByText(/no summary is available yet/i)).toBeInTheDocument()
+    expect(close).toHaveBeenCalled()
+    open.mockRestore()
+    fetchMock.mockRestore()
+  })
+
   it('renders stats, domain bars, and the aggregate-only policy banner', () => {
     render(<ClassView cohortId="c1" />)
     expect(screen.getByText('32')).toBeInTheDocument()
@@ -105,5 +177,18 @@ describe('ClassView overview', () => {
     expect(
       screen.getByRole('tab', { name: /students/i }),
     ).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('keeps the live session draft when switching tabs and back', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('tab', { name: /live/i }))
+    await userEvent.click(screen.getByRole('button', { name: /set one up/i }))
+    await userEvent.type(screen.getByLabelText(/session title/i), 'Friday review')
+    await userEvent.click(screen.getByRole('checkbox', { name: /judiciary/i }))
+    await userEvent.click(screen.getByRole('tab', { name: /overview/i }))
+    await userEvent.click(screen.getByRole('tab', { name: /live/i }))
+    expect(screen.getByLabelText(/session title/i)).toHaveValue('Friday review')
+    expect(screen.getByRole('checkbox', { name: /judiciary/i })).toBeChecked()
   })
 })

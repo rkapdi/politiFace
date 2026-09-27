@@ -14,6 +14,7 @@ import {
 } from '../lib/api'
 import { supabase } from '../lib/supabase'
 import { SUPABASE_URL } from '../lib/config'
+import { S } from '../lib/strings'
 import {
   Alert,
   Button,
@@ -32,7 +33,7 @@ import { TrendChart } from '../components/TrendChart'
 import { TopMisses } from '../components/TopMisses'
 import { StudentsTab } from '../components/StudentsTab'
 import { SettingsTab } from '../components/SettingsTab'
-import { LiveTab } from '../components/LiveTab'
+import { LiveTab, emptyLiveDraft } from '../components/LiveTab'
 import { PulseBanner } from '../components/PulseBanner'
 import { DistributionChart } from '../components/DistributionChart'
 import { MessageClassDialog } from './StudentPage'
@@ -49,6 +50,7 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
   const trend = useEngagementTrend(cohortId)
   const distribution = useCohortDistribution(cohortId)
   const logExport = useLogExport()
+  const [onePagerError, setOnePagerError] = useState<string | null>(null)
 
   if (overview.isPending) {
     return (
@@ -64,19 +66,37 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
   const belowFloor = o !== undefined && o.active_7d === null
 
   const openOnePager = async () => {
-    const { data } = await supabase.auth.getSession()
-    const token = data.session?.access_token
-    if (!token) return
-    logExport.mutate({ cohortId, kind: 'one_pager' })
-    const res = await fetch(
-      `${SUPABASE_URL}/functions/v1/efficacy-report?cohort=${cohortId}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    )
-    const html = await res.text()
+    setOnePagerError(null)
+    // Open the tab inside the click itself: a window opened after an await
+    // is treated as a popup and blocked.
     const w = window.open('', '_blank')
-    if (w) {
+    if (!w) {
+      setOnePagerError(S.onePager.blocked)
+      return
+    }
+    w.document.title = S.onePager.preparing
+    w.document.body.textContent = S.onePager.preparing
+    const fail = (message: string) => {
+      w.close()
+      setOnePagerError(message)
+    }
+    try {
+      const { data } = await supabase.auth.getSession()
+      const token = data.session?.access_token
+      if (!token) return fail(S.onePager.failed)
+      const res = await fetch(
+        `${SUPABASE_URL}/functions/v1/efficacy-report?cohort_id=${encodeURIComponent(cohortId)}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      )
+      if (res.status === 404) return fail(S.onePager.noData)
+      if (!res.ok) return fail(S.onePager.failed)
+      const html = await res.text()
+      logExport.mutate({ cohortId, kind: 'one_pager' })
+      w.document.open()
       w.document.write(html)
       w.document.close()
+    } catch {
+      fail(S.onePager.failed)
     }
   }
 
@@ -125,10 +145,11 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
         </h2>
         {misses.data ? <TopMisses rows={misses.data} /> : <Spinner />}
       </Card>
-      <div>
+      <div className="flex flex-col items-start gap-2">
         <Button variant="ghost" onClick={() => void openOnePager()}>
           Summary one-pager
         </Button>
+        {onePagerError ? <Alert tone="error">{onePagerError}</Alert> : null}
       </div>
     </div>
   )
@@ -141,6 +162,9 @@ export function ClassView({ cohortId }: { cohortId: string }) {
   const isFaculty = role.data === 'faculty'
   const [tab, setTab] = useState('overview')
   const [announcing, setAnnouncing] = useState(false)
+  // Held here so a half-built session survives tab switches (tab content
+  // unmounts when inactive).
+  const [liveDraft, setLiveDraft] = useState(emptyLiveDraft)
 
   const onPulseAction = (kind: PulseCardData['kind']) => {
     if (kind === 'at_risk') setTab('students')
@@ -178,7 +202,11 @@ export function ClassView({ cohortId }: { cohortId: string }) {
           <StudentsTab cohortId={cohortId} />
         </TabsContent>
         <TabsContent value="live">
-          <LiveTab cohortId={cohortId} />
+          <LiveTab
+            cohortId={cohortId}
+            draft={liveDraft}
+            onDraftChange={setLiveDraft}
+          />
         </TabsContent>
         {isFaculty ? (
           <TabsContent value="settings">

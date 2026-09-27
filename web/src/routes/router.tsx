@@ -14,6 +14,7 @@ import { ClassPage } from './ClassPage'
 import { StudentPage } from './StudentPage'
 import { LiveRunnerPage } from './LiveRunnerPage'
 import { JoinPage } from './JoinPage'
+import { AccountPage } from './AccountPage'
 
 const rootRoute = createRootRoute({ component: Outlet })
 
@@ -55,6 +56,12 @@ const liveRoute = createRoute({
   component: LiveRunnerPage,
 })
 
+const accountRoute = createRoute({
+  getParentRoute: () => shellRoute,
+  path: '/account',
+  component: AccountPage,
+})
+
 const styleguideRoute = createRoute({
   getParentRoute: () => shellRoute,
   path: '/styleguide',
@@ -68,6 +75,7 @@ const routeTree = rootRoute.addChildren([
     classRoute,
     studentRoute,
     liveRoute,
+    accountRoute,
     styleguideRoute,
   ]),
 ])

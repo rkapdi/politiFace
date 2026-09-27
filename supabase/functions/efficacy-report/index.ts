@@ -20,13 +20,29 @@ function esc(s: unknown): string {
   );
 }
 
+// The web console fetches this cross-origin with an Authorization header,
+// which triggers a preflight. Auth is the bearer JWT, never a cookie, so a
+// wildcard origin exposes nothing.
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+};
+
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+
   const url = new URL(req.url);
   const cohortId = url.searchParams.get("cohort_id");
-  if (!cohortId) return new Response("cohort_id required", { status: 400 });
+  if (!cohortId) {
+    return new Response("cohort_id required", { status: 400, headers: cors });
+  }
 
   const authHeader = req.headers.get("authorization");
-  if (!authHeader) return new Response("unauthorized", { status: 401 });
+  if (!authHeader) {
+    return new Response("unauthorized", { status: 401, headers: cors });
+  }
 
   // Runs under the CALLER's JWT (RLS enforced); the apikey just needs to be
   // a valid public client key. Prefer the new publishable key; fall back to
@@ -51,7 +67,7 @@ Deno.serve(async (req) => {
 
   if (!cohort || !rollup) {
     // Not faculty of this cohort (RLS returned nothing) or no data yet.
-    return new Response("not found", { status: 404 });
+    return new Response("not found", { status: 404, headers: cors });
   }
 
   const baseline = rollup.baseline_avg ?? {};
@@ -132,6 +148,6 @@ Deno.serve(async (req) => {
 </body></html>`;
 
   return new Response(html, {
-    headers: { "content-type": "text/html; charset=utf-8" },
+    headers: { ...cors, "content-type": "text/html; charset=utf-8" },
   });
 });

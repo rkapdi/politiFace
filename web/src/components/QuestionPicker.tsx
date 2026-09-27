@@ -1,24 +1,27 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useMemo, type FormEvent } from 'react'
 import {
   useCreateLiveSession,
   useDomains,
   usePickableQuestions,
 } from '../lib/api'
 import { Alert, Badge, Button, Spinner } from './ui'
+import type { LiveDraft } from './LiveTab'
 
 export function QuestionPicker({
   cohortId,
+  draft,
+  onDraftChange,
   onCreated,
 }: {
   cohortId: string
+  draft: LiveDraft
+  onDraftChange: (draft: LiveDraft) => void
   onCreated: (sessionId: string) => void
 }) {
   const questions = usePickableQuestions(cohortId)
   const domains = useDomains()
   const create = useCreateLiveSession()
-  const [selected, setSelected] = useState<Set<string>>(new Set())
-  const [title, setTitle] = useState('')
-  const [seconds, setSeconds] = useState(20)
+  const { title, seconds, selected } = draft
 
   const byDomain = useMemo(() => {
     const groups = new Map<number, typeof questions.data>()
@@ -38,12 +41,10 @@ export function QuestionPicker({
   }
 
   const toggle = (id: string) => {
-    setSelected(prev => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
+    const next = new Set(selected)
+    if (next.has(id)) next.delete(id)
+    else next.add(id)
+    onDraftChange({ ...draft, selected: next })
   }
 
   const submit = (e: FormEvent) => {
@@ -69,7 +70,7 @@ export function QuestionPicker({
             minLength={3}
             maxLength={80}
             value={title}
-            onChange={e => setTitle(e.target.value)}
+            onChange={e => onDraftChange({ ...draft, title: e.target.value })}
             className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
           />
         </label>
@@ -77,7 +78,9 @@ export function QuestionPicker({
           Seconds per question
           <select
             value={seconds}
-            onChange={e => setSeconds(Number(e.target.value))}
+            onChange={e =>
+              onDraftChange({ ...draft, seconds: Number(e.target.value) })
+            }
             className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
           >
             {[10, 15, 20, 30, 45, 60].map(s => (
