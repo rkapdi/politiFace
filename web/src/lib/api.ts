@@ -379,6 +379,32 @@ export const pickableQuestions = async (
   return data ?? []
 }
 
+export type QuestionOption = { key: string; text: string }
+
+export type OwnQuestion = {
+  id: string
+  stem: string
+  domain_id: number
+  options: QuestionOption[]
+}
+
+// This cohort's faculty-authored questions that are currently in use.
+// Answer keys are server-only, so they never come back here.
+export const ownQuestions = async (cohortId: string): Promise<OwnQuestion[]> => {
+  const { data, error } = await supabase
+    .from('questions')
+    .select('id, stem, domain_id, options')
+    .eq('cohort_id', cohortId)
+    .eq('author', 'faculty')
+    .eq('review_status', 'published')
+    .order('created_at', { ascending: false })
+  if (error) throw new Error(friendlyMessage(error))
+  return (data ?? []).map(q => ({
+    ...q,
+    options: (q.options ?? []) as QuestionOption[],
+  }))
+}
+
 export type DomainRow = { id: number; code: string; name: string }
 
 export const domains = async (): Promise<DomainRow[]> => {
@@ -434,6 +460,12 @@ export const usePickableQuestions = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'pickable'],
     queryFn: () => pickableQuestions(cohortId),
+  })
+export const useOwnQuestions = (cohortId: string, enabled = true) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'own-questions'],
+    queryFn: () => ownQuestions(cohortId),
+    enabled,
   })
 export const useDomains = () =>
   useQuery({ queryKey: ['domains'], queryFn: domains, staleTime: Infinity })
@@ -654,6 +686,44 @@ export const useSendAnnouncement = () => {
       }),
   })
 }
+
+export type OwnQuestionInput = {
+  cohortId: string
+  domainId: number
+  stem: string
+  options: QuestionOption[]
+  answerKey: string
+  explanation?: string
+  citation?: string
+  // Set when editing: the old version is retired once the new one exists.
+  // Questions are never edited in place, so past session results keep the
+  // wording students actually saw.
+  replaces?: string
+}
+
+export const useSaveOwnQuestion = () =>
+  useCohortMutation(async (a: OwnQuestionInput) => {
+    const id = await rpc<string>('create_cohort_question', {
+      p_cohort: a.cohortId,
+      p_domain: a.domainId,
+      p_stem: a.stem,
+      p_options: a.options as unknown as Json,
+      p_answer_key: a.answerKey,
+      p_explanation: a.explanation || undefined,
+      p_citation: a.citation || undefined,
+    })
+    if (a.replaces) {
+      await rpc('retire_cohort_question', { p_question: a.replaces })
+    }
+    return id
+  }, a => a.cohortId)
+
+export const useRetireOwnQuestion = () =>
+  useCohortMutation(
+    (a: { cohortId: string; questionId: string }) =>
+      rpc('retire_cohort_question', { p_question: a.questionId }),
+    a => a.cohortId,
+  )
 
 export const useCreateLiveSession = () =>
   useCohortMutation(

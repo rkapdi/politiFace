@@ -1,10 +1,11 @@
 import { Radio } from 'lucide-react'
-import { useCohortSessions } from '../lib/api'
+import { useCohortRole, useCohortSessions } from '../lib/api'
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card } from './ui'
 import { EmptyState } from './EmptyState'
 import { SkeletonTable } from './Skeleton'
 import { QuestionPicker } from './QuestionPicker'
+import { OwnQuestions } from './OwnQuestions'
 
 // The session draft lives in ClassView, not here: tab content unmounts on
 // every tab switch, and a half-built session must survive a detour through
@@ -33,6 +34,8 @@ export function LiveTab({
   onDraftChange: (draft: LiveDraft) => void
 }) {
   const sessions = useCohortSessions(cohortId)
+  // Authoring is faculty-only; TAs run sessions from the existing bank.
+  const isFaculty = useCohortRole(cohortId).data === 'faculty'
 
   return (
     <div className="flex flex-col gap-4">
@@ -64,6 +67,17 @@ export function LiveTab({
           </p>
         )}
       </Card>
+      {isFaculty ? (
+        <OwnQuestions
+          cohortId={cohortId}
+          onRemoved={id => {
+            if (!draft.selected.has(id)) return
+            const selected = new Set(draft.selected)
+            selected.delete(id)
+            onDraftChange({ ...draft, selected })
+          }}
+        />
+      ) : null}
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
           Past sessions

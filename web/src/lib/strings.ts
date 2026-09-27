@@ -71,6 +71,40 @@ export const S = {
     assigned:
       'Practice assigned and announced to the class. Retention checks run automatically at 7 and 21 days.',
   },
+  onePager: {
+    preparing: 'Preparing the class summary',
+    blocked:
+      'Your browser blocked the summary tab. Allow pop-ups for this site and try again.',
+    noData:
+      'No summary is available yet. It appears after the first nightly rollup for this class.',
+    failed: 'The summary could not be loaded. Try again.',
+  },
+  ownQuestions: {
+    heading: 'Your own questions',
+    hint: 'Questions you write are visible only to this class and can be used in live sessions right away.',
+    add: 'Add a question',
+    edit: 'Edit',
+    remove: 'Remove',
+    confirmRemove: 'Remove this question?',
+    removeHint:
+      'It leaves the question picker. Past session results that used it are kept.',
+    stem: 'Question',
+    domain: 'FCLE domain',
+    option: 'Option',
+    correct: 'Correct answer',
+    explanation: 'Explanation (optional)',
+    citation: 'Source (optional)',
+    create: 'Save question',
+    update: 'Save changes',
+    editNote:
+      'Saving replaces the question with a new version. Select the correct answer again to confirm it.',
+    emptyTitle: 'No questions of your own yet',
+    emptyHint: 'Add one and it appears in the question picker marked as yours.',
+    stemShort: 'Write a question of at least 10 characters.',
+    optionsShort: 'Fill in at least two options.',
+    pickCorrect: 'Select the correct answer.',
+    correctBlank: 'The correct answer needs text.',
+  },
   provenance: {
     verified: 'Server-verified',
   },
