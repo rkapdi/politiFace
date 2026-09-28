@@ -2143,6 +2143,58 @@ begin
   end if;
 end $$;
 
+-- Live: create_live_session rejects a hold-out (retention-check) question.
+-- Regression coverage: 20260821000100 silently dropped the 20260806000100
+-- guard when it rebuilt this function for the ta-or-above gate; restored
+-- above. Domain 4 is used here (never touched by the domain-1 practice
+-- assignment above) so this probe cannot collide with that earlier,
+-- randomly-selected hold-out. Seeds the minimum rows as table owner, then
+-- cleans them up so later assertions are unaffected.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform set_config('app.p1_holdout_q',
+    (select id::text from public.questions
+      where domain_id = 4 and cohort_id is null and review_status = 'published'
+      order by id limit 1), false);
+end $$;
+reset role;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_prof   uuid := (select created_by from public.cohorts where name = 'POS2041 Fall');
+  v_q      uuid := current_setting('app.p1_holdout_q')::uuid;
+  v_input  uuid;
+begin
+  insert into public.teaching_inputs (cohort_id, created_by, title, kind, taught_on)
+  values (v_cohort, v_prof, 'Smoke hold-out probe', 'bank_set', current_date)
+  returning id into v_input;
+  insert into public.input_items (input_id, question_id, slice)
+  values (v_input, v_q, 'holdout_7');
+  insert into public.assessments
+    (input_id, cohort_id, phase, mode, question_ids, opens_at, closes_at)
+  values (v_input, v_cohort, 'check_7', 'async', jsonb_build_array(v_q),
+          now() - interval '1 day', now() + interval '3 days');
+  perform set_config('app.p1_holdout_input', v_input::text, false);
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.create_live_session(
+      v_cohort, 'Should be blocked',
+      jsonb_build_array(current_setting('app.p1_holdout_q')::uuid), 20);
+    raise exception 'FAIL: live session admitted a hold-out question';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+reset role;
+delete from public.teaching_inputs
+ where id = current_setting('app.p1_holdout_input')::uuid;
+set role authenticated;
+
 -- Live: new sessions default to no guests.
 set app.test_uid = :f_uid;
 do $$
@@ -2152,7 +2204,9 @@ begin
     (select id from public.cohorts where name = 'POS2041 Fall'),
     'Members only quiz',
     (select jsonb_agg(id) from (select id from public.questions
-       where cohort_id is null and review_status = 'published' limit 2) q),
+       where cohort_id is null and review_status = 'published'
+         and domain_id <> 1
+       limit 2) q),
     20);
   perform set_config('app.p1_code', v ->> 'join_code', false);
   perform set_config('app.p1_session', v ->> 'id', false);

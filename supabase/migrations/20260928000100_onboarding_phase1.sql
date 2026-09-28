@@ -223,6 +223,12 @@ grant execute on function public.my_student_classes() to authenticated;
 
 -- ── 4. live sessions ────────────────────────────────────────────────────────
 -- Guests become opt-in: class sessions admit signed-in students by default.
+-- Also restores the hold-out guard from 20260806000100 (reject a
+-- faculty-selected list containing an item reserved for a scheduled 7/21-day
+-- retention check): 20260821000100 silently dropped it when it rebuilt this
+-- function for the ta-or-above gate, and production has carried that
+-- regression ever since. No prior smoke coverage caught it; see the new
+-- phase 1 test below.
 alter table public.live_sessions alter column allow_guests set default false;
 
 drop function public.create_live_session(uuid, text, jsonb, int);
@@ -239,6 +245,7 @@ declare
   v_code text;
   v_count int;
   v_valid int;
+  v_locked int;
 begin
   if not app.is_cohort_ta_or_above(p_cohort) then
     raise exception 'not faculty of this cohort';
@@ -254,6 +261,16 @@ begin
      and (q.cohort_id is null or q.cohort_id = p_cohort);
   if v_valid <> v_count then
     raise exception 'question list contains unknown, unpublished, or foreign-cohort questions';
+  end if;
+  -- No held-out items: a reserved question surfacing in a live session
+  -- would contaminate its own 7/21-day check.
+  select count(*) into v_locked
+    from jsonb_array_elements_text(p_question_ids) qid
+   where qid::uuid in (select app.cohort_locked_question_ids(p_cohort));
+  if v_locked > 0 then
+    raise exception
+      'question list contains % item(s) reserved for a scheduled retention check',
+      v_locked;
   end if;
 
   insert into public.live_sessions
@@ -330,7 +347,8 @@ begin
     values (v_user, 'user_' || substr(replace(v_user::text, '-', ''), 1, 12))
     on conflict (id) do nothing;
     insert into public.cohort_members (cohort_id, user_id, role, roster_name)
-    values (s.cohort_id, v_user, 'student', v_name);
+    values (s.cohort_id, v_user, 'student', v_name)
+    on conflict (cohort_id, user_id) do nothing;
   end if;
 
   insert into public.live_participants (session_id, user_id)
