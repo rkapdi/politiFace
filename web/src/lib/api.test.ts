@@ -7,7 +7,7 @@ vi.mock('./supabase', () => ({
   supabase: { rpc: rpcMock },
 }))
 
-import { atRiskStudents, friendlyMessage } from './api'
+import { atRiskStudents, friendlyMessage, inviteLink } from './api'
 
 describe('friendlyMessage', () => {
   it('maps known server messages to plain sentences', () => {
@@ -45,5 +45,13 @@ describe('rpc fetchers', () => {
       error: { message: 'this class reports aggregate data only' },
     } as never)
     await expect(atRiskStudents('c1', 0.6)).rejects.toThrow(/aggregate/i)
+  })
+})
+
+describe('inviteLink', () => {
+  it('builds a hash-route welcome link on the current console URL', () => {
+    expect(inviteLink('D7QMJA')).toBe(
+      `${window.location.origin}${window.location.pathname}#/welcome?invite=D7QMJA`,
+    )
   })
 })

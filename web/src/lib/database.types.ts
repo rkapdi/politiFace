@@ -1414,6 +1414,10 @@ export type Database = {
       // migration is applied to hosted and types are regenerated.
       account_deletion_blockers: { Args: never; Returns: Json }
       admin_canary_status: { Args: never; Returns: Json }
+      admin_decide_faculty_request: {
+        Args: { p_approve: boolean; p_id: string }
+        Returns: undefined
+      }
       admin_list_cohorts: {
         Args: never
         Returns: {
@@ -1426,6 +1430,19 @@ export type Database = {
           name: string
           students: number
           term: string
+        }[]
+      }
+      admin_list_faculty_requests: {
+        Args: never
+        Returns: {
+          courses: string
+          created_at: string
+          email: string
+          handle: string
+          id: string
+          note: string
+          school: string
+          user_id: string
         }[]
       }
       admin_list_invites: {
@@ -1579,6 +1596,7 @@ export type Database = {
       }
       create_live_session: {
         Args: {
+          p_allow_guests?: boolean
           p_cohort: string
           p_question_ids: Json
           p_question_seconds?: number
@@ -1616,11 +1634,16 @@ export type Database = {
         }[]
       }
       get_reporting_policy: { Args: { p_cohort: string }; Returns: Json }
+      invite_preview: { Args: { p_code: string }; Returns: Json }
       join_cohort: {
         Args: { p_code: string; p_roster_name?: string }
         Returns: string
       }
       join_live_session: { Args: { p_code: string }; Returns: Json }
+      join_live_session_as_student: {
+        Args: { p_code: string; p_roster_name?: string }
+        Returns: Json
+      }
       join_live_session_guest: {
         Args: { p_code: string; p_display_name: string }
         Returns: Json
@@ -1636,6 +1659,7 @@ export type Database = {
           score: number
         }[]
       }
+      live_session_preview: { Args: { p_code: string }; Returns: Json }
       live_session_report: {
         Args: { p_session: string }
         Returns: {
@@ -1663,8 +1687,13 @@ export type Database = {
         Args: { p_cohort: string; p_kind: string }
         Returns: undefined
       }
-      mint_faculty_invite: { Args: { p_note?: string }; Returns: string }
+      mint_faculty_invite: {
+        Args: { p_note?: string; p_recipient_email?: string }
+        Returns: string
+      }
       my_cohort_role: { Args: { p_cohort: string }; Returns: string }
+      my_console_role: { Args: never; Returns: string }
+      my_faculty_access_request: { Args: never; Returns: Json }
       my_faculty_overview: {
         Args: never
         Returns: {
@@ -1680,6 +1709,16 @@ export type Database = {
         }[]
       }
       my_roster_name: { Args: { p_cohort: string }; Returns: string }
+      my_student_classes: {
+        Args: never
+        Returns: {
+          cohort_id: string
+          name: string
+          professor: string
+          roster_name: string
+          term: string
+        }[]
+      }
       redeem_code: { Args: { p_code: string }; Returns: Json }
       redeem_faculty_invite: { Args: { p_code: string }; Returns: undefined }
       register_push_token: {
@@ -1690,10 +1729,15 @@ export type Database = {
         Args: { p_cohort: string; p_user: string }
         Returns: undefined
       }
+      request_faculty_access: {
+        Args: { p_courses: string; p_note?: string; p_school: string }
+        Returns: Json
+      }
       retire_cohort_question: {
         Args: { p_question: string }
         Returns: undefined
       }
+      revoke_faculty_invite: { Args: { p_code: string }; Returns: undefined }
       send_class_announcement: {
         Args: { p_body: string; p_cohort: string }
         Returns: Json
