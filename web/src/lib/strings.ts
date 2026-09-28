@@ -68,6 +68,12 @@ export const S = {
     createClass: 'Create a class',
     checkingSession: 'Checking your session',
   },
+  classCode: {
+    label: 'Class code',
+    hint: 'Students enter this code in the Politiface app to join your class. Students without the app join when they sign in to a live session.',
+    copy: 'Copy code',
+    copied: 'Copied',
+  },
   policy: {
     perStudent: 'This class reports per-student detail to faculty.',
     pseudonymous: 'Students appear under stable pseudonyms, never names.',

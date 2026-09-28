@@ -41,6 +41,11 @@ vi.mock('../lib/api', () => ({
     error: null,
   }),
   useCohortRole: () => ({ data: 'ta', isPending: false, error: null }),
+  useCohortInfo: () => ({
+    data: { name: 'POS 2041-67', term: '2026F', join_code: 'K7QX2M' },
+    isPending: false,
+    error: null,
+  }),
   useLogExport: () => ({ mutate: vi.fn() }),
   useCohortPulse: () => ({
     data: {
@@ -103,6 +108,20 @@ vi.mock('../lib/supabase', () => ({
 import { ClassView } from './ClassPage'
 
 describe('ClassView overview', () => {
+  it('shows the class name and the join code professors hand out', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const writeText = vi.fn(async () => undefined)
+    Object.assign(navigator, { clipboard: { writeText } })
+    render(<ClassView cohortId="c1" />)
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'POS 2041-67' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('K7QX2M')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: /copy code/i }))
+    expect(writeText).toHaveBeenCalledWith('K7QX2M')
+    expect(screen.getByRole('button', { name: /copied/i })).toBeInTheDocument()
+  })
+
   it('one-pager requests the report by cohort_id and renders it in the new tab', async () => {
     const { default: userEvent } = await import('@testing-library/user-event')
     const doc = {
