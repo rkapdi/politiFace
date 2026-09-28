@@ -368,6 +368,13 @@ class _AccountBodyState extends ConsumerState<AccountBody> {
           ),
         ),
         const Divider(height: 48),
+        // The class code screen, for students whose phone finished
+        // onboarding before they had a code (Home also links here).
+        OutlinedButton(
+          onPressed: () => context.push('/leaderboard'),
+          child: const Text('JOIN A CLASS'),
+        ),
+        const SizedBox(height: 12),
         OutlinedButton(
           onPressed: _signOut,
           child: const Text('SIGN OUT'),
