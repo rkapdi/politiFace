@@ -165,7 +165,6 @@ export const S = {
     submit: 'Request access',
     pending: 'Request sent. You can create classes as soon as it is approved; this page updates on its own.',
     denied: 'Your request was not approved. Reply to your invite or contact support@politiface.app.',
-    studentInstead: 'Are you a student? Join a live session with the code your professor shows.',
   },
   student: {
     title: 'Your classes',
@@ -174,6 +173,7 @@ export const S = {
     sessionCode: 'Session code',
     join: 'Join',
     joinClass: 'Join a class',
+    joinClassButton: 'Join class',
     classCode: 'Class code',
     rosterName: 'Your name as your professor knows it',
     joined: 'You joined the class.',

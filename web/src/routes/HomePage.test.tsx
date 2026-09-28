@@ -41,6 +41,20 @@ describe('HomePage', () => {
     state.requestMutate.mockClear()
   })
 
+  it('a brand-new account can join a class or a live session right away', async () => {
+    state.role = 'none'
+    wrap(<HomePage />)
+    expect(screen.getByLabelText(/class code/i)).toBeInTheDocument()
+    expect(screen.getByLabelText(/session code/i)).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText(/class code/i), 'k7qx2m')
+    await userEvent.type(screen.getByLabelText(/as your professor knows it/i), 'Maria Lopez')
+    await userEvent.click(screen.getByRole('button', { name: /^join class$/i }))
+    expect(state.joinClassMutate).toHaveBeenCalled()
+    // Instructors still get the request form, below the student paths.
+    expect(screen.getByRole('button', { name: /request access/i })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1)
+  })
+
   it('offers request access to a signed-in user with no role', async () => {
     state.role = 'none'
     wrap(<HomePage />)
