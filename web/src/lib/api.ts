@@ -131,6 +131,9 @@ export function friendlyMessage(error: { message: string }): string {
   if (msg.startsWith('blocked_by_cohorts')) {
     return S.errors.deletionBlocked
   }
+  if (msg.includes('reserved for a scheduled retention check')) {
+    return S.errors.heldOutQuestions
+  }
   if (msg.includes('jwt') || msg.includes('expired')) {
     return S.errors.sessionExpired
   }
@@ -236,6 +239,18 @@ export const signInAnonymously = async () => {
 
 export type ConsoleRole = 'staff' | 'faculty' | 'ta' | 'student' | 'none'
 export const myConsoleRole = () => rpc<ConsoleRole>('my_console_role')
+
+// Whether this faculty account has completed instructor verification
+// (redeemed an invite or been approved). Unverified co-faculty and TAs
+// also get console role 'faculty'/'ta', so this gates faculty-only actions
+// like minting invites that would otherwise fail with an unmapped error.
+export const amVerifiedFaculty = () => rpc<boolean>('am_verified_faculty')
+export const useAmVerifiedFaculty = (enabled = true) =>
+  useQuery({
+    queryKey: ['am-verified-faculty'],
+    queryFn: amVerifiedFaculty,
+    enabled,
+  })
 
 export type InvitePreview = { valid: boolean; inviter: string | null }
 export const invitePreview = (code: string) =>

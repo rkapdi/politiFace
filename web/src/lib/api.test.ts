@@ -28,6 +28,15 @@ describe('friendlyMessage', () => {
       /offline/i,
     )
   })
+
+  it('flags hold-out questions reserved for a retention check', () => {
+    expect(
+      friendlyMessage({
+        message:
+          'question list contains 3 item(s) reserved for a scheduled retention check',
+      }),
+    ).toMatch(/retention check/i)
+  })
 })
 
 describe('rpc fetchers', () => {
