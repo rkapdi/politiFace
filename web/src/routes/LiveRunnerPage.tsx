@@ -18,6 +18,7 @@ import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
 import { Countdown } from '../components/Countdown'
 import { Scoreboard } from '../components/Scoreboard'
 import { downloadCsv } from '../lib/csv'
+import { S } from '../lib/strings'
 
 export function LiveRunnerPage() {
   const { cohortId, sessionId } = useParams({ strict: false }) as {
@@ -203,7 +204,13 @@ function EndedPanel({
                     <td className="py-2 pr-3">{r.roster_name}</td>
                     <td className="py-2 pr-3 tabular-nums">{r.score}</td>
                     <td className="py-2 tabular-nums">
-                      {r.correct_count}/{r.answered}
+                      {r.answered === 0 ? (
+                        <span className="text-slate-500">
+                          {S.live.joinedNoAnswers}
+                        </span>
+                      ) : (
+                        `${r.correct_count}/${r.answered}`
+                      )}
                     </td>
                   </tr>
                 ))}

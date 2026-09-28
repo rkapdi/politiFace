@@ -17,6 +17,8 @@ export const S = {
       'This session is limited to class members. Join the class in the app first.',
     questionClosed: 'That question just closed.',
     timeUp: 'Time is up for this question.',
+    instructorsWatch:
+      'Instructors watch their own sessions. To try it as a student, join with a student account.',
     noAccount:
       'No Politiface account uses that email. They need to sign in to the app or console once first.',
     needsInvite: 'That account has not redeemed a faculty invite code yet.',
@@ -181,6 +183,7 @@ export const S = {
   },
   live: {
     allowGuests: 'Allow guests without sign-in',
+    joinedNoAnswers: 'Joined, no answers',
   },
   join: {
     title: 'Join a live session',

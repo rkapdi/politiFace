@@ -103,6 +103,7 @@ const FRIENDLY: Record<string, string> = {
   'this session is limited to class members': S.errors.membersOnly,
   'question is not open': S.errors.questionClosed,
   'time is up': S.errors.timeUp,
+  'instructors watch their own sessions': S.errors.instructorsWatch,
   'no Politiface account uses that email': S.errors.noAccount,
   'that account has not redeemed a faculty invite code yet':
     S.errors.needsInvite,

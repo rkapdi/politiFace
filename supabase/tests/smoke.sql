@@ -2286,5 +2286,69 @@ begin
   end if;
 end $$;
 
+-- ── Instructors watch their own sessions (20260928000200) ───────────────────
+-- Faculty answers are refused; a teacher answer that predates the rule is
+-- never folded into class analytics; student answers still fold.
+set app.test_uid = :f_uid;
+do $$
+declare v_q jsonb;
+begin
+  perform public.advance_live_session(current_setting('app.p1_session')::uuid);
+  v_q := public.get_live_question(current_setting('app.p1_session')::uuid);
+  perform set_config('app.p1_q1', v_q -> 'question' ->> 'id', false);
+  begin
+    perform public.submit_live_answer(
+      current_setting('app.p1_session')::uuid,
+      (v_q -> 'question' ->> 'id')::uuid, 'b');
+    raise exception 'FAIL: faculty answered in their own session';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+set app.test_uid = :p1_student;
+do $$
+begin
+  perform public.submit_live_answer(
+    current_setting('app.p1_session')::uuid,
+    current_setting('app.p1_q1')::uuid, 'b');
+end $$;
+
+-- A teacher answer recorded before the rule (inserted as owner).
+reset role;
+insert into public.live_answers
+  (session_id, question_id, user_id, chosen_key, correct, answer_ms)
+values (current_setting('app.p1_session')::uuid,
+        current_setting('app.p1_q1')::uuid, :f_uid, 'b', true, 1000);
+set role authenticated;
+
+set app.test_uid = :f_uid;
+do $$
+declare v_s uuid := current_setting('app.p1_session')::uuid;
+begin
+  perform public.advance_live_session(v_s); -- reveal
+  perform public.advance_live_session(v_s); -- question 2
+  perform public.advance_live_session(v_s); -- reveal
+  perform public.advance_live_session(v_s); -- ended + finalize
+end $$;
+
+reset role;
+do $$
+declare
+  v_s uuid := current_setting('app.p1_session')::uuid;
+  v_q uuid := current_setting('app.p1_q1')::uuid;
+begin
+  if exists (select 1 from public.events
+              where event_id = md5('live:' || v_s || ':' || v_q || ':'
+                                   || '00000000-0000-0000-0000-00000000000f')::uuid) then
+    raise exception 'FAIL: a teacher live answer was folded into class events';
+  end if;
+  if not exists (select 1 from public.events
+                  where event_id = md5('live:' || v_s || ':' || v_q || ':'
+                                       || '00000000-0000-0000-0000-0000000000a3')::uuid) then
+    raise exception 'FAIL: the student live answer was not folded';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
