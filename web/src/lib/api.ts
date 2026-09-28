@@ -110,8 +110,18 @@ const FRIENDLY: Record<string, string> = {
   'class name too short': S.errors.classNameShort,
   'Handle must be 3 to 20 letters, numbers, or underscores.':
     S.errors.badHandle,
+  "Display names use 3 to 30 letters, numbers, spaces, or . ' - _":
+    S.errors.badHandle,
   'That handle is taken.': S.errors.handleTaken,
   deletion_incomplete: S.errors.deletionIncomplete,
+  'invalid or exhausted invite code': S.errors.badInvite,
+  'already a verified instructor': S.errors.alreadyFaculty,
+  'enter your name as your professor knows it (2 to 60 characters)':
+    S.errors.rosterName,
+  'invalid join code': S.errors.badClassCode,
+  'sign in with your email to join as a student': S.errors.signInToJoin,
+  'you teach this class': S.errors.youTeach,
+  'join the class first': S.errors.membersOnly,
 }
 
 export function friendlyMessage(error: { message: string }): string {
@@ -120,6 +130,9 @@ export function friendlyMessage(error: { message: string }): string {
   const msg = error.message.toLowerCase()
   if (msg.startsWith('blocked_by_cohorts')) {
     return S.errors.deletionBlocked
+  }
+  if (msg.includes('reserved for a scheduled retention check')) {
+    return S.errors.heldOutQuestions
   }
   if (msg.includes('jwt') || msg.includes('expired')) {
     return S.errors.sessionExpired
@@ -223,6 +236,75 @@ export const signInAnonymously = async () => {
   if (error) throw new Error(friendlyMessage(error))
   return data
 }
+
+export type ConsoleRole = 'staff' | 'faculty' | 'ta' | 'student' | 'none'
+export const myConsoleRole = () => rpc<ConsoleRole>('my_console_role')
+
+// Whether this faculty account has completed instructor verification
+// (redeemed an invite or been approved). Unverified co-faculty and TAs
+// also get console role 'faculty'/'ta', so this gates faculty-only actions
+// like minting invites that would otherwise fail with an unmapped error.
+export const amVerifiedFaculty = () => rpc<boolean>('am_verified_faculty')
+export const useAmVerifiedFaculty = (enabled = true) =>
+  useQuery({
+    queryKey: ['am-verified-faculty'],
+    queryFn: amVerifiedFaculty,
+    enabled,
+  })
+
+export type InvitePreview = { valid: boolean; inviter: string | null }
+export const invitePreview = (code: string) =>
+  rpc<InvitePreview>('invite_preview', { p_code: code })
+export const redeemFacultyInvite = async (code: string): Promise<void> => {
+  await rpc('redeem_faculty_invite', { p_code: code })
+}
+export const inviteLink = (code: string) =>
+  `${window.location.origin}${window.location.pathname}#/welcome?invite=${code}`
+
+export type AccessRequest = {
+  id: string
+  status: 'pending' | 'approved' | 'denied'
+  school: string
+  courses: string
+  note: string | null
+  created_at: string
+}
+export type PendingRequest = {
+  id: string
+  user_id: string
+  handle: string
+  email: string
+  school: string
+  courses: string
+  note: string | null
+  created_at: string
+}
+export type StudentClass = {
+  cohort_id: string
+  name: string
+  term: string | null
+  professor: string | null
+  roster_name: string | null
+}
+export type SessionPreview = {
+  title: string
+  status: LiveJoin['status']
+  allow_guests: boolean
+  class_name: string
+  professor: string | null
+  is_member: boolean
+  role: 'student' | 'faculty' | 'ta' | null
+  roster_name: string | null
+}
+export const liveSessionPreview = (code: string) =>
+  rpc<SessionPreview>('live_session_preview', { p_code: code })
+export const joinLiveSession = (code: string) =>
+  rpc<LiveJoin>('join_live_session', { p_code: code })
+export const joinLiveSessionAsStudent = (code: string, rosterName: string | null) =>
+  rpc<LiveJoin>('join_live_session_as_student', {
+    p_code: code,
+    ...(rosterName ? { p_roster_name: rosterName } : {}),
+  })
 
 export type PulseCardData = {
   kind: 'at_risk' | 'weak_domain' | 'participation'
@@ -446,6 +528,26 @@ export const participantCount = async (sessionId: string): Promise<number> => {
 }
 
 // ── query hooks ─────────────────────────────────────────────────────────────
+export const useMyConsoleRole = (enabled = true) =>
+  useQuery({ queryKey: ['console-role'], queryFn: myConsoleRole, enabled })
+export const useMyAccessRequest = () =>
+  useQuery({
+    queryKey: ['access-request'],
+    queryFn: () => rpc<AccessRequest | null>('my_faculty_access_request'),
+    refetchInterval: q =>
+      q.state.data?.status === 'pending' ? 15_000 : false,
+  })
+export const useFacultyRequests = (enabled: boolean) =>
+  useQuery({
+    queryKey: ['admin', 'faculty-requests'],
+    queryFn: () => rpc<PendingRequest[]>('admin_list_faculty_requests'),
+    enabled,
+  })
+export const useMyStudentClasses = () =>
+  useQuery({
+    queryKey: ['student-classes'],
+    queryFn: () => rpc<StudentClass[]>('my_student_classes'),
+  })
 export const useCohortPulse = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'pulse'],
@@ -606,6 +708,53 @@ export const useDeleteAccount = () =>
   useMutation({ mutationFn: () => rpc<undefined>('delete_my_account') })
 
 // ── mutations ───────────────────────────────────────────────────────────────
+export const useRequestFacultyAccess = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { school: string; courses: string; note: string }) =>
+      rpc<AccessRequest>('request_faculty_access', {
+        p_school: a.school,
+        p_courses: a.courses,
+        ...(a.note ? { p_note: a.note } : {}),
+      }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['access-request'] }),
+  })
+}
+
+export const useDecideFacultyRequest = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { id: string; approve: boolean }) =>
+      rpc('admin_decide_faculty_request', { p_id: a.id, p_approve: a.approve }),
+    onSuccess: () =>
+      void qc.invalidateQueries({ queryKey: ['admin', 'faculty-requests'] }),
+  })
+}
+
+export const useMintFacultyInvite = () =>
+  useMutation({
+    mutationFn: (a: { note?: string; recipientEmail?: string }) =>
+      rpc<string>('mint_faculty_invite', {
+        ...(a.note ? { p_note: a.note } : {}),
+        ...(a.recipientEmail ? { p_recipient_email: a.recipientEmail } : {}),
+      }),
+  })
+
+export const useJoinClass = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { code: string; rosterName: string }) =>
+      rpc<string>('join_cohort', {
+        p_code: a.code,
+        p_roster_name: a.rosterName,
+      }),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['student-classes'] })
+      void qc.invalidateQueries({ queryKey: ['console-role'] })
+    },
+  })
+}
+
 function useCohortMutation<A>(fn: (args: A) => Promise<unknown>, cohortKeyOf: (args: A) => string) {
   const qc = useQueryClient()
   return useMutation({
@@ -732,6 +881,7 @@ export const useCreateLiveSession = () =>
       title: string
       questionIds: string[]
       questionSeconds: number
+      allowGuests: boolean
     }) =>
       rpc<{ id: string; join_code: string; question_count: number }>(
         'create_live_session',
@@ -740,6 +890,7 @@ export const useCreateLiveSession = () =>
           p_title: a.title,
           p_question_ids: a.questionIds as unknown as Json,
           p_question_seconds: a.questionSeconds,
+          p_allow_guests: a.allowGuests,
         },
       ),
     a => a.cohortId,

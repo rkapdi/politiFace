@@ -7,7 +7,7 @@ vi.mock('./supabase', () => ({
   supabase: { rpc: rpcMock },
 }))
 
-import { atRiskStudents, friendlyMessage } from './api'
+import { atRiskStudents, friendlyMessage, inviteLink } from './api'
 
 describe('friendlyMessage', () => {
   it('maps known server messages to plain sentences', () => {
@@ -28,6 +28,15 @@ describe('friendlyMessage', () => {
       /offline/i,
     )
   })
+
+  it('flags hold-out questions reserved for a retention check', () => {
+    expect(
+      friendlyMessage({
+        message:
+          'question list contains 3 item(s) reserved for a scheduled retention check',
+      }),
+    ).toMatch(/retention check/i)
+  })
 })
 
 describe('rpc fetchers', () => {
@@ -45,5 +54,13 @@ describe('rpc fetchers', () => {
       error: { message: 'this class reports aggregate data only' },
     } as never)
     await expect(atRiskStudents('c1', 0.6)).rejects.toThrow(/aggregate/i)
+  })
+})
+
+describe('inviteLink', () => {
+  it('builds a hash-route welcome link on the current console URL', () => {
+    expect(inviteLink('D7QMJA')).toBe(
+      `${window.location.origin}${window.location.pathname}#/welcome?invite=D7QMJA`,
+    )
   })
 })

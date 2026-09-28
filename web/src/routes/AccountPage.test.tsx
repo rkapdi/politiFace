@@ -73,10 +73,10 @@ describe('AccountPage', () => {
     expect(handle).toHaveValue('prof_purcell')
     expect(screen.getByText(/purcell@mdc\.edu/)).toBeInTheDocument()
     await userEvent.clear(handle)
-    await userEvent.type(handle, 'purcell_pols')
+    await userEvent.type(handle, 'Purcell Demo')
     await userEvent.click(screen.getByRole('button', { name: /^save$/i }))
     expect(updateMutate).toHaveBeenCalledWith(
-      { handle: 'purcell_pols', school: 'Miami Dade College' },
+      { handle: 'Purcell Demo', school: 'Miami Dade College' },
       expect.anything(),
     )
   })

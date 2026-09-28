@@ -1,42 +1,99 @@
 import { useState, type FormEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import {
+  joinLiveSession,
+  joinLiveSessionAsStudent,
   joinLiveSessionGuest,
   liveReveal,
   liveScoreboard,
+  liveSessionPreview,
   signInAnonymously,
   submitLiveAnswer,
   type LiveJoin,
   type LiveRevealData,
   type ScoreboardRow,
+  type SessionPreview,
 } from '../lib/api'
+import { useSession } from '../auth/SessionProvider'
+import { EmailCodeForm } from '../auth/EmailCodeForm'
 import { useLiveSession } from '../lib/live'
+import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
 import { Countdown } from '../components/Countdown'
 import { Scoreboard } from '../components/Scoreboard'
-import { useQuery } from '@tanstack/react-query'
 
-function codeFromHash(): string {
-  const m = window.location.hash.match(/[?&]code=([A-Za-z0-9]+)/)
-  return m ? m[1].toUpperCase() : ''
+const field =
+  'rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900'
+
+function CodeEntry({ onCode }: { onCode: (c: string) => void }) {
+  const [code, setCode] = useState('')
+  return (
+    <Card>
+      <form
+        onSubmit={e => {
+          e.preventDefault()
+          onCode(code.trim().toUpperCase())
+        }}
+        className="flex flex-col gap-3"
+      >
+        <label className="text-sm font-medium text-slate-700" htmlFor="join-code">
+          {S.student.sessionCode}
+        </label>
+        <input id="join-code" required autoComplete="off" value={code}
+          onChange={e => setCode(e.target.value.toUpperCase())}
+          className={`${field} text-center text-lg font-semibold tracking-[0.3em] uppercase`} />
+        <Button type="submit">{S.join.continue}</Button>
+      </form>
+    </Card>
+  )
 }
 
-function JoinForm({ onJoined }: { onJoined: (s: LiveJoin) => void }) {
-  const [code, setCode] = useState(codeFromHash)
+function GuestJoin({ code, onJoined }: { code: string; onJoined: (s: LiveJoin) => void }) {
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     setBusy(true)
     setError(null)
     try {
       await signInAnonymously()
-      const session = await joinLiveSessionGuest(
-        code.trim().toUpperCase(),
-        name.trim(),
-      )
-      onJoined(session)
+      onJoined(await joinLiveSessionGuest(code, name.trim()))
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setBusy(false)
+    }
+  }
+  return (
+    <Card>
+      <p className="mb-3 text-sm text-slate-500">{S.join.guestNote}</p>
+      <form onSubmit={e => void submit(e)} className="flex flex-col gap-3">
+        <label className="text-sm font-medium text-slate-700" htmlFor="guest-name">
+          {S.join.guestName}
+        </label>
+        <input id="guest-name" required minLength={2} maxLength={40} value={name}
+          onChange={e => setName(e.target.value)} className={field} />
+        <Button type="submit" disabled={busy}>Join</Button>
+      </form>
+      {error ? <div className="mt-3"><Alert tone="error">{error}</Alert></div> : null}
+    </Card>
+  )
+}
+
+function StudentJoin({
+  code, preview, onJoined,
+}: { code: string; preview: SessionPreview; onJoined: (s: LiveJoin) => void }) {
+  const { session, signOut } = useSession()
+  const [name, setName] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const run = async (fn: () => Promise<LiveJoin>) => {
+    setBusy(true)
+    setError(null)
+    try {
+      onJoined(await fn())
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -44,55 +101,54 @@ function JoinForm({ onJoined }: { onJoined: (s: LiveJoin) => void }) {
     }
   }
 
+  const teaching = preview.role === 'faculty' || preview.role === 'ta'
+
   return (
-    <main className="mx-auto mt-16 max-w-sm px-4">
-      <h1 className="mb-1 text-xl font-semibold text-slate-900">
-        Join a live session
-      </h1>
-      <p className="mb-4 text-sm text-slate-500">
-        No account needed. Your name appears on this session's scoreboard
-        only, then it is deleted.
-      </p>
-      <Card>
-        <form onSubmit={e => void submit(e)} className="flex flex-col gap-3">
-          <label className="text-sm font-medium text-slate-700" htmlFor="join-code">
-            Session code
+    <Card>
+      {teaching ? (
+        <p className="text-sm text-slate-700">
+          {S.errors.youTeach}{' '}
+          <a href="#/" className="font-medium underline">{S.join.openConsole}</a>
+        </p>
+      ) : preview.is_member ? (
+        <Button disabled={busy} className="w-full justify-center"
+          onClick={() => void run(() => joinLiveSession(code))}>
+          {S.join.joinAs} {preview.roster_name ?? S.join.yourself}
+        </Button>
+      ) : (
+        <form
+          onSubmit={e => {
+            e.preventDefault()
+            void run(() => joinLiveSessionAsStudent(code, name.trim()))
+          }}
+          className="flex flex-col gap-3"
+        >
+          <label className="text-sm font-medium text-slate-700" htmlFor="roster-name">
+            {S.join.firstTimeName}
           </label>
-          <input
-            id="join-code"
-            required
-            autoComplete="off"
-            value={code}
-            onChange={e => setCode(e.target.value.toUpperCase())}
-            className="rounded-md border border-slate-300 px-3 py-2 text-center text-lg font-semibold tracking-[0.3em] uppercase focus-visible:outline-2 focus-visible:outline-slate-900"
-          />
-          <label className="text-sm font-medium text-slate-700" htmlFor="join-name">
-            Your name
-          </label>
-          <input
-            id="join-name"
-            required
-            minLength={2}
-            maxLength={40}
-            value={name}
-            onChange={e => setName(e.target.value)}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900"
-          />
+          <input id="roster-name" required minLength={2} maxLength={60} value={name}
+            autoComplete="name" onChange={e => setName(e.target.value)} className={field} />
           <Button type="submit" disabled={busy}>
-            Join
+            {S.join.joinClass} {preview.class_name}
           </Button>
         </form>
-        {error ? (
-          <div className="mt-3">
-            <Alert tone="error">{error}</Alert>
-          </div>
+      )}
+      {error ? <div className="mt-3"><Alert tone="error">{error}</Alert></div> : null}
+      <div className="mt-3 text-center">
+        {/* Shared lab computers: make it obvious which account is signed in
+            before someone taps a wrong-account "Join". */}
+        {session?.user.email ? (
+          <p className="mb-1 text-xs text-slate-500">
+            {S.join.signedInAs} {session.user.email}.
+          </p>
         ) : null}
-      </Card>
-    </main>
+        <Button variant="ghost" onClick={() => void signOut()}>{S.join.notYou}</Button>
+      </div>
+    </Card>
   )
 }
 
-function GuestSession({ joined }: { joined: LiveJoin }) {
+function SessionView({ joined }: { joined: LiveJoin }) {
   const { state, error } = useLiveSession(joined.id)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -242,11 +298,84 @@ function GuestEnded({ sessionId }: { sessionId: string }) {
   )
 }
 
+function codeFromHash(): string {
+  const m = window.location.hash.match(/[?&]code=([A-Za-z0-9]+)/)
+  return m ? m[1].toUpperCase() : ''
+}
+
 export function JoinPage() {
+  const { session, loading } = useSession()
+  const [code, setCode] = useState(codeFromHash)
   const [joined, setJoined] = useState<LiveJoin | null>(null)
-  return joined ? (
-    <GuestSession joined={joined} />
-  ) : (
-    <JoinForm onJoined={setJoined} />
+  const [asGuest, setAsGuest] = useState(false)
+  // While the session is still resolving, session is always null: do not
+  // let that masquerade as signed-out (it would run and cache the preview
+  // query under the signed-out key, which a returning signed-in student
+  // then briefly sees).
+  const signedIn = !loading && session !== null && !session.user.is_anonymous
+  const preview = useQuery({
+    queryKey: ['live-preview', code, signedIn ? session.user.id : 'signed-out'],
+    queryFn: () => liveSessionPreview(code),
+    enabled: code !== '' && !loading,
+    retry: 1,
+  })
+
+  if (joined) return <SessionView joined={joined} />
+
+  if (loading) {
+    return (
+      <main className="mx-auto mt-12 flex max-w-sm flex-col gap-4 px-4">
+        <h1 className="text-xl font-semibold text-slate-900">{S.join.title}</h1>
+        <Spinner label={S.common.checkingSession} />
+      </main>
+    )
+  }
+
+  const badCode = preview.error?.message === S.errors.badSessionCode
+
+  return (
+    <main className="mx-auto mt-12 flex max-w-sm flex-col gap-4 px-4">
+      <h1 className="text-xl font-semibold text-slate-900">{S.join.title}</h1>
+      {code === '' ? (
+        <CodeEntry onCode={setCode} />
+      ) : preview.isPending ? (
+        <Spinner />
+      ) : preview.error ? (
+        <>
+          <Alert tone="error">{preview.error.message}</Alert>
+          {badCode ? (
+            <CodeEntry onCode={setCode} />
+          ) : (
+            <Button onClick={() => void preview.refetch()}>{S.join.tryAgain}</Button>
+          )}
+        </>
+      ) : (
+        <>
+          <Card>
+            <p className="text-base font-semibold text-slate-900">{preview.data.title}</p>
+            <p className="text-sm text-slate-600">
+              {preview.data.class_name}
+              {preview.data.professor ? ` ${S.join.with} ${preview.data.professor}` : ''}
+            </p>
+          </Card>
+          {signedIn ? (
+            <StudentJoin code={code} preview={preview.data} onJoined={setJoined} />
+          ) : asGuest ? (
+            <GuestJoin code={code} onJoined={setJoined} />
+          ) : (
+            <>
+              <Card>
+                <EmailCodeForm hint={S.join.signInIntro} />
+              </Card>
+              {preview.data.allow_guests ? (
+                <Button variant="ghost" onClick={() => setAsGuest(true)}>
+                  {S.join.guest}
+                </Button>
+              ) : null}
+            </>
+          )}
+        </>
+      )}
+    </main>
   )
 }

@@ -1115,6 +1115,32 @@ begin
   end;
 end $$;
 
+-- display names with spaces (20260927000100): real names save, whitespace
+-- collapses, markup and doubled-up junk stay out, uniqueness ignores case.
+do $$
+declare res jsonb;
+begin
+  res := public.update_my_profile('  José   O''Brien-Díaz ', null, null);
+  if res ->> 'handle' <> 'José O''Brien-Díaz' then
+    raise exception 'FAIL: spaced name not saved and normalized (got %)', res ->> 'handle';
+  end if;
+  begin
+    perform public.update_my_profile('<b>bold</b>', null, null);
+    raise exception 'FAIL: accepted markup in a display name';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.update_my_profile(repeat('a', 31), null, null);
+    raise exception 'FAIL: accepted a 31-character display name';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.update_my_profile('JORDAN_A', null, null);
+    raise exception 'FAIL: case-variant duplicate accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 -- account deletion cascades: create a throwaway user, give them a token +
 -- membership, delete, assert everything is gone.
 reset role;
@@ -1405,7 +1431,7 @@ begin
     v_cohort, 'Guest-joinable quiz',
     (select jsonb_agg(id) from (select id from public.questions
        where cohort_id is null and review_status = 'published'
-       limit 2) q), 20);
+       limit 2) q), 20, true);
   perform set_config('app.test_session', v_session ->> 'id', false);
   perform set_config('app.test_join_code', v_session ->> 'join_code', false);
   perform public.advance_live_session((v_session ->> 'id')::uuid);
@@ -1958,6 +1984,306 @@ begin
   exception when others then
     if sqlerrm like 'FAIL:%' then raise; end if;
   end;
+end $$;
+
+-- ── Onboarding phase 1 (20260928000100) ────────────────────────────────────
+-- Note: p1_prof uses the 'd1' suffix (not 'a1') because 'a1' already names
+-- ta_uid earlier in this file; reusing it would collide on auth.users' PK.
+\set p1_prof    '''00000000-0000-0000-0000-0000000000d1'''
+\set p1_asker   '''00000000-0000-0000-0000-0000000000a2'''
+\set p1_student '''00000000-0000-0000-0000-0000000000a3'''
+\set p1_anon    '''00000000-0000-0000-0000-0000000000a4'''
+reset role;
+insert into auth.users (id, email) values
+  (:p1_prof, 'newprof@example.edu'),
+  (:p1_asker, 'asker@example.edu'),
+  (:p1_student, 'webstudent@example.edu'),
+  (:p1_anon, null);
+set role authenticated;
+
+-- Invites: faculty mint with a recipient hint; one revoked, one expired.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform set_config('app.p1_invite',
+    public.mint_faculty_invite('For Prof. New', 'newprof@example.edu'), false);
+  perform set_config('app.p1_dead', public.mint_faculty_invite('to revoke'), false);
+  perform public.revoke_faculty_invite(current_setting('app.p1_dead'));
+  perform set_config('app.p1_expired', public.mint_faculty_invite('smoke expiry'), false);
+end $$;
+reset role;
+update public.faculty_invites set expires_at = now() - interval '1 minute'
+ where code = current_setting('app.p1_expired');
+
+-- Preview works signed out and never calls a dead code valid.
+set role anon;
+set app.test_uid = '';
+do $$
+declare p jsonb;
+begin
+  p := public.invite_preview(current_setting('app.p1_invite'));
+  if not (p ->> 'valid')::boolean or p ->> 'inviter' is null then
+    raise exception 'FAIL: live invite preview wrong: %', p;
+  end if;
+  if (public.invite_preview(current_setting('app.p1_dead')) ->> 'valid')::boolean then
+    raise exception 'FAIL: revoked invite previewed as valid';
+  end if;
+  if (public.invite_preview(current_setting('app.p1_expired')) ->> 'valid')::boolean then
+    raise exception 'FAIL: expired invite previewed as valid';
+  end if;
+  if (public.invite_preview('NOPE00') ->> 'valid')::boolean then
+    raise exception 'FAIL: unknown invite previewed as valid';
+  end if;
+end $$;
+set role authenticated;
+
+-- Revoked and expired codes refuse; the live one verifies.
+set app.test_uid = :p1_prof;
+insert into public.profiles (id, handle) values (:p1_prof, 'new_prof');
+do $$
+begin
+  begin
+    perform public.redeem_faculty_invite(current_setting('app.p1_dead'));
+    raise exception 'FAIL: revoked invite redeemed';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.redeem_faculty_invite(current_setting('app.p1_expired'));
+    raise exception 'FAIL: expired invite redeemed';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  perform public.redeem_faculty_invite(current_setting('app.p1_invite'));
+  if not public.am_verified_faculty() then
+    raise exception 'FAIL: live invite did not verify the professor';
+  end if;
+end $$;
+
+-- A student cannot revoke someone else's invite.
+set app.test_uid = :s2_uid;
+do $$
+begin
+  begin
+    perform public.revoke_faculty_invite(current_setting('app.p1_invite'));
+    raise exception 'FAIL: student revoked an invite';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Access requests: an unknown user asks, can revise, cannot self-approve.
+set app.test_uid = :p1_asker;
+insert into public.profiles (id, handle) values (:p1_asker, 'asker');
+do $$
+declare r jsonb;
+begin
+  if public.my_console_role() <> 'none' then
+    raise exception 'FAIL: fresh user console role %', public.my_console_role();
+  end if;
+  r := public.request_faculty_access('MDC North', 'POS 2041', 'Three sections');
+  if r ->> 'status' <> 'pending' then raise exception 'FAIL: request not pending'; end if;
+  r := public.request_faculty_access('MDC North', 'POS 2041, INR 2002', null);
+  if public.my_faculty_access_request() ->> 'courses' <> 'POS 2041, INR 2002' then
+    raise exception 'FAIL: resubmitting did not update the open request';
+  end if;
+  perform set_config('app.p1_request', r ->> 'id', false);
+  begin
+    perform * from public.admin_list_faculty_requests();
+    raise exception 'FAIL: non-staff listed faculty requests';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.admin_decide_faculty_request(
+      current_setting('app.p1_request')::uuid, true);
+    raise exception 'FAIL: requester approved their own request';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Staff (f_uid is an admin earlier in this file) sees it and approves.
+set app.test_uid = :f_uid;
+do $$
+begin
+  if public.my_console_role() <> 'staff' then
+    raise exception 'FAIL: admin console role %', public.my_console_role();
+  end if;
+  if not exists (select 1 from public.admin_list_faculty_requests()
+                  where id = current_setting('app.p1_request')::uuid
+                    and email = 'asker@example.edu') then
+    raise exception 'FAIL: pending request missing from the staff list';
+  end if;
+  perform public.admin_decide_faculty_request(
+    current_setting('app.p1_request')::uuid, true);
+end $$;
+
+set app.test_uid = :p1_asker;
+do $$
+begin
+  if public.my_faculty_access_request() ->> 'status' <> 'approved' then
+    raise exception 'FAIL: request not approved';
+  end if;
+  if public.my_console_role() <> 'faculty' then
+    raise exception 'FAIL: approved requester console role %', public.my_console_role();
+  end if;
+  begin
+    perform public.request_faculty_access('MDC North', 'POS 2041', null);
+    raise exception 'FAIL: verified instructor filed a request';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- A class member with no teaching role gets the student home.
+set app.test_uid = :s1_uid;
+do $$
+begin
+  if public.my_console_role() <> 'student' then
+    raise exception 'FAIL: student console role %', public.my_console_role();
+  end if;
+  if not exists (select 1 from public.my_student_classes()
+                  where name = 'POS2041 Fall') then
+    raise exception 'FAIL: my_student_classes missing the joined class';
+  end if;
+end $$;
+
+-- Live: create_live_session rejects a hold-out (retention-check) question.
+-- Regression coverage: 20260821000100 silently dropped the 20260806000100
+-- guard when it rebuilt this function for the ta-or-above gate; restored
+-- above. Domain 4 is used here (never touched by the domain-1 practice
+-- assignment above) so this probe cannot collide with that earlier,
+-- randomly-selected hold-out. Seeds the minimum rows as table owner, then
+-- cleans them up so later assertions are unaffected.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform set_config('app.p1_holdout_q',
+    (select id::text from public.questions
+      where domain_id = 4 and cohort_id is null and review_status = 'published'
+      order by id limit 1), false);
+end $$;
+reset role;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_prof   uuid := (select created_by from public.cohorts where name = 'POS2041 Fall');
+  v_q      uuid := current_setting('app.p1_holdout_q')::uuid;
+  v_input  uuid;
+begin
+  insert into public.teaching_inputs (cohort_id, created_by, title, kind, taught_on)
+  values (v_cohort, v_prof, 'Smoke hold-out probe', 'bank_set', current_date)
+  returning id into v_input;
+  insert into public.input_items (input_id, question_id, slice)
+  values (v_input, v_q, 'holdout_7');
+  insert into public.assessments
+    (input_id, cohort_id, phase, mode, question_ids, opens_at, closes_at)
+  values (v_input, v_cohort, 'check_7', 'async', jsonb_build_array(v_q),
+          now() - interval '1 day', now() + interval '3 days');
+  perform set_config('app.p1_holdout_input', v_input::text, false);
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+begin
+  begin
+    perform public.create_live_session(
+      v_cohort, 'Should be blocked',
+      jsonb_build_array(current_setting('app.p1_holdout_q')::uuid), 20);
+    raise exception 'FAIL: live session admitted a hold-out question';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+reset role;
+delete from public.teaching_inputs
+ where id = current_setting('app.p1_holdout_input')::uuid;
+set role authenticated;
+
+-- Live: new sessions default to no guests.
+set app.test_uid = :f_uid;
+do $$
+declare v jsonb;
+begin
+  v := public.create_live_session(
+    (select id from public.cohorts where name = 'POS2041 Fall'),
+    'Members only quiz',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+         and domain_id <> 1
+       limit 2) q),
+    20);
+  perform set_config('app.p1_code', v ->> 'join_code', false);
+  perform set_config('app.p1_session', v ->> 'id', false);
+  if (select allow_guests from public.live_sessions where id = (v ->> 'id')::uuid) then
+    raise exception 'FAIL: new sessions must default to no guests';
+  end if;
+  begin
+    perform public.join_live_session_as_student(v ->> 'join_code', 'Prof');
+    raise exception 'FAIL: faculty joined their own session as a student';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Signed out: preview shows the class, never member data.
+set role anon;
+set app.test_uid = '';
+do $$
+declare p jsonb;
+begin
+  p := public.live_session_preview(current_setting('app.p1_code'));
+  if p ->> 'class_name' <> 'POS2041 Fall' or (p ->> 'allow_guests')::boolean
+     or (p ->> 'is_member')::boolean or p ->> 'roster_name' is not null then
+    raise exception 'FAIL: signed-out preview wrong: %', p;
+  end if;
+  begin
+    perform public.live_session_preview('ZZZZZZ');
+    raise exception 'FAIL: preview of an unknown code succeeded';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set role authenticated;
+
+-- Anonymous sessions can neither guest-join a no-guest session nor join as
+-- a student.
+set app.test_uid = :p1_anon;
+set app.test_jwt = '{"is_anonymous": true}';
+do $$
+begin
+  begin
+    perform public.join_live_session_guest(current_setting('app.p1_code'), 'Guest Person');
+    raise exception 'FAIL: guest joined a no-guest session';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.join_live_session_as_student(current_setting('app.p1_code'), 'Guest Person');
+    raise exception 'FAIL: anonymous user joined as a student';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_jwt = '';
+
+-- A signed-in web student with no profile yet: first join enrolls with a
+-- roster name; later joins reuse it.
+set app.test_uid = :p1_student;
+do $$
+declare v jsonb;
+begin
+  begin
+    perform public.join_live_session_as_student(current_setting('app.p1_code'), 'x');
+    raise exception 'FAIL: one-character roster name accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  v := public.join_live_session_as_student(current_setting('app.p1_code'), '  Maria   Lopez ');
+  if (v ->> 'id')::uuid <> current_setting('app.p1_session')::uuid then
+    raise exception 'FAIL: student join returned the wrong session';
+  end if;
+  if public.my_console_role() <> 'student' then
+    raise exception 'FAIL: web student console role %', public.my_console_role();
+  end if;
+  if public.live_session_preview(current_setting('app.p1_code')) ->> 'roster_name'
+     <> 'Maria Lopez' then
+    raise exception 'FAIL: roster name not stored normalized';
+  end if;
+  v := public.join_live_session_as_student(current_setting('app.p1_code'), null);
+  if not (public.live_session_preview(current_setting('app.p1_code')) ->> 'is_member')::boolean then
+    raise exception 'FAIL: rejoin lost membership';
+  end if;
 end $$;
 
 reset role;

@@ -15,6 +15,7 @@ export type LiveDraft = {
   title: string
   seconds: number
   selected: Set<string>
+  allowGuests: boolean
 }
 
 export const emptyLiveDraft = (): LiveDraft => ({
@@ -22,6 +23,7 @@ export const emptyLiveDraft = (): LiveDraft => ({
   title: '',
   seconds: 20,
   selected: new Set(),
+  allowGuests: false,
 })
 
 export function LiveTab({
