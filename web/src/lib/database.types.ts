@@ -14,7 +14,32 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -556,29 +581,89 @@ export type Database = {
           },
         ]
       }
+      faculty_access_requests: {
+        Row: {
+          courses: string
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          id: string
+          note: string | null
+          school: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          courses: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          note?: string | null
+          school: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          courses?: string
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          id?: string
+          note?: string | null
+          school?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "faculty_access_requests_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "faculty_access_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       faculty_invites: {
         Row: {
           code: string
           created_at: string
+          expires_at: string
           max_uses: number
           minted_by: string
           note: string | null
+          recipient_email: string | null
+          revoked_at: string | null
           uses: number
         }
         Insert: {
           code?: string
           created_at?: string
+          expires_at?: string
           max_uses?: number
           minted_by: string
           note?: string | null
+          recipient_email?: string | null
+          revoked_at?: string | null
           uses?: number
         }
         Update: {
           code?: string
           created_at?: string
+          expires_at?: string
           max_uses?: number
           minted_by?: string
           note?: string | null
+          recipient_email?: string | null
+          revoked_at?: string | null
           uses?: number
         }
         Relationships: [
@@ -1401,6 +1486,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      account_deletion_blockers: { Args: never; Returns: Json }
       active_live_session: { Args: { p_cohort: string }; Returns: Json }
       add_co_faculty: {
         Args: { p_cohort: string; p_email: string }
@@ -1410,9 +1496,6 @@ export type Database = {
         Args: { p_cohort: string; p_email: string }
         Returns: undefined
       }
-      // Hand-added from 20260906000100_web_account_management.sql until the
-      // migration is applied to hosted and types are regenerated.
-      account_deletion_blockers: { Args: never; Returns: Json }
       admin_canary_status: { Args: never; Returns: Json }
       admin_decide_faculty_request: {
         Args: { p_approve: boolean; p_id: string }
@@ -1789,8 +1872,6 @@ export type Database = {
         }
         Returns: Json
       }
-      // Hand-added from 20260906000100_web_account_management.sql until the
-      // migration is applied to hosted and types are regenerated.
       transfer_cohort_ownership: {
         Args: { p_cohort: string; p_new_owner: string }
         Returns: undefined
@@ -1816,6 +1897,20 @@ export type Database = {
         }
         Returns: string
       }
+      washington_advance: {
+        Args: {
+          p_bill?: string
+          p_eo?: number
+          p_law?: string
+          p_wh?: string
+          p_wh_title?: string
+        }
+        Returns: Json
+      }
+      washington_log_push: {
+        Args: { p_category: string; p_sent: number; p_title: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
@@ -1834,12 +1929,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1863,11 +1958,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1888,11 +1983,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1913,11 +2008,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1930,11 +2025,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1944,6 +2039,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
