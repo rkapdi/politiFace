@@ -149,7 +149,7 @@ grant execute on function public.my_faculty_access_request() to authenticated;
 create function public.admin_list_faculty_requests()
 returns table (id uuid, user_id uuid, handle text, email text, school text,
                courses text, note text, created_at timestamptz)
-language plpgsql stable security definer set search_path = public, app, auth, pg_temp as $$
+language plpgsql stable security definer set search_path = public, app, pg_temp as $$
 begin
   if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
   return query
