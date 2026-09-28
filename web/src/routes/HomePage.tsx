@@ -11,6 +11,15 @@ export function HomePage() {
   if (role.isPending) return <SkeletonStats count={2} />
   if (role.error) return <Alert tone="error">{role.error.message}</Alert>
   if (role.data === 'student') return <StudentHome />
-  if (role.data === 'none') return <RequestAccess />
+  // A brand-new account is almost always a student: lead with the student
+  // paths, and keep instructor access one card below.
+  if (role.data === 'none') {
+    return (
+      <div className="flex flex-col gap-4">
+        <StudentHome />
+        <RequestAccess />
+      </div>
+    )
+  }
   return <ClassesPage />
 }

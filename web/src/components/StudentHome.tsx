@@ -71,7 +71,7 @@ export function StudentHome() {
           </label>
           {joinClass.error ? <Alert tone="error">{joinClass.error.message}</Alert> : null}
           {joinClass.isSuccess ? <Alert tone="success">{S.student.joined}</Alert> : null}
-          <div><Button type="submit" disabled={joinClass.isPending}>{S.student.join}</Button></div>
+          <div><Button type="submit" disabled={joinClass.isPending}>{S.student.joinClassButton}</Button></div>
         </form>
       </Card>
       <p className="text-center text-sm text-slate-500">

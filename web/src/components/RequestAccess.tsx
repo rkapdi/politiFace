@@ -33,7 +33,7 @@ export function RequestAccess() {
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-4">
       <Card>
-        <h1 className="text-lg font-semibold text-slate-900">{S.requestAccess.title}</h1>
+        <h2 className="text-lg font-semibold text-slate-900">{S.requestAccess.title}</h2>
         <p className="mt-1 text-sm text-slate-600">{S.requestAccess.intro}</p>
         {status === 'pending' ? (
           <div className="mt-3">
@@ -65,10 +65,6 @@ export function RequestAccess() {
           </form>
         )}
       </Card>
-      <p className="text-center text-sm text-slate-500">
-        {S.requestAccess.studentInstead}{' '}
-        <a href="#/join" className="font-medium text-slate-900 underline">{S.student.joinSession}</a>
-      </p>
     </div>
   )
 }
