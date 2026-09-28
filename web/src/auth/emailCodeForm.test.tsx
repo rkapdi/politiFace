@@ -37,4 +37,24 @@ describe('EmailCodeForm', () => {
     await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
     expect(await screen.findByRole('alert')).toHaveTextContent(/did not match/i)
   })
+
+  it('shows a rate-limit message, not "bad email", when sending is throttled', async () => {
+    signInWithOtp.mockResolvedValueOnce({
+      error: { message: 'rate limited', status: 429 },
+    } as never)
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.co')
+    await userEvent.click(screen.getByRole('button', { name: /send code/i }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/too many codes/i)
+  })
+
+  it('re-enables the send button if signInWithOtp throws', async () => {
+    signInWithOtp.mockRejectedValueOnce(new Error('boom'))
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.co')
+    const button = screen.getByRole('button', { name: /send code/i })
+    await userEvent.click(button)
+    expect(await screen.findByRole('alert')).toHaveTextContent(/could not send/i)
+    expect(button).not.toBeDisabled()
+  })
 })

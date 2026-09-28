@@ -6,6 +6,15 @@ import { Alert, Button } from '../components/ui'
 const field =
   'rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900'
 
+// Supabase auth errors carry a numeric status and, on rate limits, a code
+// like "over_email_send_rate_limit" or "over_request_rate_limit". Those are
+// not the same failure as a bad email or a bad code, and showing that copy
+// during a real campus-day traffic spike sends everyone off retyping their
+// email for no reason.
+function isRateLimited(error: { status?: number; code?: string }): boolean {
+  return error.status === 429 || (error.code ?? '').startsWith('over_')
+}
+
 /** Email, then the emailed 6-digit code. The same account as the iOS app. */
 export function EmailCodeForm({ hint }: { hint?: string }) {
   const [email, setEmail] = useState('')
@@ -18,26 +27,36 @@ export function EmailCodeForm({ hint }: { hint?: string }) {
     e.preventDefault()
     setBusy(true)
     setError(null)
-    const { error } = await supabase.auth.signInWithOtp({ email: email.trim() })
-    setBusy(false)
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signInWithOtp({ email: email.trim() })
+      if (error) {
+        setError(isRateLimited(error) ? S.signIn.rateLimited : S.signIn.sendFailed)
+        return
+      }
+      setStep('code')
+    } catch {
       setError(S.signIn.sendFailed)
-      return
+    } finally {
+      setBusy(false)
     }
-    setStep('code')
   }
 
   const verify = async (e: FormEvent) => {
     e.preventDefault()
     setBusy(true)
     setError(null)
-    const { error } = await supabase.auth.verifyOtp({
-      email: email.trim(),
-      token: code.trim(),
-      type: 'email',
-    })
-    setBusy(false)
-    if (error) setError(S.signIn.badCode)
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: code.trim(),
+        type: 'email',
+      })
+      if (error) setError(isRateLimited(error) ? S.signIn.rateLimited : S.signIn.badCode)
+    } catch {
+      setError(S.signIn.badCode)
+    } finally {
+      setBusy(false)
+    }
   }
 
   return (
