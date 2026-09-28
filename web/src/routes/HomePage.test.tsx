@@ -23,6 +23,7 @@ vi.mock('../lib/api', () => ({
   useJoinClass: () => ({ mutate: state.joinClassMutate, isPending: false, error: null, isSuccess: false }),
   useMyClasses: () => ({ data: [], isPending: false, error: null }),
   useCreateCohort: () => ({ mutate: vi.fn(), isPending: false, error: null, data: undefined }),
+  useAmVerifiedFaculty: () => ({ data: true, isPending: false, error: null }),
   useFacultyRequests: () => ({ data: [], isPending: false, error: null }),
   useDecideFacultyRequest: () => ({ mutate: vi.fn(), isPending: false }),
   useMintFacultyInvite: () => ({ mutate: vi.fn(), isPending: false, data: undefined, error: null }),

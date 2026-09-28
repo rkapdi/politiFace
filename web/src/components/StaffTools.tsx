@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import {
   inviteLink,
+  useAmVerifiedFaculty,
   useDecideFacultyRequest,
   useFacultyRequests,
   useMintFacultyInvite,
@@ -98,10 +99,16 @@ function RequestQueue() {
 /** Onboarding tools until the phase 2 admin console replaces them. */
 export function StaffTools() {
   const role = useMyConsoleRole()
+  // Console role 'faculty' also covers unverified co-faculty (added by a
+  // verified professor but who has not redeemed their own invite yet).
+  // Minting an invite as one of those hits an unmapped server error, so the
+  // invite card is gated on actual verification, not just the role.
+  const verified = useAmVerifiedFaculty(role.data === 'faculty')
   if (role.data !== 'staff' && role.data !== 'faculty') return null
+  const showInvite = role.data === 'staff' || verified.data === true
   return (
     <div className="mt-6 grid gap-4 lg:grid-cols-2">
-      <InviteCard />
+      {showInvite ? <InviteCard /> : null}
       {role.data === 'staff' ? <RequestQueue /> : null}
     </div>
   )

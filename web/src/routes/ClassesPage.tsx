@@ -6,6 +6,7 @@ import { Alert, Badge, Button, Card } from '../components/ui'
 import { EmptyState } from '../components/EmptyState'
 import { SkeletonStats } from '../components/Skeleton'
 import { StaffTools } from '../components/StaffTools'
+import { RequestAccess } from '../components/RequestAccess'
 
 export function CreateClassCard() {
   const create = useCreateCohort()
@@ -74,8 +75,13 @@ export function CreateClassCard() {
         </Button>
       </form>
       {create.error ? (
-        <div className="mt-2">
+        <div className="mt-2 flex flex-col gap-3">
           <Alert tone="error">{create.error.message}</Alert>
+          {/* A TA or an unverified co-faculty who tries to create a class:
+              give them the ask right here instead of a dead end. */}
+          {create.error.message === S.errors.needsVerification ? (
+            <RequestAccess />
+          ) : null}
         </div>
       ) : null}
     </Card>

@@ -4,11 +4,13 @@ import userEvent from '@testing-library/user-event'
 
 const s = vi.hoisted(() => ({
   role: 'staff',
+  verifiedFaculty: true,
   mint: vi.fn((_a: unknown, o?: { onSuccess?: (c: string) => void }) => o?.onSuccess?.('D7QMJA')),
   decide: vi.fn(),
 }))
 vi.mock('../lib/api', () => ({
   useMyConsoleRole: () => ({ data: s.role }),
+  useAmVerifiedFaculty: () => ({ data: s.verifiedFaculty, isPending: false, error: null }),
   useMintFacultyInvite: () => ({ mutate: s.mint, isPending: false, error: null }),
   inviteLink: (c: string) => `https://politiface.app/app/#/welcome?invite=${c}`,
   useFacultyRequests: (enabled: boolean) => ({
@@ -41,8 +43,16 @@ describe('StaffTools', () => {
 
   it('faculty get invites but not the request queue', () => {
     s.role = 'faculty'
+    s.verifiedFaculty = true
     render(<StaffTools />)
     expect(screen.getByRole('button', { name: /create invite link/i })).toBeInTheDocument()
     expect(screen.queryByText(/instructor requests/i)).toBeNull()
+  })
+
+  it('unverified co-faculty see no invite card (they would hit an unmapped mint error)', () => {
+    s.role = 'faculty'
+    s.verifiedFaculty = false
+    render(<StaffTools />)
+    expect(screen.queryByRole('button', { name: /create invite link/i })).toBeNull()
   })
 })

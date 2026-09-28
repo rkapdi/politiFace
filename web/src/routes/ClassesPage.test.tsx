@@ -1,5 +1,8 @@
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { S } from '../lib/strings'
 import type { ClassOverviewRow } from '../lib/api'
 
 const rows: ClassOverviewRow[] = [
@@ -38,24 +41,35 @@ const rows: ClassOverviewRow[] = [
   },
 ]
 
+const state = vi.hoisted(() => ({
+  createError: null as null | { message: string },
+}))
+
 vi.mock('../lib/api', () => ({
   useMyClasses: () => ({ data: rows, isPending: false, error: null }),
   useCreateCohort: () => ({
     mutate: vi.fn(),
     isPending: false,
     data: undefined,
-    error: null,
+    error: state.createError,
   }),
   useMyConsoleRole: () => ({ data: 'faculty' }),
+  useAmVerifiedFaculty: () => ({ data: true, isPending: false, error: null }),
   useMintFacultyInvite: () => ({ mutate: vi.fn(), isPending: false, error: null }),
   inviteLink: (c: string) => c,
   useFacultyRequests: () => ({ data: [], isPending: false, error: null }),
   useDecideFacultyRequest: () => ({ mutate: vi.fn(), isPending: false }),
+  useMyAccessRequest: () => ({ data: null, isPending: false, error: null }),
+  useRequestFacultyAccess: () => ({ mutate: vi.fn(), isPending: false, error: null }),
 }))
 
 import { ClassesPage } from './ClassesPage'
 
 describe('ClassesPage', () => {
+  beforeEach(() => {
+    state.createError = null
+  })
+
   it('links each class and explains the below-floor state', () => {
     render(<ClassesPage />)
     const link = screen.getByRole('link', { name: /POS2041 Fall/ })
@@ -67,5 +81,17 @@ describe('ClassesPage', () => {
     ).toBeInTheDocument()
     // Stats withheld with students present (aggregate-only small class).
     expect(screen.getByText(/stats withheld for privacy/i)).toBeInTheDocument()
+  })
+
+  it('a TA or unverified co-faculty blocked from creating a class gets a way to ask, right there', async () => {
+    state.createError = { message: S.errors.needsVerification }
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ClassesPage />
+      </QueryClientProvider>,
+    )
+    await userEvent.click(screen.getAllByRole('button', { name: /create a class/i })[0])
+    expect(screen.getByText(S.errors.needsVerification)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: S.requestAccess.title })).toBeInTheDocument()
   })
 })
