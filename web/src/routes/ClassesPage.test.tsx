@@ -46,6 +46,11 @@ vi.mock('../lib/api', () => ({
     data: undefined,
     error: null,
   }),
+  useMyConsoleRole: () => ({ data: 'faculty' }),
+  useMintFacultyInvite: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+  inviteLink: (c: string) => c,
+  useFacultyRequests: () => ({ data: [], isPending: false, error: null }),
+  useDecideFacultyRequest: () => ({ mutate: vi.fn(), isPending: false }),
 }))
 
 import { ClassesPage } from './ClassesPage'

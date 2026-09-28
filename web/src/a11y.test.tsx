@@ -67,6 +67,11 @@ vi.mock('./lib/api', () => ({
   submitLiveAnswer: vi.fn(),
   liveReveal: vi.fn(),
   liveScoreboard: vi.fn(async () => []),
+  useMyConsoleRole: () => ({ data: 'faculty' }),
+  useMintFacultyInvite: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+  inviteLink: (c: string) => c,
+  useFacultyRequests: () => ({ data: [], isPending: false, error: null }),
+  useDecideFacultyRequest: () => ({ mutate: vi.fn(), isPending: false }),
 }))
 vi.mock('./lib/live', () => ({
   useLiveSession: () => ({ state: { status: 'lobby' }, error: null }),

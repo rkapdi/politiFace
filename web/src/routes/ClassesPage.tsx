@@ -5,6 +5,7 @@ import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card } from '../components/ui'
 import { EmptyState } from '../components/EmptyState'
 import { SkeletonStats } from '../components/Skeleton'
+import { StaffTools } from '../components/StaffTools'
 
 export function CreateClassCard() {
   const create = useCreateCohort()
@@ -96,6 +97,7 @@ export function ClassesPage() {
           hint={S.empty.classesHint}
         />
         <CreateClassCard />
+        <StaffTools />
       </div>
     )
   }
@@ -156,6 +158,7 @@ export function ClassesPage() {
       <div className="mt-4">
         <CreateClassCard />
       </div>
+      <StaffTools />
     </div>
   )
 }

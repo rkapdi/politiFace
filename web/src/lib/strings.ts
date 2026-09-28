@@ -185,6 +185,7 @@ export const S = {
     recipient: 'Their email (optional, for your records)',
     note: 'Note (optional)',
     mint: 'Create invite link',
+    inviteLinkLabel: 'Invite link',
     copy: 'Copy link',
     copied: 'Copied',
     requestsTitle: 'Instructor requests',
