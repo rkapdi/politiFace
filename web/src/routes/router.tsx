@@ -15,6 +15,7 @@ import { StudentPage } from './StudentPage'
 import { LiveRunnerPage } from './LiveRunnerPage'
 import { JoinPage } from './JoinPage'
 import { AccountPage } from './AccountPage'
+import { WelcomePage } from './WelcomePage'
 
 const rootRoute = createRootRoute({ component: Outlet })
 
@@ -23,6 +24,13 @@ const joinRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/join',
   component: JoinPage,
+})
+
+// Public: professors land here from an invite link and sign in on the page.
+const welcomeRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/welcome',
+  component: WelcomePage,
 })
 
 // Everything else is the authenticated faculty console.
@@ -70,6 +78,7 @@ const styleguideRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   joinRoute,
+  welcomeRoute,
   shellRoute.addChildren([
     classesRoute,
     classRoute,
