@@ -24,18 +24,6 @@ export function StudentHome() {
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-4">
       <Card>
-        <h2 className="mb-2 text-sm font-semibold text-slate-900">{S.student.joinSession}</h2>
-        <form onSubmit={goToSession} className="flex items-end gap-2">
-          <label className="flex-1 text-sm text-slate-700">
-            {S.student.sessionCode}
-            <input required value={sessionCode}
-              onChange={e => setSessionCode(e.target.value.toUpperCase())}
-              className={`${field} font-semibold tracking-[0.3em] uppercase`} />
-          </label>
-          <Button type="submit">{S.student.join}</Button>
-        </form>
-      </Card>
-      <Card>
         <h1 className="mb-2 text-sm font-semibold text-slate-900">{S.student.title}</h1>
         {classes.isPending ? <Spinner /> : null}
         {classes.data && classes.data.length === 0 ? (
@@ -54,6 +42,18 @@ export function StudentHome() {
             </li>
           ))}
         </ul>
+      </Card>
+      <Card>
+        <h2 className="mb-2 text-sm font-semibold text-slate-900">{S.student.joinSession}</h2>
+        <form onSubmit={goToSession} className="flex items-end gap-2">
+          <label className="flex-1 text-sm text-slate-700">
+            {S.student.sessionCode}
+            <input required value={sessionCode}
+              onChange={e => setSessionCode(e.target.value.toUpperCase())}
+              className={`${field} font-semibold tracking-[0.3em] uppercase`} />
+          </label>
+          <Button type="submit">{S.student.join}</Button>
+        </form>
       </Card>
       <Card>
         <h2 className="mb-2 text-sm font-semibold text-slate-900">{S.student.joinClass}</h2>
