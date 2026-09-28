@@ -6,7 +6,7 @@ import { Alert, Badge, Button, Card } from '../components/ui'
 import { EmptyState } from '../components/EmptyState'
 import { SkeletonStats } from '../components/Skeleton'
 
-function CreateClassCard() {
+export function CreateClassCard() {
   const create = useCreateCohort()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')

@@ -8,7 +8,7 @@ import {
 import { Layout } from './Layout'
 import { Button, Card } from '../components/ui'
 import { S } from '../lib/strings'
-import { ClassesPage } from './ClassesPage'
+import { HomePage } from './HomePage'
 import { StyleguidePage } from './StyleguidePage'
 import { ClassPage } from './ClassPage'
 import { StudentPage } from './StudentPage'
@@ -35,7 +35,7 @@ const shellRoute = createRoute({
 const classesRoute = createRoute({
   getParentRoute: () => shellRoute,
   path: '/',
-  component: ClassesPage,
+  component: HomePage,
 })
 
 const classRoute = createRoute({
