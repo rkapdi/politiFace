@@ -2069,5 +2069,79 @@ begin
   end;
 end $$;
 
+-- Access requests: an unknown user asks, can revise, cannot self-approve.
+set app.test_uid = :p1_asker;
+insert into public.profiles (id, handle) values (:p1_asker, 'asker');
+do $$
+declare r jsonb;
+begin
+  if public.my_console_role() <> 'none' then
+    raise exception 'FAIL: fresh user console role %', public.my_console_role();
+  end if;
+  r := public.request_faculty_access('MDC North', 'POS 2041', 'Three sections');
+  if r ->> 'status' <> 'pending' then raise exception 'FAIL: request not pending'; end if;
+  r := public.request_faculty_access('MDC North', 'POS 2041, INR 2002', null);
+  if public.my_faculty_access_request() ->> 'courses' <> 'POS 2041, INR 2002' then
+    raise exception 'FAIL: resubmitting did not update the open request';
+  end if;
+  perform set_config('app.p1_request', r ->> 'id', false);
+  begin
+    perform * from public.admin_list_faculty_requests();
+    raise exception 'FAIL: non-staff listed faculty requests';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.admin_decide_faculty_request(
+      current_setting('app.p1_request')::uuid, true);
+    raise exception 'FAIL: requester approved their own request';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Staff (f_uid is an admin earlier in this file) sees it and approves.
+set app.test_uid = :f_uid;
+do $$
+begin
+  if public.my_console_role() <> 'staff' then
+    raise exception 'FAIL: admin console role %', public.my_console_role();
+  end if;
+  if not exists (select 1 from public.admin_list_faculty_requests()
+                  where id = current_setting('app.p1_request')::uuid
+                    and email = 'asker@example.edu') then
+    raise exception 'FAIL: pending request missing from the staff list';
+  end if;
+  perform public.admin_decide_faculty_request(
+    current_setting('app.p1_request')::uuid, true);
+end $$;
+
+set app.test_uid = :p1_asker;
+do $$
+begin
+  if public.my_faculty_access_request() ->> 'status' <> 'approved' then
+    raise exception 'FAIL: request not approved';
+  end if;
+  if public.my_console_role() <> 'faculty' then
+    raise exception 'FAIL: approved requester console role %', public.my_console_role();
+  end if;
+  begin
+    perform public.request_faculty_access('MDC North', 'POS 2041', null);
+    raise exception 'FAIL: verified instructor filed a request';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- A class member with no teaching role gets the student home.
+set app.test_uid = :s1_uid;
+do $$
+begin
+  if public.my_console_role() <> 'student' then
+    raise exception 'FAIL: student console role %', public.my_console_role();
+  end if;
+  if not exists (select 1 from public.my_student_classes()
+                  where name = 'POS2041 Fall') then
+    raise exception 'FAIL: my_student_classes missing the joined class';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
