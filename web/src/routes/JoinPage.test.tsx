@@ -2,12 +2,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { S } from '../lib/strings'
 
 const joined = {
   id: 's1', title: 'Week 3 quiz', status: 'lobby', index: -1, total: 5, question_seconds: 20,
 }
 const m = vi.hoisted(() => ({
-  session: null as null | { user: { id: string; is_anonymous: boolean } },
+  session: null as null | { user: { id: string; is_anonymous: boolean; email?: string } },
+  loading: false,
   preview: vi.fn(),
   joinMember: vi.fn(),
   joinStudent: vi.fn(),
@@ -17,7 +19,7 @@ const m = vi.hoisted(() => ({
 }))
 
 vi.mock('../auth/SessionProvider', () => ({
-  useSession: () => ({ session: m.session, loading: false, signOut: m.signOut }),
+  useSession: () => ({ session: m.session, loading: m.loading, signOut: m.signOut }),
 }))
 vi.mock('../auth/EmailCodeForm', () => ({ EmailCodeForm: () => <p>email code form</p> }))
 vi.mock('../lib/api', () => ({
@@ -43,7 +45,9 @@ const basePreview = {
 }
 const wrap = () =>
   render(
-    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0 } } })}
+    >
       <JoinPage />
     </QueryClientProvider>,
   )
@@ -52,11 +56,22 @@ describe('JoinPage', () => {
   beforeEach(() => {
     window.location.hash = '#/join?code=abc123'
     m.session = null
+    m.loading = false
     for (const f of [m.preview, m.joinMember, m.joinStudent, m.joinGuest]) f.mockReset()
     m.preview.mockResolvedValue(basePreview)
     m.joinMember.mockResolvedValue(joined)
     m.joinStudent.mockResolvedValue(joined)
     m.joinGuest.mockResolvedValue(joined)
+  })
+
+  it('session still loading: shows a spinner, no form or join buttons yet', () => {
+    m.loading = true
+    wrap()
+    expect(screen.getByRole('heading', { name: S.join.title })).toBeInTheDocument()
+    expect(screen.getByText(/checking your session/i)).toBeInTheDocument()
+    expect(screen.queryByText('email code form')).toBeNull()
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByLabelText(/session code/i)).toBeNull()
   })
 
   it('signed out: shows the class and asks to sign in, no guest option by default', async () => {
@@ -89,10 +104,12 @@ describe('JoinPage', () => {
   })
 
   it('signed in member: one tap', async () => {
-    m.session = { user: { id: 'u1', is_anonymous: false } }
+    m.session = { user: { id: 'u1', is_anonymous: false, email: 'maria@mymdc.net' } }
     m.preview.mockResolvedValue({ ...basePreview, is_member: true, role: 'student', roster_name: 'Maria Lopez' })
     wrap()
-    await userEvent.click(await screen.findByRole('button', { name: /join as maria lopez/i }))
+    const joinButton = await screen.findByRole('button', { name: /join as maria lopez/i })
+    expect(screen.getByText(/signed in as maria@mymdc\.net/i)).toBeInTheDocument()
+    await userEvent.click(joinButton)
     expect(m.joinMember).toHaveBeenCalledWith('ABC123')
   })
 
@@ -116,5 +133,25 @@ describe('JoinPage', () => {
     await userEvent.type(screen.getByLabelText(/session code/i), 'xyz789')
     await userEvent.click(screen.getByRole('button', { name: /continue/i }))
     expect(m.preview).toHaveBeenCalledWith('XYZ789')
+  })
+
+  it('preview fails with an invalid/ended code: lets them retype it', async () => {
+    m.preview.mockRejectedValue(new Error(S.errors.badSessionCode))
+    wrap()
+    expect(await screen.findByRole('alert')).toHaveTextContent(/does not match a running session/i)
+    expect(screen.getByLabelText(/session code/i)).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /try again/i })).toBeNull()
+  })
+
+  it('preview fails for another reason: offers try again, keeping the code', async () => {
+    m.preview.mockRejectedValueOnce(new Error(S.errors.generic))
+    m.preview.mockRejectedValueOnce(new Error(S.errors.generic))
+    m.preview.mockResolvedValueOnce(basePreview)
+    wrap()
+    expect(await screen.findByRole('alert')).toHaveTextContent(/something went wrong/i)
+    expect(screen.queryByLabelText(/session code/i)).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: /try again/i }))
+    expect(await screen.findByText(/POS 2041-67/)).toBeInTheDocument()
+    expect(m.preview).toHaveBeenLastCalledWith('ABC123')
   })
 })

@@ -84,7 +84,7 @@ function GuestJoin({ code, onJoined }: { code: string; onJoined: (s: LiveJoin) =
 function StudentJoin({
   code, preview, onJoined,
 }: { code: string; preview: SessionPreview; onJoined: (s: LiveJoin) => void }) {
-  const { signOut } = useSession()
+  const { session, signOut } = useSession()
   const [name, setName] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -135,6 +135,13 @@ function StudentJoin({
       )}
       {error ? <div className="mt-3"><Alert tone="error">{error}</Alert></div> : null}
       <div className="mt-3 text-center">
+        {/* Shared lab computers: make it obvious which account is signed in
+            before someone taps a wrong-account "Join". */}
+        {session?.user.email ? (
+          <p className="mb-1 text-xs text-slate-500">
+            {S.join.signedInAs} {session.user.email}.
+          </p>
+        ) : null}
         <Button variant="ghost" onClick={() => void signOut()}>{S.join.notYou}</Button>
       </div>
     </Card>
@@ -297,19 +304,34 @@ function codeFromHash(): string {
 }
 
 export function JoinPage() {
-  const { session } = useSession()
+  const { session, loading } = useSession()
   const [code, setCode] = useState(codeFromHash)
   const [joined, setJoined] = useState<LiveJoin | null>(null)
   const [asGuest, setAsGuest] = useState(false)
-  const signedIn = session !== null && !session.user.is_anonymous
+  // While the session is still resolving, session is always null: do not
+  // let that masquerade as signed-out (it would run and cache the preview
+  // query under the signed-out key, which a returning signed-in student
+  // then briefly sees).
+  const signedIn = !loading && session !== null && !session.user.is_anonymous
   const preview = useQuery({
     queryKey: ['live-preview', code, signedIn ? session.user.id : 'signed-out'],
     queryFn: () => liveSessionPreview(code),
-    enabled: code !== '',
-    retry: false,
+    enabled: code !== '' && !loading,
+    retry: 1,
   })
 
   if (joined) return <SessionView joined={joined} />
+
+  if (loading) {
+    return (
+      <main className="mx-auto mt-12 flex max-w-sm flex-col gap-4 px-4">
+        <h1 className="text-xl font-semibold text-slate-900">{S.join.title}</h1>
+        <Spinner label={S.common.checkingSession} />
+      </main>
+    )
+  }
+
+  const badCode = preview.error?.message === S.errors.badSessionCode
 
   return (
     <main className="mx-auto mt-12 flex max-w-sm flex-col gap-4 px-4">
@@ -321,7 +343,11 @@ export function JoinPage() {
       ) : preview.error ? (
         <>
           <Alert tone="error">{preview.error.message}</Alert>
-          <CodeEntry onCode={setCode} />
+          {badCode ? (
+            <CodeEntry onCode={setCode} />
+          ) : (
+            <Button onClick={() => void preview.refetch()}>{S.join.tryAgain}</Button>
+          )}
         </>
       ) : (
         <>

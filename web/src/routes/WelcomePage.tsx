@@ -119,19 +119,31 @@ function Verify({ code, userId }: { code: string; userId: string }) {
 }
 
 export function WelcomePage() {
-  const { session } = useSession()
+  const { session, loading } = useSession()
   const [code] = useState(inviteFromHash)
   const preview = useQuery({
     queryKey: ['invite-preview', code],
     queryFn: () => invitePreview(code),
-    enabled: code !== '',
+    enabled: code !== '' && !loading,
     retry: false,
   })
-  const signedIn = session !== null && !session.user.is_anonymous
+  // While the session is still resolving, session is always null: do not
+  // let that masquerade as signed-out (a returning signed-in instructor
+  // would otherwise briefly see the email-code form).
+  const signedIn = !loading && session !== null && !session.user.is_anonymous
 
   useEffect(() => {
     document.title = 'Politiface: instructor invite'
   }, [])
+
+  if (loading) {
+    return (
+      <main className="mx-auto mt-12 flex max-w-md flex-col gap-4 px-4">
+        <h1 className="text-xl font-semibold text-slate-900">{S.welcome.title}</h1>
+        <Spinner label={S.common.checkingSession} />
+      </main>
+    )
+  }
 
   // Signed in, the redeem itself is the check: a professor who already
   // redeemed this code (so it previews as used) is verified and skips it.

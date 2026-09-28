@@ -39,6 +39,8 @@ export const S = {
     badClassCode: 'That class code does not match a class. Check it with your professor.',
     signInToJoin: 'Sign in with your email to join as a student.',
     youTeach: 'You teach this class. Run the session from your console instead.',
+    heldOutQuestions:
+      'Some selected questions are reserved for an upcoming retention check. Remove them and start the session again.',
   },
   empty: {
     classesTitle: 'No classes yet',
@@ -64,6 +66,7 @@ export const S = {
     backToClass: 'Back to class',
     yourClasses: 'Your classes',
     createClass: 'Create a class',
+    checkingSession: 'Checking your session',
   },
   policy: {
     perStudent: 'This class reports per-student detail to faculty.',
@@ -125,6 +128,7 @@ export const S = {
     sendFailed: 'We could not send a code to that address. Check the email and try again.',
     badCode: 'That code did not match. Codes expire quickly; request a new one if needed.',
     schoolEmailHint: 'Use your school email. It is the same account as the Politiface app.',
+    rateLimited: 'Too many codes requested right now. Wait a minute and try again.',
   },
   welcome: {
     title: 'You are invited to Politiface as an instructor',
@@ -165,7 +169,9 @@ export const S = {
     classCode: 'Class code',
     rosterName: 'Your name as your professor knows it',
     joined: 'You joined the class.',
-    getApp: 'Practice between sessions with the Politiface app, supplemental practice you choose.',
+    getAppPre: 'Practice between sessions with the',
+    getAppLink: 'Politiface app',
+    getAppPost: ', supplemental practice you choose.',
   },
   live: {
     allowGuests: 'Allow guests without sign-in',
@@ -178,12 +184,14 @@ export const S = {
     firstTimeName: 'Your name as your professor knows it',
     joinClass: 'Join',
     notYou: 'Not you? Sign out',
+    signedInAs: 'Signed in as',
     guest: 'Join without signing in',
     guestNote: 'Guest answers count for this session only and are not added to your class record.',
     guestName: 'Your name',
     continue: 'Continue',
     openConsole: 'Open your console',
     yourself: 'yourself',
+    tryAgain: 'Try again',
   },
   staffTools: {
     inviteTitle: 'Invite an instructor',

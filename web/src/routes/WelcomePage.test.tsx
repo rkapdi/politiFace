@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 
 const m = vi.hoisted(() => ({
   session: null as null | { user: { id: string; is_anonymous: boolean } },
+  loading: false,
   preview: vi.fn(
     async (): Promise<{ valid: boolean; inviter: string | null }> => ({
       valid: true,
@@ -18,7 +19,7 @@ const m = vi.hoisted(() => ({
 }))
 
 vi.mock('../auth/SessionProvider', () => ({
-  useSession: () => ({ session: m.session, loading: false, signOut: vi.fn() }),
+  useSession: () => ({ session: m.session, loading: m.loading, signOut: vi.fn() }),
 }))
 vi.mock('../auth/EmailCodeForm', () => ({ EmailCodeForm: () => <p>email code form</p> }))
 vi.mock('../lib/api', () => ({
@@ -44,8 +45,17 @@ describe('WelcomePage', () => {
   beforeEach(() => {
     window.location.hash = '#/welcome?invite=d7qmja'
     m.session = null
+    m.loading = false
     m.redeem.mockClear()
     m.createCohort.mockClear()
+  })
+
+  it('session still loading: shows a spinner, no email form yet', () => {
+    m.loading = true
+    wrap()
+    expect(screen.getByRole('heading', { name: /invited to politiface/i })).toBeInTheDocument()
+    expect(screen.getByText(/checking your session/i)).toBeInTheDocument()
+    expect(screen.queryByText('email code form')).toBeNull()
   })
 
   it('signed out: shows the inviter and the email-code form', async () => {
