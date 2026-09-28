@@ -74,7 +74,16 @@ export function StudentHome() {
           <div><Button type="submit" disabled={joinClass.isPending}>{S.student.join}</Button></div>
         </form>
       </Card>
-      <p className="text-center text-sm text-slate-500">{S.student.getApp}</p>
+      <p className="text-center text-sm text-slate-500">
+        {S.student.getAppPre}{' '}
+        <a
+          href="https://politiface.app/"
+          className="font-medium text-slate-900 underline"
+        >
+          {S.student.getAppLink}
+        </a>
+        {S.student.getAppPost}
+      </p>
     </div>
   )
 }
