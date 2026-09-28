@@ -1986,5 +1986,88 @@ begin
   end;
 end $$;
 
+-- ── Onboarding phase 1 (20260928000100) ────────────────────────────────────
+-- Note: p1_prof uses the 'd1' suffix (not 'a1') because 'a1' already names
+-- ta_uid earlier in this file; reusing it would collide on auth.users' PK.
+\set p1_prof    '''00000000-0000-0000-0000-0000000000d1'''
+\set p1_asker   '''00000000-0000-0000-0000-0000000000a2'''
+\set p1_student '''00000000-0000-0000-0000-0000000000a3'''
+\set p1_anon    '''00000000-0000-0000-0000-0000000000a4'''
+reset role;
+insert into auth.users (id, email) values
+  (:p1_prof, 'newprof@example.edu'),
+  (:p1_asker, 'asker@example.edu'),
+  (:p1_student, 'webstudent@example.edu'),
+  (:p1_anon, null);
+set role authenticated;
+
+-- Invites: faculty mint with a recipient hint; one revoked, one expired.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform set_config('app.p1_invite',
+    public.mint_faculty_invite('For Prof. New', 'newprof@example.edu'), false);
+  perform set_config('app.p1_dead', public.mint_faculty_invite('to revoke'), false);
+  perform public.revoke_faculty_invite(current_setting('app.p1_dead'));
+  perform set_config('app.p1_expired', public.mint_faculty_invite('smoke expiry'), false);
+end $$;
+reset role;
+update public.faculty_invites set expires_at = now() - interval '1 minute'
+ where code = current_setting('app.p1_expired');
+
+-- Preview works signed out and never calls a dead code valid.
+set role anon;
+set app.test_uid = '';
+do $$
+declare p jsonb;
+begin
+  p := public.invite_preview(current_setting('app.p1_invite'));
+  if not (p ->> 'valid')::boolean or p ->> 'inviter' is null then
+    raise exception 'FAIL: live invite preview wrong: %', p;
+  end if;
+  if (public.invite_preview(current_setting('app.p1_dead')) ->> 'valid')::boolean then
+    raise exception 'FAIL: revoked invite previewed as valid';
+  end if;
+  if (public.invite_preview(current_setting('app.p1_expired')) ->> 'valid')::boolean then
+    raise exception 'FAIL: expired invite previewed as valid';
+  end if;
+  if (public.invite_preview('NOPE00') ->> 'valid')::boolean then
+    raise exception 'FAIL: unknown invite previewed as valid';
+  end if;
+end $$;
+set role authenticated;
+
+-- Revoked and expired codes refuse; the live one verifies.
+set app.test_uid = :p1_prof;
+insert into public.profiles (id, handle) values (:p1_prof, 'new_prof');
+do $$
+begin
+  begin
+    perform public.redeem_faculty_invite(current_setting('app.p1_dead'));
+    raise exception 'FAIL: revoked invite redeemed';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.redeem_faculty_invite(current_setting('app.p1_expired'));
+    raise exception 'FAIL: expired invite redeemed';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  perform public.redeem_faculty_invite(current_setting('app.p1_invite'));
+  if not public.am_verified_faculty() then
+    raise exception 'FAIL: live invite did not verify the professor';
+  end if;
+end $$;
+
+-- A student cannot revoke someone else's invite.
+set app.test_uid = :s2_uid;
+do $$
+begin
+  begin
+    perform public.revoke_faculty_invite(current_setting('app.p1_invite'));
+    raise exception 'FAIL: student revoked an invite';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
