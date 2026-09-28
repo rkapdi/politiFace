@@ -167,6 +167,9 @@ export const S = {
     joined: 'You joined the class.',
     getApp: 'Practice between sessions with the Politiface app, supplemental practice you choose.',
   },
+  live: {
+    allowGuests: 'Allow guests without sign-in',
+  },
   join: {
     title: 'Join a live session',
     with: 'with',

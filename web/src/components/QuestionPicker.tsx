@@ -6,6 +6,7 @@ import {
 } from '../lib/api'
 import { Alert, Badge, Button, Spinner } from './ui'
 import type { LiveDraft } from './LiveTab'
+import { S } from '../lib/strings'
 
 export function QuestionPicker({
   cohortId,
@@ -21,7 +22,7 @@ export function QuestionPicker({
   const questions = usePickableQuestions(cohortId)
   const domains = useDomains()
   const create = useCreateLiveSession()
-  const { title, seconds, selected } = draft
+  const { title, seconds, selected, allowGuests } = draft
 
   const byDomain = useMemo(() => {
     const groups = new Map<number, typeof questions.data>()
@@ -55,6 +56,7 @@ export function QuestionPicker({
         title: title.trim(),
         questionIds: [...selected],
         questionSeconds: seconds,
+        allowGuests,
       },
       { onSuccess: data => onCreated((data as { id: string }).id) },
     )
@@ -89,6 +91,14 @@ export function QuestionPicker({
               </option>
             ))}
           </select>
+        </label>
+        <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={allowGuests}
+            onChange={e => onDraftChange({ ...draft, allowGuests: e.target.checked })}
+          />
+          {S.live.allowGuests}
         </label>
         <Badge tone={selected.size > 0 ? 'green' : 'slate'}>
           {selected.size} selected
