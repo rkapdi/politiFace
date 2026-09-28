@@ -4,6 +4,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { axe } from 'vitest-axe'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 vi.mock('./lib/supabase', () => ({
   supabase: {
@@ -63,6 +64,9 @@ vi.mock('./lib/api', () => ({
   ensureProfile: vi.fn(),
   signInAnonymously: vi.fn(),
   joinLiveSessionGuest: vi.fn(),
+  liveSessionPreview: vi.fn(),
+  joinLiveSession: vi.fn(),
+  joinLiveSessionAsStudent: vi.fn(),
   getLiveQuestion: vi.fn(),
   submitLiveAnswer: vi.fn(),
   liveReveal: vi.fn(),
@@ -77,6 +81,9 @@ vi.mock('./lib/live', () => ({
   useLiveSession: () => ({ state: { status: 'lobby' }, error: null }),
   useNow: () => Date.now(),
   secondsLeft: () => 20,
+}))
+vi.mock('./auth/SessionProvider', () => ({
+  useSession: () => ({ session: null, loading: false, signOut: vi.fn() }),
 }))
 
 import { SignIn } from './auth/SignIn'
@@ -101,7 +108,12 @@ describe('accessibility', () => {
   })
 
   it('guest join form has no axe violations', async () => {
-    await expectNoViolations(<JoinPage />)
+    window.location.hash = '#/join'
+    await expectNoViolations(
+      <QueryClientProvider client={new QueryClient()}>
+        <JoinPage />
+      </QueryClientProvider>,
+    )
   })
 
   it('settings tab has no axe violations', async () => {

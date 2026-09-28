@@ -178,6 +178,9 @@ export const S = {
     guest: 'Join without signing in',
     guestNote: 'Guest answers count for this session only and are not added to your class record.',
     guestName: 'Your name',
+    continue: 'Continue',
+    openConsole: 'Open your console',
+    yourself: 'yourself',
   },
   staffTools: {
     inviteTitle: 'Invite an instructor',
