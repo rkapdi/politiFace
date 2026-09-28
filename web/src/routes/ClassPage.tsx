@@ -27,6 +27,7 @@ import {
   TabsTrigger,
 } from '../components/ui'
 import { PolicyBanner } from '../components/PolicyBanner'
+import { ClassHeader } from '../components/ClassHeader'
 import { SkeletonChart, SkeletonStats } from '../components/Skeleton'
 import { DomainBars } from '../components/DomainBars'
 import { TrendChart } from '../components/TrendChart'
@@ -174,6 +175,7 @@ export function ClassView({ cohortId }: { cohortId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <ClassHeader cohortId={cohortId} />
       {policy.data ? <PolicyBanner policy={policy.data} /> : null}
       {pulse.data ? (
         <PulseBanner pulse={pulse.data} onAction={onPulseAction} />

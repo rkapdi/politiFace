@@ -498,6 +498,20 @@ export const domains = async (): Promise<DomainRow[]> => {
   return data ?? []
 }
 
+export type CohortInfo = { name: string; term: string | null; join_code: string }
+
+// Name and join code for a class page header. Members can read their own
+// class row under RLS, so no RPC is needed.
+export const cohortInfo = async (cohortId: string): Promise<CohortInfo> => {
+  const { data, error } = await supabase
+    .from('cohorts')
+    .select('name, term, join_code')
+    .eq('id', cohortId)
+    .single()
+  if (error) throw new Error(friendlyMessage(error))
+  return data
+}
+
 export type LiveSessionMeta = {
   id: string
   title: string
@@ -590,6 +604,11 @@ export const useCohortTas = (cohortId: string) =>
   })
 export const useMyClasses = () =>
   useQuery({ queryKey: ['classes'], queryFn: myClasses })
+export const useCohortInfo = (cohortId: string) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'info'],
+    queryFn: () => cohortInfo(cohortId),
+  })
 export const useCohortRole = (cohortId: string) =>
   useQuery({
     queryKey: ['cohort', cohortId, 'role'],
