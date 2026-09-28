@@ -220,3 +220,129 @@ language sql stable security definer set search_path = public, app, pg_temp as $
 $$;
 revoke all on function public.my_student_classes() from public, anon;
 grant execute on function public.my_student_classes() to authenticated;
+
+-- ── 4. live sessions ────────────────────────────────────────────────────────
+-- Guests become opt-in: class sessions admit signed-in students by default.
+alter table public.live_sessions alter column allow_guests set default false;
+
+drop function public.create_live_session(uuid, text, jsonb, int);
+create function public.create_live_session(
+  p_cohort uuid,
+  p_title text,
+  p_question_ids jsonb,
+  p_question_seconds int default 20,
+  p_allow_guests boolean default false
+) returns jsonb
+language plpgsql security definer set search_path = public, app, pg_temp as $$
+declare
+  v_id uuid;
+  v_code text;
+  v_count int;
+  v_valid int;
+begin
+  if not app.is_cohort_ta_or_above(p_cohort) then
+    raise exception 'not faculty of this cohort';
+  end if;
+  v_count := jsonb_array_length(p_question_ids);
+  if v_count is null or v_count < 1 or v_count > 50 then
+    raise exception 'a session needs 1 to 50 questions';
+  end if;
+  select count(*) into v_valid
+    from jsonb_array_elements_text(p_question_ids) qid
+    join public.questions q on q.id = qid::uuid
+   where q.review_status = 'published'
+     and (q.cohort_id is null or q.cohort_id = p_cohort);
+  if v_valid <> v_count then
+    raise exception 'question list contains unknown, unpublished, or foreign-cohort questions';
+  end if;
+
+  insert into public.live_sessions
+    (cohort_id, created_by, title, question_ids, question_seconds, allow_guests)
+  values
+    (p_cohort, auth.uid(), trim(p_title), p_question_ids, p_question_seconds,
+     coalesce(p_allow_guests, false))
+  returning id, join_code into v_id, v_code;
+
+  return jsonb_build_object('id', v_id, 'join_code', v_code,
+                            'question_count', v_count);
+end;
+$$;
+revoke all on function public.create_live_session(uuid, text, jsonb, int, boolean) from public, anon;
+grant execute on function public.create_live_session(uuid, text, jsonb, int, boolean) to authenticated;
+
+-- What a student sees before joining: the class and professor, plus their
+-- own membership when signed in. No other member's data.
+create function public.live_session_preview(p_code text) returns jsonb
+language plpgsql stable security definer set search_path = public, app, pg_temp as $$
+declare
+  s record;
+  m record;
+begin
+  select ls.id, ls.cohort_id, ls.title, ls.status, ls.allow_guests,
+         c.name as class_name, p.handle as professor
+    into s
+    from public.live_sessions ls
+    join public.cohorts c on c.id = ls.cohort_id
+    left join public.profiles p on p.id = ls.created_by
+   where ls.join_code = upper(trim(p_code)) and ls.status <> 'ended';
+  if not found then raise exception 'invalid or ended session code'; end if;
+  select cm.role, cm.roster_name into m
+    from public.cohort_members cm
+   where cm.cohort_id = s.cohort_id and cm.user_id = auth.uid();
+  return jsonb_build_object(
+    'title', s.title, 'status', s.status, 'allow_guests', s.allow_guests,
+    'class_name', s.class_name, 'professor', s.professor,
+    'is_member', m.role is not null, 'role', m.role,
+    'roster_name', m.roster_name);
+end;
+$$;
+grant execute on function public.live_session_preview(text) to anon, authenticated;
+
+-- Signed-in (never anonymous) join that enrolls on first use. The same
+-- email-code account the iOS app uses, so the professor sees one student.
+create function public.join_live_session_as_student(
+  p_code text, p_roster_name text default null
+) returns jsonb
+language plpgsql security definer set search_path = public, app, pg_temp as $$
+declare
+  v_user uuid := auth.uid();
+  s record;
+  v_role text;
+  v_name text := nullif(regexp_replace(trim(coalesce(p_roster_name, '')), '\s+', ' ', 'g'), '');
+begin
+  if v_user is null or coalesce((auth.jwt() ->> 'is_anonymous')::boolean, false) then
+    raise exception 'sign in with your email to join as a student';
+  end if;
+  select * into s from public.live_sessions
+   where join_code = upper(trim(p_code)) and status <> 'ended';
+  if not found then raise exception 'invalid or ended session code'; end if;
+
+  select role into v_role from public.cohort_members
+   where cohort_id = s.cohort_id and user_id = v_user;
+  if v_role in ('faculty', 'ta') then raise exception 'you teach this class'; end if;
+
+  if v_role is null then
+    if v_name is null or length(v_name) not between 2 and 60 then
+      raise exception 'enter your name as your professor knows it (2 to 60 characters)';
+    end if;
+    -- First web sign-in may race the client's profile bootstrap.
+    insert into public.profiles (id, handle)
+    values (v_user, 'user_' || substr(replace(v_user::text, '-', ''), 1, 12))
+    on conflict (id) do nothing;
+    insert into public.cohort_members (cohort_id, user_id, role, roster_name)
+    values (s.cohort_id, v_user, 'student', v_name);
+  end if;
+
+  insert into public.live_participants (session_id, user_id)
+  values (s.id, v_user)
+  on conflict do nothing;
+
+  return jsonb_build_object(
+    'id', s.id, 'title', s.title, 'status', s.status,
+    'index', s.current_index,
+    'total', jsonb_array_length(s.question_ids),
+    'question_seconds', s.question_seconds);
+end;
+$$;
+revoke all on function public.join_live_session_as_student(text, text) from public, anon;
+grant execute on function public.join_live_session_as_student(text, text) to authenticated;

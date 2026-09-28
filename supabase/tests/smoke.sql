@@ -1431,7 +1431,7 @@ begin
     v_cohort, 'Guest-joinable quiz',
     (select jsonb_agg(id) from (select id from public.questions
        where cohort_id is null and review_status = 'published'
-       limit 2) q), 20);
+       limit 2) q), 20, true);
   perform set_config('app.test_session', v_session ->> 'id', false);
   perform set_config('app.test_join_code', v_session ->> 'join_code', false);
   perform public.advance_live_session((v_session ->> 'id')::uuid);
@@ -2140,6 +2140,95 @@ begin
   if not exists (select 1 from public.my_student_classes()
                   where name = 'POS2041 Fall') then
     raise exception 'FAIL: my_student_classes missing the joined class';
+  end if;
+end $$;
+
+-- Live: new sessions default to no guests.
+set app.test_uid = :f_uid;
+do $$
+declare v jsonb;
+begin
+  v := public.create_live_session(
+    (select id from public.cohorts where name = 'POS2041 Fall'),
+    'Members only quiz',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published' limit 2) q),
+    20);
+  perform set_config('app.p1_code', v ->> 'join_code', false);
+  perform set_config('app.p1_session', v ->> 'id', false);
+  if (select allow_guests from public.live_sessions where id = (v ->> 'id')::uuid) then
+    raise exception 'FAIL: new sessions must default to no guests';
+  end if;
+  begin
+    perform public.join_live_session_as_student(v ->> 'join_code', 'Prof');
+    raise exception 'FAIL: faculty joined their own session as a student';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Signed out: preview shows the class, never member data.
+set role anon;
+set app.test_uid = '';
+do $$
+declare p jsonb;
+begin
+  p := public.live_session_preview(current_setting('app.p1_code'));
+  if p ->> 'class_name' <> 'POS2041 Fall' or (p ->> 'allow_guests')::boolean
+     or (p ->> 'is_member')::boolean or p ->> 'roster_name' is not null then
+    raise exception 'FAIL: signed-out preview wrong: %', p;
+  end if;
+  begin
+    perform public.live_session_preview('ZZZZZZ');
+    raise exception 'FAIL: preview of an unknown code succeeded';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set role authenticated;
+
+-- Anonymous sessions can neither guest-join a no-guest session nor join as
+-- a student.
+set app.test_uid = :p1_anon;
+set app.test_jwt = '{"is_anonymous": true}';
+do $$
+begin
+  begin
+    perform public.join_live_session_guest(current_setting('app.p1_code'), 'Guest Person');
+    raise exception 'FAIL: guest joined a no-guest session';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.join_live_session_as_student(current_setting('app.p1_code'), 'Guest Person');
+    raise exception 'FAIL: anonymous user joined as a student';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_jwt = '';
+
+-- A signed-in web student with no profile yet: first join enrolls with a
+-- roster name; later joins reuse it.
+set app.test_uid = :p1_student;
+do $$
+declare v jsonb;
+begin
+  begin
+    perform public.join_live_session_as_student(current_setting('app.p1_code'), 'x');
+    raise exception 'FAIL: one-character roster name accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  v := public.join_live_session_as_student(current_setting('app.p1_code'), '  Maria   Lopez ');
+  if (v ->> 'id')::uuid <> current_setting('app.p1_session')::uuid then
+    raise exception 'FAIL: student join returned the wrong session';
+  end if;
+  if public.my_console_role() <> 'student' then
+    raise exception 'FAIL: web student console role %', public.my_console_role();
+  end if;
+  if public.live_session_preview(current_setting('app.p1_code')) ->> 'roster_name'
+     <> 'Maria Lopez' then
+    raise exception 'FAIL: roster name not stored normalized';
+  end if;
+  v := public.join_live_session_as_student(current_setting('app.p1_code'), null);
+  if not (public.live_session_preview(current_setting('app.p1_code')) ->> 'is_member')::boolean then
+    raise exception 'FAIL: rejoin lost membership';
   end if;
 end $$;
 
