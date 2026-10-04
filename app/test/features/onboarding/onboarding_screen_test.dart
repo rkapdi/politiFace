@@ -48,10 +48,12 @@ void main() {
     await db.close();
   });
 
-  Widget host({String start = '/onboarding'}) => ProviderScope(
+  Widget host({String start = '/onboarding', bool needsAccount = false}) =>
+      ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
           questionBankProvider.overrideWith((ref) => fakeBank()),
+          onboardingNeedsAccountProvider.overrideWithValue(needsAccount),
         ],
         child: MaterialApp.router(
           routerConfig: GoRouter(
@@ -74,8 +76,7 @@ void main() {
         ),
       );
 
-  testWidgets(
-      'cold open leads with the question, no signup wall anywhere',
+  testWidgets('cold open leads with the question, no signup wall anywhere',
       (tester) async {
     await tester.pumpWidget(host());
     expect(find.text('Could you pass the FCLE right now?'), findsOneWidget);
@@ -141,5 +142,59 @@ void main() {
       return total;
     });
     expect(counts, 1);
+  });
+
+  Future<void> finishDiagnostic(WidgetTester tester) async {
+    await tester.tap(find.text('START THE DIAGNOSTIC'));
+    for (var f = 0; f < 6; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    for (var i = 0; i < 5; i++) {
+      await tester.tap(find.byKey(const Key('diag-opt-0')));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 60)),
+      );
+      for (var f = 0; f < 3; f++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.tap(find.text(i == 4 ? 'SEE YOUR RESULT' : 'NEXT'));
+      for (var f = 0; f < 3; f++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+  }
+
+  testWidgets(
+      'signed out: the score shows first, then account creation is the only '
+      'way forward', (tester) async {
+    await tester.pumpWidget(host(needsAccount: true));
+    await finishDiagnostic(tester);
+    expect(find.text('5 of 5'), findsOneWidget);
+    expect(find.text('START STUDYING'), findsNothing);
+    expect(find.text('I HAVE A CLASS CODE'), findsNothing);
+
+    await tester.tap(find.text('CREATE YOUR ACCOUNT'));
+    for (var f = 0; f < 3; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Create your account'), findsOneWidget);
+    expect(find.text('SKIP'), findsNothing);
+    expect(find.textContaining('Not now'), findsNothing);
+    expect(find.text('HOME'), findsNothing);
+    await tester.runAsync(
+      () => db.metaDao.get(OnboardingScreen.doneFlagKey),
+    );
+  });
+
+  testWidgets('already signed in: straight to the plan, no account step',
+      (tester) async {
+    await tester.pumpWidget(host());
+    await finishDiagnostic(tester);
+    expect(find.text('5 of 5'), findsOneWidget);
+    expect(find.text('START STUDYING'), findsOneWidget);
+    expect(find.text('CREATE YOUR ACCOUNT'), findsNothing);
+    await tester.runAsync(
+      () => db.metaDao.get(OnboardingScreen.doneFlagKey),
+    );
   });
 }

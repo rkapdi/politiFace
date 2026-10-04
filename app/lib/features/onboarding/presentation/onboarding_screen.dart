@@ -4,11 +4,13 @@
 // into VALUE, not a feature tour: "Could you pass the FCLE right now?
 // 5 quick questions." The diagnostic's answers feed the same local answer
 // log that powers readiness, so the student lands on Home with the band
-// already alive (endowed progress). Then two optional commitment questions
-// disguised as setup: exam date, class code. No signup wall and
-// supplemental-practice framing still hold; the quiz itself is not
-// skippable (founder decision, 2026-10-04: every student gets a starting
-// point, and 5 short questions keep that cost to about a minute).
+// already alive (endowed progress). The score shows first, then a
+// required account step (email code), then two optional commitment
+// questions disguised as setup: exam date, class code. Founder decisions,
+// 2026-10-04: the quiz cannot be skipped, and every student who finishes
+// onboarding has an account, so they exist for their professor and for
+// analytics. Value still comes before the ask: nothing gates the quiz or
+// the score. Supplemental-practice framing holds.
 
 import 'dart:math';
 
@@ -19,12 +21,14 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/sync/sign_in_sheet.dart';
 import '../../fcle/application/fcle_providers.dart';
 import '../../fcle/data/question_bank_loader.dart';
 import '../../fcle/domain/fcle_question.dart';
 import '../../fcle/domain/readiness_projection.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/presentation/home_screen.dart';
+import '../../settings/presentation/account_section.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -40,7 +44,16 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-enum _Phase { invite, quiz, result }
+/// True when onboarding must ask for an account before the plan: online
+/// accounts are configured and nobody is signed in. A build without them
+/// (no auth service) never asks, so it can never trap a student.
+final onboardingNeedsAccountProvider = Provider<bool>((ref) {
+  ref.watch(authStateProvider);
+  final auth = ref.watch(authServiceProvider);
+  return auth != null && !auth.isSignedIn;
+});
+
+enum _Phase { invite, quiz, result, account }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   _Phase _phase = _Phase.invite;
@@ -113,38 +126,49 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      body: SafeArea(
-        child: switch (_phase) {
-          _Phase.invite => _InviteView(onStart: _startDiagnostic),
-          _Phase.quiz => _QuizView(
-              question: _questions[_index],
-              index: _index,
-              total: _questions.length,
-              chosenKey: _chosenKey,
-              onChoose: _answer,
-              onNext: _next,
-            ),
-          _Phase.result => _ResultView(
-              correct: _correct,
-              total: _questions.length,
-              examDate: _examDate,
-              onPickDate: () async {
-                final now = DateTime.now();
-                final picked = await showDatePicker(
-                  context: context,
-                  initialDate: now.add(const Duration(days: 30)),
-                  firstDate: now,
-                  lastDate: now.add(const Duration(days: 365)),
-                  helpText: 'When do you plan to take the FCLE?',
-                );
-                if (picked != null) setState(() => _examDate = picked);
-              },
-              onClassCode: () => _finish('/leaderboard'),
-              onDone: () => _finish('/'),
-            ),
-        },
-      ),
-    );
+        body: SafeArea(
+          child: switch (_phase) {
+            _Phase.invite => _InviteView(onStart: _startDiagnostic),
+            _Phase.quiz => _QuizView(
+                question: _questions[_index],
+                index: _index,
+                total: _questions.length,
+                chosenKey: _chosenKey,
+                onChoose: _answer,
+                onNext: _next,
+              ),
+            _Phase.result => _ResultView(
+                correct: _correct,
+                total: _questions.length,
+                examDate: _examDate,
+                onPickDate: () async {
+                  final now = DateTime.now();
+                  final picked = await showDatePicker(
+                    context: context,
+                    initialDate: now.add(const Duration(days: 30)),
+                    firstDate: now,
+                    lastDate: now.add(const Duration(days: 365)),
+                    helpText: 'When do you plan to take the FCLE?',
+                  );
+                  if (picked != null) setState(() => _examDate = picked);
+                },
+                onClassCode: () => _finish('/leaderboard'),
+                onDone: () => _finish('/'),
+                needsAccount: ref.watch(onboardingNeedsAccountProvider),
+                onCreateAccount: () => setState(() => _phase = _Phase.account),
+              ),
+            _Phase.account => _AccountView(
+                onSignedIn: () async {
+                  await completeAccountSignIn(context, ref);
+                  if (!mounted) return;
+                  // Back to the result, which now offers the plan; if the
+                  // account-switch guard was cancelled, it asks again.
+                  setState(() => _phase = _Phase.result);
+                },
+              ),
+          },
+        ),
+      );
 }
 
 class _InviteView extends StatelessWidget {
@@ -173,8 +197,8 @@ class _InviteView extends StatelessWidget {
             '5 quick questions, about a minute, and you will know where '
             'you stand. Every question is cited to a primary source. '
             'Nothing partisan. Free.',
-            style: theme.textTheme.bodyLarge
-                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,),
           ),
           const Spacer(flex: 2),
           BrutalButton(
@@ -253,8 +277,8 @@ class _QuizView extends StatelessWidget {
                 children: [
                   Text(
                     question.domain.label.toUpperCase(),
-                    style: theme.textTheme.labelSmall
-                        ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                    style: theme.textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,),
                   ),
                   const SizedBox(height: 8),
                   Text(question.stem, style: theme.textTheme.headlineSmall),
@@ -287,14 +311,16 @@ class _QuizView extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       question.explanation,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'SOURCE · ${question.citation}'.toUpperCase(),
-                      style: theme.textTheme.labelSmall
-                          ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      style: theme.textTheme.labelSmall?.copyWith(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant,),
                     ),
                   ],
                 ],
@@ -375,8 +401,7 @@ class _OptionRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
               decoration:
                   BoxDecoration(border: Border.all(color: fg, width: 2)),
               child: Text(
@@ -410,6 +435,8 @@ class _ResultView extends ConsumerWidget {
     required this.onPickDate,
     required this.onClassCode,
     required this.onDone,
+    required this.needsAccount,
+    required this.onCreateAccount,
   });
 
   final int correct;
@@ -418,6 +445,11 @@ class _ResultView extends ConsumerWidget {
   final VoidCallback onPickDate;
   final VoidCallback onClassCode;
   final VoidCallback onDone;
+
+  /// Signed out on an accounts-enabled build: the only way forward is
+  /// creating an account (the plan, exam date and class code come after).
+  final bool needsAccount;
+  final VoidCallback onCreateAccount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -452,29 +484,83 @@ class _ResultView extends ConsumerWidget {
             'Projected on the real exam: about $low–$high of 80. '
             'The pass line is 48. '
             '${high >= 48 ? "You are closer than most people start." : "Everyone starts somewhere; the daily loop is built for exactly this."}',
-            style: theme.textTheme.bodyLarge
-                ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: theme.textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,),
           ),
           const SizedBox(height: 16),
           PowerlineBar(active: stage),
           const Spacer(),
-          BrutalButton.quiet(
-            label: examDate == null
-                ? 'When is your exam? Pick a date'
-                : 'Exam date · ${examDate!.toIso8601String().substring(0, 10)}',
-            onPressed: onPickDate,
+          if (needsAccount)
+            BrutalButton(
+              label: 'Create your account',
+              subtitle: 'keep your plan · about a minute',
+              onPressed: onCreateAccount,
+            )
+          else ...[
+            BrutalButton.quiet(
+              label: examDate == null
+                  ? 'When is your exam? Pick a date'
+                  : 'Exam date · ${examDate!.toIso8601String().substring(0, 10)}',
+              onPressed: onPickDate,
+            ),
+            const SizedBox(height: 10),
+            BrutalButton.quiet(
+              label: 'I have a class code',
+              onPressed: onClassCode,
+            ),
+            const SizedBox(height: 10),
+            BrutalButton(
+              label: 'Start studying',
+              subtitle: 'your plan is ready',
+              onPressed: onDone,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// The required account step after the diagnostic. Full screen, no skip:
+/// the email-code form from Settings, hosted here so success never pops
+/// the onboarding route.
+class _AccountView extends ConsumerWidget {
+  const _AccountView({required this.onSignedIn});
+
+  final VoidCallback onSignedIn;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final auth = ref.watch(authServiceProvider);
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Text('ONE LAST STEP', style: theme.textTheme.labelSmall),
           ),
-          const SizedBox(height: 10),
-          BrutalButton.quiet(
-            label: 'I have a class code',
-            onPressed: onClassCode,
-          ),
-          const SizedBox(height: 10),
-          BrutalButton(
-            label: 'Start studying',
-            subtitle: 'your plan is ready · no account needed',
-            onPressed: onDone,
-          ),
+          if (auth != null)
+            Expanded(
+              child: SignInSheet(
+                auth: auth,
+                title: 'Create your account',
+                intro: 'Use your school email. We email you a 6-digit code; '
+                    'there is no password. Your plan and progress stay with '
+                    'you on any device, and your class can find you.',
+                onSignedIn: onSignedIn,
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'Create your account',
+                style: theme.textTheme.titleLarge,
+              ),
+            ),
         ],
       ),
     );
