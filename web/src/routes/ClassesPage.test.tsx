@@ -94,4 +94,16 @@ describe('ClassesPage', () => {
     expect(screen.getByText(S.errors.needsVerification)).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: S.requestAccess.title })).toBeInTheDocument()
   })
+
+  it('guides professors toward neutral class names', async () => {
+    state.createError = null
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <ClassesPage />
+      </QueryClientProvider>,
+    )
+    await userEvent.click(screen.getAllByRole('button', { name: /create a class/i })[0])
+    expect(screen.getByPlaceholderText('Section A')).toBeInTheDocument()
+    expect(screen.getByText(/course codes, section and CRN numbers/i)).toBeInTheDocument()
+  })
 })

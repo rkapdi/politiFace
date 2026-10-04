@@ -132,6 +132,9 @@ export function friendlyMessage(error: { message: string }): string {
   if (msg.startsWith('blocked_by_cohorts')) {
     return S.errors.deletionBlocked
   }
+  if (msg.includes('_no_course_id')) {
+    return S.errors.courseIdentifier
+  }
   if (msg.includes('reserved for a scheduled retention check')) {
     return S.errors.heldOutQuestions
   }

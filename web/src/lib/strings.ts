@@ -41,6 +41,8 @@ export const S = {
     badClassCode: 'That class code does not match a class. Check it with your professor.',
     signInToJoin: 'Sign in with your email to join as a student.',
     youTeach: 'You teach this class. Run the session from your console instead.',
+    courseIdentifier:
+      "Use a neutral name like 'Purcell · Section A'. Course codes, section and CRN numbers aren't allowed.",
     heldOutQuestions:
       'Some selected questions are reserved for an upcoming retention check. Remove them and start the session again.',
   },
@@ -69,6 +71,9 @@ export const S = {
     yourClasses: 'Your classes',
     createClass: 'Create a class',
     checkingSession: 'Checking your session',
+  },
+  classNames: {
+    hint: "Use a neutral name like 'Section A'. Course codes, section and CRN numbers, and the official course title aren't allowed.",
   },
   classCode: {
     label: 'Class code',
@@ -147,11 +152,12 @@ export const S = {
     stepProfile: 'Your profile',
     stepClass: 'Your first class',
     profileHint: 'Your display name is shown to co-faculty and on class announcements.',
-    classHint: 'Students join with a code you get on the next screen. You can add more classes later.',
+    classHint:
+      "Use a neutral name like 'Section A'; course codes, section and CRN numbers, and the official course title aren't allowed. Students join with a code you get on the next screen.",
     next: 'Next',
     createClass: 'Create class',
     className: 'Class name',
-    classNamePlaceholder: 'POS 2041, section 67',
+    classNamePlaceholder: 'Section A',
     term: 'Term, optional',
   },
   requestAccess: {
@@ -160,7 +166,7 @@ export const S = {
       'Request instructor access to create classes and run live sessions. If a colleague sent you an invite link, open that link instead.',
     school: 'School',
     courses: 'Courses you teach',
-    coursesPlaceholder: 'POS 2041, INR 2002',
+    coursesPlaceholder: 'American Government, 6 sections',
     note: 'Anything we should know (optional)',
     submit: 'Request access',
     pending: 'Request sent. You can create classes as soon as it is approved; this page updates on its own.',
