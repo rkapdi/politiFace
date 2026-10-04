@@ -54,6 +54,8 @@ export function CreateClassCard() {
             required
             minLength={3}
             value={name}
+            placeholder={S.welcome.classNamePlaceholder}
+            aria-describedby="class-name-hint"
             onChange={e => setName(e.target.value)}
             className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
           />
@@ -74,6 +76,9 @@ export function CreateClassCard() {
           Cancel
         </Button>
       </form>
+      <p id="class-name-hint" className="mt-2 text-xs text-slate-500">
+        {S.classNames.hint}
+      </p>
       {create.error ? (
         <div className="mt-2 flex flex-col gap-3">
           <Alert tone="error">{create.error.message}</Alert>

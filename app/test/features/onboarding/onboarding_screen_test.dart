@@ -1,6 +1,5 @@
-// The diagnostic cold open (Move 1): value first, skippable everywhere,
-// no account ask, answers feed the readiness log, and both orientation
-// flags are set so a new user never sits through two tours.
+// The diagnostic cold open (Move 1): value first, 5 quick questions that
+// cannot be skipped, no account ask, and answers feed the readiness log.
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -49,10 +48,12 @@ void main() {
     await db.close();
   });
 
-  Widget host({String start = '/onboarding'}) => ProviderScope(
+  Widget host({String start = '/onboarding', bool needsAccount = false}) =>
+      ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
           questionBankProvider.overrideWith((ref) => fakeBank()),
+          onboardingNeedsAccountProvider.overrideWithValue(needsAccount),
         ],
         child: MaterialApp.router(
           routerConfig: GoRouter(
@@ -75,35 +76,34 @@ void main() {
         ),
       );
 
-  testWidgets(
-      'cold open leads with the question, no signup wall anywhere',
+  testWidgets('cold open leads with the question, no signup wall anywhere',
       (tester) async {
     await tester.pumpWidget(host());
     expect(find.text('Could you pass the FCLE right now?'), findsOneWidget);
     expect(find.textContaining('Sign in'), findsNothing);
     expect(find.text('START THE DIAGNOSTIC'), findsOneWidget);
-    expect(find.text('SKIP'), findsOneWidget);
+    expect(find.textContaining('5 quick questions'), findsOneWidget);
   });
 
-  testWidgets('SKIP exits to home from the invite and persists flags',
+  testWidgets('the diagnostic cannot be skipped, before or during',
       (tester) async {
     await tester.pumpWidget(host());
-    await tester.runAsync(() async {
-      await tester.tap(find.text('SKIP'));
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-    });
-    await tester.pumpAndSettle();
-    expect(find.text('HOME'), findsOneWidget);
-    final done = await tester.runAsync(
+    expect(find.text('SKIP'), findsNothing);
+    expect(find.textContaining('Explore on my own'), findsNothing);
+    expect(find.textContaining('EXPLORE ON MY OWN'), findsNothing);
+
+    await tester.tap(find.text('START THE DIAGNOSTIC'));
+    for (var f = 0; f < 6; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('THE DIAGNOSTIC'), findsOneWidget);
+    expect(find.text('1 / 5'), findsOneWidget);
+    expect(find.text('SKIP'), findsNothing);
+    // A real database round trip flushes the work the screen queued, so
+    // teardown can close the database (same as the test below).
+    await tester.runAsync(
       () => db.metaDao.get(OnboardingScreen.doneFlagKey),
     );
-    // The guided tour flag is deliberately NOT set here: the tour runs
-    // on the first Home landing, after the diagnostic delivered value.
-    final tour = await tester.runAsync(
-      () => db.metaDao.get('onboarding.tour_done'),
-    );
-    expect(done, '1');
-    expect(tour, isNull);
   });
 
   testWidgets(
@@ -142,5 +142,59 @@ void main() {
       return total;
     });
     expect(counts, 1);
+  });
+
+  Future<void> finishDiagnostic(WidgetTester tester) async {
+    await tester.tap(find.text('START THE DIAGNOSTIC'));
+    for (var f = 0; f < 6; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    for (var i = 0; i < 5; i++) {
+      await tester.tap(find.byKey(const Key('diag-opt-0')));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 60)),
+      );
+      for (var f = 0; f < 3; f++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      await tester.tap(find.text(i == 4 ? 'SEE YOUR RESULT' : 'NEXT'));
+      for (var f = 0; f < 3; f++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+  }
+
+  testWidgets(
+      'signed out: the score shows first, then account creation is the only '
+      'way forward', (tester) async {
+    await tester.pumpWidget(host(needsAccount: true));
+    await finishDiagnostic(tester);
+    expect(find.text('5 of 5'), findsOneWidget);
+    expect(find.text('START STUDYING'), findsNothing);
+    expect(find.text('I HAVE A CLASS CODE'), findsNothing);
+
+    await tester.tap(find.text('CREATE YOUR ACCOUNT'));
+    for (var f = 0; f < 3; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Create your account'), findsOneWidget);
+    expect(find.text('SKIP'), findsNothing);
+    expect(find.textContaining('Not now'), findsNothing);
+    expect(find.text('HOME'), findsNothing);
+    await tester.runAsync(
+      () => db.metaDao.get(OnboardingScreen.doneFlagKey),
+    );
+  });
+
+  testWidgets('already signed in: straight to the plan, no account step',
+      (tester) async {
+    await tester.pumpWidget(host());
+    await finishDiagnostic(tester);
+    expect(find.text('5 of 5'), findsOneWidget);
+    expect(find.text('START STUDYING'), findsOneWidget);
+    expect(find.text('CREATE YOUR ACCOUNT'), findsNothing);
+    await tester.runAsync(
+      () => db.metaDao.get(OnboardingScreen.doneFlagKey),
+    );
   });
 }

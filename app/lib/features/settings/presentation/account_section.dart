@@ -34,10 +34,21 @@ Future<void> showAccountSignInSheet(
 ) async {
   final auth = ref.read(authServiceProvider);
   if (auth == null) return;
-  final messenger = ScaffoldMessenger.maybeOf(context);
   await showSignInSheet(context, auth);
+  if (!context.mounted) return;
+  await completeAccountSignIn(context, ref);
+}
+
+/// Everything that must happen right after a sign-in, wherever it came
+/// from (the Settings sheet, the post-session nudge, onboarding's account
+/// step): the account-switch guard, then flush, restore, and refresh.
+/// No-ops when nobody is signed in; never throws.
+Future<void> completeAccountSignIn(BuildContext context, WidgetRef ref) async {
+  final auth = ref.read(authServiceProvider);
+  if (auth == null) return;
+  final messenger = ScaffoldMessenger.maybeOf(context);
   ref.invalidate(profileHandleProvider);
-  if (!auth.isSignedIn) return; // sheet dismissed without signing in
+  if (!auth.isSignedIn) return; // dismissed without signing in
 
   // Account switch guard: this device may hold another account's progress
   // (and undelivered outbox events). Never mix them; ask, then start the

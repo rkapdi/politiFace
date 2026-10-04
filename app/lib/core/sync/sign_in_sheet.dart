@@ -29,9 +29,25 @@ Future<void> showSignInSheet(BuildContext context, AuthService auth) =>
     );
 
 class SignInSheet extends StatefulWidget {
-  const SignInSheet({required this.auth, super.key});
+  const SignInSheet({
+    required this.auth,
+    this.onSignedIn,
+    this.title = 'Sign in',
+    this.intro = 'We email you a one-time code. No password, no account '
+        'profile beyond a generated handle.',
+    super.key,
+  });
 
   final AuthService auth;
+
+  /// Called after the code verifies. When null (the bottom-sheet use) the
+  /// sheet pops itself; a full-screen host passes this instead so success
+  /// never pops the host's route.
+  final VoidCallback? onSignedIn;
+
+  /// Heading and email-step intro; the code step always explains the code.
+  final String title;
+  final String intro;
 
   @override
   State<SignInSheet> createState() => _SignInSheetState();
@@ -76,13 +92,12 @@ class _SignInSheetState extends State<SignInSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Sign in', style: theme.textTheme.titleLarge),
+            Text(widget.title, style: theme.textTheme.titleLarge),
             const SizedBox(height: 4),
             Text(
               _codeSent
                   ? 'Enter the 6-digit code we emailed you.'
-                  : 'We email you a one-time code. No password, no account '
-                      'profile beyond a generated handle.',
+                  : widget.intro,
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
@@ -136,7 +151,13 @@ class _SignInSheetState extends State<SignInSheet> {
                             email: _email.text,
                             code: _code.text,
                           );
-                          if (mounted) navigator.pop();
+                          if (!mounted) return;
+                          final onSignedIn = widget.onSignedIn;
+                          if (onSignedIn != null) {
+                            onSignedIn();
+                          } else {
+                            navigator.pop();
+                          }
                         });
                       }
                     },

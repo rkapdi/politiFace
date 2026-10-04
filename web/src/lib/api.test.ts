@@ -10,6 +10,16 @@ vi.mock('./supabase', () => ({
 import { atRiskStudents, friendlyMessage, inviteLink } from './api'
 
 describe('friendlyMessage', () => {
+  it('explains the course-identifier rule for class names and session titles', () => {
+    for (const c of ['cohorts_name_no_course_id', 'live_sessions_title_no_course_id']) {
+      expect(
+        friendlyMessage({
+          message: `new row for relation "x" violates check constraint "${c}"`,
+        }),
+      ).toMatch(/course codes, section and CRN numbers/i)
+    }
+  })
+
   it('maps known server messages to plain sentences', () => {
     expect(friendlyMessage({ message: 'this class reports aggregate data only' }))
       .toMatch(/aggregate/i)

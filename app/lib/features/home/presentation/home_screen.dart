@@ -21,11 +21,11 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../fcle/domain/fcle_question.dart';
-import '../../leaderboard/application/leaderboard_providers.dart';
 import '../../profile/data/profile_service.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 import '../application/home_providers.dart';
 import 'chapter_info_sheet.dart';
+import 'class_block.dart';
 import 'guided_tour.dart';
 import 'season_spine.dart';
 import 'streak_hero.dart';
@@ -91,7 +91,7 @@ class HomeScreen extends ConsumerWidget {
                 child: const _TheOneButton(),
               ),
               const SizedBox(height: 18),
-              const _ClassBlock(),
+              const ClassBlock(),
               const SizedBox(height: 8),
               const _SectionDivider(label: 'THE SEASON'),
               const SizedBox(height: 12),
@@ -370,94 +370,6 @@ class _TheOneButton extends ConsumerWidget {
       label: label,
       subtitle: subtitle,
       onPressed: () => context.go(route),
-    );
-  }
-}
-
-/// The classroom, ambient on Home for cohort members only (Move 9).
-/// Solo students never see class scaffolding (persona P2's
-/// anti-requirement).
-class _ClassBlock extends ConsumerWidget {
-  const _ClassBlock();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final cohorts = ref.watch(myCohortsProvider).valueOrNull ?? const [];
-    if (cohorts.isEmpty) return const SizedBox.shrink();
-    // Honor the class picked on the leaderboard; newest-joined otherwise.
-    final selectedId = ref.watch(selectedCohortIdProvider).valueOrNull;
-    final cohort = cohorts.firstWhere(
-      (c) => c.id == selectedId,
-      orElse: () => cohorts.first,
-    );
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
-        decoration: BoxDecoration(
-          color: neoCardBg(context),
-          border: Border.all(color: neoLine(context), width: 4),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'MY CLASS · ${cohort.name.toUpperCase()}',
-              style: theme.textTheme.labelSmall,
-            ),
-            const SizedBox(height: 4),
-            _ClassRow(
-              label: 'Class messages',
-              onTap: () => context.push('/class'),
-            ),
-            _ClassRow(
-              label: 'Leaderboard and live games',
-              onTap: () => context.push('/leaderboard'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _ClassRow extends StatelessWidget {
-  const _ClassRow({required this.label, required this.onTap});
-
-  final String label;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return InkWell(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 44),
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        decoration: BoxDecoration(
-          border: Border(
-            top: BorderSide(color: neoLineDim(context)),
-          ),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(label, style: theme.textTheme.bodyMedium),
-            ),
-            Text(
-              '→',
-              style: theme.textTheme.labelLarge
-                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

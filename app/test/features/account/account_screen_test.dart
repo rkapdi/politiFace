@@ -125,6 +125,18 @@ void main() {
   );
 
   group('handle editing', () {
+    testWidgets('offers a way to join a class', (tester) async {
+      final api = FakeProfileApi();
+      await tester.pumpWidget(_app(api, initial: initial));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(
+        find.text('JOIN A CLASS'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('JOIN A CLASS'), findsOneWidget);
+    });
+
     testWidgets('saving a new handle calls update_my_profile and confirms',
         (tester) async {
       _useTallSurface(tester);

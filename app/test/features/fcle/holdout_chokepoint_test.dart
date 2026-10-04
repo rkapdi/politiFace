@@ -107,7 +107,7 @@ void main() {
     final (filtered, locked) = _filtered(_bank(4));
     for (var seed = 0; seed < 20; seed++) {
       final picked = pickDiagnosticQuestions(filtered, Random(seed));
-      expect(picked.length, 10);
+      expect(picked.length, 5);
       for (final q in picked) {
         expect(
           locked.contains(q.id),
