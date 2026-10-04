@@ -2,11 +2,13 @@
 //
 // The diagnostic cold open (Readiness Engine, Move 1). First launch opens
 // into VALUE, not a feature tour: "Could you pass the FCLE right now?
-// 10 questions." The diagnostic's answers feed the same local answer log
-// that powers readiness, so the student lands on Home with the band
-// already alive (endowed progress). Then two commitment questions
-// disguised as setup: exam date, class code. Standing rules held: no
-// signup wall, skippable at every step, supplemental-practice framing.
+// 5 quick questions." The diagnostic's answers feed the same local answer
+// log that powers readiness, so the student lands on Home with the band
+// already alive (endowed progress). Then two optional commitment questions
+// disguised as setup: exam date, class code. No signup wall and
+// supplemental-practice framing still hold; the quiz itself is not
+// skippable (founder decision, 2026-10-04: every student gets a starting
+// point, and 5 short questions keep that cost to about a minute).
 
 import 'dart:math';
 
@@ -113,10 +115,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) => Scaffold(
       body: SafeArea(
         child: switch (_phase) {
-          _Phase.invite => _InviteView(
-              onStart: _startDiagnostic,
-              onSkip: () => _finish('/'),
-            ),
+          _Phase.invite => _InviteView(onStart: _startDiagnostic),
           _Phase.quiz => _QuizView(
               question: _questions[_index],
               index: _index,
@@ -124,7 +123,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               chosenKey: _chosenKey,
               onChoose: _answer,
               onNext: _next,
-              onSkip: () => _finish('/'),
             ),
           _Phase.result => _ResultView(
               correct: _correct,
@@ -150,10 +148,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 }
 
 class _InviteView extends StatelessWidget {
-  const _InviteView({required this.onStart, required this.onSkip});
+  const _InviteView({required this.onStart});
 
   final VoidCallback onStart;
-  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -163,17 +160,6 @@ class _InviteView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton(
-              onPressed: onSkip,
-              child: Text(
-                'SKIP',
-                style: theme.textTheme.labelMedium
-                    ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-              ),
-            ),
-          ),
           const Spacer(),
           Text('POLITIFACE', style: theme.textTheme.labelSmall),
           const SizedBox(height: 10),
@@ -184,7 +170,7 @@ class _InviteView extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             'Florida requires the Civic Literacy Exam to graduate. '
-            '10 questions, about 2 minutes, and you will know where '
+            '5 quick questions, about a minute, and you will know where '
             'you stand. Every question is cited to a primary source. '
             'Nothing partisan. Free.',
             style: theme.textTheme.bodyLarge
@@ -193,13 +179,8 @@ class _InviteView extends StatelessWidget {
           const Spacer(flex: 2),
           BrutalButton(
             label: 'Start the diagnostic',
-            subtitle: '10 questions · no account needed',
+            subtitle: '5 questions · no account needed',
             onPressed: onStart,
-          ),
-          const SizedBox(height: 10),
-          BrutalButton.quiet(
-            label: 'Explore on my own',
-            onPressed: onSkip,
           ),
         ],
       ),
@@ -215,7 +196,6 @@ class _QuizView extends StatelessWidget {
     required this.chosenKey,
     required this.onChoose,
     required this.onNext,
-    required this.onSkip,
   });
 
   final FcleQuestion question;
@@ -224,7 +204,6 @@ class _QuizView extends StatelessWidget {
   final String? chosenKey;
   final ValueChanged<String> onChoose;
   final VoidCallback onNext;
-  final VoidCallback onSkip;
 
   @override
   Widget build(BuildContext context) {
@@ -249,14 +228,6 @@ class _QuizView extends StatelessWidget {
                 '${index + 1} / $total',
                 style: theme.textTheme.labelMedium?.copyWith(
                   fontFeatures: const [FontFeature.tabularFigures()],
-                ),
-              ),
-              TextButton(
-                onPressed: onSkip,
-                child: Text(
-                  'SKIP',
-                  style: theme.textTheme.labelSmall
-                      ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
               ),
             ],
@@ -451,7 +422,7 @@ class _ResultView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    // The diagnostic just wrote 10 answers, so the shared readiness
+    // The diagnostic just wrote its answers, so the shared readiness
     // provider has a real projection: the same numbers Home will show.
     // The fallback uses the same shrunk math, never a raw extrapolation.
     final summary = ref.watch(readinessSummaryProvider).valueOrNull;
@@ -510,15 +481,39 @@ class _ResultView extends ConsumerWidget {
   }
 }
 
-/// 10 diagnostic questions: 3/3/2/2 across the four domains, shuffled, so
-/// the starting projection has signal in every competency. Pure so the
+/// How many questions the onboarding diagnostic deals.
+const diagnosticQuestionCount = 5;
+
+/// Reading load of a question: stem plus every option, in characters.
+int _readLength(FcleQuestion q) =>
+    q.stem.length + q.options.fold(0, (n, o) => n + o.text.length);
+
+/// 5 quick diagnostic questions: one per domain plus one more from a
+/// random domain, so the starting projection has signal in every
+/// competency. Within each domain only quick items qualify: no longer
+/// than the domain's median reading length and difficulty 3 or below.
+/// A thin domain tops up with its shortest remaining items. Pure so the
 /// hold-out contamination test can assert reserved items never appear.
 List<FcleQuestion> pickDiagnosticQuestions(QuestionBank bank, Random r) {
-  const counts = [3, 3, 2, 2];
+  const domains = FcleDomain.values;
+  final extra = r.nextInt(domains.length);
   final picked = <FcleQuestion>[];
-  for (var i = 0; i < FcleDomain.values.length; i++) {
-    final pool = [...?bank.byDomain[FcleDomain.values[i]]]..shuffle(r);
-    picked.addAll(pool.take(counts[i]));
+  for (var i = 0; i < domains.length; i++) {
+    final need = i == extra ? 2 : 1;
+    final all = [...?bank.byDomain[domains[i]]]
+      ..sort((a, b) => _readLength(a).compareTo(_readLength(b)));
+    if (all.isEmpty) continue;
+    final median = _readLength(all[(all.length - 1) ~/ 2]);
+    final quick = all
+        .where((q) => _readLength(q) <= median && q.difficulty <= 3)
+        .toList()
+      ..shuffle(r);
+    final chosen = quick.take(need).toList();
+    for (final q in all) {
+      if (chosen.length >= need) break;
+      if (!chosen.contains(q)) chosen.add(q);
+    }
+    picked.addAll(chosen);
   }
   picked.shuffle(r);
   return picked;

@@ -1,6 +1,5 @@
-// The diagnostic cold open (Move 1): value first, skippable everywhere,
-// no account ask, answers feed the readiness log, and both orientation
-// flags are set so a new user never sits through two tours.
+// The diagnostic cold open (Move 1): value first, 5 quick questions that
+// cannot be skipped, no account ask, and answers feed the readiness log.
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -82,28 +81,28 @@ void main() {
     expect(find.text('Could you pass the FCLE right now?'), findsOneWidget);
     expect(find.textContaining('Sign in'), findsNothing);
     expect(find.text('START THE DIAGNOSTIC'), findsOneWidget);
-    expect(find.text('SKIP'), findsOneWidget);
+    expect(find.textContaining('5 quick questions'), findsOneWidget);
   });
 
-  testWidgets('SKIP exits to home from the invite and persists flags',
+  testWidgets('the diagnostic cannot be skipped, before or during',
       (tester) async {
     await tester.pumpWidget(host());
-    await tester.runAsync(() async {
-      await tester.tap(find.text('SKIP'));
-      await Future<void>.delayed(const Duration(milliseconds: 150));
-    });
-    await tester.pumpAndSettle();
-    expect(find.text('HOME'), findsOneWidget);
-    final done = await tester.runAsync(
+    expect(find.text('SKIP'), findsNothing);
+    expect(find.textContaining('Explore on my own'), findsNothing);
+    expect(find.textContaining('EXPLORE ON MY OWN'), findsNothing);
+
+    await tester.tap(find.text('START THE DIAGNOSTIC'));
+    for (var f = 0; f < 6; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('THE DIAGNOSTIC'), findsOneWidget);
+    expect(find.text('1 / 5'), findsOneWidget);
+    expect(find.text('SKIP'), findsNothing);
+    // A real database round trip flushes the work the screen queued, so
+    // teardown can close the database (same as the test below).
+    await tester.runAsync(
       () => db.metaDao.get(OnboardingScreen.doneFlagKey),
     );
-    // The guided tour flag is deliberately NOT set here: the tour runs
-    // on the first Home landing, after the diagnostic delivered value.
-    final tour = await tester.runAsync(
-      () => db.metaDao.get('onboarding.tour_done'),
-    );
-    expect(done, '1');
-    expect(tour, isNull);
   });
 
   testWidgets(
