@@ -14,8 +14,8 @@ import { EmailCodeForm } from './EmailCodeForm'
 
 describe('EmailCodeForm', () => {
   it('sends a code, then verifies it for the same trimmed email', async () => {
-    render(<EmailCodeForm hint="Use your school email." />)
-    expect(screen.getByText('Use your school email.')).toBeInTheDocument()
+    render(<EmailCodeForm hint="Sign in to join." />)
+    expect(screen.getByText('Sign in to join.')).toBeInTheDocument()
     await userEvent.type(screen.getByLabelText(/email/i), ' maria@mymdc.net ')
     await userEvent.click(screen.getByRole('button', { name: /send code/i }))
     expect(signInWithOtp).toHaveBeenCalledWith({ email: 'maria@mymdc.net' })

@@ -140,7 +140,6 @@ export const S = {
     differentEmail: 'Use a different email',
     sendFailed: 'We could not send a code to that address. Check the email and try again.',
     badCode: 'That code did not match. Codes expire quickly; request a new one if needed.',
-    schoolEmailHint: 'Use your school email. It is the same account as the Politiface app.',
     rateLimited: 'Too many codes requested right now. Wait a minute and try again.',
   },
   welcome: {
@@ -194,7 +193,7 @@ export const S = {
   join: {
     title: 'Join a live session',
     with: 'with',
-    signInIntro: 'Sign in to join. Use your school email; it is the same account as the Politiface app.',
+    signInIntro: 'Sign in to join. If you use the Politiface app, use the same email so it is one account.',
     joinAs: 'Join as',
     firstTimeName: 'Your name as your professor knows it',
     joinClass: 'Join',

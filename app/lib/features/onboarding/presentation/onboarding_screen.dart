@@ -547,9 +547,9 @@ class _AccountView extends ConsumerWidget {
               child: SignInSheet(
                 auth: auth,
                 title: 'Create your account',
-                intro: 'Use your school email. We email you a 6-digit code; '
-                    'there is no password. Your plan and progress stay with '
-                    'you on any device, and your class can find you.',
+                intro: 'Enter your email. We email you a 6-digit code; there is '
+                    'no password. Your plan and progress stay with you on '
+                    'any device, and your class can find you.',
                 onSignedIn: onSignedIn,
               ),
             )
