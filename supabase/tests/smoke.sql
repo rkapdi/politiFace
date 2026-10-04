@@ -51,7 +51,7 @@ values (:f_uid, 'smoke seed') on conflict do nothing;
 set role authenticated;
 set app.test_uid = :f_uid;
 insert into public.cohorts (name, term, created_by)
-values ('POS2041 Fall', '2026F', :f_uid);
+values ('Civics Section A', '2026F', :f_uid);
 
 select join_code as code from public.cohorts limit 1 \gset
 
@@ -361,7 +361,7 @@ begin
     order by joined_at asc limit 1;
 
   -- create_cohort RPC mints a class + join code.
-  v_created := public.create_cohort('POS2041 Spring', '2027S');
+  v_created := public.create_cohort('Civics Section B', '2027S');
   if length(v_created ->> 'join_code') <> 6 then
     raise exception 'FAIL: create_cohort join code';
   end if;
@@ -1185,10 +1185,10 @@ insert into public.profiles (id, handle) values (:ta_uid, 'ta_person');
 -- Faculty adds the TA by email.
 set app.test_uid = :f_uid;
 select public.add_cohort_ta(
-  (select id from public.cohorts where name = 'POS2041 Fall'), 'ta@example.edu');
+  (select id from public.cohorts where name = 'Civics Section A'), 'ta@example.edu');
 
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   if (select role from public.cohort_members
        where cohort_id = v_cohort
@@ -1204,7 +1204,7 @@ end $$;
 set app.test_uid = :ta_uid;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   v_session jsonb;
 begin
   if public.my_cohort_role(v_cohort) <> 'ta' then
@@ -1228,7 +1228,7 @@ end $$;
 
 -- TA is blocked from per-student surfaces, invites, and authoring.
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform * from public.cohort_student_progress(v_cohort);
@@ -1253,10 +1253,10 @@ end $$;
 -- Demote and confirm.
 set app.test_uid = :f_uid;
 select public.remove_cohort_ta(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   '00000000-0000-0000-0000-0000000000a1');
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   if (select role from public.cohort_members
        where cohort_id = v_cohort
@@ -1271,7 +1271,7 @@ set app.test_uid = :f_uid;
 -- Default per_student: named rows with student_ref = user_id.
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   r record;
 begin
   select * into r from public.cohort_student_progress(v_cohort) limit 1;
@@ -1282,11 +1282,11 @@ end $$;
 
 -- Pseudonymous: stable pseudonym, no user_id, no roster name.
 select public.set_reporting_policy(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   'pseudonymous', 'pseudonym');
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   r record; r2 record;
 begin
   select * into r from public.cohort_student_progress(v_cohort)
@@ -1309,10 +1309,10 @@ end $$;
 
 -- Aggregate only: per-student RPCs refuse.
 select public.set_reporting_policy(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   'aggregate_only', 'pseudonym');
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform * from public.cohort_student_progress(v_cohort);
@@ -1323,11 +1323,11 @@ end $$;
 
 -- Students cannot set policy; exports are logged.
 select public.set_reporting_policy(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   'per_student', 'roster');
 set app.test_uid = :s1_uid;
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform public.set_reporting_policy(v_cohort, 'per_student', 'roster');
@@ -1337,7 +1337,7 @@ begin
 end $$;
 set app.test_uid = :f_uid;
 select public.log_report_export(
-  (select id from public.cohorts where name = 'POS2041 Fall'), 'csv_progress');
+  (select id from public.cohorts where name = 'Civics Section A'), 'csv_progress');
 reset role;
 do $$
 begin
@@ -1351,7 +1351,7 @@ set role authenticated;
 set app.test_uid = :f_uid;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   v_trend int;
   r record;
   v_dd jsonb;
@@ -1380,11 +1380,11 @@ end $$;
 
 -- Policy applies: pseudonymous refs resolve, aggregate_only refuses.
 select public.set_reporting_policy(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   'pseudonymous', 'pseudonym');
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   r record;
   v_dd jsonb;
 begin
@@ -1398,10 +1398,10 @@ begin
   end if;
 end $$;
 select public.set_reporting_policy(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   'aggregate_only', 'pseudonym');
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform * from public.at_risk_students(v_cohort, 1.01);
@@ -1410,7 +1410,7 @@ begin
   end;
 end $$;
 select public.set_reporting_policy(
-  (select id from public.cohorts where name = 'POS2041 Fall'),
+  (select id from public.cohorts where name = 'Civics Section A'),
   'per_student', 'roster');
 
 -- ── Guest live join (20260821000400) ────────────────────────────────────────
@@ -1424,7 +1424,7 @@ set role authenticated;
 set app.test_uid = :f_uid;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   v_session jsonb;
 begin
   v_session := public.create_live_session(
@@ -1538,7 +1538,7 @@ set role authenticated;
 set app.test_uid = :f_uid;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   r record;
 begin
   select * into r from public.at_risk_students(v_cohort, 1.01)
@@ -1591,7 +1591,7 @@ end $$;
 
 -- Baselines refuse below the 5-student floor.
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform app.capture_cohort_baseline(v_cohort);
@@ -1613,10 +1613,10 @@ select c.id, u.uid, 'student'
   from public.cohorts c,
        (values ('00000000-0000-0000-0000-0000000000c1'::uuid),
                ('00000000-0000-0000-0000-0000000000c2'::uuid)) u(uid)
- where c.name = 'POS2041 Fall';
+ where c.name = 'Civics Section A';
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   b record;
 begin
   perform app.capture_cohort_baseline(v_cohort);
@@ -1637,7 +1637,7 @@ end $$;
 set role authenticated;
 set app.test_uid = :s1_uid;
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform public.capture_cohort_baseline(v_cohort);
@@ -1674,13 +1674,13 @@ end $$;
 set role authenticated;
 
 -- ── Class pulse + distribution (20260826000100) ─────────────────────────────
--- POS2041 Fall has exactly 5 students by this point (s1, s2, the demoted
+-- Civics Section A has exactly 5 students by this point (s1, s2, the demoted
 -- TA, c1, c2), so it clears the k-anonymity floor.
 set role authenticated;
 set app.test_uid = :f_uid;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   v_pulse jsonb;
   v_dist jsonb;
   v_sum int;
@@ -1717,7 +1717,7 @@ end $$;
 -- Students are blocked from both.
 set app.test_uid = :s1_uid;
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform public.cohort_pulse(v_cohort);
@@ -1806,7 +1806,7 @@ set role authenticated;
 set app.test_uid = :f_uid;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
   v_t jsonb;
   v_res jsonb;
   v_input uuid;
@@ -1851,7 +1851,7 @@ end $$;
 -- Students are blocked from both.
 set app.test_uid = :s1_uid;
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform public.student_trend(v_cohort, '00000000-0000-0000-0000-000000000002');
@@ -2138,7 +2138,7 @@ begin
     raise exception 'FAIL: student console role %', public.my_console_role();
   end if;
   if not exists (select 1 from public.my_student_classes()
-                  where name = 'POS2041 Fall') then
+                  where name = 'Civics Section A') then
     raise exception 'FAIL: my_student_classes missing the joined class';
   end if;
 end $$;
@@ -2161,8 +2161,8 @@ end $$;
 reset role;
 do $$
 declare
-  v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
-  v_prof   uuid := (select created_by from public.cohorts where name = 'POS2041 Fall');
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_prof   uuid := (select created_by from public.cohorts where name = 'Civics Section A');
   v_q      uuid := current_setting('app.p1_holdout_q')::uuid;
   v_input  uuid;
 begin
@@ -2180,7 +2180,7 @@ end $$;
 set role authenticated;
 set app.test_uid = :f_uid;
 do $$
-declare v_cohort uuid := (select id from public.cohorts where name = 'POS2041 Fall');
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
 begin
   begin
     perform public.create_live_session(
@@ -2201,7 +2201,7 @@ do $$
 declare v jsonb;
 begin
   v := public.create_live_session(
-    (select id from public.cohorts where name = 'POS2041 Fall'),
+    (select id from public.cohorts where name = 'Civics Section A'),
     'Members only quiz',
     (select jsonb_agg(id) from (select id from public.questions
        where cohort_id is null and review_status = 'published'
@@ -2227,7 +2227,7 @@ do $$
 declare p jsonb;
 begin
   p := public.live_session_preview(current_setting('app.p1_code'));
-  if p ->> 'class_name' <> 'POS2041 Fall' or (p ->> 'allow_guests')::boolean
+  if p ->> 'class_name' <> 'Civics Section A' or (p ->> 'allow_guests')::boolean
      or (p ->> 'is_member')::boolean or p ->> 'roster_name' is not null then
     raise exception 'FAIL: signed-out preview wrong: %', p;
   end if;
@@ -2349,6 +2349,40 @@ begin
   end if;
 end $$;
 set role authenticated;
+
+-- ── No course identifiers in names (20261004000100) ────────────────────────
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_bad text;
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+begin
+  foreach v_bad in array array['POS 2041 Fall', 'POS2041', 'inr_2002 review',
+                               'BSC 1010C', 'Section 8334', 'Fall 2026'] loop
+    begin
+      perform public.create_cohort(v_bad, '2026F');
+      raise exception 'FAIL: class name with a course identifier accepted: %', v_bad;
+    exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+    end;
+  end loop;
+  -- Neutral names are fine, short numbers included.
+  perform public.create_cohort('Purcell · Section 2', '2026F');
+  -- A direct rename by the class's faculty is held to the same rule.
+  begin
+    update public.cohorts set name = 'POS 2041-67' where id = v_cohort;
+    raise exception 'FAIL: direct rename to a course code accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- Session titles too.
+  begin
+    perform public.create_live_session(v_cohort, 'POS 2041 week 3',
+      (select jsonb_agg(id) from (select id from public.questions
+         where cohort_id is null and review_status = 'published'
+           and domain_id <> 1 limit 1) q), 20);
+    raise exception 'FAIL: session title with a course code accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
 
 reset role;
 select 'SMOKE TEST PASSED' as result;
