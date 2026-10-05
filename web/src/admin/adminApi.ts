@@ -1,8 +1,16 @@
 // Admin console data. All reads and writes are admin-only RPCs; the
 // server refuses anyone not in app.admins.
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { friendlyMessage } from '../lib/api'
+
+// The email on a failed sign-in is whatever the person typed, before any
+// account is confirmed to exist: it is not a verified identity. Shared by
+// the Timeline (person/class/session records) and the home activity
+// stream, which both surface 'problem' rows from the same ops log.
+export function isUnverifiedSignin(kind: string, title: string): boolean {
+  return kind === 'problem' && title.startsWith('signin')
+}
 
 async function call<T>(fn: string, args?: Record<string, unknown>): Promise<T> {
   const { data, error } = await supabase.rpc(fn as never, args as never)
@@ -73,6 +81,11 @@ export type SearchHit = {
   id: string
   title: string
   subtitle: string
+}
+export function hitPath(h: SearchHit): string {
+  if (h.kind === 'person') return `/admin/people/${h.id}`
+  if (h.kind === 'class') return `/admin/classes/${h.id}`
+  return `/admin/sessions/${h.id}`
 }
 export type PersonRecord = {
   identity: {
@@ -200,11 +213,12 @@ export type AuditRow = {
 
 export const consoleOpen = () => call<void>('admin_console_open')
 
-export const useAdminHome = () =>
+export const useAdminHome = (enabled = true) =>
   useQuery({
     queryKey: ['admin', 'home'],
     queryFn: () => call<AdminHome>('admin_home'),
     refetchInterval: 15_000,
+    enabled,
   })
 export const useAdminActivity = () =>
   useQuery({
@@ -220,6 +234,7 @@ export const useAdminSearch = (q: string) =>
     queryKey: ['admin', 'search', q],
     queryFn: () => call<SearchHit[]>('admin_search', { p_q: q }),
     enabled: q.trim().length >= 2,
+    placeholderData: keepPreviousData,
   })
 export const useAdminPerson = (id: string) =>
   useQuery({
@@ -235,17 +250,19 @@ export const useAdminSession = (id: string) =>
   useQuery({
     queryKey: ['admin', 'session', id],
     queryFn: () => call<SessionRecord>('admin_session', { p_session: id }),
-    refetchInterval: 5_000,
+    // A session that already ended never changes again; stop polling it.
+    refetchInterval: query => (query.state.data?.facts.status === 'ended' ? false : 5_000),
   })
 export const useAdminInvites = () =>
   useQuery({
     queryKey: ['admin', 'invites'],
     queryFn: () => call<InviteRow[]>('admin_list_invites_v2'),
   })
-export const useAdminAudit = () =>
+export const useAdminAudit = (action?: string) =>
   useQuery({
-    queryKey: ['admin', 'audit'],
-    queryFn: () => call<AuditRow[]>('admin_audit_list', { p_limit: 200 }),
+    queryKey: ['admin', 'audit', action ?? null],
+    queryFn: () =>
+      call<AuditRow[]>('admin_audit_list', { p_action: action ?? null, p_limit: 200 }),
   })
 
 export const useSetFaculty = () => {
@@ -256,7 +273,10 @@ export const useSetFaculty = () => {
         p_user: a.userId,
         p_verified: a.verified,
       }),
-    onSuccess: (_d, a) => void qc.invalidateQueries({ queryKey: ['admin', 'person', a.userId] }),
+    onSuccess: (_d, a) => {
+      void qc.invalidateQueries({ queryKey: ['admin', 'person', a.userId] })
+      void qc.invalidateQueries({ queryKey: ['admin', 'audit'] })
+    },
   })
 }
 export const useMintInvite = () => {

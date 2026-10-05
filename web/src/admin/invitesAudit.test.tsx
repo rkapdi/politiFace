@@ -6,6 +6,7 @@ import { axe } from 'vitest-axe'
 const m = vi.hoisted(() => ({
   mint: vi.fn((_a: unknown, o?: { onSuccess?: (c: string) => void }) => o?.onSuccess?.('D7QMJA')),
   revoke: vi.fn(),
+  auditArg: undefined as string | undefined,
 }))
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, params, children }: { to: string; params?: Record<string, string>; children: React.ReactNode }) => (
@@ -24,11 +25,14 @@ vi.mock('./adminApi', () => ({
   }),
   useMintInvite: () => ({ mutate: m.mint, isPending: false, error: null }),
   useRevokeInvite: () => ({ mutate: m.revoke, isPending: false, error: null }),
-  useAdminAudit: () => ({
-    data: [{ id: 1, created_at: '2026-10-04T12:00:00Z', actor_handle: 'bright_quill_1321', action: 'faculty_granted', target_user: 'u1', target_label: 'Purcell Demo', target_cohort: null, target_session: null, details: {} }],
-    isPending: false,
-    error: null,
-  }),
+  useAdminAudit: (action?: string) => {
+    m.auditArg = action
+    return {
+      data: [{ id: 1, created_at: '2026-10-04T12:00:00Z', actor_handle: 'bright_quill_1321', action: 'faculty_granted', target_user: 'u1', target_label: 'Purcell Demo', target_cohort: null, target_session: null, details: {} }],
+      isPending: false,
+      error: null,
+    }
+  },
 }))
 
 import { InvitesPage } from './InvitesPage'
@@ -47,6 +51,12 @@ describe('InvitesPage', () => {
     await userEvent.click(screen.getByRole('button', { name: /create invite link/i }))
     expect(m.mint.mock.calls[0][0]).toEqual({ recipientEmail: 'new@mdc.edu', note: '' })
     expect(screen.getByDisplayValue(/invite=D7QMJA/)).toBeInTheDocument()
+
+    const writeText = vi.fn(async () => undefined)
+    Object.assign(navigator, { clipboard: { writeText } })
+    await userEvent.click(screen.getByRole('button', { name: /^copy$/i }))
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining('invite=D7QMJA'))
+    expect(await screen.findByRole('button', { name: /^copied$/i })).toBeInTheDocument()
   })
 
   it('has no axe violations', async () => {
@@ -60,7 +70,14 @@ describe('AuditPage', () => {
   it('lists admin actions with actor and target', () => {
     render(<AuditPage />)
     expect(screen.getByText('bright_quill_1321')).toBeInTheDocument()
-    expect(screen.getByText('faculty granted')).toBeInTheDocument()
+    expect(screen.getByRole('cell', { name: 'faculty granted' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Purcell Demo' })).toHaveAttribute('href', '#/admin/people/u1')
+  })
+
+  it('filters by action, passing it through to the query', async () => {
+    render(<AuditPage />)
+    expect(m.auditArg).toBeUndefined()
+    await userEvent.selectOptions(screen.getByLabelText(/action/i), 'faculty_granted')
+    expect(m.auditArg).toBe('faculty_granted')
   })
 })

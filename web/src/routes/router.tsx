@@ -19,7 +19,6 @@ import { LiveRunnerPage } from './LiveRunnerPage'
 import { JoinPage } from './JoinPage'
 import { AccountPage } from './AccountPage'
 import { WelcomePage } from './WelcomePage'
-import { RequireAuth } from '../auth/RequireAuth'
 
 const rootRoute = createRootRoute({ component: Outlet })
 
@@ -81,17 +80,14 @@ const styleguideRoute = createRoute({
 })
 
 // The admin console: a separate dark shell for the two founders, lazy
-// loaded so its code never ships to students or faculty.
-const AdminShell = lazyRouteComponent(() => import('../admin/AdminLayout'), 'AdminLayout')
-
+// loaded so its code never ships to students or faculty. `AdminLayout`
+// (the lazy-loaded export) wraps its own RequireAuth, so the route itself
+// is the thing TanStack Router preloads: no synchronous wrapper mounts
+// before the chunk arrives.
 const adminRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/admin',
-  component: () => (
-    <RequireAuth>
-      <AdminShell />
-    </RequireAuth>
-  ),
+  component: lazyRouteComponent(() => import('../admin/AdminLayout'), 'AdminLayout'),
 })
 const adminHomeRoute = createRoute({
   getParentRoute: () => adminRoute,

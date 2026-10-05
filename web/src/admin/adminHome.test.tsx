@@ -7,7 +7,19 @@ vi.mock('@tanstack/react-router', () => ({
   ),
   useSearch: () => ({ q: 'maria' }),
 }))
+const h = vi.hoisted(() => ({
+  health: { run_at: '2026-10-04T06:07:00Z', ok: true, failures: [] } as
+    | { run_at: string; ok: boolean; failures: unknown }
+    | null,
+}))
 vi.mock('./adminApi', () => ({
+  isUnverifiedSignin: (kind: string, title: string) => kind === 'problem' && title.startsWith('signin'),
+  hitPath: (hit: { kind: string; id: string }) =>
+    hit.kind === 'person'
+      ? `/admin/people/${hit.id}`
+      : hit.kind === 'class'
+        ? `/admin/classes/${hit.id}`
+        : `/admin/sessions/${hit.id}`,
   useAdminHome: () => ({
     data: {
       totals: { people: 297, students: 212, faculty: 3, classes: 9, answered_live_7d: 171 },
@@ -15,7 +27,7 @@ vi.mock('./adminApi', () => ({
       pending_requests: 2,
       funnel: [{ cohort_id: 'c1', name: 'Section A', term: '2026F', members: 41, students: 40, answered_live: 38, practiced_7d: 22 }],
       attention: [{ kind: 'signin_failures', severity: 'fail', title: '14 sign-in failures in the last hour' }],
-      health: { run_at: '2026-10-04T06:07:00Z', ok: true, failures: [] },
+      health: h.health,
     },
     isPending: false,
     error: null,
@@ -35,6 +47,7 @@ import { SearchPage } from './SearchPage'
 
 describe('AdminHome', () => {
   it('shows totals, live now, funnel, attention, and the activity stream', () => {
+    h.health = { run_at: '2026-10-04T06:07:00Z', ok: true, failures: [] }
     render(<AdminHome />)
     expect(screen.getByText('212')).toBeInTheDocument()
     expect(screen.getByText('Week 3 review')).toBeInTheDocument()
@@ -42,7 +55,15 @@ describe('AdminHome', () => {
     expect(screen.getByRole('link', { name: 'Section A' })).toHaveAttribute('href', '#/admin/classes/c1')
     expect(screen.getByText('14 sign-in failures in the last hour')).toHaveClass('sev-fail')
     expect(screen.getByText(/signin send failed/)).toBeInTheDocument()
+    expect(screen.getByText('(typed email, unverified)')).toBeInTheDocument()
     expect(screen.getByText('NOMINAL')).toBeInTheDocument()
+  })
+
+  it('shows UNKNOWN when no health check has run yet', () => {
+    h.health = null
+    render(<AdminHome />)
+    expect(screen.getByText('UNKNOWN')).toBeInTheDocument()
+    expect(screen.queryByText('NOMINAL')).toBeNull()
   })
 })
 

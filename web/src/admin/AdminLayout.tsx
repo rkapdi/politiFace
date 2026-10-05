@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Link, Outlet } from '@tanstack/react-router'
+import { RequireAuth } from '../auth/RequireAuth'
 import { useAmAdmin } from '../lib/api'
 import { consoleOpen, useAdminHome } from './adminApi'
 import { CommandPalette } from './CommandPalette'
@@ -13,9 +14,10 @@ const rail = [
   { to: '/admin/audit', label: A.nav.audit, glyph: '▤' },
 ]
 
-export function AdminLayout() {
+/** The console shell: admin check, header, rail, and the routed page. */
+export function AdminLayoutInner() {
   const admin = useAmAdmin()
-  const home = useAdminHome()
+  const home = useAdminHome(admin.data === true)
   useEffect(() => {
     if (admin.data) void consoleOpen().catch(() => undefined)
   }, [admin.data])
@@ -37,7 +39,7 @@ export function AdminLayout() {
         <span className={live > 0 ? 'sev-ok' : 'text-[var(--a-muted)]'}>● {A.live(live)}</span>
       </header>
       <div className="flex flex-1">
-        <nav aria-label="Console" className="flex w-12 flex-col items-center gap-3 border-r border-[var(--a-line)] pt-3">
+        <nav aria-label={A.nav.rail} className="flex w-12 flex-col items-center gap-3 border-r border-[var(--a-line)] pt-3">
           {rail.map(r => (
             <Link key={r.to} to={r.to as never} title={r.label} aria-label={r.label} className="text-[var(--a-muted)]">
               <span aria-hidden="true">{r.glyph}</span>
@@ -49,5 +51,15 @@ export function AdminLayout() {
         </main>
       </div>
     </div>
+  )
+}
+
+// The route's actual lazy export: bundles its own auth gate, so the
+// router preloads the real admin-only tree instead of a thin wrapper.
+export function AdminLayout() {
+  return (
+    <RequireAuth>
+      <AdminLayoutInner />
+    </RequireAuth>
   )
 }

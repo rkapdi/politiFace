@@ -14,6 +14,7 @@ const timeline = [
   { at: '2026-10-04T10:58:00Z', kind: 'problem', title: 'signin send failed: 429', detail: { status: 429 }, severity: 'fail' },
 ]
 vi.mock('./adminApi', () => ({
+  isUnverifiedSignin: (kind: string, title: string) => kind === 'problem' && title.startsWith('signin'),
   useAdminPerson: () => ({
     data: {
       identity: { user_id: 'u1', email: 'maria@mymdc.net', handle: 'user_1', school: null, created_at: '2026-09-29T00:00:00Z', last_sign_in_at: '2026-10-04T11:00:00Z', is_admin: false, is_faculty: false, is_guest: false },
@@ -66,9 +67,15 @@ describe('records', () => {
     expect(screen.getByText('(typed email, unverified)')).toBeInTheDocument()
     expect(screen.getByText(/1.3.2 \(33\)/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /move class/i })).toBeDisabled()
-    await userEvent.click(screen.getByRole('button', { name: /grant instructor access/i }))
-    await userEvent.click(screen.getByRole('button', { name: /^confirm$/i }))
+    expect(screen.getByText('Coming in 2b')).toBeInTheDocument()
+    const grantButton = screen.getByRole('button', { name: /grant instructor access/i })
+    await userEvent.click(grantButton)
+    expect(screen.getByRole('group', { name: /confirm instructor access/i })).toBeInTheDocument()
+    const confirmButton = screen.getByRole('button', { name: /^confirm$/i })
+    expect(confirmButton).toHaveFocus()
+    await userEvent.click(confirmButton)
     expect(m.setFaculty).toHaveBeenCalledWith({ userId: 'u1', verified: true })
+    expect(screen.getByRole('button', { name: /grant instructor access/i })).toHaveFocus()
   })
 
   it('class: members link to people, sessions to sessions', () => {

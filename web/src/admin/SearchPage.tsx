@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { useAdminSearch } from './adminApi'
-import { hitPath } from './CommandPalette'
+import { hitPath, useAdminSearch } from './adminApi'
+import { useDebounced } from './useDebounced'
 import { A } from './strings'
 
 export function SearchPage() {
   const [q, setQ] = useState('')
-  const hits = useAdminSearch(q).data ?? []
+  const debouncedQ = useDebounced(q, 200)
+  const hits = useAdminSearch(debouncedQ).data ?? []
   return (
     <div className="flex flex-col gap-2">
       <h1 className="admin-strong">{A.titles.search}</h1>
       <input
+        type="search"
         aria-label={A.searchPlaceholder}
         placeholder={A.searchPlaceholder}
         value={q}

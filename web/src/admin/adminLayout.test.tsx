@@ -1,14 +1,23 @@
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 const s = vi.hoisted(() => ({ admin: true as boolean | undefined, navigate: vi.fn() }))
 vi.mock('../lib/api', () => ({
   useAmAdmin: () => ({ data: s.admin, isPending: s.admin === undefined }),
 }))
+vi.mock('../auth/RequireAuth', () => ({
+  RequireAuth: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+}))
 vi.mock('./adminApi', () => ({
   consoleOpen: vi.fn(async () => undefined),
   useAdminHome: () => ({ data: { live_now: [{ session_id: 's1' }] } }),
+  hitPath: (h: { kind: string; id: string }) =>
+    h.kind === 'person'
+      ? `/admin/people/${h.id}`
+      : h.kind === 'class'
+        ? `/admin/classes/${h.id}`
+        : `/admin/sessions/${h.id}`,
   useAdminSearch: (q: string) => ({
     data: q.length >= 2
       ? [{ kind: 'person', id: 'u1', title: 'Maria Lopez', subtitle: 'maria@mymdc.net' }]
@@ -41,13 +50,27 @@ describe('AdminLayout', () => {
     expect(screen.queryByText('page body')).toBeNull()
   })
 
-  it('Cmd-K opens search and Enter opens the first hit', async () => {
+  it('Cmd-K opens an accessible modal; debounced search finds a hit; Enter opens it', async () => {
     s.admin = true
     render(<AdminLayout />)
     await userEvent.keyboard('{Meta>}k{/Meta}')
-    await userEvent.type(screen.getByRole('combobox'), 'Maria')
-    expect(screen.getByText('Maria Lopez')).toBeInTheDocument()
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toHaveAttribute('aria-modal', 'true')
+    const input = screen.getByRole('searchbox')
+    await userEvent.type(input, 'Maria')
+    await waitFor(() => expect(screen.getByText('Maria Lopez')).toBeInTheDocument())
     await userEvent.keyboard('{Enter}')
     expect(s.navigate).toHaveBeenCalledWith({ to: '/admin/people/u1' })
+  })
+
+  it('Escape closes the palette and returns focus to the trigger button', async () => {
+    s.admin = true
+    render(<AdminLayout />)
+    const trigger = screen.getByRole('button', { name: /Cmd-K/i })
+    await userEvent.click(trigger)
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(trigger).toHaveFocus()
   })
 })

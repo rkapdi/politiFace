@@ -17,6 +17,7 @@ export function InvitesPage() {
   const [email, setEmail] = useState('')
   const [note, setNote] = useState('')
   const [link, setLink] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -26,34 +27,51 @@ export function InvitesPage() {
     )
   }
 
+  const copy = async () => {
+    if (!link) return
+    try {
+      await navigator.clipboard.writeText(link)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Clipboard access can be denied (permissions, insecure context); the
+      // link is still selectable in the field, so this is not fatal.
+    }
+  }
+
   return (
     <div className="flex flex-col gap-2">
       <h1 className="admin-strong">{A.titles.invites}</h1>
       <form onSubmit={submit} className="admin-panel flex flex-wrap items-end gap-2 p-2">
         <label className="flex flex-col">
-          <span className="admin-label">Their email (optional)</span>
+          <span className="admin-label">{A.invites.emailLabel}</span>
           <input type="email" value={email} onChange={e => setEmail(e.target.value)}
             className="border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
         </label>
         <label className="flex flex-col">
-          <span className="admin-label">Note (optional)</span>
+          <span className="admin-label">{A.invites.noteLabel}</span>
           <input value={note} onChange={e => setNote(e.target.value)} maxLength={120}
             className="border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
         </label>
         <button type="submit" disabled={mint.isPending} className="border border-[var(--a-info)] px-3 py-1 text-[var(--a-info)]">
-          Create invite link
+          {A.invites.create}
         </button>
         {link ? (
-          <input readOnly aria-label="Invite link" value={link} onFocus={e => e.currentTarget.select()}
-            className="min-w-[320px] flex-1 border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
+          <>
+            <input readOnly aria-label={A.invites.linkLabel} value={link} onFocus={e => e.currentTarget.select()}
+              className="min-w-[320px] flex-1 border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
+            <button type="button" onClick={() => void copy()} className="border border-[var(--a-line)] px-2 py-1">
+              {copied ? A.invites.copied : A.invites.copy}
+            </button>
+          </>
         ) : null}
         {mint.error ? <p className="sev-fail">{mint.error.message}</p> : null}
       </form>
       <table className="admin-panel w-full">
         <thead>
           <tr className="admin-label text-left">
-            <th scope="col" className="p-1">Code</th><th scope="col">Status</th><th scope="col">For</th>
-            <th scope="col">By</th><th scope="col">Expires</th><th scope="col"><span className="sr-only">Actions</span></th>
+            <th scope="col" className="p-1">{A.invites.colCode}</th><th scope="col">{A.invites.colStatus}</th><th scope="col">{A.invites.colFor}</th>
+            <th scope="col">{A.invites.colBy}</th><th scope="col">{A.invites.colExpires}</th><th scope="col"><span className="sr-only">{A.invites.colActions}</span></th>
           </tr>
         </thead>
         <tbody>
@@ -68,7 +86,7 @@ export function InvitesPage() {
                 {i.status === 'active' ? (
                   <button type="button" onClick={() => revoke.mutate(i.code)}
                     className="border border-[var(--a-line)] px-2 text-[var(--a-fail)]">
-                    Revoke
+                    {A.invites.revoke}
                   </button>
                 ) : null}
               </td>
