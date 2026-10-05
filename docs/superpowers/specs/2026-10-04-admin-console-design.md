@@ -1,6 +1,6 @@
 # Admin console (phase 2a: see everything)
 
-Date: 2026-10-04. Status: approved by founder in chat (look, record layout, problem log, screens, failed-sign-in email). Supersedes the support-role and per-role email rules in Section 3 of `2026-09-27-onboarding-and-admin-console-design.md`.
+Date: 2026-10-04. Status: approved by founder in chat (look, record layout, problem log, screens, failed-sign-in email; this console replaces the legacy `/faculty` admin tab). Supersedes the support-role and per-role email rules in Section 3 of `2026-09-27-onboarding-and-admin-console-design.md`.
 
 ## Why
 
@@ -16,15 +16,15 @@ Exactly two people: the founder (`thedeclanmercer@gmail.com`) and Dawood (`shahd
 
 ## Phases
 
-- **2a (this spec):** audit log, problem log, console shell, search, home, three-pane records for people, classes, sessions. Read-only; action buttons render disabled with "Coming in 2b".
-- **2b (separate spec):** actions (role changes, move/remove members, rename, sign out everywhere, end a stuck session, change email, delete account), invites and the faculty request queue moved into the console, expected enrollment per class.
+- **2a (this spec):** audit log, problem log, console shell, search, home, three-pane records for people, classes, sessions, an Invites page, and one action (grant or revoke instructor access). Together these cover everything the legacy `/faculty` admin tab does, so 2a replaces that tab. Other action buttons render disabled with "Coming in 2b".
+- **2b (separate spec):** remaining actions (class role changes, move/remove members, rename, sign out everywhere, end a stuck session, change email, delete account), the faculty request queue moved into the console, expected enrollment per class.
 - **3 (separate spec):** break-glass "act as user", retire `/faculty`.
 
 ## Data
 
 ### Audit log (new)
 
-`app.admin_audit (id bigserial, actor uuid, action text, target_user uuid null, target_cohort uuid null, target_session uuid null, details jsonb, created_at timestamptz)`. RLS on, no policies; written and read only through admin RPCs. 2a writes `console_open` (once per console load) and `view_person` (each person record opened). Retained indefinitely (small; it is the security-review evidence). Readable in the console under Audit.
+`app.admin_audit (id bigserial, actor uuid, action text, target_user uuid null, target_cohort uuid null, target_session uuid null, details jsonb, created_at timestamptz)`. RLS on, no policies; written and read only through admin RPCs. 2a writes `console_open` (once per console load) and `view_person` (each person record opened). Retained indefinitely (small; it is the security-review evidence). Readable in the console under Audit. 2a also writes `faculty_granted`, `faculty_revoked`, `invite_minted`, and `invite_revoked`.
 
 ### Problem log (new)
 
@@ -47,19 +47,30 @@ Exactly two people: the founder (`thedeclanmercer@gmail.com`) and Dawood (`shahd
 - `admin_class(p_cohort uuid)` returns class facts, members (with roster names and emails), sessions, funnel, and `timeline[]`.
 - `admin_session(p_session uuid)` returns session facts, participants (member or guest, answered count), per-question results, and `timeline[]`.
 
+### Admin write RPCs in 2a (admin-checked, audited in the same transaction)
+
+- `admin_set_faculty_audited(p_user uuid, p_verified boolean)`: grants or revokes `app.verified_faculty`, writes `faculty_granted` / `faculty_revoked`. Replaces the console's use of the legacy unaudited `admin_set_faculty` (which stays for the legacy portal until it is retired).
+- Invites reuse `mint_faculty_invite` and `revoke_faculty_invite`; a new `admin_list_invites_v2()` adds `expires_at`, `revoked_at`, `recipient_email`, and status (`active`, `used`, `expired`, `revoked`). Minting and revoking from the console go through `admin_mint_invite(p_note, p_recipient_email)` / `admin_revoke_invite(p_code)` wrappers that write `invite_minted` / `invite_revoked`.
+
 **Timeline** entries are `{at, kind, title, detail, severity}` with `severity` in `info|ok|warn|fail`, newest first, capped at 300, merged from: `auth.users` (created, last sign-in), `cohort_members.joined_at`, `live_participants.joined_at`, `live_answers` (per session summary, not per answer), `events` (practice answers summarized per day, `mock_start`, `session_start`), `class_announcements`, `faculty_access_requests`, `app.verified_faculty`, `export_log`, `app.ops_events`, `app.admin_audit` (actions on this record).
 
 ## Screens
 
 React, inside the existing web console, under `#/admin/*`, lazy-loaded so non-admin browsers never download the code. A "Console" link in the header shows only when `am_admin()` is true; the routes also render a "Not available" screen for anyone else (the server refuses regardless).
 
-- **Shell:** icon rail (Home, Search, Live, Audit), top bar with Cmd-K / Ctrl-K palette and live indicator (count of running sessions).
+- **Shell:** icon rail (Home, Search, Live, Invites, Audit), top bar with Cmd-K / Ctrl-K palette and live indicator (count of running sessions).
 - **Home** (`#/admin`): stat strip; Live now; onboarding funnel by class (bars, click a class to open it); Needs attention; activity stream (5 s poll, newest on top, failures in red).
 - **Search** (`#/admin/search?q=`): grouped results; the palette shows the same top 8 inline and Enter opens the first.
 - **Person** (`#/admin/people/$userId`): three panes. Left: linked records (classes with roster names, sessions joined, devices). Center: timeline with failures highlighted. Right: properties, then actions (disabled, "Coming in 2b").
 - **Class** (`#/admin/classes/$cohortId`): left: members and sessions; center: timeline; right: facts (join code, term, policy, funnel numbers).
 - **Session** (`#/admin/sessions/$sessionId`): left: participants; center: timeline; right: facts and per-question results.
+- **Invites** (`#/admin/invites`): every faculty invite with status, inviter, recipient hint, created and expiry; create a link (copy to clipboard), revoke an active one.
 - **Audit** (`#/admin/audit`): newest admin actions, filter by actor and action.
+- **Person record action live in 2a:** "Grant instructor access" / "Revoke instructor access" (confirm dialog, audited). All other actions disabled until 2b.
+
+### Replacing the legacy admin tab
+
+When 2a ships, the Admin tab in `docs/faculty/index.html` is replaced by a single notice linking to `politiface.app/app/#/admin` ("The admin console moved"). The legacy admin markup and its scripts are removed. The professor-facing parts of `/faculty` stay until phase 3.
 
 ## Client instrumentation (problem log)
 
@@ -76,11 +87,11 @@ React, inside the existing web console, under `#/admin/*`, lazy-loaded so non-ad
 
 ## Testing
 
-- `supabase/tests/smoke.sql`: every admin RPC refused for anon, student, faculty; allowed for an admin; `log_ops_event` validation (kind/client allow-lists, email dropped on non-sign-in kinds, user_id from the session, rate cap, detail size cap); purge removes rows older than 90 days; audit rows written on `admin_person`.
+- `supabase/tests/smoke.sql`: every admin RPC refused for anon, student, faculty; allowed for an admin; grant/revoke and invite mint/revoke write audit rows; `log_ops_event` validation (kind/client allow-lists, email dropped on non-sign-in kinds, user_id from the session, rate cap, detail size cap); purge removes rows older than 90 days; audit rows written on `admin_person`.
 - Web (vitest): console link hidden for non-admins; each screen renders from mocked RPC data; palette keyboard flow; failures highlighted; axe checks on the dark theme.
 - iOS: unit tests that `SignInSheet` failures call the logger; existing suite stays green.
 - Manual: one live session with a test class while watching the console home.
 
 ## Out of scope for 2a
 
-All write actions, invites/requests in the console, expected enrollment, impersonation, mobile layout polish, exporting from the console.
+Write actions other than instructor access and invites, the faculty request queue in the console (it stays on the classes page for now), expected enrollment, impersonation, mobile layout polish, exporting from the console.
