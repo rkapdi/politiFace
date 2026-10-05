@@ -676,3 +676,97 @@ end;
 $$;
 revoke all on function public.admin_console_open() from public, anon;
 grant execute on function public.admin_console_open() to authenticated;
+
+-- ── admin writes (2a) ──────────────────────────────────────────────────────
+create function public.admin_set_faculty_audited(p_user uuid, p_verified boolean)
+returns void
+language plpgsql security definer set search_path = public, app, pg_temp as $$
+begin
+  if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
+  if p_verified then
+    insert into app.verified_faculty (user_id, granted_by, note)
+    values (p_user, auth.uid(), 'granted in the admin console')
+    on conflict (user_id) do nothing;
+    perform app.audit('faculty_granted', p_user);
+  else
+    delete from app.verified_faculty where user_id = p_user;
+    perform app.audit('faculty_revoked', p_user);
+  end if;
+end;
+$$;
+revoke all on function public.admin_set_faculty_audited(uuid, boolean) from public, anon;
+grant execute on function public.admin_set_faculty_audited(uuid, boolean) to authenticated;
+
+create function public.admin_list_invites_v2()
+returns table (code text, note text, minted_by_handle text, recipient_email text,
+               uses int, max_uses int, created_at timestamptz,
+               expires_at timestamptz, revoked_at timestamptz, status text)
+language plpgsql stable security definer set search_path = public, app, pg_temp as $$
+begin
+  if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
+  return query
+    select i.code, i.note, p.handle, i.recipient_email, i.uses, i.max_uses,
+           i.created_at, i.expires_at, i.revoked_at,
+           case when i.revoked_at is not null then 'revoked'
+                when i.uses >= i.max_uses then 'used'
+                when i.expires_at <= now() then 'expired'
+                else 'active' end
+      from public.faculty_invites i
+      left join public.profiles p on p.id = i.minted_by
+     order by i.created_at desc;
+end;
+$$;
+revoke all on function public.admin_list_invites_v2() from public, anon;
+grant execute on function public.admin_list_invites_v2() to authenticated;
+
+create function public.admin_mint_invite(
+  p_note text default null, p_recipient_email text default null
+) returns text
+language plpgsql security definer set search_path = public, app, pg_temp as $$
+declare v_code text;
+begin
+  if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
+  v_code := public.mint_faculty_invite(p_note, p_recipient_email);
+  perform app.audit('invite_minted', null, null, null,
+    jsonb_build_object('code', v_code, 'recipient', p_recipient_email));
+  return v_code;
+end;
+$$;
+revoke all on function public.admin_mint_invite(text, text) from public, anon;
+grant execute on function public.admin_mint_invite(text, text) to authenticated;
+
+create function public.admin_revoke_invite(p_code text) returns void
+language plpgsql security definer set search_path = public, app, pg_temp as $$
+begin
+  if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
+  perform public.revoke_faculty_invite(p_code);
+  perform app.audit('invite_revoked', null, null, null,
+    jsonb_build_object('code', upper(trim(p_code))));
+end;
+$$;
+revoke all on function public.admin_revoke_invite(text) from public, anon;
+grant execute on function public.admin_revoke_invite(text) to authenticated;
+
+create function public.admin_audit_list(p_action text default null, p_limit int default 200)
+returns table (id bigint, created_at timestamptz, actor_handle text, action text,
+               target_user uuid, target_label text, target_cohort uuid,
+               target_session uuid, details jsonb)
+language plpgsql stable security definer set search_path = public, app, pg_temp as $$
+begin
+  if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
+  return query
+    select a.id, a.created_at, ap.handle, a.action, a.target_user,
+           coalesce(tp.handle, c.name, s.title), a.target_cohort, a.target_session,
+           a.details
+      from app.admin_audit a
+      left join public.profiles ap on ap.id = a.actor
+      left join public.profiles tp on tp.id = a.target_user
+      left join public.cohorts c on c.id = a.target_cohort
+      left join public.live_sessions s on s.id = a.target_session
+     where p_action is null or a.action = p_action
+     order by a.created_at desc
+     limit least(greatest(coalesce(p_limit, 200), 1), 500);
+end;
+$$;
+revoke all on function public.admin_audit_list(text, int) from public, anon;
+grant execute on function public.admin_audit_list(text, int) to authenticated;

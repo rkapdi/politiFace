@@ -2591,5 +2591,75 @@ begin
 end $$;
 set role authenticated;
 
+-- Admin writes: refused for non-admins; audited for admins.
+set app.test_uid = :p1_prof;
+do $$
+begin
+  begin
+    perform public.admin_set_faculty_audited(
+      '00000000-0000-0000-0000-000000000002'::uuid, true);
+    raise exception 'FAIL: non-admin granted instructor access';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.admin_mint_invite('x', null);
+    raise exception 'FAIL: non-admin used the admin mint';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- app.verified_faculty is owner-only; grant/revoke calls run as authenticated,
+-- the before/after checks run after `reset role`, as the table owner.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform public.admin_set_faculty_audited(
+    '00000000-0000-0000-0000-000000000002'::uuid, true);
+end $$;
+reset role;
+do $$
+begin
+  if not exists (select 1 from app.verified_faculty
+                  where user_id = '00000000-0000-0000-0000-000000000002') then
+    raise exception 'FAIL: grant did not verify';
+  end if;
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform public.admin_set_faculty_audited(
+    '00000000-0000-0000-0000-000000000002'::uuid, false);
+end $$;
+reset role;
+do $$
+begin
+  if exists (select 1 from app.verified_faculty
+              where user_id = '00000000-0000-0000-0000-000000000002') then
+    raise exception 'FAIL: revoke did not unverify';
+  end if;
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare v_code text;
+begin
+  v_code := public.admin_mint_invite('For a smoke prof', 'prof@example.edu');
+  if not exists (select 1 from public.admin_list_invites_v2()
+                  where code = v_code and status = 'active') then
+    raise exception 'FAIL: minted invite not listed active';
+  end if;
+  perform public.admin_revoke_invite(v_code);
+  if not exists (select 1 from public.admin_list_invites_v2()
+                  where code = v_code and status = 'revoked') then
+    raise exception 'FAIL: revoked invite not listed revoked';
+  end if;
+  if (select count(*) from public.admin_audit_list(null, 50)
+       where action in ('faculty_granted', 'faculty_revoked',
+                        'invite_minted', 'invite_revoked')) <> 4 then
+    raise exception 'FAIL: admin writes not all audited';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
