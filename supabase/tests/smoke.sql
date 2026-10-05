@@ -2469,5 +2469,69 @@ begin
 end $$;
 set role authenticated;
 
+-- Admin read RPCs: refused for students and plain faculty, allowed for an
+-- admin (f_uid is in app.admins earlier in this file).
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.admin_home();
+    raise exception 'FAIL: student read admin_home';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform * from public.admin_search('Civics');
+    raise exception 'FAIL: student searched as admin';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_uid = :p1_prof;   -- verified faculty, not an admin
+do $$
+begin
+  begin
+    perform * from public.admin_activity(now() - interval '1 day');
+    raise exception 'FAIL: non-admin faculty read the activity stream';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare h jsonb;
+begin
+  h := public.admin_home();
+  if (h -> 'totals' ->> 'classes')::int < 1 then
+    raise exception 'FAIL: admin_home totals missing classes: %', h -> 'totals';
+  end if;
+  if jsonb_typeof(h -> 'funnel') <> 'array' or jsonb_typeof(h -> 'live_now') <> 'array'
+     or jsonb_typeof(h -> 'attention') <> 'array' then
+    raise exception 'FAIL: admin_home shape wrong: %', h;
+  end if;
+  if not exists (select 1 from jsonb_array_elements(h -> 'funnel') f
+                  where f ->> 'name' = 'Civics Section A') then
+    raise exception 'FAIL: funnel missing the smoke class';
+  end if;
+  if not exists (select 1 from public.admin_activity(now() - interval '1 day')
+                  where kind = 'class_join') then
+    raise exception 'FAIL: activity stream missing class joins';
+  end if;
+  if not exists (select 1 from public.admin_activity(now() - interval '1 day')
+                  where kind = 'problem' and severity = 'fail') then
+    raise exception 'FAIL: activity stream missing problem-log rows';
+  end if;
+  if not exists (select 1 from public.admin_search('webstudent@') where kind = 'person') then
+    raise exception 'FAIL: search by email found no person';
+  end if;
+  if not exists (select 1 from public.admin_search('Maria') where kind = 'person') then
+    raise exception 'FAIL: search by roster name found no person';
+  end if;
+  if not exists (select 1 from public.admin_search('Civics Section') where kind = 'class') then
+    raise exception 'FAIL: search found no class';
+  end if;
+  if exists (select 1 from public.admin_search('x')) then
+    raise exception 'FAIL: one-character search returned results';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
