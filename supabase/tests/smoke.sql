@@ -2446,7 +2446,7 @@ begin
   end if;
   select count(*) into n from app.ops_events
    where kind = 'client_error' and user_id = s1_uid;
-  if n <> 30 then raise exception 'FAIL: per-minute cap not 30 (got %)', n; end if;
+  if n <> 10 then raise exception 'FAIL: per-minute cap not 10 (got %)', n; end if;
   select count(*) into n from app.ops_events
    where kind = 'app_seen' and user_id = s1_uid;
   if n <> 1 then raise exception 'FAIL: app_seen not deduped per day (got %)', n; end if;
@@ -2495,6 +2495,48 @@ begin
   end;
 end $$;
 
+-- Seed two people for the search ranking check below: one whose handle
+-- exactly matches the query, one that merely contains it.
+reset role;
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000b4', 'zzzrank@example.edu'),
+  ('00000000-0000-0000-0000-0000000000b5', 'zzzrank2@example.edu')
+  on conflict do nothing;
+set role authenticated;
+set app.test_uid = '00000000-0000-0000-0000-0000000000b4';
+insert into public.profiles (id, handle) values (auth.uid(), 'zzzrank')
+  on conflict do nothing;
+set app.test_uid = '00000000-0000-0000-0000-0000000000b5';
+insert into public.profiles (id, handle) values (auth.uid(), 'zzzrankish')
+  on conflict do nothing;
+
+-- A fresh guest join for the admin_activity check below: the earlier guest
+-- fixture ("Alex R") was already purged by app.purge_live_guest_data() long
+-- before this point in the file.
+\set g2_uid '''00000000-0000-0000-0000-0000000000b6'''
+reset role;
+insert into auth.users (id, email) values (:g2_uid, null) on conflict do nothing;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_sess jsonb;
+begin
+  v_sess := public.create_live_session(
+    v_cohort, 'Guest activity check',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+         and domain_id <> 1 limit 1) q),
+    20, true);
+  perform set_config('app.g2_code', v_sess ->> 'join_code', false);
+end $$;
+set app.test_uid = :g2_uid;
+do $$
+begin
+  perform public.join_live_session_guest(current_setting('app.g2_code'), 'Riley Quinn');
+end $$;
+
 set app.test_uid = :f_uid;
 do $$
 declare h jsonb;
@@ -2519,6 +2561,14 @@ begin
                   where kind = 'problem' and severity = 'fail') then
     raise exception 'FAIL: activity stream missing problem-log rows';
   end if;
+  -- The guest who just joined "Guest activity check" (display name Riley
+  -- Quinn) must show up in the activity stream unlinked: there is no
+  -- person record to link to.
+  if not exists (select 1 from public.admin_activity(now() - interval '1 day')
+                  where kind = 'live_join' and title like '%Riley Quinn%'
+                    and user_id is null) then
+    raise exception 'FAIL: guest live_join activity missing or wrongly linked';
+  end if;
   if not exists (select 1 from public.admin_search('webstudent@') where kind = 'person') then
     raise exception 'FAIL: search by email found no person';
   end if;
@@ -2530,6 +2580,12 @@ begin
   end if;
   if exists (select 1 from public.admin_search('x')) then
     raise exception 'FAIL: one-character search returned results';
+  end if;
+  -- Ranking: an exact handle match ('zzzrank') outranks a mere contains
+  -- match ('zzzrankish') within the same kind, so it comes back first.
+  if (select title from public.admin_search('zzzrank')
+       where kind = 'person' limit 1) <> 'zzzrank' then
+    raise exception 'FAIL: admin_search did not rank the exact match first';
   end if;
 end $$;
 
@@ -2562,6 +2618,13 @@ begin
   if not exists (select 1 from jsonb_array_elements(r -> 'timeline') t
                   where t ->> 'kind' = 'problem' and t ->> 'severity' = 'fail') then
     raise exception 'FAIL: person timeline missing the problem log';
+  end if;
+  -- s1 has exactly one session_start event (seeded near the top of this
+  -- file), grouped per day like practice: singular wording, not "1 sessions".
+  if not exists (select 1 from jsonb_array_elements(r -> 'timeline') t
+                  where t ->> 'kind' = 'session_start'
+                    and t ->> 'title' = 'Started a study session') then
+    raise exception 'FAIL: person timeline missing the session_start entry';
   end if;
   r := public.admin_class(v_cohort);
   if r -> 'facts' ->> 'name' <> 'Civics Section A'
@@ -2644,10 +2707,17 @@ set app.test_uid = :f_uid;
 do $$
 declare v_code text;
 begin
-  v_code := public.admin_mint_invite('For a smoke prof', 'prof@example.edu');
+  v_code := public.admin_mint_invite('For a smoke prof', '  Prof@EXAMPLE.edu ');
   if not exists (select 1 from public.admin_list_invites_v2()
                   where code = v_code and status = 'active') then
     raise exception 'FAIL: minted invite not listed active';
+  end if;
+  -- The audit detail mirrors the lowercased/trimmed form the invite itself
+  -- was stored under, not whatever casing the caller typed.
+  if not exists (select 1 from public.admin_audit_list('invite_minted', 50)
+                  where details ->> 'code' = v_code
+                    and details ->> 'recipient' = 'prof@example.edu') then
+    raise exception 'FAIL: invite_minted audit recipient not lowercased/trimmed';
   end if;
   perform public.admin_revoke_invite(v_code);
   if not exists (select 1 from public.admin_list_invites_v2()
@@ -2659,6 +2729,13 @@ begin
                         'invite_minted', 'invite_revoked')) <> 4 then
     raise exception 'FAIL: admin writes not all audited';
   end if;
+  -- Revoking an already-revoked invite is a quiet no-op: no second
+  -- invite_revoked audit row for the same action.
+  perform public.admin_revoke_invite(v_code);
+  if (select count(*) from public.admin_audit_list('invite_revoked', 50)
+       where details ->> 'code' = v_code) <> 1 then
+    raise exception 'FAIL: re-revoking an invite audited a second time';
+  end if;
 end $$;
 
 -- ── Admin console 2a fix round 1 ────────────────────────────────────────────
@@ -2666,13 +2743,15 @@ end $$;
 -- email (so the per-kind/email scoped cap never kicks in on its own), must
 -- still be capped at 120 new unattributed rows per minute. Baseline is read
 -- before the loop (app schema is owner-only), the loop runs as anon, and
--- the final count is read after `reset role`.
+-- the final count is read after `reset role`. The bucket is now the `anon`
+-- column, not `user_id is null`, so it also catches anonymous-auth sessions
+-- (checked right below).
 reset role;
 do $$
 begin
   perform set_config('app.fr1_baseline',
     (select count(*)::text from app.ops_events
-      where user_id is null and created_at > now() - interval '1 minute'), false);
+      where anon and created_at > now() - interval '1 minute'), false);
 end $$;
 set role anon;
 set app.test_uid = '';
@@ -2693,7 +2772,7 @@ declare
   n int;
 begin
   select count(*) into n from app.ops_events
-   where user_id is null and created_at > now() - interval '1 minute';
+   where anon and created_at > now() - interval '1 minute';
   if n > v_baseline + 120 then
     raise exception
       'FAIL: anonymous throttle not capped at 120/minute (got % over baseline %)',
@@ -2702,6 +2781,28 @@ begin
   if exists (select 1 from app.ops_events
               where kind = 'signin_send_failed' and user_id is null and email is null) then
     raise exception 'FAIL: anon call with no email stored a row';
+  end if;
+end $$;
+set role authenticated;
+
+-- Anonymous-auth callers (a real auth.uid(), but an is_anonymous JWT claim)
+-- share that same global anon bucket. The spray above already pinned it at
+-- the 120 cap for this minute, so a client_error from an anonymous-auth
+-- session right now must be dropped too, not given its own 120-row budget.
+set app.test_uid = :p1_anon;
+set app.test_jwt = '{"is_anonymous": true}';
+do $$
+begin
+  perform public.log_ops_event('client_error', 'web', 'anon-auth-flood-check');
+end $$;
+set app.test_jwt = '';
+reset role;
+do $$
+begin
+  if exists (select 1 from app.ops_events
+              where user_id = '00000000-0000-0000-0000-0000000000a4'::uuid
+                and code = 'anon-auth-flood-check') then
+    raise exception 'FAIL: anonymous-auth write bypassed the shared global anon bucket';
   end if;
 end $$;
 set role authenticated;
@@ -2746,6 +2847,16 @@ begin
       raise exception 'FAIL: anon can execute %', sig;
     end if;
   end loop;
+end $$;
+
+-- The legacy, unaudited admin_set_faculty(uuid, boolean) has had its only
+-- caller removed; authenticated must no longer be able to call it.
+do $$
+begin
+  if has_function_privilege('authenticated', 'public.admin_set_faculty(uuid, boolean)',
+                             'execute') then
+    raise exception 'FAIL: authenticated can still execute the legacy admin_set_faculty';
+  end if;
 end $$;
 
 reset role;

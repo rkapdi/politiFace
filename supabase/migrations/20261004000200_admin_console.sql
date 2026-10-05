@@ -44,12 +44,16 @@ create table app.ops_events (
   detail      jsonb not null default '{}'::jsonb,
   client      text not null check (client in ('web', 'ios')),
   app_version text check (app_version is null or length(app_version) <= 40),
+  -- True for both unauthenticated callers and anonymous-auth sessions
+  -- (Supabase anonymous sign-in): both share the global flood bucket below.
+  anon        boolean not null default false,
   created_at  timestamptz not null default now()
 );
 create index ops_events_created_idx on app.ops_events (created_at desc);
 create index ops_events_user_idx on app.ops_events (user_id, created_at desc);
 create index ops_events_email_idx on app.ops_events (email, created_at desc)
   where email is not null;
+create index ops_events_anon_created_idx on app.ops_events (created_at) where anon;
 alter table app.ops_events enable row level security;
 
 create function public.log_ops_event(
@@ -63,8 +67,14 @@ create function public.log_ops_event(
 language plpgsql security definer set search_path = public, app, pg_temp as $$
 declare
   v_user uuid := auth.uid();
+  -- Anonymous-auth sessions (Supabase anonymous sign-in) are treated the
+  -- same as a fully signed-out caller for flood-control purposes: both
+  -- share one identity-less bucket, not 1-per-session buckets.
+  v_anon boolean := v_user is null
+    or coalesce((auth.jwt() ->> 'is_anonymous')::boolean, false);
   v_email text;
   v_recent int;
+  v_total int;
 begin
   if p_kind is null or p_client is null
      or p_kind not in ('signin_send_failed', 'signin_verify_failed',
@@ -81,12 +91,18 @@ begin
   -- Unattributable rows are dropped, never stored.
   if v_user is null and v_email is null then return; end if;
 
-  -- Global anonymous flood guard: caps unauthenticated writes regardless of
-  -- kind or email, so a spray of distinct emails cannot bypass the per-kind
-  -- cap below.
-  if v_user is null then
+  -- Total ceiling across all writers, authenticated or not: a hard floor
+  -- under the whole table regardless of who is calling.
+  select count(*) into v_total from app.ops_events
+   where created_at > now() - interval '1 minute';
+  if v_total >= 600 then return; end if;
+
+  -- Global anonymous flood guard: caps unauthenticated AND anonymous-auth
+  -- writes together, so neither a spray of distinct emails nor a spray of
+  -- anonymous-auth sessions can bypass the per-kind cap below.
+  if v_anon then
     if (select count(*) from app.ops_events
-         where user_id is null and created_at > now() - interval '1 minute') >= 120 then
+         where anon and created_at > now() - interval '1 minute') >= 120 then
       return;
     end if;
   end if;
@@ -95,7 +111,7 @@ begin
    where kind = p_kind and created_at > now() - interval '1 minute'
      and ((v_user is not null and user_id = v_user)
           or (v_user is null and email = v_email));
-  if v_recent >= 30 then return; end if;
+  if v_recent >= 10 then return; end if;
 
   if p_kind = 'app_seen' then
     if v_user is null then return; end if;
@@ -108,9 +124,9 @@ begin
     end if;
   end if;
 
-  insert into app.ops_events (user_id, email, kind, code, detail, client, app_version)
+  insert into app.ops_events (user_id, email, kind, code, detail, client, app_version, anon)
   values (v_user, v_email, p_kind, left(p_code, 80), coalesce(p_detail, '{}'::jsonb),
-          p_client, left(p_app_version, 40));
+          p_client, left(p_app_version, 40), v_anon);
 end;
 $$;
 revoke all on function public.log_ops_event(text, text, text, jsonb, text, text) from public;
@@ -261,7 +277,7 @@ begin
       select lp.joined_at, 'live_join', 'ok',
              coalesce(lp.display_name, m.roster_name, p.handle, 'Guest')
                || ' joined live: ' || s.title,
-             lp.user_id, s.cohort_id, s.id
+             case when lp.is_guest then null else lp.user_id end, s.cohort_id, s.id
         from public.live_participants lp
         join public.live_sessions s on s.id = lp.session_id
         left join public.profiles p on p.id = lp.user_id
@@ -314,37 +330,74 @@ returns table (kind text, id uuid, title text, subtitle text)
 language plpgsql stable security definer set search_path = public, app, pg_temp as $$
 declare
   v_q text := trim(coalesce(p_q, ''));
+  v_esc text;
   v_like text;
+  v_prefix text;
 begin
   if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
   if length(v_q) < 2 then return; end if;
-  v_like := '%' || replace(replace(replace(v_q, '\', '\\'), '%', '\%'), '_', '\_') || '%';
+  v_esc := replace(replace(replace(v_q, '\', '\\'), '%', '\%'), '_', '\_');
+  v_like := '%' || v_esc || '%';
+  v_prefix := v_esc || '%';
+  -- Every column is selected with an explicit alias and every downstream
+  -- reference is qualified by table: the function's own OUT parameters
+  -- (kind, id, title, subtitle) are also valid plpgsql identifiers in this
+  -- scope, and an unqualified "title" etc. is ambiguous against them.
   return query
-    select * from (
-      select 'person'::text, p.id,
-             coalesce(r.names, p.handle),
-             coalesce(u.email, '') || ' · ' || p.handle
-        from public.profiles p
-        join auth.users u on u.id = p.id
-        left join lateral (
-          select string_agg(distinct m.roster_name, ', ') names
-            from public.cohort_members m
-           where m.user_id = p.id and m.roster_name is not null) r on true
-       where not p.is_guest
-         and (u.email ilike v_like or p.handle ilike v_like or r.names ilike v_like)
-      union all
-      select 'class', c.id, c.name,
-             coalesce(c.term, '') || ' · code ' || c.join_code
-        from public.cohorts c
-       where c.name ilike v_like or c.join_code = upper(v_q)
-      union all
-      select 'session', s.id, s.title,
-             c.name || ' · ' || s.status || ' · code ' || s.join_code
-        from public.live_sessions s join public.cohorts c on c.id = s.cohort_id
-       where s.title ilike v_like or s.join_code = upper(v_q)
-    ) t(kind, id, title, subtitle)
-    order by t.kind, t.title
-    limit 25;
+    with ranked as (
+      select x.kind, x.id, x.title, x.subtitle, x.rank from (
+        select 'person'::text as kind, p.id as id,
+               coalesce(r.names, p.handle) as title,
+               coalesce(u.email, '') || ' · ' || p.handle as subtitle,
+               case
+                 when lower(u.email) = lower(v_q) or lower(p.handle) = lower(v_q)
+                      or lower(r.names) = lower(v_q) then 0
+                 when u.email ilike v_prefix or p.handle ilike v_prefix
+                      or r.names ilike v_prefix then 1
+                 else 2
+               end as rank
+          from public.profiles p
+          join auth.users u on u.id = p.id
+          left join lateral (
+            select string_agg(distinct m.roster_name, ', ') names
+              from public.cohort_members m
+             where m.user_id = p.id and m.roster_name is not null) r on true
+         where not p.is_guest
+           and (u.email ilike v_like or p.handle ilike v_like or r.names ilike v_like)
+        union all
+        select 'class' as kind, c.id as id, c.name as title,
+               coalesce(c.term, '') || ' · code ' || c.join_code as subtitle,
+               case
+                 when lower(c.name) = lower(v_q) or c.join_code = upper(v_q) then 0
+                 when c.name ilike v_prefix then 1
+                 else 2
+               end as rank
+          from public.cohorts c
+         where c.name ilike v_like or c.join_code = upper(v_q)
+        union all
+        select 'session' as kind, s.id as id, s.title as title,
+               c.name || ' · ' || s.status || ' · code ' || s.join_code as subtitle,
+               case
+                 when lower(s.title) = lower(v_q) or s.join_code = upper(v_q) then 0
+                 when s.title ilike v_prefix then 1
+                 else 2
+               end as rank
+          from public.live_sessions s join public.cohorts c on c.id = s.cohort_id
+         where s.title ilike v_like or s.join_code = upper(v_q)
+      ) x(kind, id, title, subtitle, rank)
+    ),
+    capped as (
+      select ranked.kind as kind, ranked.id as id, ranked.title as title,
+             ranked.subtitle as subtitle, ranked.rank as rank,
+             row_number() over (
+               partition by ranked.kind order by ranked.rank, ranked.title) as rn
+        from ranked
+    )
+    select capped.kind, capped.id, capped.title, capped.subtitle
+      from capped
+     where capped.rn <= 10
+     order by capped.rank, capped.kind, capped.title
+     limit 25;
 end;
 $$;
 revoke all on function public.admin_search(text) from public, anon;
@@ -445,6 +498,15 @@ begin
           select jsonb_build_object('at', e.server_ts, 'kind', 'mock',
                    'title', 'Started a mock exam', 'detail', null, 'severity', 'info')
             from public.events e where e.user_id = p_user and e.type = 'mock_start'
+          union all
+          select jsonb_build_object('at', max(e.server_ts), 'kind', 'session_start',
+                   'title', case when count(*) = 1 then 'Started a study session'
+                                 else 'Studied ' || count(*) || ' sessions' end,
+                   'detail', to_char(date_trunc('day', e.server_ts), 'YYYY-MM-DD'),
+                   'severity', 'info')
+            from public.events e
+           where e.user_id = p_user and e.type = 'session_start'
+           group by date_trunc('day', e.server_ts)
           union all
           select jsonb_build_object('at', v.created_at, 'kind', 'faculty',
                    'title', 'Verified as an instructor', 'detail', v.note,
@@ -749,7 +811,8 @@ begin
   if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
   v_code := public.mint_faculty_invite(p_note, p_recipient_email);
   perform app.audit('invite_minted', null, null, null,
-    jsonb_build_object('code', v_code, 'recipient', p_recipient_email));
+    jsonb_build_object('code', v_code,
+      'recipient', nullif(lower(trim(coalesce(p_recipient_email, ''))), '')));
   return v_code;
 end;
 $$;
@@ -758,8 +821,18 @@ grant execute on function public.admin_mint_invite(text, text) to authenticated;
 
 create function public.admin_revoke_invite(p_code text) returns void
 language plpgsql security definer set search_path = public, app, pg_temp as $$
+declare v_already_revoked boolean;
 begin
   if not app.is_admin(auth.uid()) then raise exception 'admin only'; end if;
+  -- An already-revoked invite is a no-op: revoke_faculty_invite's own
+  -- coalesce() would happily succeed again, which used to audit the same
+  -- revocation twice. Check first and return quietly when there is nothing
+  -- new to do; an unknown code still falls through to the RPC's own error.
+  select revoked_at is not null into v_already_revoked
+    from public.faculty_invites where code = upper(trim(p_code));
+  if v_already_revoked then
+    return;
+  end if;
   perform public.revoke_faculty_invite(p_code);
   perform app.audit('invite_revoked', null, null, null,
     jsonb_build_object('code', upper(trim(p_code))));
@@ -791,3 +864,10 @@ end;
 $$;
 revoke all on function public.admin_audit_list(text, int) from public, anon;
 grant execute on function public.admin_audit_list(text, int) to authenticated;
+
+-- ── decommission the legacy unaudited admin write ─────────────────────────
+-- public.admin_set_faculty(uuid, boolean) predates admin_set_faculty_audited
+-- and was granted no explicit privileges (functions default to PUBLIC
+-- execute), so every authenticated user has been able to call it this whole
+-- time. Its only caller, the legacy admin tab, is gone; revoke it.
+revoke execute on function public.admin_set_faculty(uuid, boolean) from authenticated;
