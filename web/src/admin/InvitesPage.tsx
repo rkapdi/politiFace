@@ -1,5 +1,81 @@
+import { useState, type FormEvent } from 'react'
+import { inviteLink } from '../lib/api'
+import { useAdminInvites, useMintInvite, useRevokeInvite } from './adminApi'
 import { A } from './strings'
 
+const tone: Record<string, string> = {
+  active: 'sev-ok',
+  used: 'text-[var(--a-muted)]',
+  expired: 'sev-warn',
+  revoked: 'sev-fail',
+}
+
 export function InvitesPage() {
-  return <h1 className="admin-strong">{A.titles.invites}</h1>
+  const invites = useAdminInvites()
+  const mint = useMintInvite()
+  const revoke = useRevokeInvite()
+  const [email, setEmail] = useState('')
+  const [note, setNote] = useState('')
+  const [link, setLink] = useState<string | null>(null)
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault()
+    mint.mutate(
+      { recipientEmail: email.trim(), note: note.trim() },
+      { onSuccess: code => setLink(inviteLink(code)) },
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <h1 className="admin-strong">{A.titles.invites}</h1>
+      <form onSubmit={submit} className="admin-panel flex flex-wrap items-end gap-2 p-2">
+        <label className="flex flex-col">
+          <span className="admin-label">Their email (optional)</span>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)}
+            className="border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
+        </label>
+        <label className="flex flex-col">
+          <span className="admin-label">Note (optional)</span>
+          <input value={note} onChange={e => setNote(e.target.value)} maxLength={120}
+            className="border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
+        </label>
+        <button type="submit" disabled={mint.isPending} className="border border-[var(--a-info)] px-3 py-1 text-[var(--a-info)]">
+          Create invite link
+        </button>
+        {link ? (
+          <input readOnly aria-label="Invite link" value={link} onFocus={e => e.currentTarget.select()}
+            className="min-w-[320px] flex-1 border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1 text-[var(--a-strong)]" />
+        ) : null}
+        {mint.error ? <p className="sev-fail">{mint.error.message}</p> : null}
+      </form>
+      <table className="admin-panel w-full">
+        <thead>
+          <tr className="admin-label text-left">
+            <th scope="col" className="p-1">Code</th><th scope="col">Status</th><th scope="col">For</th>
+            <th scope="col">By</th><th scope="col">Expires</th><th scope="col"><span className="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          {(invites.data ?? []).map(i => (
+            <tr key={i.code} className="border-t border-[var(--a-line)]">
+              <td className="admin-strong p-1">{i.code}</td>
+              <td className={tone[i.status]}>{i.status}</td>
+              <td>{i.recipient_email ?? i.note ?? ''}</td>
+              <td>{i.minted_by_handle ?? ''}</td>
+              <td>{i.expires_at.slice(0, 10)}</td>
+              <td>
+                {i.status === 'active' ? (
+                  <button type="button" onClick={() => revoke.mutate(i.code)}
+                    className="border border-[var(--a-line)] px-2 text-[var(--a-fail)]">
+                    Revoke
+                  </button>
+                ) : null}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
 }
