@@ -4,6 +4,7 @@ import {
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
 } from '@tanstack/react-router'
 import { Layout } from './Layout'
@@ -18,6 +19,7 @@ import { LiveRunnerPage } from './LiveRunnerPage'
 import { JoinPage } from './JoinPage'
 import { AccountPage } from './AccountPage'
 import { WelcomePage } from './WelcomePage'
+import { RequireAuth } from '../auth/RequireAuth'
 
 const rootRoute = createRootRoute({ component: Outlet })
 
@@ -78,6 +80,55 @@ const styleguideRoute = createRoute({
   component: StyleguidePage,
 })
 
+// The admin console: a separate dark shell for the two founders, lazy
+// loaded so its code never ships to students or faculty.
+const AdminShell = lazyRouteComponent(() => import('../admin/AdminLayout'), 'AdminLayout')
+
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  component: () => (
+    <RequireAuth>
+      <AdminShell />
+    </RequireAuth>
+  ),
+})
+const adminHomeRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/',
+  component: lazyRouteComponent(() => import('../admin/AdminHome'), 'AdminHome'),
+})
+const adminSearchRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/search',
+  component: lazyRouteComponent(() => import('../admin/SearchPage'), 'SearchPage'),
+})
+const adminPersonRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/people/$userId',
+  component: lazyRouteComponent(() => import('../admin/PersonPage'), 'PersonPage'),
+})
+const adminClassRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/classes/$cohortId',
+  component: lazyRouteComponent(() => import('../admin/ClassRecordPage'), 'ClassRecordPage'),
+})
+const adminSessionRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/sessions/$sessionId',
+  component: lazyRouteComponent(() => import('../admin/SessionRecordPage'), 'SessionRecordPage'),
+})
+const adminInvitesRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/invites',
+  component: lazyRouteComponent(() => import('../admin/InvitesPage'), 'InvitesPage'),
+})
+const adminAuditRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/audit',
+  component: lazyRouteComponent(() => import('../admin/AuditPage'), 'AuditPage'),
+})
+
 const routeTree = rootRoute.addChildren([
   joinRoute,
   welcomeRoute,
@@ -88,6 +139,15 @@ const routeTree = rootRoute.addChildren([
     liveRoute,
     accountRoute,
     styleguideRoute,
+  ]),
+  adminRoute.addChildren([
+    adminHomeRoute,
+    adminSearchRoute,
+    adminPersonRoute,
+    adminClassRoute,
+    adminSessionRoute,
+    adminInvitesRoute,
+    adminAuditRoute,
   ]),
 ])
 
