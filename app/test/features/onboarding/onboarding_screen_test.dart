@@ -83,6 +83,7 @@ void main() {
     expect(find.textContaining('Sign in'), findsNothing);
     expect(find.text('START THE DIAGNOSTIC'), findsOneWidget);
     expect(find.textContaining('5 quick questions'), findsOneWidget);
+    expect(find.textContaining('NO ACCOUNT NEEDED'), findsNothing);
   });
 
   testWidgets('the diagnostic cannot be skipped, before or during',
@@ -170,6 +171,9 @@ void main() {
     await tester.pumpWidget(host(needsAccount: true));
     await finishDiagnostic(tester);
     expect(find.text('5 of 5'), findsOneWidget);
+    // 5 answers are below the projection threshold: progress, not a range.
+    expect(find.textContaining('3 more questions'), findsOneWidget);
+    expect(find.textContaining('Projected on the real exam'), findsNothing);
     expect(find.text('START STUDYING'), findsNothing);
     expect(find.text('I HAVE A CLASS CODE'), findsNothing);
 

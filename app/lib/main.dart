@@ -177,8 +177,12 @@ Future<void> _bootstrap(AppDatabase db) async {
     client.auth.onAuthStateChange.listen((state) {
       switch (state.event) {
         case AuthChangeEvent.signedIn:
-        case AuthChangeEvent.initialSession:
           unawaited(pushService.onSignedIn());
+        case AuthChangeEvent.initialSession:
+          // Fires at every cold start, signed in or not. Only a real
+          // session may ask for notification permission; otherwise a
+          // brand-new student gets the iOS prompt over onboarding.
+          if (state.session != null) unawaited(pushService.onSignedIn());
         case AuthChangeEvent.signedOut:
           unawaited(pushService.onSignedOut());
           // A sign-out the user did not perform (server-side session

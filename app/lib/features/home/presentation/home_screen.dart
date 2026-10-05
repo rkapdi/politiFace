@@ -21,6 +21,7 @@ import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../fcle/domain/fcle_question.dart';
+import '../../fcle/domain/readiness_projection.dart';
 import '../../profile/data/profile_service.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 import '../application/home_providers.dart';
@@ -195,6 +196,7 @@ class ReadinessHero extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final summary = ref.watch(readinessSummaryProvider).valueOrNull;
+    final recent = ref.watch(recentFcleAnswerCountProvider).valueOrNull ?? 0;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -220,7 +222,19 @@ class ReadinessHero extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 10),
-          if (summary == null) ...[
+          if (summary == null && recent > 0) ...[
+            Text(
+              '$recent of $kMinAnswersForProjection answers',
+              style: theme.textTheme.headlineSmall,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Answer ${kMinAnswersForProjection - recent} more exam '
+              'questions to unlock your projected score. The FCLE tile is '
+              'the fastest way in.',
+              style: theme.textTheme.bodySmall,
+            ),
+          ] else if (summary == null) ...[
             Text(
               'No signal yet',
               style: theme.textTheme.headlineSmall,

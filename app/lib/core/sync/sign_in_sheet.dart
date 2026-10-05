@@ -169,6 +169,19 @@ class _SignInSheetState extends State<SignInSheet> {
                     )
                   : Text(_codeSent ? 'VERIFY' : 'SEND CODE'),
             ),
+            // A mistyped email must never strand the student on the code
+            // step (onboarding's account step has no other way back).
+            if (_codeSent)
+              TextButton(
+                onPressed: _busy
+                    ? null
+                    : () => setState(() {
+                          _codeSent = false;
+                          _code.clear();
+                          _error = null;
+                        }),
+                child: const Text('USE A DIFFERENT EMAIL'),
+              ),
             const SizedBox(height: 8),
           ],
         ),
