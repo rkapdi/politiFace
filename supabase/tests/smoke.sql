@@ -2661,5 +2661,92 @@ begin
   end if;
 end $$;
 
+-- ── Admin console 2a fix round 1 ────────────────────────────────────────────
+-- Global anonymous throttle: 150 signin attempts, each with a distinct
+-- email (so the per-kind/email scoped cap never kicks in on its own), must
+-- still be capped at 120 new unattributed rows per minute. Baseline is read
+-- before the loop (app schema is owner-only), the loop runs as anon, and
+-- the final count is read after `reset role`.
+reset role;
+do $$
+begin
+  perform set_config('app.fr1_baseline',
+    (select count(*)::text from app.ops_events
+      where user_id is null and created_at > now() - interval '1 minute'), false);
+end $$;
+set role anon;
+set app.test_uid = '';
+do $$
+declare i int;
+begin
+  for i in 1..150 loop
+    perform public.log_ops_event('signin_send_failed', 'web', null, null, null,
+      'spam' || i || '@example.com');
+  end loop;
+  -- An anon call with no email at all is unattributable and stores nothing.
+  perform public.log_ops_event('signin_send_failed', 'web');
+end $$;
+reset role;
+do $$
+declare
+  v_baseline int := current_setting('app.fr1_baseline')::int;
+  n int;
+begin
+  select count(*) into n from app.ops_events
+   where user_id is null and created_at > now() - interval '1 minute';
+  if n > v_baseline + 120 then
+    raise exception
+      'FAIL: anonymous throttle not capped at 120/minute (got % over baseline %)',
+      n - v_baseline, v_baseline;
+  end if;
+  if exists (select 1 from app.ops_events
+              where kind = 'signin_send_failed' and user_id is null and email is null) then
+    raise exception 'FAIL: anon call with no email stored a row';
+  end if;
+end $$;
+set role authenticated;
+
+-- admin_person on an unknown person raises a clear error.
+set app.test_uid = :f_uid;
+do $$
+begin
+  begin
+    perform public.admin_person('00000000-0000-0000-0000-0000000000fa'::uuid);
+    raise exception 'FAIL: admin_person on an unknown uuid did not raise';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%no such person%' then
+      raise exception 'FAIL: admin_person raised the wrong error for an unknown uuid: %', sqlerrm;
+    end if;
+  end;
+end $$;
+
+-- Every admin_* RPC this migration adds (plus admin_console_open) must be
+-- unreachable by anon.
+do $$
+declare
+  sig text;
+  sigs text[] := array[
+    'public.admin_home()',
+    'public.admin_activity(timestamptz)',
+    'public.admin_search(text)',
+    'public.admin_person(uuid)',
+    'public.admin_class(uuid)',
+    'public.admin_session(uuid)',
+    'public.admin_console_open()',
+    'public.admin_set_faculty_audited(uuid, boolean)',
+    'public.admin_list_invites_v2()',
+    'public.admin_mint_invite(text, text)',
+    'public.admin_revoke_invite(text)',
+    'public.admin_audit_list(text, int)'
+  ];
+begin
+  foreach sig in array sigs loop
+    if has_function_privilege('anon', sig, 'execute') then
+      raise exception 'FAIL: anon can execute %', sig;
+    end if;
+  end loop;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

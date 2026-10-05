@@ -66,8 +66,9 @@ declare
   v_email text;
   v_recent int;
 begin
-  if p_kind not in ('signin_send_failed', 'signin_verify_failed',
-                    'join_refused', 'client_error', 'app_seen')
+  if p_kind is null or p_client is null
+     or p_kind not in ('signin_send_failed', 'signin_verify_failed',
+                       'join_refused', 'client_error', 'app_seen')
      or p_client not in ('web', 'ios') then
     raise exception 'invalid ops event';
   end if;
@@ -80,6 +81,16 @@ begin
   -- Unattributable rows are dropped, never stored.
   if v_user is null and v_email is null then return; end if;
 
+  -- Global anonymous flood guard: caps unauthenticated writes regardless of
+  -- kind or email, so a spray of distinct emails cannot bypass the per-kind
+  -- cap below.
+  if v_user is null then
+    if (select count(*) from app.ops_events
+         where user_id is null and created_at > now() - interval '1 minute') >= 120 then
+      return;
+    end if;
+  end if;
+
   select count(*) into v_recent from app.ops_events
    where kind = p_kind and created_at > now() - interval '1 minute'
      and ((v_user is not null and user_id = v_user)
@@ -91,6 +102,7 @@ begin
     if exists (select 1 from app.ops_events
                 where kind = 'app_seen' and user_id = v_user
                   and client = p_client
+                  and app_version is not distinct from left(p_app_version, 40)
                   and created_at >= date_trunc('day', now())) then
       return;
     end if;
@@ -190,6 +202,9 @@ begin
                        (select count(*) from public.cohort_members m
                          where m.cohort_id = c.id and m.role = 'student') st,
                        (select count(distinct e.user_id) from public.events e
+                         join public.cohort_members m
+                           on m.cohort_id = c.id and m.user_id = e.user_id
+                          and m.role = 'student'
                          where e.cohort_id = c.id
                            and e.server_ts > now() - interval '7 days') act
                   from public.cohorts c) cs
@@ -230,7 +245,7 @@ begin
   return query
     select * from (
       select p.created_at, 'signup'::text, 'info'::text,
-             p.handle || ' created an account', p.id, null::uuid, null::uuid
+             coalesce(p.handle, 'Someone') || ' created an account', p.id, null::uuid, null::uuid
         from public.profiles p
        where not p.is_guest and p.created_at > p_since
       union all
@@ -266,14 +281,14 @@ begin
        where s.ended_at is not null and s.ended_at > p_since
       union all
       select a.created_at, 'announcement', 'info',
-             p.handle || ' messaged ' || c.name, a.author, a.cohort_id, null::uuid
+             coalesce(p.handle, 'Someone') || ' messaged ' || c.name, a.author, a.cohort_id, null::uuid
         from public.class_announcements a
         join public.cohorts c on c.id = a.cohort_id
         left join public.profiles p on p.id = a.author
        where a.created_at > p_since
       union all
       select r.created_at, 'request', 'warn',
-             p.handle || ' requested instructor access', r.user_id, null::uuid, null::uuid
+             coalesce(p.handle, 'Someone') || ' requested instructor access', r.user_id, null::uuid, null::uuid
         from public.faculty_access_requests r
         left join public.profiles p on p.id = r.user_id
        where r.created_at > p_since
@@ -687,10 +702,16 @@ begin
     insert into app.verified_faculty (user_id, granted_by, note)
     values (p_user, auth.uid(), 'granted in the admin console')
     on conflict (user_id) do nothing;
-    perform app.audit('faculty_granted', p_user);
+    -- Only audit a real change: ON CONFLICT DO NOTHING leaves FOUND false.
+    if found then
+      perform app.audit('faculty_granted', p_user);
+    end if;
   else
     delete from app.verified_faculty where user_id = p_user;
-    perform app.audit('faculty_revoked', p_user);
+    -- Only audit a real change: nothing to delete leaves FOUND false.
+    if found then
+      perform app.audit('faculty_revoked', p_user);
+    end if;
   end if;
 end;
 $$;
