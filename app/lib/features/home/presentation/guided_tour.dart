@@ -8,6 +8,7 @@
 // skipping writes the flag.
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -91,9 +92,18 @@ class _TourOverlay extends StatefulWidget {
   State<_TourOverlay> createState() => _TourOverlayState();
 }
 
-class _TourOverlayState extends State<_TourOverlay> {
+class _TourOverlayState extends State<_TourOverlay>
+    with SingleTickerProviderStateMixin {
   int _step = 0;
   Rect? _target;
+
+  // The spotlight follows its target every frame once a step has settled:
+  // Home is still sliding in from onboarding when step one measures, tab
+  // steps measure mid-transition, and late content (readiness numbers,
+  // the class row) shifts the page after the first measurement. A single
+  // measurement left the frame off-target or off-screen.
+  late final Ticker _ticker = createTicker((_) => _track());
+  bool _tracking = false;
 
   // Instance getter, deliberately not static: statics survive hot
   // reload, which made copy edits invisible mid-session.
@@ -153,7 +163,30 @@ class _TourOverlayState extends State<_TourOverlay> {
   @override
   void initState() {
     super.initState();
+    _ticker.start();
     WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
+  }
+
+  @override
+  void dispose() {
+    _ticker.dispose();
+    super.dispose();
+  }
+
+  /// Re-reads the current step's anchor; repaints only when it moved.
+  void _track() {
+    if (!_tracking || !mounted) return;
+    final box =
+        _steps[_step].targetKey?.currentContext?.findRenderObject()
+            as RenderBox?;
+    if (box == null || !box.attached || !box.hasSize) return;
+    final next = (box.localToGlobal(Offset.zero) & box.size).inflate(6);
+    final now = _target;
+    if (now == null ||
+        (next.topLeft - now.topLeft).distance > 0.5 ||
+        (next.size - now.size as Offset).distance > 0.5) {
+      setState(() => _target = next);
+    }
   }
 
   Future<void> _measure() async {
@@ -192,6 +225,7 @@ class _TourOverlayState extends State<_TourOverlay> {
     setState(
       () => _target = (origin & box.size).inflate(6),
     );
+    _tracking = true;
   }
 
   void _advance() {
@@ -200,6 +234,7 @@ class _TourOverlayState extends State<_TourOverlay> {
       Navigator.of(context).pop();
       return;
     }
+    _tracking = false;
     setState(() {
       _step++;
       _target = null;
@@ -212,10 +247,16 @@ class _TourOverlayState extends State<_TourOverlay> {
     final theme = Theme.of(context);
     final step = _steps[_step];
     final screen = MediaQuery.of(context).size;
-    // Card sits under the spotlight when the target is in the top half,
-    // above it otherwise; centered when there is no target.
-    final targetInTopHalf =
-        _target == null || _target!.center.dy < screen.height / 2;
+    // The card never covers its own spotlight when there is room: below
+    // the target if the card fits there, else above it. A target taller
+    // than the room around it (Memory's empty state fills the page) gets
+    // the card pinned to the bottom of the screen, over the target, so the
+    // explanation is always fully readable.
+    const cardRoom = 280.0;
+    final target = _target;
+    final fitsBelow =
+        target != null && screen.height - target.bottom - 14 >= cardRoom;
+    final fitsAbove = target != null && target.top - 14 >= cardRoom;
 
     // Transparent Material host: the coach card's InkWells need a
     // Material ancestor, and showGeneralDialog provides none.
@@ -226,6 +267,7 @@ class _TourOverlayState extends State<_TourOverlay> {
         // Hard-edged scrim with a cutout over the explained widget.
         Positioned.fill(
           child: CustomPaint(
+            key: const Key('tour-spotlight'),
             painter: _SpotlightPainter(
               target: _target,
               // Lighter when there is no cutout: those steps show a
@@ -235,26 +277,15 @@ class _TourOverlayState extends State<_TourOverlay> {
             ),
           ),
         ),
-        // The card never covers its own spotlight: strictly below a
-        // top-half target, strictly above a bottom-half one, centered
-        // when there is no target.
         Positioned(
           left: 20,
           right: 20,
-          top: _target == null
+          top: target != null && fitsBelow ? target.bottom + 14 : null,
+          bottom: target == null || fitsBelow
               ? null
-              : targetInTopHalf
-                  ? (_target!.bottom + 14)
-                      .clamp(0, screen.height - 260)
-                      .toDouble()
-                  : null,
-          bottom: _target == null
-              ? null
-              : targetInTopHalf
-                  ? null
-                  : (screen.height - _target!.top + 14)
-                      .clamp(0, screen.height - 120)
-                      .toDouble(),
+              : fitsAbove
+                  ? screen.height - target.top + 14
+                  : 16,
           child: _target == null
               ? const SizedBox.shrink()
               : SafeArea(
