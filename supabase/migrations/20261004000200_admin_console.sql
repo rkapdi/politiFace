@@ -866,8 +866,8 @@ revoke all on function public.admin_audit_list(text, int) from public, anon;
 grant execute on function public.admin_audit_list(text, int) to authenticated;
 
 -- ── decommission the legacy unaudited admin write ─────────────────────────
--- public.admin_set_faculty(uuid, boolean) predates admin_set_faculty_audited
--- and was granted no explicit privileges (functions default to PUBLIC
--- execute), so every authenticated user has been able to call it this whole
--- time. Its only caller, the legacy admin tab, is gone; revoke it.
-revoke execute on function public.admin_set_faculty(uuid, boolean) from authenticated;
+-- public.admin_set_faculty(uuid, boolean) predates admin_set_faculty_audited.
+-- It is admin-gated but writes no audit row. Its only caller, the legacy
+-- admin tab, is gone, so no client role may call it any more.
+revoke all on function public.admin_set_faculty(uuid, boolean)
+  from public, anon, authenticated;
