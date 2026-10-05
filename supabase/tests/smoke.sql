@@ -2384,5 +2384,90 @@ begin
   end;
 end $$;
 
+-- ── Admin console 2a (20261004000200) ──────────────────────────────────────
+-- Problem log: validation, email only on sign-in kinds, user_id from the
+-- session, per-minute cap, app_seen deduped per day.
+-- (The app schema is owner-only; RPC calls below run as authenticated/anon,
+-- but assertions that read app.ops_events run after `reset role`, as the
+-- table owner, with literal uuids since psql variables do not interpolate
+-- inside do $$ bodies.)
+set app.test_uid = :s1_uid;
+do $$
+declare n int;
+begin
+  perform public.log_ops_event('join_refused', 'web', 'invalid or ended session code',
+    '{"route": "#/join"}', 'web-2026-10-04', 'leak@example.edu');
+  begin
+    perform public.log_ops_event('made_up_kind', 'web');
+    raise exception 'FAIL: unknown kind accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.log_ops_event('client_error', 'android');
+    raise exception 'FAIL: unknown client accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.log_ops_event('client_error', 'web', null,
+      jsonb_build_object('m', repeat('x', 3000)));
+    raise exception 'FAIL: oversized detail accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  for n in 1..40 loop
+    perform public.log_ops_event('client_error', 'web', 'boom');
+  end loop;
+  perform public.log_ops_event('app_seen', 'ios', null, null, '1.3.2 (33)');
+  perform public.log_ops_event('app_seen', 'ios', null, null, '1.3.2 (33)');
+end $$;
+
+-- A signed-out failed sign-in keeps the typed email, lowercased.
+set role anon;
+set app.test_uid = '';
+do $$
+begin
+  perform public.log_ops_event('signin_send_failed', 'web', '429',
+    '{"status": 429}', null, '  Maria.Lopez@MyMDC.net ');
+end $$;
+
+-- Assertions against app.ops_events run as table owner (app schema is
+-- owner-only); literal uuids, no auth.uid().
+reset role;
+do $$
+declare
+  n int;
+  s1_uid uuid := '00000000-0000-0000-0000-000000000001';
+begin
+  if exists (select 1 from app.ops_events where kind = 'join_refused' and email is not null) then
+    raise exception 'FAIL: email stored on a non-sign-in event';
+  end if;
+  if not exists (select 1 from app.ops_events where kind = 'join_refused'
+                  and user_id = s1_uid) then
+    raise exception 'FAIL: join_refused not attributed to the caller';
+  end if;
+  select count(*) into n from app.ops_events
+   where kind = 'client_error' and user_id = s1_uid;
+  if n <> 30 then raise exception 'FAIL: per-minute cap not 30 (got %)', n; end if;
+  select count(*) into n from app.ops_events
+   where kind = 'app_seen' and user_id = s1_uid;
+  if n <> 1 then raise exception 'FAIL: app_seen not deduped per day (got %)', n; end if;
+
+  if not exists (select 1 from app.ops_events
+                  where kind = 'signin_send_failed' and email = 'maria.lopez@mymdc.net'
+                    and user_id is null) then
+    raise exception 'FAIL: failed sign-in email not stored lowercased';
+  end if;
+  -- Purge: rows older than 90 days go, newer stay.
+  insert into app.ops_events (kind, client, created_at)
+  values ('client_error', 'web', now() - interval '91 days');
+  perform app.purge_ops_events();
+  if exists (select 1 from app.ops_events where created_at < now() - interval '90 days') then
+    raise exception 'FAIL: purge left rows older than 90 days';
+  end if;
+  if not exists (select 1 from app.ops_events where email = 'maria.lopez@mymdc.net') then
+    raise exception 'FAIL: purge removed a fresh row';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
