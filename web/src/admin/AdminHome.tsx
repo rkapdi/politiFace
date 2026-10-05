@@ -43,7 +43,7 @@ export function AdminHome() {
               <Link to="/admin/sessions/$sessionId" params={{ sessionId: s.session_id }} className="admin-strong">
                 {s.title}
               </Link>{' '}
-              · {s.class} · Q{s.index + 1}/{s.total} · {s.participants} {A.home.inRoom}
+              · {s.class} · {s.index < 0 ? A.lobby : `Q${s.index + 1}/${s.total}`} · {s.participants} {A.home.inRoom}
               <div className="text-[var(--a-muted)]">{s.professor} · {A.home.startedAt} {time(s.created_at)}</div>
             </div>
           ))}

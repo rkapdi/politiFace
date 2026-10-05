@@ -18,6 +18,7 @@ export const A = {
   },
   comingIn2b: 'Coming in 2b',
   loading: 'Loading',
+  lobby: 'Lobby',
 
   panes: {
     left: 'Linked records',
@@ -136,6 +137,10 @@ export const A = {
     colExpires: 'Expires',
     colActions: 'Actions',
     revoke: 'Revoke',
+    confirmPrompt: (code: string) => `Revoke invite ${code}?`,
+    confirmGroupLabel: 'Confirm invite revocation',
+    confirm: 'Confirm',
+    cancel: 'Cancel',
   },
 
   audit: {
@@ -143,6 +148,7 @@ export const A = {
     colWho: 'Who',
     colAction: 'Action',
     colTarget: 'Target',
+    colDetails: 'Details',
     unknownActor: 'unknown',
     noTarget: 'console',
     fallbackPerson: 'person',
@@ -150,6 +156,8 @@ export const A = {
     fallbackSession: 'session',
     filterLabel: 'Action',
     filterAll: 'All actions',
+    actorFilterLabel: 'Actor',
+    actorFilterAll: 'All actors',
   },
 }
 

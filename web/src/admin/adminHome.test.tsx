@@ -23,7 +23,10 @@ vi.mock('./adminApi', () => ({
   useAdminHome: () => ({
     data: {
       totals: { people: 297, students: 212, faculty: 3, classes: 9, answered_live_7d: 171 },
-      live_now: [{ session_id: 's1', title: 'Week 3 review', cohort_id: 'c1', class: 'Section A', professor: 'Purcell Demo', status: 'question', index: 3, total: 8, participants: 38, created_at: '2026-10-04T15:02:00Z' }],
+      live_now: [
+        { session_id: 's1', title: 'Week 3 review', cohort_id: 'c1', class: 'Section A', professor: 'Purcell Demo', status: 'question', index: 3, total: 8, participants: 38, created_at: '2026-10-04T15:02:00Z' },
+        { session_id: 's2', title: 'Pop quiz', cohort_id: 'c1', class: 'Section A', professor: 'Purcell Demo', status: 'lobby', index: -1, total: 5, participants: 2, created_at: '2026-10-04T15:10:00Z' },
+      ],
       pending_requests: 2,
       funnel: [{ cohort_id: 'c1', name: 'Section A', term: '2026F', members: 41, students: 40, answered_live: 38, practiced_7d: 22 }],
       attention: [{ kind: 'signin_failures', severity: 'fail', title: '14 sign-in failures in the last hour' }],
@@ -52,6 +55,8 @@ describe('AdminHome', () => {
     expect(screen.getByText('212')).toBeInTheDocument()
     expect(screen.getByText('Week 3 review')).toBeInTheDocument()
     expect(screen.getByText(/Q4\/8/)).toBeInTheDocument()
+    expect(screen.getByText('Pop quiz')).toBeInTheDocument()
+    expect(screen.getByText(/Lobby/)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Section A' })).toHaveAttribute('href', '#/admin/classes/c1')
     expect(screen.getByText('14 sign-in failures in the last hour')).toHaveClass('sev-fail')
     expect(screen.getByText(/signin send failed/)).toBeInTheDocument()

@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { inviteLink } from '../lib/api'
 import { useAdminInvites, useMintInvite, useRevokeInvite } from './adminApi'
 import { A } from './strings'
@@ -18,6 +18,23 @@ export function InvitesPage() {
   const [note, setNote] = useState('')
   const [link, setLink] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [confirmingCode, setConfirmingCode] = useState<string | null>(null)
+  const actionBtnRefs = useRef<Record<string, HTMLButtonElement | null>>({})
+  const confirmBtnRef = useRef<HTMLButtonElement>(null)
+  const lastConfirmingCodeRef = useRef<string | null>(null)
+
+  // Same focus-follows-confirm pattern as PersonPage: into the Confirm
+  // button when the row opens its confirm step, back to that row's Revoke
+  // button once it closes either way.
+  useEffect(() => {
+    if (confirmingCode) {
+      confirmBtnRef.current?.focus()
+      lastConfirmingCodeRef.current = confirmingCode
+    } else if (lastConfirmingCodeRef.current) {
+      actionBtnRefs.current[lastConfirmingCodeRef.current]?.focus()
+      lastConfirmingCodeRef.current = null
+    }
+  }, [confirmingCode])
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
@@ -67,6 +84,7 @@ export function InvitesPage() {
         ) : null}
         {mint.error ? <p className="sev-fail">{mint.error.message}</p> : null}
       </form>
+      {revoke.error ? <p className="sev-fail">{revoke.error.message}</p> : null}
       <table className="admin-panel w-full">
         <thead>
           <tr className="admin-label text-left">
@@ -84,10 +102,38 @@ export function InvitesPage() {
               <td>{i.expires_at.slice(0, 10)}</td>
               <td>
                 {i.status === 'active' ? (
-                  <button type="button" onClick={() => revoke.mutate(i.code)}
-                    className="border border-[var(--a-line)] px-2 text-[var(--a-fail)]">
-                    {A.invites.revoke}
-                  </button>
+                  confirmingCode === i.code ? (
+                    <span role="group" aria-label={A.invites.confirmGroupLabel} className="inline-flex items-center gap-2">
+                      <span className="text-[var(--a-muted)]">{A.invites.confirmPrompt(i.code)}</span>
+                      <button
+                        ref={confirmBtnRef}
+                        type="button"
+                        className="border border-[var(--a-line)] px-2"
+                        onClick={() => {
+                          revoke.mutate(i.code)
+                          setConfirmingCode(null)
+                        }}
+                      >
+                        {A.invites.confirm}
+                      </button>
+                      <button
+                        type="button"
+                        className="border border-[var(--a-line)] px-2"
+                        onClick={() => setConfirmingCode(null)}
+                      >
+                        {A.invites.cancel}
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      ref={el => { actionBtnRefs.current[i.code] = el }}
+                      type="button"
+                      onClick={() => setConfirmingCode(i.code)}
+                      className="border border-[var(--a-line)] px-2 text-[var(--a-fail)]"
+                    >
+                      {A.invites.revoke}
+                    </button>
+                  )
                 ) : null}
               </td>
             </tr>

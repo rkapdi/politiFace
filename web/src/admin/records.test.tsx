@@ -12,6 +12,7 @@ vi.mock('@tanstack/react-router', () => ({
 const timeline = [
   { at: '2026-10-04T11:06:00Z', kind: 'live_answers', title: '3 of 4 correct in Week 3 review', detail: null, severity: 'info' },
   { at: '2026-10-04T10:58:00Z', kind: 'problem', title: 'signin send failed: 429', detail: { status: 429 }, severity: 'fail' },
+  { at: '2026-10-04T10:55:00Z', kind: 'problem', title: 'client error: route_error', detail: { route: '#/join', message: 'boom' }, severity: 'fail' },
 ]
 vi.mock('./adminApi', () => ({
   isUnverifiedSignin: (kind: string, title: string) => kind === 'problem' && title.startsWith('signin'),
@@ -65,6 +66,7 @@ describe('records', () => {
     expect(screen.getByRole('link', { name: /Section A/ })).toHaveAttribute('href', '#/admin/classes/c1')
     expect(screen.getByText('signin send failed: 429')).toHaveClass('sev-fail')
     expect(screen.getByText('(typed email, unverified)')).toBeInTheDocument()
+    expect(screen.getByText(/route: #\/join/)).toBeInTheDocument()
     expect(screen.getByText(/1.3.2 \(33\)/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /move class/i })).toBeDisabled()
     expect(screen.getByText('Coming in 2b')).toBeInTheDocument()

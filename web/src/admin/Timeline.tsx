@@ -1,4 +1,5 @@
 import { isUnverifiedSignin, type TimelineEntry } from './adminApi'
+import { formatDetailObject } from './formatDetail'
 import { A } from './strings'
 
 const stamp = (iso: string) => {
@@ -16,6 +17,8 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
         <ol>
           {entries.map((e, i) => {
             const unverifiedEmail = isUnverifiedSignin(e.kind, e.title)
+            const detailText =
+              typeof e.detail === 'string' && e.detail ? e.detail : formatDetailObject(e.detail)
             return (
               <li
                 key={`${e.at}-${i}`}
@@ -27,8 +30,8 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
                 {unverifiedEmail ? (
                   <span className="text-[var(--a-muted)]"> {A.timeline.unverifiedEmail}</span>
                 ) : null}
-                {typeof e.detail === 'string' && e.detail ? (
-                  <span className="text-[var(--a-muted)]"> · {e.detail}</span>
+                {detailText ? (
+                  <span className="text-[var(--a-muted)]"> · {detailText}</span>
                 ) : null}
               </li>
             )

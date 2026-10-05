@@ -153,7 +153,9 @@ function RouteError({ error }: { error: unknown }) {
     logOpsEvent('client_error', {
       code: 'route_error',
       detail: {
-        route: window.location.hash.slice(0, 120),
+        // Only the path, never the query: invite and session codes travel
+        // as query params on some routes and must never land in the log.
+        route: window.location.hash.split('?')[0].slice(0, 120),
         message: String((error as Error)?.message ?? error).slice(0, 300),
       },
     })

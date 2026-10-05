@@ -28,7 +28,10 @@ vi.mock('./adminApi', () => ({
   useAdminAudit: (action?: string) => {
     m.auditArg = action
     return {
-      data: [{ id: 1, created_at: '2026-10-04T12:00:00Z', actor_handle: 'bright_quill_1321', action: 'faculty_granted', target_user: 'u1', target_label: 'Purcell Demo', target_cohort: null, target_session: null, details: {} }],
+      data: [
+        { id: 1, created_at: '2026-10-04T12:00:00Z', actor_handle: 'bright_quill_1321', action: 'faculty_granted', target_user: 'u1', target_label: 'Purcell Demo', target_cohort: null, target_session: null, details: {} },
+        { id: 2, created_at: '2026-10-04T12:05:00Z', actor_handle: 'DawoodShah', action: 'invite_revoked', target_user: null, target_label: null, target_cohort: null, target_session: null, details: { code: 'D7QMJA' } },
+      ],
       isPending: false,
       error: null,
     }
@@ -44,9 +47,16 @@ describe('InvitesPage', () => {
     expect(screen.getByText('AAAAAA')).toBeInTheDocument()
     expect(screen.getByText('active')).toBeInTheDocument()
     expect(screen.getByText('used')).toBeInTheDocument()
-    expect(screen.getAllByRole('button', { name: /revoke/i })).toHaveLength(1)
-    await userEvent.click(screen.getByRole('button', { name: /revoke/i }))
+    expect(screen.getAllByRole('button', { name: /^revoke$/i })).toHaveLength(1)
+    const revokeButton = screen.getByRole('button', { name: /^revoke$/i })
+    await userEvent.click(revokeButton)
+    expect(screen.getByRole('group', { name: /confirm invite revocation/i })).toBeInTheDocument()
+    expect(m.revoke).not.toHaveBeenCalled()
+    const confirmButton = screen.getByRole('button', { name: /^confirm$/i })
+    expect(confirmButton).toHaveFocus()
+    await userEvent.click(confirmButton)
     expect(m.revoke).toHaveBeenCalledWith('AAAAAA')
+    expect(screen.getByRole('button', { name: /^revoke$/i })).toHaveFocus()
     await userEvent.type(screen.getByLabelText(/their email/i), 'new@mdc.edu')
     await userEvent.click(screen.getByRole('button', { name: /create invite link/i }))
     expect(m.mint.mock.calls[0][0]).toEqual({ recipientEmail: 'new@mdc.edu', note: '' })
@@ -69,15 +79,27 @@ describe('InvitesPage', () => {
 describe('AuditPage', () => {
   it('lists admin actions with actor and target', () => {
     render(<AuditPage />)
-    expect(screen.getByText('bright_quill_1321')).toBeInTheDocument()
+    expect(screen.getByRole('cell', { name: 'bright_quill_1321' })).toBeInTheDocument()
     expect(screen.getByRole('cell', { name: 'faculty granted' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Purcell Demo' })).toHaveAttribute('href', '#/admin/people/u1')
+    expect(screen.getByText(/code: D7QMJA/)).toBeInTheDocument()
   })
 
   it('filters by action, passing it through to the query', async () => {
     render(<AuditPage />)
     expect(m.auditArg).toBeUndefined()
-    await userEvent.selectOptions(screen.getByLabelText(/action/i), 'faculty_granted')
+    await userEvent.selectOptions(screen.getByLabelText(/^action$/i), 'faculty_granted')
     expect(m.auditArg).toBe('faculty_granted')
+  })
+
+  it('filters by actor, client-side, from the distinct actors in the loaded rows', async () => {
+    render(<AuditPage />)
+    expect(screen.getByRole('cell', { name: 'bright_quill_1321' })).toBeInTheDocument()
+    expect(screen.getByRole('cell', { name: 'DawoodShah' })).toBeInTheDocument()
+    await userEvent.selectOptions(screen.getByLabelText(/actor/i), 'DawoodShah')
+    expect(screen.queryByRole('cell', { name: 'bright_quill_1321' })).toBeNull()
+    expect(screen.getByRole('cell', { name: 'DawoodShah' })).toBeInTheDocument()
+    // Purely client-side: the action query is untouched by the actor filter.
+    expect(m.auditArg).toBeUndefined()
   })
 })

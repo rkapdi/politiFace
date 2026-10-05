@@ -19,7 +19,8 @@ export function SessionRecordPage() {
           <Link to="/admin/classes/$cohortId" params={{ cohortId: s.facts.cohort_id }}>{s.facts.class}</Link>
           <span className="flex-1" />
           <span className={s.facts.status === 'ended' ? 'text-[var(--a-muted)]' : 'sev-ok'}>
-            {s.facts.status.toUpperCase()} · Q{s.facts.index + 1}/{s.facts.total}
+            {s.facts.status.toUpperCase()} ·{' '}
+            {s.facts.index < 0 ? A.lobby : `Q${s.facts.index + 1}/${s.facts.total}`}
           </span>
         </>
       }
