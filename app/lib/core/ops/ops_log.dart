@@ -15,7 +15,29 @@ class OpsLog {
   @visibleForTesting
   static Future<void> Function(Map<String, dynamic> params)? sinkOverride;
 
+  /// Test seam: the clock the 60-second dedupe window is measured against.
+  @visibleForTesting
+  static DateTime Function() now = DateTime.now;
+
   static String? _version;
+
+  // Client-side throttle, in addition to the server's own per-minute caps:
+  // a repeat of the same (kind, code, detail message) within 60 seconds is
+  // dropped outright, and client_error reports are capped per app run so a
+  // crash loop cannot flood the problem log before the server-side cap
+  // even sees it.
+  static const int _dedupeWindowSeconds = 60;
+  static const int _clientErrorCap = 20;
+  static final Map<String, DateTime> _recentFingerprints = {};
+  static int _clientErrorCount = 0;
+
+  /// Test seam: clears throttle state between tests.
+  @visibleForTesting
+  static void resetThrottleForTesting() {
+    _recentFingerprints.clear();
+    _clientErrorCount = 0;
+    now = DateTime.now;
+  }
 
   static Future<String?> _appVersion() async {
     if (_version != null) return _version;
@@ -35,6 +57,17 @@ class OpsLog {
     String? email,
   }) async {
     try {
+      final fingerprint = '$kind|$code|${detail?['message']}';
+      final sentAt = now();
+      final lastSent = _recentFingerprints[fingerprint];
+      if (lastSent != null &&
+          sentAt.difference(lastSent).inSeconds < _dedupeWindowSeconds) {
+        return;
+      }
+      if (kind == 'client_error' && _clientErrorCount >= _clientErrorCap) {
+        return;
+      }
+
       final params = <String, dynamic>{
         'p_kind': kind,
         'p_client': 'ios',
@@ -44,6 +77,10 @@ class OpsLog {
         'p_app_version': sinkOverride != null ? null : await _appVersion(),
         'p_email': email,
       };
+
+      _recentFingerprints[fingerprint] = sentAt;
+      if (kind == 'client_error') _clientErrorCount++;
+
       final sink = sinkOverride;
       if (sink != null) {
         await sink(params);

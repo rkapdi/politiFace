@@ -29,8 +29,12 @@ void main() {
   setUp(() {
     sent = [];
     OpsLog.sinkOverride = (p) async => sent.add(p);
+    OpsLog.resetThrottleForTesting();
   });
-  tearDown(() => OpsLog.sinkOverride = null);
+  tearDown(() {
+    OpsLog.sinkOverride = null;
+    OpsLog.resetThrottleForTesting();
+  });
 
   test('report sends kind, client ios, and details', () async {
     await OpsLog.report('join_refused', code: 'invalid or ended session code');
@@ -42,6 +46,31 @@ void main() {
   test('report never throws when sending fails', () async {
     OpsLog.sinkOverride = (_) async => throw Exception('offline');
     await OpsLog.report('client_error', code: 'x');
+  });
+
+  test('identical reports within 60 seconds send once', () async {
+    var clock = DateTime(2026, 10, 4, 12);
+    OpsLog.now = () => clock;
+    await OpsLog.report('client_error', code: 'boom', detail: {'message': 'oops'});
+    clock = clock.add(const Duration(seconds: 30));
+    await OpsLog.report('client_error', code: 'boom', detail: {'message': 'oops'});
+    expect(sent.length, 1);
+  });
+
+  test('a repeat report after the 60-second window sends again', () async {
+    var clock = DateTime(2026, 10, 4, 12);
+    OpsLog.now = () => clock;
+    await OpsLog.report('client_error', code: 'boom', detail: {'message': 'oops'});
+    clock = clock.add(const Duration(seconds: 61));
+    await OpsLog.report('client_error', code: 'boom', detail: {'message': 'oops'});
+    expect(sent.length, 2);
+  });
+
+  test('client_error reports are capped at 20 per app run', () async {
+    for (var i = 0; i < 25; i++) {
+      await OpsLog.report('client_error', code: 'err-$i');
+    }
+    expect(sent.length, 20);
   });
 
   testWidgets('a failed code send reports signin_send_failed with the email',
