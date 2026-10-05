@@ -8,6 +8,7 @@ import {
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { ensureProfile } from '../lib/api'
+import { logOpsEvent } from '../lib/opsLog'
 
 type SessionState = {
   session: Session | null
@@ -32,7 +33,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setSession(next)
       setLoading(false)
       // First sign-in bootstrapping: fire and forget; RLS makes it safe.
-      if (next && !next.user.is_anonymous) void ensureProfile(next.user.id)
+      if (next && !next.user.is_anonymous) {
+        void ensureProfile(next.user.id)
+        logOpsEvent('app_seen')
+      }
     })
     return () => {
       cancelled = true

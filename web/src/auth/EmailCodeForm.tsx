@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
+import { logOpsEvent } from '../lib/opsLog'
 import { S } from '../lib/strings'
 import { Alert, Button } from '../components/ui'
 
@@ -30,11 +31,17 @@ export function EmailCodeForm({ hint }: { hint?: string }) {
     try {
       const { error } = await supabase.auth.signInWithOtp({ email: email.trim() })
       if (error) {
+        logOpsEvent('signin_send_failed', {
+          code: String(error.code ?? error.status ?? 'unknown'),
+          detail: { status: error.status ?? null },
+          email: email.trim(),
+        })
         setError(isRateLimited(error) ? S.signIn.rateLimited : S.signIn.sendFailed)
         return
       }
       setStep('code')
     } catch {
+      logOpsEvent('signin_send_failed', { code: 'thrown', email: email.trim() })
       setError(S.signIn.sendFailed)
     } finally {
       setBusy(false)
@@ -51,8 +58,16 @@ export function EmailCodeForm({ hint }: { hint?: string }) {
         token: code.trim(),
         type: 'email',
       })
-      if (error) setError(isRateLimited(error) ? S.signIn.rateLimited : S.signIn.badCode)
+      if (error) {
+        logOpsEvent('signin_verify_failed', {
+          code: String(error.code ?? error.status ?? 'unknown'),
+          detail: { status: error.status ?? null },
+          email: email.trim(),
+        })
+        setError(isRateLimited(error) ? S.signIn.rateLimited : S.signIn.badCode)
+      }
     } catch {
+      logOpsEvent('signin_verify_failed', { code: 'thrown', email: email.trim() })
       setError(S.signIn.badCode)
     } finally {
       setBusy(false)

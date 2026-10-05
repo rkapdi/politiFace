@@ -1766,6 +1766,17 @@ export type Database = {
         }[]
       }
       locked_question_ids: { Args: never; Returns: string[] }
+      log_ops_event: {
+        Args: {
+          p_app_version?: string
+          p_client: string
+          p_code?: string
+          p_detail?: Json
+          p_email?: string
+          p_kind: string
+        }
+        Returns: undefined
+      }
       log_report_export: {
         Args: { p_cohort: string; p_kind: string }
         Returns: undefined

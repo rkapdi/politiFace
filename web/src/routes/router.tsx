@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import {
   createHashHistory,
   createRootRoute,
@@ -8,6 +9,7 @@ import {
 import { Layout } from './Layout'
 import { Button, Card } from '../components/ui'
 import { S } from '../lib/strings'
+import { logOpsEvent } from '../lib/opsLog'
 import { HomePage } from './HomePage'
 import { StyleguidePage } from './StyleguidePage'
 import { ClassPage } from './ClassPage'
@@ -90,7 +92,16 @@ const routeTree = rootRoute.addChildren([
 ])
 
 // A rendering error in one route never becomes a blank page.
-function RouteError() {
+function RouteError({ error }: { error: unknown }) {
+  useEffect(() => {
+    logOpsEvent('client_error', {
+      code: 'route_error',
+      detail: {
+        route: window.location.hash.slice(0, 120),
+        message: String((error as Error)?.message ?? error).slice(0, 300),
+      },
+    })
+  }, [error])
   return (
     <Card className="mx-auto mt-16 max-w-md text-center">
       <p className="text-sm text-slate-700">{S.errors.somethingBroke}</p>
