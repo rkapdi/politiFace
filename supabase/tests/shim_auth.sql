@@ -36,3 +36,17 @@ language sql stable as $$
   select coalesce(nullif(current_setting('app.test_jwt', true), ''), '{}')::jsonb;
 $$;
 grant execute on function auth.jwt() to anon, authenticated, service_role;
+
+-- Columns and table the admin console reads (production has them).
+alter table auth.users
+  add column if not exists created_at timestamptz not null default now(),
+  add column if not exists last_sign_in_at timestamptz;
+create table if not exists auth.sessions (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users (id) on delete cascade,
+  created_at   timestamptz not null default now(),
+  updated_at   timestamptz,
+  refreshed_at timestamp,
+  user_agent   text,
+  ip           inet
+);

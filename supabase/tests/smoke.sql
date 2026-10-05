@@ -2533,5 +2533,63 @@ begin
   end if;
 end $$;
 
+-- Records: refused for non-admins; shapes; view_person audited; timelines
+-- carry the problem log.
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.admin_person(auth.uid());
+    raise exception 'FAIL: student opened a person record';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  r jsonb;
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_session uuid := current_setting('app.p1_session')::uuid;
+begin
+  r := public.admin_person('00000000-0000-0000-0000-000000000001'::uuid);
+  if r -> 'identity' ->> 'email' <> 's1@example.edu' then
+    raise exception 'FAIL: person identity wrong: %', r -> 'identity';
+  end if;
+  if jsonb_array_length(r -> 'memberships') < 1 then
+    raise exception 'FAIL: person memberships missing';
+  end if;
+  if not exists (select 1 from jsonb_array_elements(r -> 'timeline') t
+                  where t ->> 'kind' = 'problem' and t ->> 'severity' = 'fail') then
+    raise exception 'FAIL: person timeline missing the problem log';
+  end if;
+  r := public.admin_class(v_cohort);
+  if r -> 'facts' ->> 'name' <> 'Civics Section A'
+     or jsonb_array_length(r -> 'members') < 2 then
+    raise exception 'FAIL: class record wrong: %', r -> 'facts';
+  end if;
+  r := public.admin_session(v_session);
+  if r -> 'facts' ->> 'title' <> 'Members only quiz'
+     or jsonb_array_length(r -> 'participants') < 1
+     or jsonb_array_length(r -> 'questions') < 1 then
+    raise exception 'FAIL: session record wrong: %', r -> 'facts';
+  end if;
+  perform public.admin_console_open();
+  perform public.admin_console_open();
+end $$;
+reset role;
+do $$
+begin
+  if not exists (select 1 from app.admin_audit
+                  where action = 'view_person'
+                    and target_user = '00000000-0000-0000-0000-000000000001') then
+    raise exception 'FAIL: view_person not audited';
+  end if;
+  if (select count(*) from app.admin_audit where action = 'console_open') <> 1 then
+    raise exception 'FAIL: console_open not throttled to once per 10 minutes';
+  end if;
+end $$;
+set role authenticated;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
