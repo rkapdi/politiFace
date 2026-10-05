@@ -5,8 +5,12 @@
 // leaderboard, the keep-your-progress nudge, can open the same flow in
 // place instead of sending the user on a trip through Settings.
 
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show AuthException;
+
+import '../ops/ops_log.dart';
 import 'auth_service.dart';
 
 /// Shows the sign-in bottom sheet and completes when it closes. Callers
@@ -72,9 +76,19 @@ class _SignInSheetState extends State<SignInSheet> {
       _busy = true;
       _error = null;
     });
+    final verifying = _codeSent;
     try {
       await action();
     } catch (e) {
+      unawaited(
+        OpsLog.report(
+          verifying ? 'signin_verify_failed' : 'signin_send_failed',
+          code: e is AuthException
+              ? (e.statusCode ?? e.code ?? 'auth')
+              : 'thrown',
+          email: _email.text.trim(),
+        ),
+      );
       setState(() => _error = 'That did not work. Check and try again.');
       return;
     } finally {

@@ -11,6 +11,7 @@ import 'app/politiface_app.dart';
 import 'app/providers.dart';
 import 'app/router.dart';
 import 'core/database/drift/app_database.dart';
+import 'core/ops/ops_log.dart';
 import 'core/sync/restore_service.dart';
 import 'core/sync/supabase_config.dart';
 import 'core/sync/sync_engine.dart';
@@ -92,6 +93,24 @@ Future<void> main() async {
 }
 
 Future<void> _bootstrap(AppDatabase db) async {
+  // Chains whatever handler is already installed (Sentry's, when crash
+  // reporting is on) so the problem log and Sentry both see every error.
+  final previousOnError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    final message = details.exceptionAsString();
+    unawaited(
+      OpsLog.report(
+        'client_error',
+        code: 'flutter_error',
+        detail: {
+          'message':
+              message.length <= 300 ? message : message.substring(0, 300),
+        },
+      ),
+    );
+    previousOnError?.call(details);
+  };
+
   await YamlSeedService(db).ensureSeeded();
   await GovernmentSeedService(db).ensureSeeded();
   await PeopleSeedService(db).ensureSeeded();
@@ -178,11 +197,19 @@ Future<void> _bootstrap(AppDatabase db) async {
       switch (state.event) {
         case AuthChangeEvent.signedIn:
           unawaited(pushService.onSignedIn());
+          if (state.session?.user.isAnonymous != true) {
+            unawaited(OpsLog.report('app_seen'));
+          }
         case AuthChangeEvent.initialSession:
           // Fires at every cold start, signed in or not. Only a real
           // session may ask for notification permission; otherwise a
           // brand-new student gets the iOS prompt over onboarding.
-          if (state.session != null) unawaited(pushService.onSignedIn());
+          if (state.session != null) {
+            unawaited(pushService.onSignedIn());
+            if (state.session?.user.isAnonymous != true) {
+              unawaited(OpsLog.report('app_seen'));
+            }
+          }
         case AuthChangeEvent.signedOut:
           unawaited(pushService.onSignedOut());
           // A sign-out the user did not perform (server-side session

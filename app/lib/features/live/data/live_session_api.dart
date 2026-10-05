@@ -16,6 +16,8 @@ import 'dart:async';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../core/ops/ops_log.dart';
+
 /// The cohort's joinable session, if any (the CLASS-screen banner).
 class ActiveLiveSession {
   const ActiveLiveSession({
@@ -226,17 +228,28 @@ class SupabaseLiveSessionApi implements LiveSessionApi {
 
   @override
   Future<JoinedLiveSession> joinByCode(String code) async {
-    final res = await _client
-        .rpc<dynamic>('join_live_session', params: {'p_code': code.trim()});
-    final json = Map<String, dynamic>.from(res as Map);
-    return JoinedLiveSession(
-      id: json['id'] as String,
-      title: json['title'] as String? ?? 'Live session',
-      status: json['status'] as String? ?? 'lobby',
-      index: (json['index'] as num?)?.toInt() ?? -1,
-      total: (json['total'] as num?)?.toInt() ?? 0,
-      questionSeconds: (json['question_seconds'] as num?)?.toInt() ?? 20,
-    );
+    try {
+      final res = await _client
+          .rpc<dynamic>('join_live_session', params: {'p_code': code.trim()});
+      final json = Map<String, dynamic>.from(res as Map);
+      return JoinedLiveSession(
+        id: json['id'] as String,
+        title: json['title'] as String? ?? 'Live session',
+        status: json['status'] as String? ?? 'lobby',
+        index: (json['index'] as num?)?.toInt() ?? -1,
+        total: (json['total'] as num?)?.toInt() ?? 0,
+        questionSeconds: (json['question_seconds'] as num?)?.toInt() ?? 20,
+      );
+    } on PostgrestException catch (e) {
+      unawaited(
+        OpsLog.report(
+          'join_refused',
+          code: e.message,
+          detail: {'session_code': code.trim()},
+        ),
+      );
+      rethrow;
+    }
   }
 
   @override
