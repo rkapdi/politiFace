@@ -2,6 +2,7 @@
 // migrations exactly. Regenerate after every hosted apply:
 //   supabase gen types typescript --project-id sbjpiajjlufrhigmovnk
 // (or the Supabase MCP generate_typescript_types tool). Never hand-edit.
+
 export type Json =
   | string
   | number
@@ -1781,6 +1782,7 @@ export type Database = {
         }[]
       }
       get_reporting_policy: { Args: { p_cohort: string }; Returns: Json }
+      has_course_identifier: { Args: { p_text: string }; Returns: boolean }
       invite_preview: { Args: { p_code: string }; Returns: Json }
       join_cohort: {
         Args: { p_code: string; p_roster_name?: string }
