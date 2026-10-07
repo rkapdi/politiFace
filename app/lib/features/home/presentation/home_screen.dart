@@ -30,6 +30,7 @@ import 'class_block.dart';
 import 'guided_tour.dart';
 import 'season_spine.dart';
 import 'streak_hero.dart';
+import 'streak_milestone_chime.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -37,8 +38,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final profile =
-        ref.watch(profileProvider).valueOrNull ?? UserProfile.empty;
+    final profile = ref.watch(profileProvider).valueOrNull ?? UserProfile.empty;
 
     // First-visit tour, plus the Settings "show me around" replay. The
     // request flag is CHECKED post-frame rather than listened to:
@@ -62,6 +62,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         actions: [
           _StreakChip(profile: profile),
+          const StreakMilestoneChime(),
           const SizedBox(width: 10),
           IconButton(
             tooltip: 'Settings and account',
@@ -396,44 +397,44 @@ class _MoreWaysRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => Row(
-      children: [
-        Expanded(
-          child: _VerbTile(
-            label: 'STUDY',
-            sublabel: 'continue the season',
-            glyph: Icons.style_outlined,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              _openSeason(context, ref);
-            },
+        children: [
+          Expanded(
+            child: _VerbTile(
+              label: 'STUDY',
+              sublabel: 'continue the season',
+              glyph: Icons.style_outlined,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                _openSeason(context, ref);
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _VerbTile(
-            label: 'FCLE',
-            sublabel: 'exam prep',
-            glyph: Icons.track_changes,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.push('/fcle');
-            },
+          const SizedBox(width: 8),
+          Expanded(
+            child: _VerbTile(
+              label: 'FCLE',
+              sublabel: 'exam prep',
+              glyph: Icons.track_changes,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.push('/fcle');
+              },
+            ),
           ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: _VerbTile(
-            label: 'PLAY',
-            sublabel: 'just for fun',
-            glyph: Icons.sports_esports_outlined,
-            onTap: () {
-              HapticFeedback.lightImpact();
-              context.go('/trivia');
-            },
+          const SizedBox(width: 8),
+          Expanded(
+            child: _VerbTile(
+              label: 'PLAY',
+              sublabel: 'just for fun',
+              glyph: Icons.sports_esports_outlined,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                context.go('/trivia');
+              },
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
 
   /// STUDY resumes The Season: the current chapter's sheet, whose
   /// Continue button now sits at the top. Falls back to the free-study
@@ -444,9 +445,8 @@ class _MoreWaysRow extends ConsumerWidget {
       context.go('/session');
       return;
     }
-    final entries =
-        ref.read(seasonProgressProvider).valueOrNull ??
-            const <ChapterProgressEntry>[];
+    final entries = ref.read(seasonProgressProvider).valueOrNull ??
+        const <ChapterProgressEntry>[];
     final byId = <String, ChapterProgressEntry>{
       for (final e in entries) e.chapterId: e,
     };

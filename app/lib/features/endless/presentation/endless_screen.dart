@@ -9,6 +9,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/audio/sound_service.dart';
+import '../../../core/audio/streak_sounds.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../../shared/widgets/feedback_motion.dart';
@@ -249,7 +250,14 @@ class _EndlessView extends ConsumerWidget {
                   HapticFeedback.heavyImpact();
                 }
                 ref.read(soundServiceProvider).play(
-                      correct ? SoundEffect.correct : SoundEffect.incorrect,
+                      answerSound(
+                        correct: correct,
+                        inARowAfter: ref
+                                .read(endlessControllerProvider)
+                                .valueOrNull
+                                ?.currentStreak ??
+                            0,
+                      ),
                     );
                 await Future<void>.delayed(const Duration(milliseconds: 700));
                 await ref.read(endlessControllerProvider.notifier).advance();

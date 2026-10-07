@@ -71,7 +71,7 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
     // under VoiceOver, same guard as the reveal chime.
     final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
     if (!a11y) {
-      ref.read(soundServiceProvider).play(SoundEffect.flip);
+      ref.read(soundServiceProvider).play(SoundEffect.joined);
     }
   }
 

@@ -191,7 +191,7 @@ class _JoinCohortViewState extends ConsumerState<JoinCohortView> {
     });
     try {
       final cohortId = await api.joinCohort(code, name);
-      ref.read(soundServiceProvider).play(SoundEffect.complete);
+      ref.read(soundServiceProvider).play(SoundEffect.joined);
       widget.onJoined(cohortId);
     } on PostgrestException {
       // A server verdict on the code itself (e.g. no matching cohort):

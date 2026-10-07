@@ -20,7 +20,7 @@ enum AnswerReactionKind { none, correct, wrong }
 /// Wraps an answer option. Plays once each time [kind] changes from
 /// [AnswerReactionKind.none] to correct or wrong.
 class AnswerReaction extends StatefulWidget {
-  const AnswerReaction({super.key, required this.kind, required this.child});
+  const AnswerReaction({required this.kind, required this.child, super.key});
 
   final AnswerReactionKind kind;
   final Widget child;
@@ -80,9 +80,9 @@ class _AnswerReactionState extends State<AnswerReaction>
 /// from the old value on change). Screen readers hear only the final text.
 class CountUpText extends StatelessWidget {
   const CountUpText({
-    super.key,
     required this.value,
     required this.format,
+    super.key,
     this.style,
     this.duration = const Duration(milliseconds: 700),
     this.textAlign,
@@ -117,7 +117,7 @@ class CountUpText extends StatelessWidget {
 /// Fires once when built with [fire] true (or when [fire] turns true).
 /// Silent and invisible under Reduce Motion.
 class CelebrationBurst extends StatefulWidget {
-  const CelebrationBurst({super.key, required this.fire, this.big = false});
+  const CelebrationBurst({required this.fire, super.key, this.big = false});
 
   final bool fire;
 

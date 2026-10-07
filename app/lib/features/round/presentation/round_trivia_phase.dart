@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../../core/audio/streak_sounds.dart';
 import '../../shared/widgets/card_avatar.dart';
 import '../../shared/widgets/feedback_motion.dart';
 import '../../shared/widgets/photo_zoom_modal.dart';
@@ -81,10 +82,12 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
 
     // Gesture-synchronous: the reveal state is set right here at the tap;
     // the 750ms timer below only commits the answer.
+    final correct = option == q.correctIndex;
     ref.read(soundServiceProvider).play(
-          option == q.correctIndex
-              ? SoundEffect.correct
-              : SoundEffect.incorrect,
+          answerSound(
+            correct: correct,
+            inARowAfter: correct ? widget.state.currentCorrectStreak + 1 : 0,
+          ),
         );
 
     setState(() {
