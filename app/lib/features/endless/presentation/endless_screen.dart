@@ -11,6 +11,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../shared/widgets/card_avatar.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../../shared/widgets/photo_zoom_modal.dart';
 import '../../shared/widgets/state_views.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
@@ -462,6 +463,12 @@ class _Options extends StatelessWidget {
         children: [
           for (var i = 0; i < question.options.length; i++)
             _PhotoOption(
+              // Keyed per question + index so the tapped-tile tracking
+              // below resets cleanly on the next question instead of
+              // carrying a stale reaction into it.
+              key: ValueKey(
+                'endless-photo-${question.correct.id}-${question.mode.name}-$i',
+              ),
               card: question.options[i],
               isCorrect: i == question.correctIndex,
               answered: answered,
@@ -477,6 +484,9 @@ class _Options extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: _TextOption(
+              key: ValueKey(
+                'endless-text-${question.correct.id}-${question.mode.name}-$i',
+              ),
               text: mode == QuestionMode.photoToTitle
                   ? question.options[i].title
                   : question.options[i].politicianName,
@@ -490,12 +500,13 @@ class _Options extends StatelessWidget {
   }
 }
 
-class _TextOption extends StatelessWidget {
+class _TextOption extends StatefulWidget {
   const _TextOption({
     required this.text,
     required this.isCorrect,
     required this.answered,
     required this.onTap,
+    super.key,
   });
 
   final String text;
@@ -504,8 +515,26 @@ class _TextOption extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_TextOption> createState() => _TextOptionState();
+}
+
+class _TextOptionState extends State<_TextOption> {
+  // Local tap tracking: the controller only exposes "was the overall
+  // answer right or wrong," not which tile the student actually picked.
+  // This widget is keyed per question + index (see _Options), so a fresh
+  // instance (and a fresh false here) arrives with every new question.
+  bool _tapped = false;
+
+  void _handleTap() {
+    _tapped = true;
+    widget.onTap();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final answered = widget.answered;
+    final isCorrect = widget.isCorrect;
     final bg = !answered
         ? theme.colorScheme.surfaceContainer
         : isCorrect
@@ -516,31 +545,39 @@ class _TextOption extends StatelessWidget {
         : isCorrect
             ? Colors.green.shade400
             : theme.colorScheme.outlineVariant.withOpacity(0.4);
-    return Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
+    final reactionKind = !answered || !_tapped
+        ? AnswerReactionKind.none
+        : isCorrect
+            ? AnswerReactionKind.correct
+            : AnswerReactionKind.wrong;
+    return AnswerReaction(
+      kind: reactionKind,
+      child: Material(
+        color: bg,
         borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            border: Border.all(color: borderColor, width: 1.5),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  text,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
+        child: InkWell(
+          onTap: _handleTap,
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              border: Border.all(color: borderColor, width: 1.5),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.text,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
-              if (answered && isCorrect)
-                Icon(Icons.check_circle, color: Colors.green.shade400),
-            ],
+                if (answered && isCorrect)
+                  Icon(Icons.check_circle, color: Colors.green.shade400),
+              ],
+            ),
           ),
         ),
       ),
@@ -548,12 +585,13 @@ class _TextOption extends StatelessWidget {
   }
 }
 
-class _PhotoOption extends StatelessWidget {
+class _PhotoOption extends StatefulWidget {
   const _PhotoOption({
     required this.card,
     required this.isCorrect,
     required this.answered,
     required this.onTap,
+    super.key,
   });
 
   final LocalCard card;
@@ -562,48 +600,73 @@ class _PhotoOption extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_PhotoOption> createState() => _PhotoOptionState();
+}
+
+class _PhotoOptionState extends State<_PhotoOption> {
+  // See _TextOptionState: local tap tracking, reset per question via the
+  // key _Options assigns to each tile.
+  bool _tapped = false;
+
+  void _handleTap() {
+    _tapped = true;
+    widget.onTap();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final answered = widget.answered;
+    final isCorrect = widget.isCorrect;
+    final card = widget.card;
     final borderColor = !answered
         ? theme.colorScheme.outlineVariant
         : isCorrect
             ? Colors.green.shade400
             : theme.colorScheme.outlineVariant.withOpacity(0.4);
-    return Material(
-      color: theme.colorScheme.surfaceContainer,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
+    final reactionKind = !answered || !_tapped
+        ? AnswerReactionKind.none
+        : isCorrect
+            ? AnswerReactionKind.correct
+            : AnswerReactionKind.wrong;
+    return AnswerReaction(
+      kind: reactionKind,
+      child: Material(
+        color: theme.colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            border: Border.all(color: borderColor, width: 2),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Center(
-                  child: ResponsiveCardAvatar(
-                    name: card.politicianName,
-                    photoUrl: card.photoUrl,
-                    factor: 0.42,
-                    minRadius: 38,
-                    maxRadius: 72,
+        child: InkWell(
+          onTap: _handleTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              border: Border.all(color: borderColor, width: 2),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Center(
+                    child: ResponsiveCardAvatar(
+                      name: card.politicianName,
+                      photoUrl: card.photoUrl,
+                      factor: 0.42,
+                      minRadius: 38,
+                      maxRadius: 72,
+                    ),
                   ),
                 ),
-              ),
-              if (answered && isCorrect) ...[
-                const SizedBox(height: 4),
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green.shade400,
-                  size: 18,
-                ),
+                if (answered && isCorrect) ...[
+                  const SizedBox(height: 4),
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green.shade400,
+                    size: 18,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
