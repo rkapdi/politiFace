@@ -17,6 +17,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../application/live_session_controller.dart';
 import '../data/live_session_api.dart';
 
@@ -62,6 +63,15 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
       context.pop();
     } else {
       context.go('/leaderboard');
+    }
+  }
+
+  void _onSessionStarting() {
+    // Lobby → first question: a quiet cue that the wait is over. Skipped
+    // under VoiceOver, same guard as the reveal chime.
+    final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
+    if (!a11y) {
+      ref.read(soundServiceProvider).play(SoundEffect.joined);
     }
   }
 
@@ -114,6 +124,10 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
 
     final state = ref.watch(liveSessionControllerProvider(widget.args));
     ref.listen(liveSessionControllerProvider(widget.args), (previous, next) {
+      if (previous?.phase == LivePhase.lobby &&
+          next.phase == LivePhase.question) {
+        _onSessionStarting();
+      }
       if (next.reveal != null &&
           previous?.reveal?.questionId != next.reveal!.questionId) {
         _onRevealData(next);
@@ -687,85 +701,93 @@ class _RevealOptionTile extends StatelessWidget {
       fill = red.withOpacity(0.10);
     }
     final fraction = totalAnswers == 0 ? 0.0 : count / totalAnswers;
+    final reactionKind = !isChosen
+        ? AnswerReactionKind.none
+        : isAnswer
+            ? AnswerReactionKind.correct
+            : AnswerReactionKind.wrong;
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: MergeSemantics(
-        child: Semantics(
-          label: isAnswer
-              ? 'Correct answer. $count answered this.'
-              : isChosen
-                  ? 'Your choice, incorrect. $count answered this.'
-                  : '$count answered this.',
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: border,
-                width: (isAnswer || isChosen) ? 2 : 1,
-              ),
-              borderRadius: BorderRadius.circular(6),
-              color: fill,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      option.key.toUpperCase(),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        option.text,
-                        style:
-                            theme.textTheme.bodyMedium?.copyWith(height: 1.3),
-                      ),
-                    ),
-                    if (isAnswer)
-                      Icon(Icons.check_circle, color: green, size: 20)
-                    else if (isChosen)
-                      Icon(Icons.cancel, color: red, size: 20),
-                  ],
+    return AnswerReaction(
+      kind: reactionKind,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: MergeSemantics(
+          child: Semantics(
+            label: isAnswer
+                ? 'Correct answer. $count answered this.'
+                : isChosen
+                    ? 'Your choice, incorrect. $count answered this.'
+                    : '$count answered this.',
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: border,
+                  width: (isAnswer || isChosen) ? 2 : 1,
                 ),
-                const SizedBox(height: 8),
-                // The class's answer spread: a small bar per option.
-                ExcludeSemantics(
-                  child: Row(
+                borderRadius: BorderRadius.circular(6),
+                color: fill,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(2),
-                          child: LinearProgressIndicator(
-                            value: fraction,
-                            minHeight: 5,
-                            color: isAnswer
-                                ? green
-                                : theme.colorScheme.onSurfaceVariant
-                                    .withOpacity(0.45),
-                            backgroundColor: theme.colorScheme.outlineVariant
-                                .withOpacity(0.4),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
                       Text(
-                        '$count',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontWeight: FontWeight.w700,
+                        option.key.toUpperCase(),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w800,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          option.text,
+                          style:
+                              theme.textTheme.bodyMedium?.copyWith(height: 1.3),
+                        ),
+                      ),
+                      if (isAnswer)
+                        Icon(Icons.check_circle, color: green, size: 20)
+                      else if (isChosen)
+                        Icon(Icons.cancel, color: red, size: 20),
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  // The class's answer spread: a small bar per option.
+                  ExcludeSemantics(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: fraction,
+                              minHeight: 5,
+                              color: isAnswer
+                                  ? green
+                                  : theme.colorScheme.onSurfaceVariant
+                                      .withOpacity(0.45),
+                              backgroundColor: theme.colorScheme.outlineVariant
+                                  .withOpacity(0.4),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          '$count',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

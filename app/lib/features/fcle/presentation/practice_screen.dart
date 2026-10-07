@@ -16,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../application/fcle_providers.dart';
 import '../domain/fcle_question.dart';
 
@@ -232,54 +233,67 @@ class _FeedbackOptionTile extends StatelessWidget {
       fill = red.withOpacity(0.10);
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: MergeSemantics(
-        child: Semantics(
-          button: true,
-          selected: isChosen,
-          label: !answered
-              ? null
-              : isAnswer
-                  ? 'Correct answer.'
-                  : isChosen
-                      ? 'Your choice, incorrect.'
-                      : null,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(6),
-            onTap: answered ? null : onTap,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: border,
-                  width: answered && (isAnswer || isChosen) ? 2 : 1,
+    // Only the chosen tile reacts; the correct tile that the student did
+    // NOT pick stays visually highlighted but does not pop.
+    final reactionKind = !answered || !isChosen
+        ? AnswerReactionKind.none
+        : isAnswer
+            ? AnswerReactionKind.correct
+            : AnswerReactionKind.wrong;
+
+    return AnswerReaction(
+      kind: reactionKind,
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: MergeSemantics(
+          child: Semantics(
+            button: true,
+            selected: isChosen,
+            label: !answered
+                ? null
+                : isAnswer
+                    ? 'Correct answer.'
+                    : isChosen
+                        ? 'Your choice, incorrect.'
+                        : null,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(6),
+              onTap: answered ? null : onTap,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: border,
+                    width: answered && (isAnswer || isChosen) ? 2 : 1,
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                  color: fill,
                 ),
-                borderRadius: BorderRadius.circular(6),
-                color: fill,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    option.key.toUpperCase(),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: theme.colorScheme.onSurfaceVariant,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      option.key.toUpperCase(),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      option.text,
-                      style: theme.textTheme.bodyMedium?.copyWith(height: 1.3),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        option.text,
+                        style:
+                            theme.textTheme.bodyMedium?.copyWith(height: 1.3),
+                      ),
                     ),
-                  ),
-                  if (answered && isAnswer)
-                    Icon(Icons.check_circle, color: green, size: 20)
-                  else if (answered && isChosen && !isAnswer)
-                    Icon(Icons.cancel, color: red, size: 20),
-                ],
+                    if (answered && isAnswer)
+                      Icon(Icons.check_circle, color: green, size: 20)
+                    else if (answered && isChosen && !isAnswer)
+                      Icon(Icons.cancel, color: red, size: 20),
+                  ],
+                ),
               ),
             ),
           ),

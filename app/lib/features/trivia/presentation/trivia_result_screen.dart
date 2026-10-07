@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../shared/widgets/feedback_motion.dart';
 import '../application/trivia_controller.dart';
 import '../domain/trivia_scoring.dart';
 import 'share_card_renderer.dart';
@@ -163,26 +164,26 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
       // layout dimensions (Offstage doesn't reliably propagate constraints),
       // but the user never sees it.
       overlayChildBuilder: (overlayContext) => Positioned(
-          left: -10000,
-          top: -10000,
-          child: RepaintBoundary(
-            key: _boundaryKey,
-            child: SizedBox(
-              width: TriviaShareCard.canvasWidth,
-              height: TriviaShareCard.canvasHeight,
-              child: MediaQuery(
-                data: const MediaQueryData(),
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: TriviaShareCard(
-                    result: result,
-                    dateLabel: formatShareCardDate(_todayIso),
-                  ),
+        left: -10000,
+        top: -10000,
+        child: RepaintBoundary(
+          key: _boundaryKey,
+          child: SizedBox(
+            width: TriviaShareCard.canvasWidth,
+            height: TriviaShareCard.canvasHeight,
+            child: MediaQuery(
+              data: const MediaQueryData(),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: TriviaShareCard(
+                  result: result,
+                  dateLabel: formatShareCardDate(_todayIso),
                 ),
               ),
             ),
           ),
         ),
+      ),
       child: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -233,8 +234,9 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
               const SizedBox(height: 28),
               // Score, big.
               Center(
-                child: Text(
-                  '${result.totalScore > 0 ? '+' : ''}${result.totalScore} / 150',
+                child: CountUpText(
+                  value: result.totalScore,
+                  format: (n) => '${n > 0 ? '+' : ''}$n / 150',
                   style: theme.textTheme.headlineLarge?.copyWith(
                     color: scoreColor,
                     fontWeight: FontWeight.w900,
@@ -337,10 +339,11 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
 /// Wordle-style text payload for iMessage / X — emoji grid, archetype,
 /// score, app pointer. Also the fallback payload when the PNG render
 /// pipeline fails.
-String _shareText(TriviaResult r) => 'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
-      '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
-      '${r.gridEmojis.join()}\n'
-      'politiface.app';
+String _shareText(TriviaResult r) =>
+    'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
+    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
+    '${r.gridEmojis.join()}\n'
+    'politiface.app';
 
 Color _archetypeColor(TriviaArchetype a) {
   switch (a) {

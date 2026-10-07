@@ -11,6 +11,7 @@ import '../../../core/audio/sound_service.dart';
 import '../../government/application/gov_map_data.dart';
 import '../../government/application/node_detail_data.dart';
 import '../../settings/presentation/account_nudge_card.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../application/session_controller.dart';
 import 'session_map_summary.dart';
 
@@ -249,8 +250,9 @@ class _AccuracyRing extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  '${value.round()}%',
+                CountUpText(
+                  value: percent.clamp(0, 100).round(),
+                  format: (n) => '$n%',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.w700,
                   ),

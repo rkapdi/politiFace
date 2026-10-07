@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Generate the five Politiface UI sound effects.
+"""Generate the five Politiface UI sound effects (LEGACY).
+
+Superseded in Oct 2026: app/assets/audio now holds founder-made sounds.
+Running this script overwrites them; do not run it unless you mean to
+return to the synthesized set.
 
 These are original synthesized works, created by this script and licensed
 under MIT like the rest of the repository. No third-party samples, no

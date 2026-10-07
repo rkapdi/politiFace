@@ -7,7 +7,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../../core/audio/streak_sounds.dart';
 import '../../shared/widgets/card_avatar.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../../shared/widgets/photo_zoom_modal.dart';
 import '../../trivia/domain/trivia_question.dart';
 import '../domain/round_state.dart';
@@ -80,10 +82,12 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
 
     // Gesture-synchronous: the reveal state is set right here at the tap;
     // the 750ms timer below only commits the answer.
+    final correct = option == q.correctIndex;
     ref.read(soundServiceProvider).play(
-          option == q.correctIndex
-              ? SoundEffect.correct
-              : SoundEffect.incorrect,
+          answerSound(
+            correct: correct,
+            inARowAfter: correct ? widget.state.currentCorrectStreak + 1 : 0,
+          ),
         );
 
     setState(() {
@@ -176,6 +180,14 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
                         pickedIndex: _revealPickedIndex,
                       )
                     : _RevealMode.idle,
+                // Only the picked tile reacts, and only once the reveal is
+                // active: the correct-but-unpicked tile (when the student
+                // guessed wrong) stays still.
+                reactionKind: revealActive && i == _revealPickedIndex
+                    ? (_revealPickedIndex == _revealCorrectIndex
+                        ? AnswerReactionKind.correct
+                        : AnswerReactionKind.wrong)
+                    : AnswerReactionKind.none,
                 onTap: revealActive ? null : () => _select(i),
               ),
             ),
@@ -277,11 +289,13 @@ class _OptionTile extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.revealMode = _RevealMode.idle,
+    this.reactionKind = AnswerReactionKind.none,
   });
   final String label;
   final bool selected;
   final VoidCallback? onTap;
   final _RevealMode revealMode;
+  final AnswerReactionKind reactionKind;
 
   @override
   Widget build(BuildContext context) {
@@ -309,56 +323,60 @@ class _OptionTile extends StatelessWidget {
       borderColor = Colors.transparent;
     }
 
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      curve: Curves.easeOutCubic,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        child: InkWell(
+    return AnswerReaction(
+      kind: reactionKind,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        decoration: BoxDecoration(
+          color: bg,
           borderRadius: BorderRadius.circular(14),
-          onTap: onTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: borderColor, width: 2),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      fontWeight: (selected || isCorrectReveal || isWrongReveal)
-                          ? FontWeight.w800
-                          : FontWeight.w600,
-                      color:
-                          isRevealing && revealMode == _RevealMode.neutralReveal
-                              ? theme.colorScheme.onSurface.withOpacity(0.55)
-                              : null,
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: borderColor, width: 2),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight:
+                            (selected || isCorrectReveal || isWrongReveal)
+                                ? FontWeight.w800
+                                : FontWeight.w600,
+                        color: isRevealing &&
+                                revealMode == _RevealMode.neutralReveal
+                            ? theme.colorScheme.onSurface.withOpacity(0.55)
+                            : null,
+                      ),
                     ),
                   ),
-                ),
-                if (isCorrectReveal)
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green.shade400,
-                    size: 22,
-                  )
-                else if (isWrongReveal)
-                  Icon(Icons.cancel, color: Colors.red.shade400, size: 22)
-                else if (selected)
-                  Icon(
-                    Icons.check_circle,
-                    color: theme.colorScheme.primary,
-                    size: 22,
-                  ),
-              ],
+                  if (isCorrectReveal)
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green.shade400,
+                      size: 22,
+                    )
+                  else if (isWrongReveal)
+                    Icon(Icons.cancel, color: Colors.red.shade400, size: 22)
+                  else if (selected)
+                    Icon(
+                      Icons.check_circle,
+                      color: theme.colorScheme.primary,
+                      size: 22,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

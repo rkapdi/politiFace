@@ -21,6 +21,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../../core/sync/sign_in_sheet.dart';
 import '../../fcle/application/fcle_providers.dart';
 import '../../fcle/data/question_bank_loader.dart';
@@ -29,6 +30,7 @@ import '../../fcle/domain/readiness_projection.dart';
 import '../../home/application/home_providers.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../settings/presentation/account_section.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../../shared/widgets/neo/neo_kit.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -103,6 +105,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final q = _questions[_index];
     final correct = q.isCorrect(key);
     HapticFeedback.lightImpact();
+    ref.read(soundServiceProvider).play(
+          correct ? SoundEffect.correct : SoundEffect.incorrect,
+        );
     setState(() {
       _chosenKey = key;
       if (correct) _correct++;
@@ -200,7 +205,8 @@ class _InviteView extends StatelessWidget {
             'you stand. Every question is cited to a primary source. '
             'Nothing partisan. Free.',
             style: theme.textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,),
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
           const Spacer(flex: 2),
           BrutalButton(
@@ -280,7 +286,8 @@ class _QuizView extends StatelessWidget {
                   Text(
                     question.domain.label.toUpperCase(),
                     style: theme.textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(question.stem, style: theme.textTheme.headlineSmall),
@@ -296,6 +303,14 @@ class _QuizView extends StatelessWidget {
                               : opt.key == chosenKey
                                   ? _OptState.notYet
                                   : _OptState.dimmed,
+                      // Only the chosen tile reacts; every other tile stays
+                      // none so the pop/shake never fires on an option the
+                      // student did not pick.
+                      reactionKind: answered && opt.key == chosenKey
+                          ? (wasCorrect
+                              ? AnswerReactionKind.correct
+                              : AnswerReactionKind.wrong)
+                          : AnswerReactionKind.none,
                       onTap: answered ? null : () => onChoose(opt.key),
                     ),
                     const SizedBox(height: 8),
@@ -314,15 +329,15 @@ class _QuizView extends StatelessWidget {
                     Text(
                       question.explanation,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant,),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'SOURCE · ${question.citation}'.toUpperCase(),
                       style: theme.textTheme.labelSmall?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant,),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ],
@@ -347,12 +362,14 @@ class _OptionRow extends StatelessWidget {
   const _OptionRow({
     required this.option,
     required this.state,
+    required this.reactionKind,
     required this.onTap,
     super.key,
   });
 
   final FcleOption option;
   final _OptState state;
+  final AnswerReactionKind reactionKind;
   final VoidCallback? onTap;
 
   @override
@@ -386,50 +403,53 @@ class _OptionRow extends StatelessWidget {
         ),
     };
 
-    return InkWell(
-      onTap: onTap == null
-          ? null
-          : () {
-              HapticFeedback.selectionClick();
-              onTap!();
-            },
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 48),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-        decoration: BoxDecoration(
-          color: bg,
-          border: Border.all(color: border, width: 3),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-              decoration:
-                  BoxDecoration(border: Border.all(color: fg, width: 2)),
-              child: Text(
-                option.key.toUpperCase(),
-                style: theme.textTheme.labelSmall?.copyWith(color: fg),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                '${option.text}$suffix',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: fg,
-                  fontWeight:
-                      state == _OptState.correct ? FontWeight.w500 : null,
+    return AnswerReaction(
+      kind: reactionKind,
+      child: InkWell(
+        onTap: onTap == null
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                onTap!();
+              },
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 48),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+          decoration: BoxDecoration(
+            color: bg,
+            border: Border.all(color: border, width: 3),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration:
+                    BoxDecoration(border: Border.all(color: fg, width: 2)),
+                child: Text(
+                  option.key.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(color: fg),
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  '${option.text}$suffix',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: fg,
+                    fontWeight:
+                        state == _OptState.correct ? FontWeight.w500 : null,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _ResultView extends ConsumerWidget {
+class _ResultView extends ConsumerStatefulWidget {
   const _ResultView({
     required this.correct,
     required this.total,
@@ -454,79 +474,111 @@ class _ResultView extends ConsumerWidget {
   final VoidCallback onCreateAccount;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ResultView> createState() => _ResultViewState();
+}
+
+class _ResultViewState extends ConsumerState<_ResultView> {
+  @override
+  void initState() {
+    super.initState();
+    // Screen-appear sound, once: skipped under VoiceOver so the chime
+    // never lands on top of the screen announcement (same guard as the
+    // mock result chime and the session summary chime).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
+      if (!a11y) {
+        ref.read(soundServiceProvider).play(SoundEffect.complete);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     // The diagnostic just wrote its answers, so the shared readiness
     // provider reflects them. Below the projection threshold there is no
     // honest range yet (5 answers < 8): show progress toward it instead.
     final summary = ref.watch(readinessSummaryProvider).valueOrNull;
     final recent =
-        ref.watch(recentFcleAnswerCountProvider).valueOrNull ?? total;
+        ref.watch(recentFcleAnswerCountProvider).valueOrNull ?? widget.total;
     final remaining = (kMinAnswersForProjection - recent).clamp(1, 99);
+    final correct = widget.correct;
+    final total = widget.total;
+    final examDate = widget.examDate;
+    final needsAccount = widget.needsAccount;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Spacer(),
-          Text('YOUR STARTING POINT', style: theme.textTheme.labelSmall),
-          const SizedBox(height: 12),
-          Text(
-            '$correct of $total',
-            style: theme.textTheme.displayMedium?.copyWith(
-              fontFeatures: const [FontFeature.tabularFigures()],
-            ),
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(),
+              Text('YOUR STARTING POINT', style: theme.textTheme.labelSmall),
+              const SizedBox(height: 12),
+              CountUpText(
+                value: correct,
+                format: (n) => '$n of $total',
+                style: theme.textTheme.displayMedium?.copyWith(
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              const SizedBox(height: 6),
+              if (summary == null)
+                Text(
+                  'Answer $remaining more questions to unlock your projected '
+                  'exam score. The pass line is 48 of 80; the daily loop is '
+                  'built to get you there.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                )
+              else ...[
+                Text(
+                  'Projected on the real exam: about '
+                  '${summary.low} to ${summary.high} of 80. The pass line is 48.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                PowerlineBar(active: ReadinessHero.stageFor(summary)),
+              ],
+              const Spacer(),
+              if (needsAccount)
+                BrutalButton(
+                  label: 'Create your account',
+                  subtitle: 'keep your plan · about a minute',
+                  onPressed: widget.onCreateAccount,
+                )
+              else ...[
+                BrutalButton.quiet(
+                  label: examDate == null
+                      ? 'When is your exam? Pick a date'
+                      : 'Exam date · ${examDate.toIso8601String().substring(0, 10)}',
+                  onPressed: widget.onPickDate,
+                ),
+                const SizedBox(height: 10),
+                BrutalButton.quiet(
+                  label: 'I have a class code',
+                  onPressed: widget.onClassCode,
+                ),
+                const SizedBox(height: 10),
+                BrutalButton(
+                  label: 'Start studying',
+                  subtitle: 'your plan is ready',
+                  onPressed: widget.onDone,
+                ),
+              ],
+            ],
           ),
-          const SizedBox(height: 6),
-          if (summary == null)
-            Text(
-              'Answer $remaining more questions to unlock your projected '
-              'exam score. The pass line is 48 of 80; the daily loop is '
-              'built to get you there.',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            )
-          else ...[
-            Text(
-              'Projected on the real exam: about '
-              '${summary.low} to ${summary.high} of 80. The pass line is 48.',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            PowerlineBar(active: ReadinessHero.stageFor(summary)),
-          ],
-          const Spacer(),
-          if (needsAccount)
-            BrutalButton(
-              label: 'Create your account',
-              subtitle: 'keep your plan · about a minute',
-              onPressed: onCreateAccount,
-            )
-          else ...[
-            BrutalButton.quiet(
-              label: examDate == null
-                  ? 'When is your exam? Pick a date'
-                  : 'Exam date · ${examDate!.toIso8601String().substring(0, 10)}',
-              onPressed: onPickDate,
-            ),
-            const SizedBox(height: 10),
-            BrutalButton.quiet(
-              label: 'I have a class code',
-              onPressed: onClassCode,
-            ),
-            const SizedBox(height: 10),
-            BrutalButton(
-              label: 'Start studying',
-              subtitle: 'your plan is ready',
-              onPressed: onDone,
-            ),
-          ],
-        ],
-      ),
+        ),
+        // Small burst on arrival: this is the student's starting score,
+        // not a pass/fail moment, so it stays modest (big: false).
+        const CelebrationBurst(fire: true),
+      ],
     );
   }
 }
@@ -557,7 +609,8 @@ class _AccountView extends ConsumerWidget {
               child: SignInSheet(
                 auth: auth,
                 title: 'Create your account',
-                intro: 'Enter your email. We email you a 6-digit code; there is '
+                intro:
+                    'Enter your email. We email you a 6-digit code; there is '
                     'no password. Your plan and progress stay with you on '
                     'any device, and your class can find you.',
                 onSignedIn: onSignedIn,

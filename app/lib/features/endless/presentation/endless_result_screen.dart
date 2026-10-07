@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../shared/widgets/feedback_motion.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
 import '../application/endless_controller.dart';
 import 'endless_share_card.dart';
@@ -39,8 +40,18 @@ class _EndlessResultScreenState extends ConsumerState<EndlessResultScreen> {
   String get _todayLabel {
     final now = DateTime.now();
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[now.month - 1]} ${now.day}';
   }
@@ -86,8 +97,7 @@ class _EndlessResultScreenState extends ConsumerState<EndlessResultScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final state =
-        ref.watch(endlessControllerProvider).valueOrNull;
+    final state = ref.watch(endlessControllerProvider).valueOrNull;
 
     return Scaffold(
       appBar: AppBar(
@@ -141,8 +151,9 @@ class _EndlessResultScreenState extends ConsumerState<EndlessResultScreen> {
                 ),
                 const SizedBox(height: 8),
                 Center(
-                  child: Text(
-                    '${state?.bestStreak ?? 0}',
+                  child: CountUpText(
+                    value: state?.bestStreak ?? 0,
+                    format: (n) => '$n',
                     style: const TextStyle(
                       fontSize: 130,
                       fontWeight: FontWeight.w900,
@@ -209,9 +220,7 @@ class _EndlessResultScreenState extends ConsumerState<EndlessResultScreen> {
                           // Reset the controller so the next Endless launch
                           // starts fresh — otherwise the user would re-enter
                           // an ended run.
-                          ref
-                              .read(endlessControllerProvider.notifier)
-                              .reset();
+                          ref.read(endlessControllerProvider.notifier).reset();
                           context.go('/');
                         },
                         icon: const Icon(Icons.check_rounded, size: 16),
