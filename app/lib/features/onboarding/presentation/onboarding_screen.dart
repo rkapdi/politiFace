@@ -203,7 +203,7 @@ class _InviteView extends StatelessWidget {
           const Spacer(flex: 2),
           BrutalButton(
             label: 'Start the diagnostic',
-            subtitle: '5 questions · no account needed',
+            subtitle: '5 questions · about a minute',
             onPressed: onStart,
           ),
         ],
@@ -455,15 +455,12 @@ class _ResultView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     // The diagnostic just wrote its answers, so the shared readiness
-    // provider has a real projection: the same numbers Home will show.
-    // The fallback uses the same shrunk math, never a raw extrapolation.
+    // provider reflects them. Below the projection threshold there is no
+    // honest range yet (5 answers < 8): show progress toward it instead.
     final summary = ref.watch(readinessSummaryProvider).valueOrNull;
-    final fallback = fallbackProjection(correct, total);
-    final low = summary?.low ?? fallback.low;
-    final high = summary?.high ?? fallback.high;
-    final stage = summary == null
-        ? (high >= 48 ? ReadinessStage.onTrack : ReadinessStage.notYet)
-        : ReadinessHero.stageFor(summary);
+    final recent =
+        ref.watch(recentFcleAnswerCountProvider).valueOrNull ?? total;
+    final remaining = (kMinAnswersForProjection - recent).clamp(1, 99);
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
@@ -480,15 +477,26 @@ class _ResultView extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            'Projected on the real exam: about $low–$high of 80. '
-            'The pass line is 48. '
-            '${high >= 48 ? "You are closer than most people start." : "Everyone starts somewhere; the daily loop is built for exactly this."}',
-            style: theme.textTheme.bodyLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,),
-          ),
-          const SizedBox(height: 16),
-          PowerlineBar(active: stage),
+          if (summary == null)
+            Text(
+              'Answer $remaining more questions to unlock your projected '
+              'exam score. The pass line is 48 of 80; the daily loop is '
+              'built to get you there.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            )
+          else ...[
+            Text(
+              'Projected on the real exam: about '
+              '${summary.low} to ${summary.high} of 80. The pass line is 48.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            PowerlineBar(active: ReadinessHero.stageFor(summary)),
+          ],
           const Spacer(),
           if (needsAccount)
             BrutalButton(

@@ -2,6 +2,7 @@
 // migrations exactly. Regenerate after every hosted apply:
 //   supabase gen types typescript --project-id sbjpiajjlufrhigmovnk
 // (or the Supabase MCP generate_typescript_types tool). Never hand-edit.
+
 export type Json =
   | string
   | number
@@ -1496,11 +1497,40 @@ export type Database = {
         Args: { p_cohort: string; p_email: string }
         Returns: undefined
       }
+      admin_activity: {
+        Args: { p_since: string }
+        Returns: {
+          at: string
+          cohort_id: string
+          kind: string
+          session_id: string
+          severity: string
+          title: string
+          user_id: string
+        }[]
+      }
+      admin_audit_list: {
+        Args: { p_action?: string; p_limit?: number }
+        Returns: {
+          action: string
+          actor_handle: string
+          created_at: string
+          details: Json
+          id: number
+          target_cohort: string
+          target_label: string
+          target_session: string
+          target_user: string
+        }[]
+      }
       admin_canary_status: { Args: never; Returns: Json }
+      admin_class: { Args: { p_cohort: string }; Returns: Json }
+      admin_console_open: { Args: never; Returns: undefined }
       admin_decide_faculty_request: {
         Args: { p_approve: boolean; p_id: string }
         Returns: undefined
       }
+      admin_home: { Args: never; Returns: Json }
       admin_list_cohorts: {
         Args: never
         Returns: {
@@ -1539,6 +1569,21 @@ export type Database = {
           uses: number
         }[]
       }
+      admin_list_invites_v2: {
+        Args: never
+        Returns: {
+          code: string
+          created_at: string
+          expires_at: string
+          max_uses: number
+          minted_by_handle: string
+          note: string
+          recipient_email: string
+          revoked_at: string
+          status: string
+          uses: number
+        }[]
+      }
       admin_list_live_sessions: {
         Args: never
         Returns: {
@@ -1552,7 +1597,22 @@ export type Database = {
           title: string
         }[]
       }
+      admin_mint_invite: {
+        Args: { p_note?: string; p_recipient_email?: string }
+        Returns: string
+      }
       admin_overview: { Args: never; Returns: Json }
+      admin_person: { Args: { p_user: string }; Returns: Json }
+      admin_revoke_invite: { Args: { p_code: string }; Returns: undefined }
+      admin_search: {
+        Args: { p_q: string }
+        Returns: {
+          id: string
+          kind: string
+          subtitle: string
+          title: string
+        }[]
+      }
       admin_search_users: {
         Args: { p_q: string }
         Returns: {
@@ -1565,7 +1625,12 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_session: { Args: { p_session: string }; Returns: Json }
       admin_set_faculty: {
+        Args: { p_user: string; p_verified: boolean }
+        Returns: undefined
+      }
+      admin_set_faculty_audited: {
         Args: { p_user: string; p_verified: boolean }
         Returns: undefined
       }
@@ -1717,6 +1782,7 @@ export type Database = {
         }[]
       }
       get_reporting_policy: { Args: { p_cohort: string }; Returns: Json }
+      has_course_identifier: { Args: { p_text: string }; Returns: boolean }
       invite_preview: { Args: { p_code: string }; Returns: Json }
       join_cohort: {
         Args: { p_code: string; p_roster_name?: string }
@@ -1766,6 +1832,17 @@ export type Database = {
         }[]
       }
       locked_question_ids: { Args: never; Returns: string[] }
+      log_ops_event: {
+        Args: {
+          p_app_version?: string
+          p_client: string
+          p_code?: string
+          p_detail?: Json
+          p_email?: string
+          p_kind: string
+        }
+        Returns: undefined
+      }
       log_report_export: {
         Args: { p_cohort: string; p_kind: string }
         Returns: undefined

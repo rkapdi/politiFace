@@ -244,6 +244,16 @@ export const signInAnonymously = async () => {
 export type ConsoleRole = 'staff' | 'faculty' | 'ta' | 'student' | 'none'
 export const myConsoleRole = () => rpc<ConsoleRole>('my_console_role')
 
+// Whether this account is one of the two founders, who get the admin
+// console. Stale for up to 5 minutes, which is fine: admin status never
+// changes mid-session in practice.
+export const useAmAdmin = () =>
+  useQuery({
+    queryKey: ['am-admin'],
+    queryFn: () => rpc<boolean>('am_admin'),
+    staleTime: 5 * 60_000,
+  })
+
 // Whether this faculty account has completed instructor verification
 // (redeemed an invite or been approved). Unverified co-faculty and TAs
 // also get console role 'faculty'/'ta', so this gates faculty-only actions

@@ -296,7 +296,7 @@
       <button class="btn secondary mini" id="btn-signout-top">Sign out</button>
     </div>
     <div class="tabs hidden" id="admin-toggle-row">
-      <button class="tabbtn" id="nav-admin-btn">Admin</button>
+      <button class="tabbtn" id="nav-admin-btn">Admin console ↗</button>
       <button class="tabbtn active" id="nav-classes-btn">Your classes</button>
     </div>
 
@@ -533,44 +533,6 @@
       </section>
     </div>
     </div>
-
-    <section id="view-admin" class="hidden">
-      <div class="card">
-        <h2>Command center</h2>
-        <div class="statgrid" id="admin-overview"></div>
-      </div>
-
-      <div class="card">
-        <h2>All classes</h2>
-        <table class="reteach" id="admin-cohorts"></table>
-      </div>
-
-      <div class="card">
-        <h2>Find user</h2>
-        <label for="admin-search">Handle or email (2 or more characters)</label>
-        <input id="admin-search" placeholder="civic_quill or name@school.edu">
-        <div id="admin-search-results"></div>
-        <p class="err hidden" id="admin-search-err"></p>
-      </div>
-
-      <div class="card">
-        <h2>Instructor invites</h2>
-        <table class="reteach" id="admin-invites"></table>
-        <details style="margin-top:12px">
-          <summary class="muted" style="cursor:pointer">Mint an invite</summary>
-          <label for="invite-note">Note (optional)</label>
-          <input id="invite-note" placeholder="For Prof. X">
-          <button class="btn" id="btn-mint-invite">Mint invite</button>
-          <p class="hidden" id="mint-result"></p>
-          <p class="err hidden" id="mint-err"></p>
-        </details>
-      </div>
-
-      <div class="card">
-        <h2>All live sessions</h2>
-        <table class="reteach" id="admin-sessions"></table>
-      </div>
-    </section>
   </section>
 </main>
 
@@ -616,8 +578,6 @@ if (!cfg.url || !cfg.anonKey) {
 
   // Admin state
   let isAdmin = false;
-  let adminMode = false;
-  let searchTimer = null;
 
   // Tabs
   let currentTab = "insights";
@@ -706,7 +666,6 @@ if (!cfg.url || !cfg.anonKey) {
     cleanupLive();
     selected = null;
     isAdmin = false;
-    setAdminMode(false);
     show("admin-toggle-row", false);
     show("classpane", false);
     show("step-email");
@@ -881,7 +840,7 @@ if (!cfg.url || !cfg.anonKey) {
       </div>`).join("");
   }
 
-  // ── admin: command center ───────────────────────────────────────────────
+  // ── admin: redirect to the new console ──────────────────────────────────
 
   async function checkAdmin() {
     // Default-deny: hide first, reveal only after the server says yes.
@@ -890,147 +849,13 @@ if (!cfg.url || !cfg.anonKey) {
     // switches in one tab.
     isAdmin = false;
     show("admin-toggle-row", false);
-    setAdminMode(false);
     const { data, error } = await supabase.rpc("am_admin");
     isAdmin = !error && data === true;
     show("admin-toggle-row", isAdmin);
   }
 
-  function setAdminMode(on) {
-    adminMode = on;
-    $("nav-classes-btn").classList.toggle("active", !on);
-    $("nav-admin-btn").classList.toggle("active", on);
-    show("classes-view", !on);
-    show("view-admin", on);
-    updateWide();
-    if (on) loadAdmin();
-  }
-  $("nav-classes-btn").onclick = () => setAdminMode(false);
-  $("nav-admin-btn").onclick = () => setAdminMode(true);
-
-  async function loadAdmin() {
-    {
-      // Server re-check on every admin-view load: if any of these RPCs
-      // rejects, this session is not an admin no matter what the UI
-      // thought; bounce out.
-      const { error } = await supabase.rpc("am_admin");
-      if (error) { isAdmin = false; show("admin-toggle-row", false); setAdminMode(false); return; }
-    }
-    const { data: ov } = await supabase.rpc("admin_overview");
-    $("admin-overview").innerHTML = !ov ? "" : [
-      [ov.users, "Users"],
-      [ov.verified_faculty, "Verified faculty"],
-      [ov.cohorts, "Classes"],
-      [ov.memberships, "Students"],
-      [ov.active_7d, "Active 7d"],
-      [ov.answers_7d, "Answers 7d"],
-      [ov.mocks_completed, "Mocks"],
-      [ov.live_sessions_run, "Sessions run"],
-    ].map(([v, l]) => `<div><div class="value">${v ?? 0}</div><div class="label">${l}</div></div>`).join("");
-
-    const { data: cohorts } = await supabase.rpc("admin_list_cohorts");
-    $("admin-cohorts").innerHTML =
-      `<tr><th>Name</th><th>Term</th><th>Creator</th><th>Students</th>
-       <th>Answers 7d</th><th>Created</th><th>Join code</th></tr>` +
-      (cohorts ?? []).map((c) => `<tr>
-        <td>${esc(c.name)}</td>
-        <td>${esc(c.term ?? "")}</td>
-        <td>${esc(c.creator_handle)}</td>
-        <td>${c.students}</td>
-        <td>${c.answers_7d}</td>
-        <td>${new Date(c.created_at).toLocaleDateString()}</td>
-        <td><button type="button" class="btn secondary mini" data-reveal="${esc(c.join_code)}">Reveal</button></td>
-      </tr>`).join("");
-    for (const b of $("admin-cohorts").querySelectorAll("[data-reveal]")) {
-      b.onclick = () => {
-        b.replaceWith(Object.assign(document.createElement("span"),
-          { className: "code", textContent: b.dataset.reveal }));
-      };
-    }
-
-    await Promise.all([loadAdminInvites(), loadAdminSessions()]);
-  }
-
-  async function loadAdminInvites() {
-    const { data } = await supabase.rpc("admin_list_invites");
-    $("admin-invites").innerHTML =
-      `<tr><th>Code</th><th>Note</th><th>Minted by</th><th>Uses</th></tr>` +
-      (data ?? []).map((i) => `<tr>
-        <td class="code">${esc(i.code)}</td>
-        <td>${esc(i.note ?? "")}</td>
-        <td>${esc(i.minted_by_handle)}</td>
-        <td>${i.uses} / ${i.max_uses}</td>
-      </tr>`).join("");
-  }
-
-  async function loadAdminSessions() {
-    const { data } = await supabase.rpc("admin_list_live_sessions");
-    $("admin-sessions").innerHTML =
-      `<tr><th>Class</th><th>Title</th><th>Status</th><th>Questions</th>
-       <th>Participants</th><th>Created</th><th>Ended</th></tr>` +
-      (data ?? []).map((s) => `<tr>
-        <td>${esc(s.cohort_name)}</td>
-        <td>${esc(s.title)}</td>
-        <td>${esc(s.status)}</td>
-        <td>${s.questions}</td>
-        <td>${s.participants}</td>
-        <td>${new Date(s.created_at).toLocaleDateString()}</td>
-        <td>${s.ended_at ? new Date(s.ended_at).toLocaleDateString() : ""}</td>
-      </tr>`).join("");
-  }
-
-  $("admin-search").oninput = () => {
-    clearTimeout(searchTimer);
-    searchTimer = setTimeout(runAdminSearch, 300);
-  };
-
-  async function runAdminSearch() {
-    setErr("admin-search-err", null);
-    const q = $("admin-search").value.trim();
-    if (q.length < 2) { $("admin-search-results").innerHTML = ""; return; }
-    const { data, error } = await supabase.rpc("admin_search_users", { p_q: q });
-    if (error) return setErr("admin-search-err", "Search failed. Try a different term.");
-    renderAdminSearchResults(data ?? []);
-  }
-
-  function renderAdminSearchResults(rows) {
-    $("admin-search-results").innerHTML = rows.length ? rows.map((u) => `<div class="miss">
-        <p class="stem">${esc(u.handle)}
-          ${u.is_admin ? '<span class="pill">admin</span>' : ""}
-          ${u.is_faculty ? '<span class="pill">faculty</span>' : ""}</p>
-        <div class="row">
-          <span class="muted">${esc(u.email)}, ${u.classes} class${u.classes === 1 ? "" : "es"}</span>
-          <button class="btn secondary mini" data-grant="${u.user_id}"
-            data-verified="${u.is_faculty ? "false" : "true"}">
-            ${u.is_faculty ? "Revoke faculty" : "Grant faculty"}
-          </button>
-        </div>
-      </div>`).join("") : `<p class="muted">No matches.</p>`;
-    for (const b of $("admin-search-results").querySelectorAll("[data-grant]")) {
-      b.onclick = async () => {
-        b.disabled = true;
-        const { error } = await supabase.rpc("admin_set_faculty", {
-          p_user: b.dataset.grant, p_verified: b.dataset.verified === "true",
-        });
-        if (error) { b.disabled = false; return setErr("admin-search-err", "Could not update faculty status."); }
-        await runAdminSearch();
-      };
-    }
-  }
-
-  $("btn-mint-invite").onclick = async () => {
-    setErr("mint-err", null);
-    show("mint-result", false);
-    const note = $("invite-note").value.trim();
-    const btn = $("btn-mint-invite");
-    btn.disabled = true;
-    const { data, error } = await supabase.rpc("mint_faculty_invite", { p_note: note || null });
-    btn.disabled = false;
-    if (error) return setErr("mint-err", "Could not mint an invite.");
-    $("invite-note").value = "";
-    $("mint-result").innerHTML = `New code: <span class="code">${esc(data)}</span>, shown once. Copy it now.`;
-    show("mint-result");
-    await loadAdminInvites();
+  $("nav-admin-btn").onclick = () => {
+    window.location.href = "../app/#/admin";
   };
 
   // ── tabs ──────────────────────────────────────────────────────────────
@@ -1045,7 +870,7 @@ if (!cfg.url || !cfg.anonKey) {
     updateWide();
   }
   function updateWide() {
-    $("main").classList.toggle("wide", adminMode || currentTab === "live");
+    $("main").classList.toggle("wide", currentTab === "live");
   }
   $("tab-insights").onclick = () => setTab("insights");
   $("tab-questions").onclick = () => setTab("questions");

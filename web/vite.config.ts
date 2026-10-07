@@ -8,6 +8,9 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   base: './',
   plugins: [react(), tailwindcss()],
+  define: {
+    __APP_BUILD__: JSON.stringify(`web-${new Date().toISOString().slice(0, 10)}`),
+  },
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test-setup.ts'],

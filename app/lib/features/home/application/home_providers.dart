@@ -78,6 +78,22 @@ final readinessSummaryProvider = FutureProvider<ReadinessSummary?>(
   },
 );
 
+/// FCLE answers inside the recency window, all domains: the progress
+/// toward [kMinAnswersForProjection] shown while the projection is still
+/// too thin to say anything honest.
+final recentFcleAnswerCountProvider = FutureProvider<int>((ref) async {
+  ref.watch(fcleTickProvider);
+  final dao = ref.watch(databaseProvider).fcleAnswersDao;
+  final since = DateTime.now()
+      .subtract(const Duration(days: kRecencyDays))
+      .millisecondsSinceEpoch;
+  var total = 0;
+  for (final d in FcleDomain.values) {
+    total += (await dao.windowedStats(d.code, sinceMs: since)).count;
+  }
+  return total;
+});
+
 /// What the one Home button should do right now.
 enum LadderRung { review, drill, round }
 

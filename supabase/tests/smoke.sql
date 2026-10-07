@@ -2384,5 +2384,480 @@ begin
   end;
 end $$;
 
+-- ── Admin console 2a (20261004000200) ──────────────────────────────────────
+-- Problem log: validation, email only on sign-in kinds, user_id from the
+-- session, per-minute cap, app_seen deduped per day.
+-- (The app schema is owner-only; RPC calls below run as authenticated/anon,
+-- but assertions that read app.ops_events run after `reset role`, as the
+-- table owner, with literal uuids since psql variables do not interpolate
+-- inside do $$ bodies.)
+set app.test_uid = :s1_uid;
+do $$
+declare n int;
+begin
+  perform public.log_ops_event('join_refused', 'web', 'invalid or ended session code',
+    '{"route": "#/join"}', 'web-2026-10-04', 'leak@example.edu');
+  begin
+    perform public.log_ops_event('made_up_kind', 'web');
+    raise exception 'FAIL: unknown kind accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.log_ops_event('client_error', 'android');
+    raise exception 'FAIL: unknown client accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.log_ops_event('client_error', 'web', null,
+      jsonb_build_object('m', repeat('x', 3000)));
+    raise exception 'FAIL: oversized detail accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  for n in 1..40 loop
+    perform public.log_ops_event('client_error', 'web', 'boom');
+  end loop;
+  perform public.log_ops_event('app_seen', 'ios', null, null, '1.3.2 (33)');
+  perform public.log_ops_event('app_seen', 'ios', null, null, '1.3.2 (33)');
+end $$;
+
+-- A signed-out failed sign-in keeps the typed email, lowercased.
+set role anon;
+set app.test_uid = '';
+do $$
+begin
+  perform public.log_ops_event('signin_send_failed', 'web', '429',
+    '{"status": 429}', null, '  Maria.Lopez@MyMDC.net ');
+end $$;
+
+-- Assertions against app.ops_events run as table owner (app schema is
+-- owner-only); literal uuids, no auth.uid().
+reset role;
+do $$
+declare
+  n int;
+  s1_uid uuid := '00000000-0000-0000-0000-000000000001';
+begin
+  if exists (select 1 from app.ops_events where kind = 'join_refused' and email is not null) then
+    raise exception 'FAIL: email stored on a non-sign-in event';
+  end if;
+  if not exists (select 1 from app.ops_events where kind = 'join_refused'
+                  and user_id = s1_uid) then
+    raise exception 'FAIL: join_refused not attributed to the caller';
+  end if;
+  select count(*) into n from app.ops_events
+   where kind = 'client_error' and user_id = s1_uid;
+  if n <> 10 then raise exception 'FAIL: per-minute cap not 10 (got %)', n; end if;
+  select count(*) into n from app.ops_events
+   where kind = 'app_seen' and user_id = s1_uid;
+  if n <> 1 then raise exception 'FAIL: app_seen not deduped per day (got %)', n; end if;
+
+  if not exists (select 1 from app.ops_events
+                  where kind = 'signin_send_failed' and email = 'maria.lopez@mymdc.net'
+                    and user_id is null) then
+    raise exception 'FAIL: failed sign-in email not stored lowercased';
+  end if;
+  -- Purge: rows older than 90 days go, newer stay.
+  insert into app.ops_events (kind, client, created_at)
+  values ('client_error', 'web', now() - interval '91 days');
+  perform app.purge_ops_events();
+  if exists (select 1 from app.ops_events where created_at < now() - interval '90 days') then
+    raise exception 'FAIL: purge left rows older than 90 days';
+  end if;
+  if not exists (select 1 from app.ops_events where email = 'maria.lopez@mymdc.net') then
+    raise exception 'FAIL: purge removed a fresh row';
+  end if;
+end $$;
+set role authenticated;
+
+-- Admin read RPCs: refused for students and plain faculty, allowed for an
+-- admin (f_uid is in app.admins earlier in this file).
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.admin_home();
+    raise exception 'FAIL: student read admin_home';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform * from public.admin_search('Civics');
+    raise exception 'FAIL: student searched as admin';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_uid = :p1_prof;   -- verified faculty, not an admin
+do $$
+begin
+  begin
+    perform * from public.admin_activity(now() - interval '1 day');
+    raise exception 'FAIL: non-admin faculty read the activity stream';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- Seed two people for the search ranking check below: one whose handle
+-- exactly matches the query, one that merely contains it.
+reset role;
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000b4', 'zzzrank@example.edu'),
+  ('00000000-0000-0000-0000-0000000000b5', 'zzzrank2@example.edu')
+  on conflict do nothing;
+set role authenticated;
+set app.test_uid = '00000000-0000-0000-0000-0000000000b4';
+insert into public.profiles (id, handle) values (auth.uid(), 'zzzrank')
+  on conflict do nothing;
+set app.test_uid = '00000000-0000-0000-0000-0000000000b5';
+insert into public.profiles (id, handle) values (auth.uid(), 'zzzrankish')
+  on conflict do nothing;
+
+-- A fresh guest join for the admin_activity check below: the earlier guest
+-- fixture ("Alex R") was already purged by app.purge_live_guest_data() long
+-- before this point in the file.
+\set g2_uid '''00000000-0000-0000-0000-0000000000b6'''
+reset role;
+insert into auth.users (id, email) values (:g2_uid, null) on conflict do nothing;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_sess jsonb;
+begin
+  v_sess := public.create_live_session(
+    v_cohort, 'Guest activity check',
+    (select jsonb_agg(id) from (select id from public.questions
+       where cohort_id is null and review_status = 'published'
+         and domain_id <> 1 limit 1) q),
+    20, true);
+  perform set_config('app.g2_code', v_sess ->> 'join_code', false);
+end $$;
+set app.test_uid = :g2_uid;
+do $$
+begin
+  perform public.join_live_session_guest(current_setting('app.g2_code'), 'Riley Quinn');
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare h jsonb;
+begin
+  h := public.admin_home();
+  if (h -> 'totals' ->> 'classes')::int < 1 then
+    raise exception 'FAIL: admin_home totals missing classes: %', h -> 'totals';
+  end if;
+  if jsonb_typeof(h -> 'funnel') <> 'array' or jsonb_typeof(h -> 'live_now') <> 'array'
+     or jsonb_typeof(h -> 'attention') <> 'array' then
+    raise exception 'FAIL: admin_home shape wrong: %', h;
+  end if;
+  if not exists (select 1 from jsonb_array_elements(h -> 'funnel') f
+                  where f ->> 'name' = 'Civics Section A') then
+    raise exception 'FAIL: funnel missing the smoke class';
+  end if;
+  if not exists (select 1 from public.admin_activity(now() - interval '1 day')
+                  where kind = 'class_join') then
+    raise exception 'FAIL: activity stream missing class joins';
+  end if;
+  if not exists (select 1 from public.admin_activity(now() - interval '1 day')
+                  where kind = 'problem' and severity = 'fail') then
+    raise exception 'FAIL: activity stream missing problem-log rows';
+  end if;
+  -- The guest who just joined "Guest activity check" (display name Riley
+  -- Quinn) must show up in the activity stream unlinked: there is no
+  -- person record to link to.
+  if not exists (select 1 from public.admin_activity(now() - interval '1 day')
+                  where kind = 'live_join' and title like '%Riley Quinn%'
+                    and user_id is null) then
+    raise exception 'FAIL: guest live_join activity missing or wrongly linked';
+  end if;
+  if not exists (select 1 from public.admin_search('webstudent@') where kind = 'person') then
+    raise exception 'FAIL: search by email found no person';
+  end if;
+  if not exists (select 1 from public.admin_search('Maria') where kind = 'person') then
+    raise exception 'FAIL: search by roster name found no person';
+  end if;
+  if not exists (select 1 from public.admin_search('Civics Section') where kind = 'class') then
+    raise exception 'FAIL: search found no class';
+  end if;
+  if exists (select 1 from public.admin_search('x')) then
+    raise exception 'FAIL: one-character search returned results';
+  end if;
+  -- Ranking: an exact handle match ('zzzrank') outranks a mere contains
+  -- match ('zzzrankish') within the same kind, so it comes back first.
+  if (select title from public.admin_search('zzzrank')
+       where kind = 'person' limit 1) <> 'zzzrank' then
+    raise exception 'FAIL: admin_search did not rank the exact match first';
+  end if;
+end $$;
+
+-- Records: refused for non-admins; shapes; view_person audited; timelines
+-- carry the problem log.
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.admin_person(auth.uid());
+    raise exception 'FAIL: student opened a person record';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  r jsonb;
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_session uuid := current_setting('app.p1_session')::uuid;
+begin
+  r := public.admin_person('00000000-0000-0000-0000-000000000001'::uuid);
+  if r -> 'identity' ->> 'email' <> 's1@example.edu' then
+    raise exception 'FAIL: person identity wrong: %', r -> 'identity';
+  end if;
+  if jsonb_array_length(r -> 'memberships') < 1 then
+    raise exception 'FAIL: person memberships missing';
+  end if;
+  if not exists (select 1 from jsonb_array_elements(r -> 'timeline') t
+                  where t ->> 'kind' = 'problem' and t ->> 'severity' = 'fail') then
+    raise exception 'FAIL: person timeline missing the problem log';
+  end if;
+  -- s1 has exactly one session_start event (seeded near the top of this
+  -- file), grouped per day like practice: singular wording, not "1 sessions".
+  if not exists (select 1 from jsonb_array_elements(r -> 'timeline') t
+                  where t ->> 'kind' = 'session_start'
+                    and t ->> 'title' = 'Started a study session') then
+    raise exception 'FAIL: person timeline missing the session_start entry';
+  end if;
+  r := public.admin_class(v_cohort);
+  if r -> 'facts' ->> 'name' <> 'Civics Section A'
+     or jsonb_array_length(r -> 'members') < 2 then
+    raise exception 'FAIL: class record wrong: %', r -> 'facts';
+  end if;
+  r := public.admin_session(v_session);
+  if r -> 'facts' ->> 'title' <> 'Members only quiz'
+     or jsonb_array_length(r -> 'participants') < 1
+     or jsonb_array_length(r -> 'questions') < 1 then
+    raise exception 'FAIL: session record wrong: %', r -> 'facts';
+  end if;
+  perform public.admin_console_open();
+  perform public.admin_console_open();
+end $$;
+reset role;
+do $$
+begin
+  if not exists (select 1 from app.admin_audit
+                  where action = 'view_person'
+                    and target_user = '00000000-0000-0000-0000-000000000001') then
+    raise exception 'FAIL: view_person not audited';
+  end if;
+  if (select count(*) from app.admin_audit where action = 'console_open') <> 1 then
+    raise exception 'FAIL: console_open not throttled to once per 10 minutes';
+  end if;
+end $$;
+set role authenticated;
+
+-- Admin writes: refused for non-admins; audited for admins.
+set app.test_uid = :p1_prof;
+do $$
+begin
+  begin
+    perform public.admin_set_faculty_audited(
+      '00000000-0000-0000-0000-000000000002'::uuid, true);
+    raise exception 'FAIL: non-admin granted instructor access';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.admin_mint_invite('x', null);
+    raise exception 'FAIL: non-admin used the admin mint';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+-- app.verified_faculty is owner-only; grant/revoke calls run as authenticated,
+-- the before/after checks run after `reset role`, as the table owner.
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform public.admin_set_faculty_audited(
+    '00000000-0000-0000-0000-000000000002'::uuid, true);
+end $$;
+reset role;
+do $$
+begin
+  if not exists (select 1 from app.verified_faculty
+                  where user_id = '00000000-0000-0000-0000-000000000002') then
+    raise exception 'FAIL: grant did not verify';
+  end if;
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+begin
+  perform public.admin_set_faculty_audited(
+    '00000000-0000-0000-0000-000000000002'::uuid, false);
+end $$;
+reset role;
+do $$
+begin
+  if exists (select 1 from app.verified_faculty
+              where user_id = '00000000-0000-0000-0000-000000000002') then
+    raise exception 'FAIL: revoke did not unverify';
+  end if;
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare v_code text;
+begin
+  v_code := public.admin_mint_invite('For a smoke prof', '  Prof@EXAMPLE.edu ');
+  if not exists (select 1 from public.admin_list_invites_v2()
+                  where code = v_code and status = 'active') then
+    raise exception 'FAIL: minted invite not listed active';
+  end if;
+  -- The audit detail mirrors the lowercased/trimmed form the invite itself
+  -- was stored under, not whatever casing the caller typed.
+  if not exists (select 1 from public.admin_audit_list('invite_minted', 50)
+                  where details ->> 'code' = v_code
+                    and details ->> 'recipient' = 'prof@example.edu') then
+    raise exception 'FAIL: invite_minted audit recipient not lowercased/trimmed';
+  end if;
+  perform public.admin_revoke_invite(v_code);
+  if not exists (select 1 from public.admin_list_invites_v2()
+                  where code = v_code and status = 'revoked') then
+    raise exception 'FAIL: revoked invite not listed revoked';
+  end if;
+  if (select count(*) from public.admin_audit_list(null, 50)
+       where action in ('faculty_granted', 'faculty_revoked',
+                        'invite_minted', 'invite_revoked')) <> 4 then
+    raise exception 'FAIL: admin writes not all audited';
+  end if;
+  -- Revoking an already-revoked invite is a quiet no-op: no second
+  -- invite_revoked audit row for the same action.
+  perform public.admin_revoke_invite(v_code);
+  if (select count(*) from public.admin_audit_list('invite_revoked', 50)
+       where details ->> 'code' = v_code) <> 1 then
+    raise exception 'FAIL: re-revoking an invite audited a second time';
+  end if;
+end $$;
+
+-- ── Admin console 2a fix round 1 ────────────────────────────────────────────
+-- Global anonymous throttle: 150 signin attempts, each with a distinct
+-- email (so the per-kind/email scoped cap never kicks in on its own), must
+-- still be capped at 120 new unattributed rows per minute. Baseline is read
+-- before the loop (app schema is owner-only), the loop runs as anon, and
+-- the final count is read after `reset role`. The bucket is now the `anon`
+-- column, not `user_id is null`, so it also catches anonymous-auth sessions
+-- (checked right below).
+reset role;
+do $$
+begin
+  perform set_config('app.fr1_baseline',
+    (select count(*)::text from app.ops_events
+      where anon and created_at > now() - interval '1 minute'), false);
+end $$;
+set role anon;
+set app.test_uid = '';
+do $$
+declare i int;
+begin
+  for i in 1..150 loop
+    perform public.log_ops_event('signin_send_failed', 'web', null, null, null,
+      'spam' || i || '@example.com');
+  end loop;
+  -- An anon call with no email at all is unattributable and stores nothing.
+  perform public.log_ops_event('signin_send_failed', 'web');
+end $$;
+reset role;
+do $$
+declare
+  v_baseline int := current_setting('app.fr1_baseline')::int;
+  n int;
+begin
+  select count(*) into n from app.ops_events
+   where anon and created_at > now() - interval '1 minute';
+  if n > v_baseline + 120 then
+    raise exception
+      'FAIL: anonymous throttle not capped at 120/minute (got % over baseline %)',
+      n - v_baseline, v_baseline;
+  end if;
+  if exists (select 1 from app.ops_events
+              where kind = 'signin_send_failed' and user_id is null and email is null) then
+    raise exception 'FAIL: anon call with no email stored a row';
+  end if;
+end $$;
+set role authenticated;
+
+-- Anonymous-auth callers (a real auth.uid(), but an is_anonymous JWT claim)
+-- share that same global anon bucket. The spray above already pinned it at
+-- the 120 cap for this minute, so a client_error from an anonymous-auth
+-- session right now must be dropped too, not given its own 120-row budget.
+set app.test_uid = :p1_anon;
+set app.test_jwt = '{"is_anonymous": true}';
+do $$
+begin
+  perform public.log_ops_event('client_error', 'web', 'anon-auth-flood-check');
+end $$;
+set app.test_jwt = '';
+reset role;
+do $$
+begin
+  if exists (select 1 from app.ops_events
+              where user_id = '00000000-0000-0000-0000-0000000000a4'::uuid
+                and code = 'anon-auth-flood-check') then
+    raise exception 'FAIL: anonymous-auth write bypassed the shared global anon bucket';
+  end if;
+end $$;
+set role authenticated;
+
+-- admin_person on an unknown person raises a clear error.
+set app.test_uid = :f_uid;
+do $$
+begin
+  begin
+    perform public.admin_person('00000000-0000-0000-0000-0000000000fa'::uuid);
+    raise exception 'FAIL: admin_person on an unknown uuid did not raise';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%no such person%' then
+      raise exception 'FAIL: admin_person raised the wrong error for an unknown uuid: %', sqlerrm;
+    end if;
+  end;
+end $$;
+
+-- Every admin_* RPC this migration adds (plus admin_console_open) must be
+-- unreachable by anon.
+do $$
+declare
+  sig text;
+  sigs text[] := array[
+    'public.admin_home()',
+    'public.admin_activity(timestamptz)',
+    'public.admin_search(text)',
+    'public.admin_person(uuid)',
+    'public.admin_class(uuid)',
+    'public.admin_session(uuid)',
+    'public.admin_console_open()',
+    'public.admin_set_faculty_audited(uuid, boolean)',
+    'public.admin_list_invites_v2()',
+    'public.admin_mint_invite(text, text)',
+    'public.admin_revoke_invite(text)',
+    'public.admin_audit_list(text, int)'
+  ];
+begin
+  foreach sig in array sigs loop
+    if has_function_privilege('anon', sig, 'execute') then
+      raise exception 'FAIL: anon can execute %', sig;
+    end if;
+  end loop;
+end $$;
+
+-- The legacy, unaudited admin_set_faculty(uuid, boolean) has had its only
+-- caller removed; authenticated must no longer be able to call it.
+do $$
+begin
+  if has_function_privilege('authenticated', 'public.admin_set_faculty(uuid, boolean)',
+                             'execute') then
+    raise exception 'FAIL: authenticated can still execute the legacy admin_set_faculty';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

@@ -17,6 +17,7 @@ import {
 import { useSession } from '../auth/SessionProvider'
 import { EmailCodeForm } from '../auth/EmailCodeForm'
 import { useLiveSession } from '../lib/live'
+import { logOpsEvent } from '../lib/opsLog'
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
 import { Countdown } from '../components/Countdown'
@@ -60,6 +61,10 @@ function GuestJoin({ code, onJoined }: { code: string; onJoined: (s: LiveJoin) =
       await signInAnonymously()
       onJoined(await joinLiveSessionGuest(code, name.trim()))
     } catch (err) {
+      logOpsEvent('join_refused', {
+        code: (err as Error).message.slice(0, 80),
+        detail: { session_code: code },
+      })
       setError((err as Error).message)
     } finally {
       setBusy(false)
@@ -95,6 +100,10 @@ function StudentJoin({
     try {
       onJoined(await fn())
     } catch (err) {
+      logOpsEvent('join_refused', {
+        code: (err as Error).message.slice(0, 80),
+        detail: { session_code: code },
+      })
       setError((err as Error).message)
     } finally {
       setBusy(false)

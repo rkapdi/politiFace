@@ -2,13 +2,14 @@ import { Link, Outlet } from '@tanstack/react-router'
 import { LogOut, User } from 'lucide-react'
 import { RequireAuth } from '../auth/RequireAuth'
 import { useSession } from '../auth/SessionProvider'
-import { useMyProfile } from '../lib/api'
+import { useAmAdmin, useMyProfile } from '../lib/api'
 import { S } from '../lib/strings'
 import { Button } from '../components/ui'
 
 function Nav() {
   const { session, signOut } = useSession()
   const profile = useMyProfile(session?.user.id ?? '')
+  const isAdmin = useAmAdmin().data === true
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
@@ -21,6 +22,11 @@ function Nav() {
             >
               Your classes
             </Link>
+            {isAdmin ? (
+              <Link to="/admin" className="text-sm text-slate-600 hover:text-slate-900">
+                {S.common.console}
+              </Link>
+            ) : null}
           </nav>
         </div>
         <div className="flex items-center gap-2">

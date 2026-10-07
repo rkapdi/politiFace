@@ -69,6 +69,7 @@ export const S = {
     loading: 'Loading',
     backToClass: 'Back to class',
     yourClasses: 'Your classes',
+    console: 'Console',
     createClass: 'Create a class',
     checkingSession: 'Checking your session',
   },

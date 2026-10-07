@@ -1,13 +1,16 @@
+import { useEffect } from 'react'
 import {
   createHashHistory,
   createRootRoute,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   Outlet,
 } from '@tanstack/react-router'
 import { Layout } from './Layout'
 import { Button, Card } from '../components/ui'
 import { S } from '../lib/strings'
+import { logOpsEvent } from '../lib/opsLog'
 import { HomePage } from './HomePage'
 import { StyleguidePage } from './StyleguidePage'
 import { ClassPage } from './ClassPage'
@@ -76,6 +79,52 @@ const styleguideRoute = createRoute({
   component: StyleguidePage,
 })
 
+// The admin console: a separate dark shell for the two founders, lazy
+// loaded so its code never ships to students or faculty. `AdminLayout`
+// (the lazy-loaded export) wraps its own RequireAuth, so the route itself
+// is the thing TanStack Router preloads: no synchronous wrapper mounts
+// before the chunk arrives.
+const adminRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/admin',
+  component: lazyRouteComponent(() => import('../admin/AdminLayout'), 'AdminLayout'),
+})
+const adminHomeRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/',
+  component: lazyRouteComponent(() => import('../admin/AdminHome'), 'AdminHome'),
+})
+const adminSearchRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/search',
+  component: lazyRouteComponent(() => import('../admin/SearchPage'), 'SearchPage'),
+})
+const adminPersonRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/people/$userId',
+  component: lazyRouteComponent(() => import('../admin/PersonPage'), 'PersonPage'),
+})
+const adminClassRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/classes/$cohortId',
+  component: lazyRouteComponent(() => import('../admin/ClassRecordPage'), 'ClassRecordPage'),
+})
+const adminSessionRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/sessions/$sessionId',
+  component: lazyRouteComponent(() => import('../admin/SessionRecordPage'), 'SessionRecordPage'),
+})
+const adminInvitesRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/invites',
+  component: lazyRouteComponent(() => import('../admin/InvitesPage'), 'InvitesPage'),
+})
+const adminAuditRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/audit',
+  component: lazyRouteComponent(() => import('../admin/AuditPage'), 'AuditPage'),
+})
+
 const routeTree = rootRoute.addChildren([
   joinRoute,
   welcomeRoute,
@@ -87,10 +136,30 @@ const routeTree = rootRoute.addChildren([
     accountRoute,
     styleguideRoute,
   ]),
+  adminRoute.addChildren([
+    adminHomeRoute,
+    adminSearchRoute,
+    adminPersonRoute,
+    adminClassRoute,
+    adminSessionRoute,
+    adminInvitesRoute,
+    adminAuditRoute,
+  ]),
 ])
 
 // A rendering error in one route never becomes a blank page.
-function RouteError() {
+function RouteError({ error }: { error: unknown }) {
+  useEffect(() => {
+    logOpsEvent('client_error', {
+      code: 'route_error',
+      detail: {
+        // Only the path, never the query: invite and session codes travel
+        // as query params on some routes and must never land in the log.
+        route: window.location.hash.split('?')[0].slice(0, 120),
+        message: String((error as Error)?.message ?? error).slice(0, 300),
+      },
+    })
+  }, [error])
   return (
     <Card className="mx-auto mt-16 max-w-md text-center">
       <p className="text-sm text-slate-700">{S.errors.somethingBroke}</p>

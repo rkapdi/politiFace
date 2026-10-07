@@ -2,13 +2,15 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-const { signInWithOtp, verifyOtp } = vi.hoisted(() => ({
+const { signInWithOtp, verifyOtp, logOpsEvent } = vi.hoisted(() => ({
   signInWithOtp: vi.fn(async () => ({ error: null })),
   verifyOtp: vi.fn(async () => ({ error: null })),
+  logOpsEvent: vi.fn(),
 }))
 vi.mock('../lib/supabase', () => ({
   supabase: { auth: { signInWithOtp, verifyOtp } },
 }))
+vi.mock('../lib/opsLog', () => ({ logOpsEvent }))
 
 import { EmailCodeForm } from './EmailCodeForm'
 
@@ -56,5 +58,19 @@ describe('EmailCodeForm', () => {
     await userEvent.click(button)
     expect(await screen.findByRole('alert')).toHaveTextContent(/could not send/i)
     expect(button).not.toBeDisabled()
+  })
+
+  it('reports a failed code send to the problem log with the typed email', async () => {
+    signInWithOtp.mockResolvedValueOnce({
+      error: { status: 429, code: 'over_email_send_rate_limit', message: 'x' },
+    } as never)
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'Maria@MyMDC.net')
+    await userEvent.click(screen.getByRole('button', { name: /send code/i }))
+    expect(logOpsEvent).toHaveBeenCalledWith('signin_send_failed', {
+      code: 'over_email_send_rate_limit',
+      detail: { status: 429 },
+      email: 'Maria@MyMDC.net',
+    })
   })
 })
