@@ -2859,5 +2859,107 @@ begin
   end if;
 end $$;
 
+-- ── Presence (20261006000100) ──────────────────────────────────────────────
+-- Heartbeats from signed-in users (guests flagged), admin-only reads,
+-- 2-minute online window, 90-day purge.
+reset role;
+set role authenticated;
+set app.test_jwt = '';
+set app.test_uid = :s1_uid;
+do $$
+begin
+  perform public.heartbeat('ios', '1.3.2 (34)');
+  perform public.heartbeat('ios', '1.3.2 (34)');
+  perform public.heartbeat('web', 'web-2026-10-06');
+  begin
+    perform public.heartbeat('android');
+    raise exception 'FAIL: unknown presence client accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.admin_online();
+    raise exception 'FAIL: student read who is online';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.admin_last_seen(auth.uid());
+    raise exception 'FAIL: student read last seen';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+set app.test_uid = :p1_anon;
+set app.test_jwt = '{"is_anonymous": true}';
+do $$ begin perform public.heartbeat('web'); end $$;
+set app.test_jwt = '';
+
+reset role;
+do $$
+begin
+  if has_function_privilege('anon', 'public.heartbeat(text, text)', 'execute') then
+    raise exception 'FAIL: signed-out callers can send heartbeats';
+  end if;
+  if (select count(*) from app.presence
+       where user_id = '00000000-0000-0000-0000-000000000001') <> 2 then
+    raise exception 'FAIL: expected one presence row per client';
+  end if;
+  if not exists (select 1 from app.presence
+                  where user_id = '00000000-0000-0000-0000-0000000000a4' and is_guest) then
+    raise exception 'FAIL: anonymous guest not flagged';
+  end if;
+end $$;
+
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare o jsonb;
+begin
+  o := public.admin_online();
+  if (o ->> 'ios')::int < 1 or (o ->> 'web')::int < 2 or (o ->> 'guests')::int < 1
+     or (o ->> 'total')::int < 2 then
+    raise exception 'FAIL: online counts wrong: %', o;
+  end if;
+  if not exists (select 1 from jsonb_array_elements(o -> 'people') x
+                  where x ->> 'user_id' = '00000000-0000-0000-0000-000000000001'
+                    and x -> 'clients' ? 'ios' and x -> 'clients' ? 'web') then
+    raise exception 'FAIL: online people missing s1 on both clients: %', o -> 'people';
+  end if;
+  if exists (select 1 from jsonb_array_elements(o -> 'people') x
+              where x ->> 'user_id' = '00000000-0000-0000-0000-0000000000a4') then
+    raise exception 'FAIL: guest listed by name';
+  end if;
+  if not (public.admin_last_seen('00000000-0000-0000-0000-000000000001') ?& array['ios', 'web']) then
+    raise exception 'FAIL: last seen missing a client';
+  end if;
+end $$;
+
+-- Older than 2 minutes is not online; older than 90 days is purged.
+reset role;
+update app.presence set last_seen_at = now() - interval '3 minutes'
+ where user_id = '00000000-0000-0000-0000-000000000001' and client = 'ios';
+insert into app.presence (user_id, client, last_seen_at)
+values ('00000000-0000-0000-0000-000000000002', 'ios', now() - interval '91 days');
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+begin
+  if exists (select 1 from jsonb_array_elements(public.admin_online() -> 'people') x
+              where x ->> 'user_id' = '00000000-0000-0000-0000-000000000001'
+                and x -> 'clients' ? 'ios') then
+    raise exception 'FAIL: a 3-minute-old heartbeat still counts as online';
+  end if;
+end $$;
+reset role;
+do $$
+begin
+  perform app.purge_ops_events();
+  if exists (select 1 from app.presence where last_seen_at < now() - interval '90 days') then
+    raise exception 'FAIL: purge left stale presence rows';
+  end if;
+  if not exists (select 1 from app.presence
+                  where user_id = '00000000-0000-0000-0000-000000000001') then
+    raise exception 'FAIL: purge removed fresh presence rows';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

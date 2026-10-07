@@ -39,7 +39,8 @@ class OpsLog {
     now = DateTime.now;
   }
 
-  static Future<String?> _appVersion() async {
+  /// "1.3.2 (34)", cached; null when the bundle cannot be read.
+  static Future<String?> appVersion() async {
     if (_version != null) return _version;
     try {
       final info = await PackageInfo.fromPlatform();
@@ -74,7 +75,7 @@ class OpsLog {
         'p_code':
             code == null || code.length <= 80 ? code : code.substring(0, 80),
         'p_detail': detail,
-        'p_app_version': sinkOverride != null ? null : await _appVersion(),
+        'p_app_version': sinkOverride != null ? null : await appVersion(),
         'p_email': email,
       };
 

@@ -12,6 +12,7 @@ vi.mock('../auth/RequireAuth', () => ({
 vi.mock('./adminApi', () => ({
   consoleOpen: vi.fn(async () => undefined),
   useAdminHome: () => ({ data: { live_now: [{ session_id: 's1' }] } }),
+  useAdminOnline: () => ({ data: { total: 14, ios: 11, web: 3, guests: 2, people: [] } }),
   hitPath: (h: { kind: string; id: string }) =>
     h.kind === 'person'
       ? `/admin/people/${h.id}`
@@ -41,6 +42,7 @@ describe('AdminLayout', () => {
     expect(screen.getByText('POLITIFACE // CONSOLE')).toBeInTheDocument()
     expect(screen.getByText('page body')).toBeInTheDocument()
     expect(screen.getByText(/LIVE 1/)).toBeInTheDocument()
+    expect(screen.getByText(/ONLINE 14 \(iOS 11 · web 3\)/)).toBeInTheDocument()
   })
 
   it('everyone else gets a notice, not the console', () => {

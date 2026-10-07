@@ -1531,6 +1531,7 @@ export type Database = {
         Returns: undefined
       }
       admin_home: { Args: never; Returns: Json }
+      admin_last_seen: { Args: { p_user: string }; Returns: Json }
       admin_list_cohorts: {
         Args: never
         Returns: {
@@ -1601,6 +1602,7 @@ export type Database = {
         Args: { p_note?: string; p_recipient_email?: string }
         Returns: string
       }
+      admin_online: { Args: never; Returns: Json }
       admin_overview: { Args: never; Returns: Json }
       admin_person: { Args: { p_user: string }; Returns: Json }
       admin_revoke_invite: { Args: { p_code: string }; Returns: undefined }
@@ -1783,6 +1785,10 @@ export type Database = {
       }
       get_reporting_policy: { Args: { p_cohort: string }; Returns: Json }
       has_course_identifier: { Args: { p_text: string }; Returns: boolean }
+      heartbeat: {
+        Args: { p_app_version?: string; p_client: string }
+        Returns: undefined
+      }
       invite_preview: { Args: { p_code: string }; Returns: Json }
       join_cohort: {
         Args: { p_code: string; p_roster_name?: string }

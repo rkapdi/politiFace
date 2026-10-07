@@ -148,7 +148,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     initialDate: now.add(const Duration(days: 30)),
                     firstDate: now,
                     lastDate: now.add(const Duration(days: 365)),
-                    helpText: 'When do you plan to take the FCLE?',
+                    // The picker header is one line; keep this short so
+                    // "FCLE" never gets cut off.
+                    helpText: 'When is your FCLE?',
                   );
                   if (picked != null) setState(() => _examDate = picked);
                 },

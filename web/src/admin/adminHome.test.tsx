@@ -35,6 +35,12 @@ vi.mock('./adminApi', () => ({
     isPending: false,
     error: null,
   }),
+  useAdminOnline: () => ({
+    data: {
+      total: 3, ios: 2, web: 1, guests: 1,
+      people: [{ user_id: 'u9', name: 'Ana Ruiz', clients: ['ios'], app_version: '1.3.2 (34)', last_seen_at: '2026-10-06T15:06:12Z' }],
+    },
+  }),
   useAdminActivity: () => ({
     data: [
       { at: '2026-10-04T15:06:12Z', kind: 'live_join', severity: 'ok', title: 'Maria Lopez joined live: Week 3 review', user_id: 'u1', cohort_id: 'c1', session_id: 's1' },
@@ -76,5 +82,14 @@ describe('SearchPage', () => {
   it('lists hits linking to their records', () => {
     render(<SearchPage />)
     expect(screen.getByRole('link', { name: /Maria Lopez/ })).toHaveAttribute('href', '#/admin/people/u1')
+  })
+})
+
+describe('AdminHome online now', () => {
+  it('lists who is online with their app and links each person', () => {
+    render(<AdminHome />)
+    expect(screen.getByRole('link', { name: 'Ana Ruiz' })).toHaveAttribute('href', '#/admin/people/u9')
+    expect(screen.getByText(/iOS 1\.3\.2 \(34\)/)).toBeInTheDocument()
+    expect(screen.getByText(/1 guest/)).toBeInTheDocument()
   })
 })

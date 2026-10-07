@@ -1,15 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
-import { useAdminPerson, useSetFaculty } from './adminApi'
+import { useAdminLastSeen, useAdminPerson, useSetFaculty } from './adminApi'
 import { ThreePane } from './ThreePane'
 import { Timeline } from './Timeline'
 import { A } from './strings'
 
 const day = (iso: string | null) => (iso ? iso.slice(0, 10) : A.person.never)
 
+/** "online now" within the 2-minute window the server uses, else "3h ago". */
+function lastSeenLabel(iso: string | undefined, now = Date.now()): string {
+  if (!iso) return A.person.never
+  const mins = Math.floor((now - new Date(iso).getTime()) / 60_000)
+  if (mins < 2) return A.person.onlineNow
+  if (mins < 60) return `${mins}m ago`
+  const hours = Math.floor(mins / 60)
+  if (hours < 24) return `${hours}h ago`
+  return `${Math.floor(hours / 24)}d ago`
+}
+
 export function PersonPage() {
   const { userId } = useParams({ strict: false }) as { userId: string }
   const person = useAdminPerson(userId)
+  const lastSeen = useAdminLastSeen(userId)
   const setFaculty = useSetFaculty()
   const [confirming, setConfirming] = useState(false)
   const actionBtnRef = useRef<HTMLButtonElement>(null)
@@ -82,6 +94,9 @@ export function PersonPage() {
           <div>{A.person.iosApp} {p.app_versions.ios ?? A.person.notSeen}</div>
           <div>{A.person.web} {p.app_versions.web ?? A.person.notSeen}</div>
           <div>{A.person.practice30d} {p.practice.correct_30d}/{p.practice.answers_30d}</div>
+          <div className="admin-label mt-3">{A.person.lastSeen}</div>
+          <div>{A.home.clientIos} {lastSeenLabel(lastSeen.data?.ios)}</div>
+          <div>{A.home.clientWeb} {lastSeenLabel(lastSeen.data?.web)}</div>
           <div className="admin-label mt-3">{A.person.actions}</div>
           {confirming ? (
             <div role="group" aria-label={A.person.confirmGroupLabel} className="mt-1 border border-[var(--a-warn)] p-2">

@@ -220,6 +220,32 @@ export const useAdminHome = (enabled = true) =>
     refetchInterval: 15_000,
     enabled,
   })
+export type AdminOnline = {
+  total: number
+  ios: number
+  web: number
+  guests: number
+  people: {
+    user_id: string
+    name: string
+    clients: ('ios' | 'web')[]
+    app_version: string | null
+    last_seen_at: string
+  }[]
+}
+export const useAdminOnline = (enabled = true) =>
+  useQuery({
+    queryKey: ['admin', 'online'],
+    queryFn: () => call<AdminOnline>('admin_online'),
+    refetchInterval: 15_000,
+    enabled,
+  })
+export const useAdminLastSeen = (id: string) =>
+  useQuery({
+    queryKey: ['admin', 'last-seen', id],
+    queryFn: () => call<{ ios?: string; web?: string }>('admin_last_seen', { p_user: id }),
+    refetchInterval: 30_000,
+  })
 export const useAdminActivity = () =>
   useQuery({
     queryKey: ['admin', 'activity'],
