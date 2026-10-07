@@ -12,6 +12,7 @@ import 'app/providers.dart';
 import 'app/router.dart';
 import 'core/database/drift/app_database.dart';
 import 'core/ops/ops_log.dart';
+import 'core/ops/presence.dart';
 import 'core/sync/restore_service.dart';
 import 'core/sync/supabase_config.dart';
 import 'core/sync/sync_engine.dart';
@@ -190,6 +191,20 @@ Future<void> _bootstrap(AppDatabase db) async {
       return true;
     };
     final pushService = PushService(db: db, api: SupabasePushTokenApi(client));
+    // Presence for the founders' console "online now" counter. Beats only
+    // while signed in; signed-out beats return before touching the network.
+    final presence = PresenceService(
+      beat: () async {
+        if (client.auth.currentSession == null) return;
+        await client.rpc<void>(
+          'heartbeat',
+          params: {
+            'p_client': 'ios',
+            'p_app_version': await OpsLog.appVersion(),
+          },
+        );
+      },
+    )..start();
     if (client.auth.currentSession != null) {
       unawaited(pushService.onSignedIn());
     }
@@ -197,6 +212,7 @@ Future<void> _bootstrap(AppDatabase db) async {
       switch (state.event) {
         case AuthChangeEvent.signedIn:
           unawaited(pushService.onSignedIn());
+          presence.beatNow();
           if (state.session?.user.isAnonymous != true) {
             unawaited(OpsLog.report('app_seen'));
           }
