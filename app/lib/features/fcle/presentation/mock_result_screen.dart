@@ -16,6 +16,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../shared/widgets/feedback_motion.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
 import '../domain/mock_engine.dart';
 import 'fcle_share_card.dart';
@@ -41,12 +42,17 @@ class _MockResultScreenState extends ConsumerState<MockResultScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _portalController.show();
-      // Milestone chime on a pass only; a fail stays silent (the visual
-      // and copy carry it). Skipped under VoiceOver so the chime never
-      // lands on top of the screen announcement.
+      // Milestone chime on a pass, a neutral complete chime on a fail (the
+      // visual and copy already carry pass/fail, so this stays low-key).
+      // Both skipped under VoiceOver so the chime never lands on top of
+      // the screen announcement.
       final a11y = MediaQuery.maybeOf(context)?.accessibleNavigation ?? false;
-      if (widget.result.passed && !a11y) {
-        ref.read(soundServiceProvider).play(SoundEffect.milestone);
+      if (!a11y) {
+        ref.read(soundServiceProvider).play(
+              widget.result.passed
+                  ? SoundEffect.milestone
+                  : SoundEffect.complete,
+            );
       }
     });
   }
@@ -123,159 +129,167 @@ class _MockResultScreenState extends ConsumerState<MockResultScreen> {
         title: const Text('Mock results'),
         automaticallyImplyLeading: false,
       ),
-      body: OverlayPortal(
-        controller: _portalController,
-        overlayChildBuilder: (overlayContext) => Positioned(
-          left: -10000,
-          top: -10000,
-          child: RepaintBoundary(
-            key: _boundaryKey,
-            child: SizedBox(
-              width: FcleShareCard.canvasWidth,
-              height: FcleShareCard.canvasHeight,
-              child: MediaQuery(
-                data: const MediaQueryData(),
-                child: Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: FcleShareCard(
-                    result: result,
-                    dateLabel: _todayLabel,
+      body: Stack(
+        children: [
+          OverlayPortal(
+            controller: _portalController,
+            overlayChildBuilder: (overlayContext) => Positioned(
+              left: -10000,
+              top: -10000,
+              child: RepaintBoundary(
+                key: _boundaryKey,
+                child: SizedBox(
+                  width: FcleShareCard.canvasWidth,
+                  height: FcleShareCard.canvasHeight,
+                  child: MediaQuery(
+                    data: const MediaQueryData(),
+                    child: Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: FcleShareCard(
+                        result: result,
+                        dateLabel: _todayLabel,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ),
-        child: ListView(
-          padding: const EdgeInsets.all(24),
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: passColor.withOpacity(0.10),
-                border: Border.all(color: passColor.withOpacity(0.55)),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    '${result.score} / ${result.total}',
-                    style: theme.textTheme.displaySmall
-                        ?.copyWith(fontWeight: FontWeight.w800),
+            child: ListView(
+              padding: const EdgeInsets.all(24),
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: passColor.withOpacity(0.10),
+                    border: Border.all(color: passColor.withOpacity(0.55)),
+                    borderRadius: BorderRadius.circular(6),
                   ),
+                  child: Column(
+                    children: [
+                      CountUpText(
+                        value: result.score,
+                        format: (n) => '$n / ${result.total}',
+                        style: theme.textTheme.displaySmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        result.passed
+                            ? 'Above the passing bar of $passLine.'
+                            : 'The passing bar is $passLine. Keep practicing.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: passColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'A mock is practice, not a prediction of your official result.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                if (result.pendingSync) ...[
                   const SizedBox(height: 4),
                   Text(
-                    result.passed
-                        ? 'Above the passing bar of $passLine.'
-                        : 'The passing bar is $passLine. Keep practicing.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: passColor,
+                    'Scored offline. Your attempt syncs on the next connection.',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
-              ),
+                const SizedBox(height: 24),
+                Text(
+                  'BY DOMAIN',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.6,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                for (final entry in result.perDomain.entries) ...[
+                  _DomainBar(
+                    label: entry.key.label,
+                    score: entry.value,
+                    passFraction: MockEngine.passFraction,
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                const SizedBox(height: 14),
+                FilledButton.icon(
+                  key: _shareButtonKey,
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                  onPressed: _isSharing ? null : _onShare,
+                  icon: _isSharing
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.ios_share),
+                  label: const Text(
+                    'CHALLENGE A FRIEND',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                  onPressed: () => context.pushReplacement(
+                    '/fcle/practice?domain=${result.weakestDomain.code}',
+                  ),
+                  child: Text(
+                    'PRACTICE ${result.weakestDomain.label.toUpperCase()}',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(6)),
+                    ),
+                  ),
+                  onPressed: () => context.go('/fcle'),
+                  child: const Text(
+                    'BACK TO FCLE PREP',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'A mock is practice, not a prediction of your official result.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            if (result.pendingSync) ...[
-              const SizedBox(height: 4),
-              Text(
-                'Scored offline. Your attempt syncs on the next connection.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-            const SizedBox(height: 24),
-            Text(
-              'BY DOMAIN',
-              style: theme.textTheme.labelSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.6,
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 12),
-            for (final entry in result.perDomain.entries) ...[
-              _DomainBar(
-                label: entry.key.label,
-                score: entry.value,
-                passFraction: MockEngine.passFraction,
-              ),
-              const SizedBox(height: 10),
-            ],
-            const SizedBox(height: 14),
-            FilledButton.icon(
-              key: _shareButtonKey,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-              ),
-              onPressed: _isSharing ? null : _onShare,
-              icon: _isSharing
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.ios_share),
-              label: const Text(
-                'CHALLENGE A FRIEND',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-              ),
-              onPressed: () => context.pushReplacement(
-                '/fcle/practice?domain=${result.weakestDomain.code}',
-              ),
-              child: Text(
-                'PRACTICE ${result.weakestDomain.label.toUpperCase()}',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(6)),
-                ),
-              ),
-              onPressed: () => context.go('/fcle'),
-              child: const Text(
-                'BACK TO FCLE PREP',
-                style: TextStyle(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+          // Big burst only on a pass: a mock exam pass is the biggest
+          // moment this screen has to offer.
+          CelebrationBurst(fire: result.passed, big: true),
+        ],
       ),
     );
   }

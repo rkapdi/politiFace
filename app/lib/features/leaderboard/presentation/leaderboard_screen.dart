@@ -16,6 +16,7 @@ import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
 import '../../../features/settings/presentation/account_section.dart';
 import '../../account/domain/avatars.dart';
 import '../../live/application/live_session_controller.dart';
@@ -190,6 +191,7 @@ class _JoinCohortViewState extends ConsumerState<JoinCohortView> {
     });
     try {
       final cohortId = await api.joinCohort(code, name);
+      ref.read(soundServiceProvider).play(SoundEffect.complete);
       widget.onJoined(cohortId);
     } on PostgrestException {
       // A server verdict on the code itself (e.g. no matching cohort):
