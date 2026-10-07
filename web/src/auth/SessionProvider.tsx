@@ -9,6 +9,7 @@ import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
 import { ensureProfile } from '../lib/api'
 import { logOpsEvent } from '../lib/opsLog'
+import { usePresence } from '../lib/presence'
 
 type SessionState = {
   session: Session | null
@@ -43,6 +44,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       data.subscription.unsubscribe()
     }
   }, [])
+
+  // "Online now" in the founders' console (guests included, flagged server-side).
+  usePresence(session?.user.id)
 
   const signOut = async () => {
     await supabase.auth.signOut()

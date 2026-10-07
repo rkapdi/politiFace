@@ -16,6 +16,7 @@ const timeline = [
 ]
 vi.mock('./adminApi', () => ({
   isUnverifiedSignin: (kind: string, title: string) => kind === 'problem' && title.startsWith('signin'),
+  useAdminLastSeen: () => ({ data: { ios: new Date().toISOString() } }),
   useAdminPerson: () => ({
     data: {
       identity: { user_id: 'u1', email: 'maria@mymdc.net', handle: 'user_1', school: null, created_at: '2026-09-29T00:00:00Z', last_sign_in_at: '2026-10-04T11:00:00Z', is_admin: false, is_faculty: false, is_guest: false },
@@ -68,6 +69,8 @@ describe('records', () => {
     expect(screen.getByText('(typed email, unverified)')).toBeInTheDocument()
     expect(screen.getByText(/route: #\/join/)).toBeInTheDocument()
     expect(screen.getByText(/1.3.2 \(33\)/)).toBeInTheDocument()
+    expect(screen.getByText(/iOS online now/)).toBeInTheDocument()
+    expect(screen.getByText(/web never/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /move class/i })).toBeDisabled()
     expect(screen.getByText('Coming in 2b')).toBeInTheDocument()
     const grantButton = screen.getByRole('button', { name: /grant instructor access/i })

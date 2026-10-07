@@ -1,5 +1,5 @@
 import { Link } from '@tanstack/react-router'
-import { isUnverifiedSignin, useAdminActivity, useAdminHome } from './adminApi'
+import { isUnverifiedSignin, useAdminActivity, useAdminHome, useAdminOnline } from './adminApi'
 import { A } from './strings'
 
 const time = (iso: string) =>
@@ -17,6 +17,7 @@ function Stat({ label, value, tone }: { label: string; value: string | number; t
 export function AdminHome() {
   const home = useAdminHome()
   const activity = useAdminActivity()
+  const online = useAdminOnline()
   if (home.isPending) return <p>{A.loading}</p>
   if (home.error || !home.data) return <p className="sev-fail">{home.error?.message}</p>
   const h = home.data
@@ -68,6 +69,32 @@ export function AdminHome() {
           </table>
         </section>
         <div className="flex flex-col gap-2">
+          <section className="admin-panel p-2" aria-label={A.home.onlineNow}>
+            <h2 className="admin-label mb-1">{A.home.onlineNow}</h2>
+            {online.data && online.data.people.length === 0 ? (
+              <p className="text-[var(--a-muted)]">{A.home.nobodyOnline}</p>
+            ) : null}
+            <ul className="max-h-48 overflow-y-auto">
+              {(online.data?.people ?? []).map(p => (
+                <li key={p.user_id}>
+                  <span className="sev-ok" aria-hidden="true">● </span>
+                  <Link to="/admin/people/$userId" params={{ userId: p.user_id }}>{p.name}</Link>{' '}
+                  <span className="text-[var(--a-muted)]">
+                    {p.clients
+                      .map(c =>
+                        c === 'ios'
+                          ? `${A.home.clientIos}${p.app_version ? ` ${p.app_version}` : ''}`
+                          : A.home.clientWeb,
+                      )
+                      .join(' · ')}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {online.data && online.data.guests > 0 ? (
+              <p className="text-[var(--a-muted)]">{A.home.guestsOnline(online.data.guests)}</p>
+            ) : null}
+          </section>
           <section className="admin-panel p-2" aria-label={A.home.needsAttention}>
             <h2 className="admin-label mb-1">{A.home.needsAttention}</h2>
             {h.attention.length === 0 ? <p className="sev-ok">{A.home.allClear}</p> : null}

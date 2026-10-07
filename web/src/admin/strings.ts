@@ -3,6 +3,7 @@ export const A = {
   brand: 'POLITIFACE // CONSOLE',
   notAvailable: 'The console is not available for this account.',
   live: (n: number) => `LIVE ${n}`,
+  online: (total: number, ios: number, web: number) => `ONLINE ${total} (iOS ${ios} · web ${web})`,
   searchPlaceholder: 'Search people, classes, sessions, codes',
   searchHint: 'Cmd-K',
   noHits: 'No matches.',
@@ -54,6 +55,11 @@ export const A = {
     needsAttention: 'Needs attention',
     allClear: 'All clear.',
     activity: 'Activity',
+    onlineNow: 'Online now',
+    nobodyOnline: 'Nobody online right now.',
+    guestsOnline: (n: number) => (n === 1 ? '+ 1 guest in a live session' : `+ ${n} guests in live sessions`),
+    clientIos: 'iOS',
+    clientWeb: 'web',
   },
 
   person: {
@@ -86,6 +92,8 @@ export const A = {
     disabledActions: ['Move class', 'Sign out everywhere', 'Rename', 'Delete account'],
     never: 'never',
     unknown: 'unknown',
+    lastSeen: 'Last seen',
+    onlineNow: 'online now',
   },
 
   klass: {

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { Link, Outlet } from '@tanstack/react-router'
 import { RequireAuth } from '../auth/RequireAuth'
 import { useAmAdmin } from '../lib/api'
-import { consoleOpen, useAdminHome } from './adminApi'
+import { consoleOpen, useAdminHome, useAdminOnline } from './adminApi'
 import { CommandPalette } from './CommandPalette'
 import { A } from './strings'
 import './admin.css'
@@ -18,6 +18,7 @@ const rail = [
 export function AdminLayoutInner() {
   const admin = useAmAdmin()
   const home = useAdminHome(admin.data === true)
+  const online = useAdminOnline(admin.data === true)
   useEffect(() => {
     if (admin.data) void consoleOpen().catch(() => undefined)
   }, [admin.data])
@@ -31,11 +32,17 @@ export function AdminLayoutInner() {
     )
   }
   const live = home.data?.live_now.length ?? 0
+  const on = online.data
   return (
     <div className="admin-root flex flex-col">
       <header className="flex items-center gap-3 border-b border-[var(--a-line)] bg-[var(--a-panel)] px-3 py-2">
         <span className="admin-strong font-bold tracking-[0.12em]">{A.brand}</span>
         <CommandPalette />
+        {on ? (
+          <span className={on.total > 0 ? 'sev-info' : 'text-[var(--a-muted)]'}>
+            ● {A.online(on.total, on.ios, on.web)}
+          </span>
+        ) : null}
         <span className={live > 0 ? 'sev-ok' : 'text-[var(--a-muted)]'}>● {A.live(live)}</span>
       </header>
       <div className="flex flex-1">
