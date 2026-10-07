@@ -7,11 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:politiface/app/providers.dart';
+import 'package:politiface/core/audio/sound_service.dart';
 import 'package:politiface/core/database/drift/app_database.dart';
 import 'package:politiface/features/fcle/application/fcle_providers.dart';
 import 'package:politiface/features/fcle/data/question_bank_loader.dart';
 import 'package:politiface/features/fcle/domain/fcle_question.dart';
 import 'package:politiface/features/onboarding/presentation/onboarding_screen.dart';
+
+import '../../helpers/fake_sound_service.dart';
 
 /// A tiny deterministic bank: 3 questions per domain, first option is
 /// always correct, so the walker below has stable targets.
@@ -48,12 +51,17 @@ void main() {
     await db.close();
   });
 
-  Widget host({String start = '/onboarding', bool needsAccount = false}) =>
+  Widget host({
+    String start = '/onboarding',
+    bool needsAccount = false,
+    SoundService? sound,
+  }) =>
       ProviderScope(
         overrides: [
           databaseProvider.overrideWithValue(db),
           questionBankProvider.overrideWith((ref) => fakeBank()),
           onboardingNeedsAccountProvider.overrideWithValue(needsAccount),
+          if (sound != null) soundServiceProvider.overrideWithValue(sound),
         ],
         child: MaterialApp.router(
           routerConfig: GoRouter(
@@ -145,6 +153,29 @@ void main() {
     expect(counts, 1);
   });
 
+  testWidgets('answering plays the correct/incorrect sound effect',
+      (tester) async {
+    final sound = FakeSoundService();
+    await tester.pumpWidget(host(sound: sound));
+    await tester.tap(find.text('START THE DIAGNOSTIC'));
+    for (var f = 0; f < 6; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    // fakeBank's first option is always the answer key, so diag-opt-0 is
+    // the correct choice here.
+    await tester.tap(find.byKey(const Key('diag-opt-0')));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 60)),
+    );
+    for (var f = 0; f < 4; f++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(sound.played, [SoundEffect.correct]);
+    await tester.runAsync(
+      () => db.metaDao.get(OnboardingScreen.doneFlagKey),
+    );
+  });
+
   Future<void> finishDiagnostic(WidgetTester tester) async {
     await tester.tap(find.text('START THE DIAGNOSTIC'));
     for (var f = 0; f < 6; f++) {
@@ -159,7 +190,11 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
       await tester.tap(find.text(i == 4 ? 'SEE YOUR RESULT' : 'NEXT'));
-      for (var f = 0; f < 3; f++) {
+      // The last tap lands on the result view, whose score is a
+      // CountUpText (700ms default); pump past that so the final text is
+      // on screen before assertions run.
+      final postTaps = i == 4 ? 8 : 3;
+      for (var f = 0; f < postTaps; f++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
     }
