@@ -493,3 +493,927 @@ questions:
     difficulty: 3
     objective: SS.912.CG.3.7
     status: published
+
+  - id: usconst-article5-convention-001
+    stem: >
+      Besides a two-thirds vote of both houses of Congress, Article V
+      describes a second way to propose amendments. Under that route,
+      Congress must call a convention for proposing amendments when what
+      happens?
+    options:
+      - key: a
+        text: "Three-fourths of the state governors request one"
+      - key: b
+        text: "A majority of voters approve it in a national vote"
+      - key: c
+        text: "Two-thirds of the state legislatures apply for one"
+      - key: d
+        text: "The Supreme Court certifies that one is needed"
+    answer: c
+    explanation: >
+      Article V provides that Congress, on the application of the
+      legislatures of two-thirds of the states, shall call a convention for
+      proposing amendments. The National Archives transcript of the
+      Constitution gives this text, and the National Archives also notes
+      that none of the 27 amendments has been proposed this way.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.7.CG.3.5
+    status: draft
+
+  - id: usconst-ratifying-conventions-21st-001
+    stem: >
+      When Congress proposed the Twenty-first Amendment in 1933, it
+      specified that the amendment be ratified by conventions in the states
+      rather than by the state legislatures. What does this example show
+      about the Article V process?
+    options:
+      - key: a
+        text: "Congress chooses which of the two ratification methods the states use"
+      - key: b
+        text: "Each state picks its own ratification method for every amendment"
+      - key: c
+        text: "A convention is required for any amendment that repeals an earlier one"
+      - key: d
+        text: "Ratification by conventions needs approval from only a majority of states"
+    answer: a
+    explanation: >
+      Article V lets Congress propose either ratification by three-fourths
+      of the state legislatures or by conventions in three-fourths of the
+      states. The Constitution Annotated, as published by Cornell's Legal
+      Information Institute, notes that the Twenty-first Amendment, which
+      repealed Prohibition and was ratified in December 1933, is the only
+      amendment approved by state ratifying conventions.
+    citation: https://www.law.cornell.edu/constitution-conan/amendment-21/ratification-deadline-state-ratifying-conventions-and-the-twenty-first-amendment
+    difficulty: 4
+    objective: SS.7.CG.3.5
+    status: draft
+
+  - id: usconst-twentyseventh-amendment-001
+    stem: >
+      Suppose Congress passes a law in March of an odd-numbered year that
+      raises the salaries of senators and representatives. Under the
+      Twenty-seventh Amendment, first proposed in 1789 and finally ratified
+      in 1992, when can the raise take effect?
+    options:
+      - key: a
+        text: "Immediately, once the President signs the law"
+      - key: b
+        text: "Only after three-fourths of the states approve it"
+      - key: c
+        text: "At the start of the next fiscal year in October"
+      - key: d
+        text: "After the next election of House members is held"
+    answer: d
+    explanation: >
+      The Twenty-seventh Amendment provides that no law varying the
+      compensation of senators and representatives shall take effect until
+      an election of representatives has intervened. The National Archives
+      notes that it was originally proposed on September 25, 1789, and
+      ratified on May 7, 1992.
+    citation: https://www.archives.gov/founding-docs/amendments-11-27
+    difficulty: 4
+    objective: SS.7.CG.3.5
+    status: draft
+
+  - id: usconst-president-no-amendment-role-001
+    stem: >
+      Congress approves a proposed constitutional amendment by a two-thirds
+      vote in both houses. The President publicly opposes the amendment and
+      wants to block it. What formal action can the President take under
+      Article V?
+    options:
+      - key: a
+        text: "Veto it, which Congress could then override by two-thirds"
+      - key: b
+        text: "None; it goes to the states without a presidential signature"
+      - key: c
+        text: "Refer it to the Supreme Court for a ruling before ratification"
+      - key: d
+        text: "Hold it for up to ten days before the states may vote on it"
+    answer: b
+    explanation: >
+      Article V gives the President no part in proposing or ratifying
+      amendments. The National Archives Office of the Federal Register
+      explains that because the President has no constitutional role in the
+      amendment process, the joint resolution does not go to the White House
+      for signature or approval.
+    citation: https://www.archives.gov/federal-register/constitution
+    difficulty: 3
+    objective: SS.7.CG.3.5
+    status: draft
+
+  - id: usconst-jus-sanguinis-001
+    stem: >
+      Maria and James are both U.S. citizens who grew up in Ohio. While
+      working in Japan, they have a daughter there. Under federal statute,
+      their daughter is a U.S. citizen at birth. Her citizenship is an
+      example of which principle?
+    options:
+      - key: a
+        text: "Jus soli, citizenship based on the place of birth"
+      - key: b
+        text: "Jus sanguinis, citizenship passed down from a parent"
+      - key: c
+        text: "Naturalization, citizenship granted after an application"
+      - key: d
+        text: "Residency, citizenship earned by years of living in a nation"
+    answer: b
+    explanation: >
+      Under 8 U.S.C. 1401(c), a person born outside the United States to two
+      citizen parents, one of whom has had a residence in the United States,
+      is a citizen at birth. Citizenship by descent from a parent is known
+      as jus sanguinis (right of blood), in contrast to jus soli,
+      citizenship by place of birth.
+    citation: https://www.law.cornell.edu/uscode/text/8/1401
+    difficulty: 3
+    objective: SS.912.CG.2.1
+    status: draft
+
+  - id: usconst-congress-citizenship-years-001
+    stem: >
+      Article I sets a minimum length of U.S. citizenship for members of
+      Congress. How many years must a person have been a citizen to serve in
+      the House of Representatives and in the Senate?
+    options:
+      - key: a
+        text: "Five years for the House and seven for the Senate"
+      - key: b
+        text: "Seven years for the House and seven for the Senate"
+      - key: c
+        text: "Nine years for the House and seven for the Senate"
+      - key: d
+        text: "Seven years for the House and nine for the Senate"
+    answer: d
+    explanation: >
+      Article I, Section 2 requires a representative to have been a citizen
+      for seven years, and Article I, Section 3 requires a senator to have
+      been a citizen for nine years, as shown in the National Archives
+      transcript of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.2.1
+    status: draft
+
+  - id: usconst-naturalization-residency-001
+    stem: >
+      Under federal immigration law, a lawful permanent resident who is not
+      married to a U.S. citizen generally must have lived continuously in
+      the United States for how long before becoming eligible to naturalize?
+    options:
+      - key: a
+        text: "At least five years"
+      - key: b
+        text: "At least two years"
+      - key: c
+        text: "At least ten years"
+      - key: d
+        text: "At least seven years"
+    answer: a
+    explanation: >
+      Under 8 U.S.C. 1427(a), an applicant generally must have resided
+      continuously in the United States for at least five years after lawful
+      admission for permanent residence. A separate provision, 8 U.S.C.
+      1430, shortens this to three years for a person living in marital
+      union with a U.S. citizen spouse.
+    citation: https://www.law.cornell.edu/uscode/text/8/1427
+    difficulty: 3
+    objective: SS.912.CG.2.1
+    status: draft
+
+  - id: usconst-natural-born-president-001
+    stem: >
+      Elena was born in Canada, moved to the United States as a child, and
+      became a naturalized U.S. citizen at age 20. She is now 50 and has
+      lived in the country for 40 years. Under Article II, is she eligible
+      to serve as President?
+    options:
+      - key: a
+        text: "Yes, because she has lived in the U.S. over 14 years"
+      - key: b
+        text: "Yes, because she is older than the minimum age of 35"
+      - key: c
+        text: "No, because only a natural-born citizen is eligible"
+      - key: d
+        text: "No, because naturalized citizens must wait 50 years"
+    answer: c
+    explanation: >
+      Article II, Section 1 provides that no person except a natural-born
+      citizen (or a citizen at the time the Constitution was adopted) is
+      eligible to be President. Because Elena became a citizen through
+      naturalization, she does not qualify, even though she meets the age
+      and residency requirements.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.2.1
+    status: draft
+
+  - id: usconst-ninth-amendment-001
+    stem: >
+      "The enumeration in the Constitution, of certain rights, shall not be
+      construed to deny or disparage others retained by the people." (Ninth
+      Amendment, U.S. Constitution) Which statement best expresses the
+      meaning of this passage?
+    options:
+      - key: a
+        text: "Only rights written in the Constitution are protected"
+      - key: b
+        text: "States may deny any right not listed in the Constitution"
+      - key: c
+        text: "Congress may add new rights to the list by passing laws"
+      - key: d
+        text: "Listing some rights does not mean people lack others"
+    answer: d
+    explanation: >
+      The Ninth Amendment, quoted from the National Archives transcript of
+      the Bill of Rights, says that listing certain rights in the
+      Constitution shall not be read to deny or disparage other rights kept
+      by the people. It answers the concern that a written list might be
+      treated as complete.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.2
+    status: draft
+
+  - id: usconst-fourth-amendment-warrant-001
+    stem: >
+      Detectives believe a suspect is hiding stolen goods in his home, and
+      they ask a judge to issue a warrant to search it. Under the Fourth
+      Amendment, what must they show to obtain the warrant?
+    options:
+      - key: a
+        text: "That the suspect has a prior criminal record"
+      - key: b
+        text: "That the suspect declined to answer their questions"
+      - key: c
+        text: "Probable cause, supported by oath or affirmation"
+      - key: d
+        text: "Approval from the mayor or the city council"
+    answer: c
+    explanation: >
+      The Fourth Amendment provides that no warrants shall issue but upon
+      probable cause, supported by oath or affirmation, and particularly
+      describing the place to be searched and the persons or things to be
+      seized. The text appears in the National Archives transcript of the
+      Bill of Rights.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 2
+    objective: SS.912.CG.3.2
+    status: draft
+
+  - id: usconst-selective-incorporation-001
+    stem: >
+      In Barron v. Baltimore (1833), the Supreme Court held that the Bill of
+      Rights limited only the federal government. Today most of its
+      protections also bind state governments. Which description best
+      explains how that change came about?
+    options:
+      - key: a
+        text: "A new amendment declared that every listed right applies to the states at once"
+      - key: b
+        text: "The Court applied rights to the states case by case through the Due Process Clause"
+      - key: c
+        text: "Congress passed one law applying the whole Bill of Rights to the states together"
+      - key: d
+        text: "Each state legislature voted to adopt the full Bill of Rights into its own constitution"
+    answer: b
+    explanation: >
+      After the Fourteenth Amendment was ratified, the Supreme Court,
+      through a series of cases, found that its Due Process Clause makes
+      parts of the Bill of Rights applicable to the states. Cornell's Legal
+      Information Institute explains that the Court chose selective
+      incorporation, applying rights it found essential to due process
+      rather than the entire Bill of Rights at once.
+    citation: https://www.law.cornell.edu/wex/incorporation_doctrine
+    difficulty: 4
+    objective: SS.912.CG.3.2
+    status: draft
+
+  - id: usconst-first-amendment-five-freedoms-001
+    stem: >
+      Which list names the five freedoms protected by the First Amendment?
+    options:
+      - key: a
+        text: "Religion, speech, press, assembly, and petition"
+      - key: b
+        text: "Speech, press, voting, travel, and privacy"
+      - key: c
+        text: "Religion, speech, jury trial, counsel, and fair bail"
+      - key: d
+        text: "Speech, press, assembly, property, and work"
+    answer: a
+    explanation: >
+      The First Amendment bars Congress from making laws respecting an
+      establishment of religion or prohibiting its free exercise, or
+      abridging the freedom of speech, of the press, of peaceable assembly,
+      and of petitioning the government for a redress of grievances, as
+      shown in the National Archives transcript of the Bill of Rights.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 1
+    objective: SS.912.CG.3.2
+    status: draft
+
+  - id: usconst-concurrent-taxing-001
+    stem: >
+      Which of the following is a concurrent power, one that both the
+      national government and the state governments may exercise?
+    options:
+      - key: a
+        text: "Coining money and setting its value"
+      - key: b
+        text: "Declaring war and raising armies"
+      - key: c
+        text: "Levying taxes and borrowing money"
+      - key: d
+        text: "Making treaties with foreign nations"
+    answer: c
+    explanation: >
+      Article I, Section 8 gives Congress the power to lay taxes and borrow
+      money, and the Constitution does not deny either power to the states.
+      In Federalist No. 32, Alexander Hamilton describes the power of
+      imposing taxes (other than on imports and exports) as a concurrent and
+      coequal authority of the United States and the individual states.
+    citation: https://avalon.law.yale.edu/18th_century/fed32.asp
+    difficulty: 2
+    objective: SS.912.CG.3.6
+    status: draft
+
+  - id: usconst-reserved-powers-scenario-001
+    stem: >
+      Florida sets the rules for earning a driver license and runs a public
+      school system. The Constitution does not delegate either power to the
+      national government or forbid it to the states. These are examples of
+      which type of power?
+    options:
+      - key: a
+        text: "Expressed powers"
+      - key: b
+        text: "Implied powers"
+      - key: c
+        text: "Concurrent powers"
+      - key: d
+        text: "Reserved powers"
+    answer: d
+    explanation: >
+      The Tenth Amendment reserves to the states, or to the people, the
+      powers not delegated to the United States nor prohibited to the
+      states, as shown in the National Archives transcript of the Bill of
+      Rights. Licensing drivers and running public schools are traditional
+      examples of these reserved powers.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 2
+    objective: SS.912.CG.3.6
+    status: draft
+
+  - id: usconst-states-no-treaties-001
+    stem: >
+      Article I, Section 10 flatly denies certain powers to the states.
+      Which of the following actions does that section forbid a state to
+      take?
+    options:
+      - key: a
+        text: "Collecting a sales tax on goods sold there"
+      - key: b
+        text: "Entering into a treaty with a foreign nation"
+      - key: c
+        text: "Creating local governments for its cities"
+      - key: d
+        text: "Setting the qualifications for its own judges"
+    answer: b
+    explanation: >
+      Article I, Section 10 begins: "No State shall enter into any Treaty,
+      Alliance, or Confederation," as shown in the National Archives
+      transcript of the Constitution. Making treaties is a power the
+      Constitution gives to the national government.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.6
+    status: draft
+
+  - id: usconst-commerce-clause-001
+    stem: >
+      The Commerce Clause of Article I is an expressed power that allows
+      Congress to regulate commerce in which three areas?
+    options:
+      - key: a
+        text: "With foreign nations, among the states, and with Indian tribes"
+      - key: b
+        text: "Within each state, among the states, and with foreign nations"
+      - key: c
+        text: "With foreign nations, within each city, and with U.S. territories"
+      - key: d
+        text: "Among the states, within counties, and with Indian tribes"
+    answer: a
+    explanation: >
+      Article I, Section 8 gives Congress the power "To regulate Commerce
+      with foreign Nations, and among the several States, and with the
+      Indian Tribes," as shown in the National Archives transcript of the
+      Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.3.6
+    status: draft
+
+  - id: usconst-senate-staggered-terms-001
+    stem: >
+      United States senators serve six-year terms, yet Senate elections are
+      held every two years. How does the Constitution make this possible?
+    options:
+      - key: a
+        text: "Every Senate seat is filled at once every six years"
+      - key: b
+        text: "Half of the Senate seats are filled every three years"
+      - key: c
+        text: "Senators from the largest states are elected every two years"
+      - key: d
+        text: "About one-third of the Senate seats are filled every two years"
+    answer: d
+    explanation: >
+      Article I, Section 3 gives senators six-year terms and divides the
+      Senate into three classes, "so that one third may be chosen every
+      second Year," as shown in the National Archives transcript of the
+      Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.3.3
+    status: draft
+
+  - id: usconst-seventeenth-amendment-001
+    stem: >
+      The Seventeenth Amendment, ratified in 1913, changed the way United
+      States senators are chosen. What does the amendment provide?
+    options:
+      - key: a
+        text: "Senators are appointed by the governor of each state"
+      - key: b
+        text: "Senators are chosen by the legislature of each state"
+      - key: c
+        text: "Senators are elected directly by the people of each state"
+      - key: d
+        text: "Senators are selected by each state's members of the Electoral College"
+    answer: c
+    explanation: >
+      The original Article I, Section 3 had senators "chosen by the
+      Legislature thereof." The Seventeenth Amendment, ratified April 8,
+      1913, provides that senators are "elected by the people thereof,"
+      according to the National Archives transcript of Amendments 11 to 27.
+    citation: https://www.archives.gov/founding-docs/amendments-11-27
+    difficulty: 3
+    objective: SS.912.CG.3.3
+    status: draft
+
+  - id: usconst-foreign-emoluments-001
+    stem: >
+      Article I, Section 9 of the Constitution states: "no Person holding
+      any Office of Profit or Trust under them, shall, without the Consent
+      of the Congress, accept of any present, Emolument, Office, or Title,
+      of any kind whatever, from any King, Prince, or foreign State." Under
+      this clause, a federal officeholder offered a gift by a foreign
+      government may accept it only if what happens?
+    options:
+      - key: a
+        text: "The President personally approves the gift in writing"
+      - key: b
+        text: "The Supreme Court rules that the gift is lawful"
+      - key: c
+        text: "The officeholder's home state legislature votes to allow it"
+      - key: d
+        text: "Congress gives its consent to accepting the gift"
+    answer: d
+    explanation: >
+      The clause bars any person holding a federal office of profit or trust
+      from accepting a present or emolument from a foreign state "without
+      the Consent of the Congress." The text appears in Article I, Section 9
+      of the National Archives transcript of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.3
+    status: draft
+
+  - id: usconst-vp-senate-tiebreak-001
+    stem: >
+      Under Article I, the Vice President of the United States serves as
+      President of the Senate. When may the Vice President cast a vote in
+      the Senate?
+    options:
+      - key: a
+        text: "On any bill that the President has publicly supported"
+      - key: b
+        text: "Only when the senators are evenly divided on a vote"
+      - key: c
+        text: "Only on the confirmation of Supreme Court nominees"
+      - key: d
+        text: "On every question, like any other member of the Senate"
+    answer: b
+    explanation: >
+      Article I, Section 3 states that the Vice President "shall be
+      President of the Senate, but shall have no Vote, unless they be
+      equally divided," as shown in the National Archives transcript of the
+      Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.3.3
+    status: draft
+
+  - id: usconst-treaty-two-thirds-001
+    stem: >
+      Under Article II, the President may make treaties with the advice and
+      consent of the Senate. What level of Senate approval does the
+      Constitution require?
+    options:
+      - key: a
+        text: "A simple majority of all senators"
+      - key: b
+        text: "Three-fourths of the entire Senate"
+      - key: c
+        text: "Two-thirds of the senators present"
+      - key: d
+        text: "Majorities in both houses of Congress"
+    answer: c
+    explanation: >
+      Article II, Section 2 gives the President power to make treaties
+      "provided two thirds of the Senators present concur." The House has no
+      formal role in approving treaties, according to the National Archives
+      transcript of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.4
+    status: draft
+
+  - id: usconst-pardon-power-001
+    stem: >
+      Article II gives the President power to grant reprieves and pardons
+      for offenses against the United States. Which cases does the
+      Constitution expressly exclude from this power?
+    options:
+      - key: a
+        text: "Cases of impeachment"
+      - key: b
+        text: "Cases of treason"
+      - key: c
+        text: "Cases tried by a jury"
+      - key: d
+        text: "Cases in military courts"
+    answer: a
+    explanation: >
+      Article II, Section 2 gives the President "Power to grant Reprieves
+      and Pardons for Offences against the United States, except in Cases of
+      Impeachment," as shown in the National Archives transcript of the
+      Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.4
+    status: draft
+
+  - id: usconst-twentysecond-amendment-001
+    stem: >
+      The Twenty-second Amendment, ratified in 1951, places which limit on
+      the presidency?
+    options:
+      - key: a
+        text: "No person may serve more than one four-year term"
+      - key: b
+        text: "No person may serve as President after age seventy"
+      - key: c
+        text: "No person may be elected President more than twice"
+      - key: d
+        text: "No person may be elected President two terms in a row"
+    answer: c
+    explanation: >
+      Section 1 of the Twenty-second Amendment, ratified February 27, 1951,
+      states that "No person shall be elected to the office of the President
+      more than twice," according to the National Archives transcript of
+      Amendments 11 to 27.
+    citation: https://www.archives.gov/founding-docs/amendments-11-27
+    difficulty: 2
+    objective: SS.912.CG.3.4
+    status: draft
+
+  - id: usconst-twentyfifth-amendment-001
+    stem: >
+      Under the Twenty-fifth Amendment, if the President is declared unable
+      to discharge the powers and duties of the office, who carries out
+      those duties?
+    options:
+      - key: a
+        text: "The Vice President, serving as Acting President"
+      - key: b
+        text: "The Speaker of the House, as interim President"
+      - key: c
+        text: "The Chief Justice, until the President recovers"
+      - key: d
+        text: "The Cabinet, acting together as a governing council"
+    answer: a
+    explanation: >
+      Sections 3 and 4 of the Twenty-fifth Amendment provide that when the
+      President is declared unable to discharge the powers and duties of the
+      office, the Vice President discharges them "as Acting President,"
+      according to the National Archives transcript of Amendments 11 to 27.
+    citation: https://www.archives.gov/founding-docs/amendments-11-27
+    difficulty: 3
+    objective: SS.912.CG.3.4
+    status: draft
+
+  - id: usconst-state-of-union-001
+    stem: >
+      Article II, Section 3 requires the President to do which of the
+      following from time to time?
+    options:
+      - key: a
+        text: "Submit every proposed treaty to the House for review"
+      - key: b
+        text: "Hold a public press conference on foreign affairs"
+      - key: c
+        text: "Meet with the governors of all of the states each year"
+      - key: d
+        text: "Give Congress information on the State of the Union"
+    answer: d
+    explanation: >
+      Article II, Section 3 states that the President "shall from time to
+      time give to the Congress Information of the State of the Union, and
+      recommend to their Consideration such Measures as he shall judge
+      necessary and expedient," as shown in the National Archives transcript
+      of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.3.4
+    status: draft
+
+  - id: usconst-supreme-court-size-001
+    stem: >
+      What determines the number of justices who sit on the United States
+      Supreme Court?
+    options:
+      - key: a
+        text: "Article III of the Constitution sets it at nine"
+      - key: b
+        text: "A federal law passed by Congress sets the number"
+      - key: c
+        text: "The President chooses the number at each election"
+      - key: d
+        text: "The justices themselves vote on the Court's size"
+    answer: b
+    explanation: >
+      Article III does not fix the size of the Court. A federal statute, 28
+      U.S.C. section 1 (shown on Cornell's Legal Information Institute),
+      provides for a Chief Justice and eight associate justices, and the
+      Supreme Court notes that the number changed six times before settling
+      at nine in 1869.
+    citation: https://www.law.cornell.edu/uscode/text/28/1
+    difficulty: 2
+    objective: SS.912.CG.3.7
+    status: draft
+
+  - id: usconst-treason-definition-001
+    stem: >
+      Article III, Section 3 of the Constitution states: "Treason against
+      the United States, shall consist only in levying War against them, or
+      in adhering to their Enemies, giving them Aid and Comfort. No Person
+      shall be convicted of Treason unless on the Testimony of two Witnesses
+      to the same overt Act, or on Confession in open Court." Based on this
+      passage, which situation would meet the Constitution's standard for
+      convicting a person of treason?
+    options:
+      - key: a
+        text: "A single witness testifies that the accused supplied weapons to an enemy army"
+      - key: b
+        text: "Two witnesses testify that they saw the accused do the same overt act of aid"
+      - key: c
+        text: "The accused admits the act in a private interview with federal investigators"
+      - key: d
+        text: "Many witnesses testify that the accused gave speeches strongly opposing a war"
+    answer: b
+    explanation: >
+      The passage requires either two witnesses to the same overt act or a
+      confession in open court, and it limits treason to levying war or
+      adhering to enemies by giving them aid and comfort. Only the two
+      witnesses to the same overt act of aid satisfy both parts, as shown in
+      the National Archives transcript of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 5
+    objective: SS.912.CG.3.7
+    status: draft
+
+  - id: usconst-ambassadors-original-001
+    stem: >
+      Which of the following cases falls within the Supreme Court's original
+      jurisdiction under Article III, Section 2, meaning it may begin in the
+      Supreme Court rather than reach it on appeal?
+    options:
+      - key: a
+        text: "A federal criminal case against a person accused of counterfeiting"
+      - key: b
+        text: "A dispute between citizens of two different states over a contract"
+      - key: c
+        text: "An appeal from a state supreme court on a free speech question"
+      - key: d
+        text: "A case affecting an ambassador sent by a foreign government"
+    answer: d
+    explanation: >
+      Article III, Section 2 gives the Supreme Court original jurisdiction
+      "In all Cases affecting Ambassadors, other public Ministers and
+      Consuls, and those in which a State shall be Party." In all other
+      federal cases the Court's jurisdiction is appellate, according to the
+      National Archives transcript of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 4
+    objective: SS.912.CG.3.7
+    status: draft
+
+  - id: usconst-certiorari-001
+    stem: >
+      How do most cases reach the United States Supreme Court?
+    options:
+      - key: a
+        text: "The Court grants a petition for a writ of certiorari"
+      - key: b
+        text: "The Court must hear every appeal filed by a losing party"
+      - key: c
+        text: "Congress assigns cases to the Court by passing a resolution"
+      - key: d
+        text: "The Attorney General refers cases to the Court each term"
+    answer: a
+    explanation: >
+      According to the federal judiciary's Supreme Court Procedures page on
+      uscourts.gov, the primary way to seek review is to petition the Court
+      for a writ of certiorari, and four of the nine justices must vote to
+      accept a case.
+    citation: https://www.uscourts.gov/about-federal-courts/educational-resources/about-educational-outreach/activity-resources/supreme-court-procedures
+    difficulty: 3
+    objective: SS.912.CG.3.7
+    status: draft
+
+  - id: usconst-judicial-pay-001
+    stem: >
+      Article III provides that the compensation of federal judges "shall
+      not be diminished during their Continuance in Office." What is the
+      main purpose of this protection?
+    options:
+      - key: a
+        text: "To ensure that judges earn the same salary as members of Congress"
+      - key: b
+        text: "To allow the states to share the cost of federal judicial salaries"
+      - key: c
+        text: "To keep Congress from pressuring judges by cutting their pay"
+      - key: d
+        text: "To guarantee that judges receive a raise every year they serve"
+    answer: c
+    explanation: >
+      Article III, Section 1 bars reducing judges' pay while they serve,
+      which protects judicial independence from the other branches.
+      Federalist No. 79 explains the reasoning: "a power over a man's
+      subsistence amounts to a power over his will." The clause appears in
+      the National Archives transcript of the Constitution.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.7
+    status: draft
+
+  - id: usconst-florida-supreme-court-001
+    stem: >
+      Under Article V of the Florida Constitution, how many justices sit on
+      the Florida Supreme Court, the highest court in the state?
+    options:
+      - key: a
+        text: "Five"
+      - key: b
+        text: "Nine"
+      - key: c
+        text: "Three"
+      - key: d
+        text: "Seven"
+    answer: d
+    explanation: >
+      Article V, Section 3 of the Florida Constitution states that "The
+      supreme court shall consist of seven justices," with five justices
+      making a quorum. The text is published by the Florida Legislature.
+    citation: https://www.leg.state.fl.us/statutes/index.cfm?submenu=3#A5S03
+    difficulty: 3
+    objective: SS.912.CG.3.10
+    status: draft
+
+  - id: usconst-florida-dca-001
+    stem: >
+      In Florida's state court system, which courts serve as the
+      intermediate appellate courts that hear most appeals from the trial
+      courts?
+    options:
+      - key: a
+        text: "The county courts in each county"
+      - key: b
+        text: "The Florida Supreme Court"
+      - key: c
+        text: "The district courts of appeal"
+      - key: d
+        text: "The circuit courts of each circuit"
+    answer: c
+    explanation: >
+      Article V, Section 4 of the Florida Constitution gives the district
+      courts of appeal jurisdiction to hear appeals as a matter of right
+      from final judgments of trial courts that are not directly appealable
+      to the Florida Supreme Court or a circuit court, placing them between
+      the trial courts and the state's highest court.
+    citation: https://www.leg.state.fl.us/statutes/index.cfm?submenu=3#A5S04
+    difficulty: 3
+    objective: SS.912.CG.3.10
+    status: draft
+
+  - id: usconst-florida-circuit-courts-001
+    stem: >
+      In Florida, which court has exclusive original jurisdiction over
+      felony criminal cases?
+    options:
+      - key: a
+        text: "The county court"
+      - key: b
+        text: "The circuit court"
+      - key: c
+        text: "The district court of appeal"
+      - key: d
+        text: "The Florida Supreme Court"
+    answer: b
+    explanation: >
+      Section 26.012 of the Florida Statutes gives circuit courts exclusive
+      original jurisdiction "Of all felonies," along with civil actions not
+      within county court jurisdiction, and states that "A circuit court is
+      a trial court."
+    citation: https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0000-0099/0026/Sections/0026.012.html
+    difficulty: 2
+    objective: SS.912.CG.3.10
+    status: draft
+
+  - id: usconst-florida-county-courts-001
+    stem: >
+      A Florida resident files a small-claims lawsuit asking a former
+      landlord to return a $3,000 security deposit. Which Florida court
+      would ordinarily hear this case first?
+    options:
+      - key: a
+        text: "A county court"
+      - key: b
+        text: "A circuit court"
+      - key: c
+        text: "A district court of appeal"
+      - key: d
+        text: "The Florida Supreme Court"
+    answer: a
+    explanation: >
+      Section 34.01 of the Florida Statutes gives county courts original
+      jurisdiction over most misdemeanors and over civil actions in which
+      the amount in controversy does not exceed $50,000, which includes
+      small claims such as this one.
+    citation: https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0000-0099/0034/Sections/0034.01.html
+    difficulty: 2
+    objective: SS.912.CG.3.10
+    status: draft
+
+  - id: usconst-eleventh-circuit-001
+    stem: >
+      Federal cases appealed from the United States district courts in
+      Florida go to the U.S. Court of Appeals for which circuit?
+    options:
+      - key: a
+        text: "The Eleventh Circuit"
+      - key: b
+        text: "The Fifth Circuit"
+      - key: c
+        text: "The Fourth Circuit"
+      - key: d
+        text: "The Seventh Circuit"
+    answer: a
+    explanation: >
+      According to the court's own website, the U.S. Court of Appeals for
+      the Eleventh Circuit, established by Congress in 1981, has
+      jurisdiction over federal cases originating in Alabama, Florida and
+      Georgia.
+    citation: https://www.ca11.uscourts.gov/about-court
+    difficulty: 3
+    objective: SS.912.CG.3.10
+    status: draft
+
+  - id: usconst-state-to-scotus-federal-question-001
+    stem: >
+      After a trial in a Florida circuit court and an appeal to a district
+      court of appeal, a party loses a final decision in the Florida Supreme
+      Court and asks the U.S. Supreme Court to review the case. On which
+      basis could the U.S. Supreme Court take the case?
+    options:
+      - key: a
+        text: "The party argues that the Florida justices misread a Florida statute"
+      - key: b
+        text: "The party claims the ruling violates a U.S. constitutional right"
+      - key: c
+        text: "The party shows that the Florida decision was reached by a 4 to 3 vote"
+      - key: d
+        text: "The party presents new evidence that was not offered at the trial"
+    answer: b
+    explanation: >
+      Under 28 U.S.C. section 1257, the U.S. Supreme Court may review final
+      judgments of a state's highest court by writ of certiorari only when a
+      federal question is involved, such as a right claimed under the
+      Constitution or federal law. Questions of pure state law are settled
+      by the state's highest court.
+    citation: https://www.law.cornell.edu/uscode/text/28/1257
+    difficulty: 4
+    objective: SS.912.CG.3.10
+    status: draft
