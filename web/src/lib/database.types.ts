@@ -495,6 +495,7 @@ export type Database = {
           chosen_key: string | null
           client_ts: string
           cohort_id: string | null
+          confidence: string | null
           correct: boolean | null
           device_id: string | null
           domain_id: number | null
@@ -511,6 +512,7 @@ export type Database = {
           chosen_key?: string | null
           client_ts: string
           cohort_id?: string | null
+          confidence?: string | null
           correct?: boolean | null
           device_id?: string | null
           domain_id?: number | null
@@ -527,6 +529,7 @@ export type Database = {
           chosen_key?: string | null
           client_ts?: string
           cohort_id?: string | null
+          confidence?: string | null
           correct?: boolean | null
           device_id?: string | null
           domain_id?: number | null
@@ -798,6 +801,7 @@ export type Database = {
         Row: {
           answer_ms: number
           chosen_key: string
+          confidence: string | null
           correct: boolean
           created_at: string
           folded: boolean
@@ -808,6 +812,7 @@ export type Database = {
         Insert: {
           answer_ms: number
           chosen_key: string
+          confidence?: string | null
           correct: boolean
           created_at?: string
           folded?: boolean
@@ -818,6 +823,7 @@ export type Database = {
         Update: {
           answer_ms?: number
           chosen_key?: string
+          confidence?: string | null
           correct?: boolean
           created_at?: string
           folded?: boolean
@@ -896,12 +902,14 @@ export type Database = {
           created_by: string
           current_index: number
           ended_at: string | null
+          goal_pct: number | null
           id: string
           input_id: string | null
           join_code: string
           question_ids: Json
           question_seconds: number
           question_started_at: string | null
+          speed_bonus: boolean
           status: string
           title: string
         }
@@ -912,12 +920,14 @@ export type Database = {
           created_by: string
           current_index?: number
           ended_at?: string | null
+          goal_pct?: number | null
           id?: string
           input_id?: string | null
           join_code?: string
           question_ids: Json
           question_seconds?: number
           question_started_at?: string | null
+          speed_bonus?: boolean
           status?: string
           title: string
         }
@@ -928,12 +938,14 @@ export type Database = {
           created_by?: string
           current_index?: number
           ended_at?: string | null
+          goal_pct?: number | null
           id?: string
           input_id?: string | null
           join_code?: string
           question_ids?: Json
           question_seconds?: number
           question_started_at?: string | null
+          speed_bonus?: boolean
           status?: string
           title?: string
         }
@@ -1748,8 +1760,10 @@ export type Database = {
         Args: {
           p_allow_guests?: boolean
           p_cohort: string
+          p_goal_pct?: number
           p_question_ids: Json
           p_question_seconds?: number
+          p_speed_bonus?: boolean
           p_title: string
         }
         Returns: Json
@@ -1935,6 +1949,7 @@ export type Database = {
           p_attempt_id?: string
           p_chosen_key: string
           p_client_ts: string
+          p_confidence?: string
           p_device_id?: string
           p_event_id: string
           p_question_id: string
@@ -1942,7 +1957,12 @@ export type Database = {
         Returns: Json
       }
       submit_live_answer: {
-        Args: { p_key: string; p_question: string; p_session: string }
+        Args: {
+          p_confidence?: string
+          p_key: string
+          p_question: string
+          p_session: string
+        }
         Returns: Json
       }
       submit_review: {

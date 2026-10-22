@@ -25,6 +25,7 @@ export const S = {
     needsVerification:
       'Creating classes requires instructor access. Use your invite link, or request access from the home page.',
     classNameShort: 'Class names need at least 3 characters.',
+    badGoal: 'Set the class goal between 1 and 100 percent, or leave it blank.',
     somethingBroke:
       'This view hit an unexpected error. Reload the page; your data is safe.',
     badHandle:
@@ -190,6 +191,19 @@ export const S = {
   live: {
     allowGuests: 'Allow guests without sign-in',
     joinedNoAnswers: 'Joined, no answers',
+    speedBonus: 'Speed bonus (faster correct answers earn up to 50 extra points)',
+    speedBonusOn: 'Speed bonus on',
+    speedBonusOff: 'No speed bonus',
+    speedLineOn: 'Faster correct answers earn bonus points.',
+    speedLineOff: 'No speed bonus. Every correct answer scores the same.',
+    goalLabel: 'Class goal, % correct (optional)',
+    goalHint: 'Shown at each reveal as a meter. Leave blank for none.',
+    goalTitle: 'Class goal',
+    goalMet: (pct: number) => `Class goal met: ${pct}% correct.`,
+    goalNotYet: (pct: number) => `Class: ${pct}% correct.`,
+    goalNoAnswers: 'No answers on this one yet.',
+    goalTarget: (goal: number) => `Goal ${goal}%.`,
+    goalBadge: (goal: number) => `Goal ${goal}%`,
   },
   join: {
     title: 'Join a live session',

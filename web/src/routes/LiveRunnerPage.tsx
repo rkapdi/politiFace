@@ -16,6 +16,8 @@ import {
 import { useLiveSession } from '../lib/live'
 import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
 import { Countdown } from '../components/Countdown'
+import { GoalMeter } from '../components/GoalMeter'
+import { classPercentCorrect } from '../lib/liveOptions'
 import { Scoreboard } from '../components/Scoreboard'
 import { downloadCsv } from '../lib/csv'
 import { S } from '../lib/strings'
@@ -114,6 +116,14 @@ function RevealPanel({ sessionId, index }: { sessionId: string; index: number })
         </ul>
         {r.explanation ? (
           <p className="mt-3 text-sm text-slate-600">{r.explanation}</p>
+        ) : null}
+        {r.goal_pct != null ? (
+          <div className="mt-3">
+            <GoalMeter
+              goalPct={r.goal_pct}
+              classPct={classPercentCorrect(r.counts, r.correct_key)}
+            />
+          </div>
         ) : null}
       </Card>
       <Card>
@@ -253,6 +263,12 @@ export function LiveRunner({
           </h1>
         </div>
         <div className="flex items-center gap-2">
+          <Badge tone="slate">
+            {meta.data.speed_bonus ? S.live.speedBonusOn : S.live.speedBonusOff}
+          </Badge>
+          {meta.data.goal_pct != null ? (
+            <Badge tone="slate">{S.live.goalBadge(meta.data.goal_pct)}</Badge>
+          ) : null}
           <Badge tone={status === 'ended' ? 'slate' : 'green'}>{status}</Badge>
           {status !== 'ended' ? (
             <>

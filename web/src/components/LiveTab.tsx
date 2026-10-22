@@ -16,6 +16,10 @@ export type LiveDraft = {
   seconds: number
   selected: Set<string>
   allowGuests: boolean
+  // Off by default: careful readers should not lose to fast tappers.
+  speedBonus: boolean
+  // Blank string while typing; parsed to 1..100 or null on submit.
+  goal: string
 }
 
 export const emptyLiveDraft = (): LiveDraft => ({
@@ -24,6 +28,8 @@ export const emptyLiveDraft = (): LiveDraft => ({
   seconds: 20,
   selected: new Set(),
   allowGuests: false,
+  speedBonus: false,
+  goal: '',
 })
 
 export function LiveTab({

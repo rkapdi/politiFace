@@ -21,6 +21,8 @@ import { logOpsEvent } from '../lib/opsLog'
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
 import { Countdown } from '../components/Countdown'
+import { GoalMeter } from '../components/GoalMeter'
+import { classPercentCorrect } from '../lib/liveOptions'
 import { Scoreboard } from '../components/Scoreboard'
 
 const field =
@@ -205,6 +207,9 @@ function SessionView({ joined }: { joined: LiveJoin }) {
               questionSeconds={state.question_seconds ?? joined.question_seconds}
             />
           </div>
+          <p className="mb-2 text-xs text-slate-500">
+            {state.speed_bonus === false ? S.live.speedLineOff : S.live.speedLineOn}
+          </p>
           <p className="text-base font-medium text-slate-900">
             {state.question.stem}
           </p>
@@ -261,6 +266,14 @@ function GuestReveal({ sessionId, index }: { sessionId: string; index: number })
       </p>
       {r.explanation ? (
         <p className="mt-2 text-sm text-slate-600">{r.explanation}</p>
+      ) : null}
+      {r.goal_pct != null ? (
+        <div className="mt-3">
+          <GoalMeter
+            goalPct={r.goal_pct}
+            classPct={classPercentCorrect(r.counts, r.correct_key)}
+          />
+        </div>
       ) : null}
       <p className="mt-3 text-sm text-slate-500">
         Next question starts when your instructor advances.
