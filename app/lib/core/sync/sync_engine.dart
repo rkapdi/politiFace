@@ -227,7 +227,11 @@ class SyncEngine {
   /// finish() checks this so finalize never overtakes a stuck answer.
   Future<bool> hasPendingForAttempt(String attemptId) async {
     final rows = await _outbox.pending();
-    return rows.any((r) => r.payload.contains(attemptId));
+    // Answers and finalize rows carry the attempt in their own column; the
+    // payload check stays for any row that embeds it in JSON instead.
+    return rows.any(
+      (r) => r.attemptId == attemptId || r.payload.contains(attemptId),
+    );
   }
 
   /// Cross-device sync: snapshot of one card's FSRS state, applied as an
