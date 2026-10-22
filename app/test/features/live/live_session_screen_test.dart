@@ -1,7 +1,8 @@
 // The live question screen, rendered against a fake API (no network, no
 // database, no Realtime): options come from the jsonb options shape
-// [{key, text}], a tap locks the choice, and nothing on screen leaks the
-// correct answer before the reveal.
+// [{key, text}], a tap picks and a confidence tap locks the choice, and
+// nothing on screen leaks the correct answer before the reveal. The class
+// goal meter shows only when the professor set a goal.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,9 @@ class FakeLiveSessionApi implements LiveSessionApi {
 
   LiveQuestionState snapshot;
   final submissions = <String>[];
+  final confidences = <String?>[];
+  LiveRevealData? revealData;
+  List<LiveStanding> board = const [];
   int participantCountValue = 0;
 
   @override
@@ -41,16 +45,18 @@ class FakeLiveSessionApi implements LiveSessionApi {
     required String sessionId,
     required String questionId,
     required String key,
+    String? confidence,
   }) async {
     submissions.add(key);
+    confidences.add(confidence);
   }
 
   @override
   Future<LiveRevealData> reveal(String sessionId) async =>
-      throw UnimplementedError();
+      revealData ?? (throw UnimplementedError());
 
   @override
-  Future<List<LiveStanding>> scoreboard(String sessionId) async => const [];
+  Future<List<LiveStanding>> scoreboard(String sessionId) async => board;
 }
 
 void main() {
@@ -98,13 +104,26 @@ void main() {
     expect(find.text('Three'), findsOneWidget);
     expect(find.text('Four'), findsOneWidget);
     expect(find.text('QUESTION 1 OF 5'), findsOneWidget);
-    expect(find.text('LOCKED IN'), findsNothing);
+    expect(find.textContaining('LOCKED IN'), findsNothing);
+    // Old servers send no speed_bonus: the bonus line says it applies.
+    expect(
+      find.text('Faster correct answers earn bonus points.'),
+      findsOneWidget,
+    );
 
-    // Tap an option: it locks visually and reaches the server once.
+    // Tap an option: it is picked, not sent, and asks how sure.
     await tester.tap(find.text('Three'));
     await tester.pump();
-    expect(find.text('LOCKED IN'), findsOneWidget);
+    expect(find.textContaining('LOCKED IN'), findsNothing);
+    expect(api.submissions, isEmpty);
+    expect(find.text('HOW SURE ARE YOU?'), findsOneWidget);
+
+    // The confidence tap locks it in and reaches the server once.
+    await tester.tap(find.text('Pretty sure'));
+    await tester.pump();
+    expect(find.text('LOCKED IN · PRETTY SURE'), findsOneWidget);
     expect(api.submissions, ['b']);
+    expect(api.confidences, ['pretty_sure']);
 
     // A second tap on another option changes nothing: fire-once.
     await tester.tap(find.text('Four'), warnIfMissed: false);
@@ -146,5 +165,104 @@ void main() {
     // Unmount before the test ends so the lobby's 5-second poll timer is
     // canceled cleanly rather than left pending.
     await tester.pumpWidget(const SizedBox());
+  });
+
+  Future<void> pumpReveal(WidgetTester tester, FakeLiveSessionApi api) async {
+    final controller = LiveSessionController(api: api, args: _args);
+    await controller.refresh();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          liveSessionApiProvider.overrideWithValue(api),
+          liveSessionControllerProvider.overrideWith((ref, args) => controller),
+        ],
+        child: const MaterialApp(home: LiveSessionScreen(args: _args)),
+      ),
+    );
+    await tester.pump();
+    await tester.pump();
+  }
+
+  LiveQuestionState revealSnapshot() => LiveQuestionState.fromJson({
+        'status': 'reveal',
+        'index': 0,
+        'total': 5,
+        'question_seconds': 20,
+        'speed_bonus': false,
+        'question': {
+          'id': 'q-0',
+          'stem': 'How many branches does the federal government have?',
+          'options': [
+            {'key': 'a', 'text': 'Two'},
+            {'key': 'b', 'text': 'Three'},
+          ],
+        },
+      });
+
+  testWidgets('reveal shows the class goal meter as text when a goal is set',
+      (tester) async {
+    final api = FakeLiveSessionApi(revealSnapshot())
+      ..revealData = const LiveRevealData(
+        questionId: 'q-0',
+        correctKey: 'b',
+        explanation: '',
+        counts: {'a': 3, 'b': 7},
+        goalPct: 80,
+      );
+    await pumpReveal(tester, api);
+    expect(find.text('CLASS GOAL'), findsOneWidget);
+    expect(find.text('Class: 70% correct.'), findsOneWidget);
+    expect(find.text('Goal 80%.'), findsOneWidget);
+  });
+
+  testWidgets('goal met reads as met', (tester) async {
+    final api = FakeLiveSessionApi(revealSnapshot())
+      ..revealData = const LiveRevealData(
+        questionId: 'q-0',
+        correctKey: 'b',
+        explanation: '',
+        counts: {'a': 1, 'b': 9},
+        goalPct: 80,
+      );
+    await pumpReveal(tester, api);
+    expect(find.text('Class goal met: 90% correct.'), findsOneWidget);
+  });
+
+  testWidgets('no goal set, no meter', (tester) async {
+    final api = FakeLiveSessionApi(revealSnapshot())
+      ..revealData = const LiveRevealData(
+        questionId: 'q-0',
+        correctKey: 'b',
+        explanation: '',
+        counts: {'a': 1, 'b': 9},
+      );
+    await pumpReveal(tester, api);
+    expect(find.text('CLASS GOAL'), findsNothing);
+  });
+
+  testWidgets('bonus-off sessions say every correct answer scores the same',
+      (tester) async {
+    final api = FakeLiveSessionApi(
+      LiveQuestionState.fromJson({
+        'status': 'question',
+        'index': 0,
+        'total': 1,
+        'question_seconds': 20,
+        'speed_bonus': false,
+        'started_at': DateTime.now().toUtc().toIso8601String(),
+        'question': {
+          'id': 'q-0',
+          'stem': 'Stem?',
+          'options': [
+            {'key': 'a', 'text': 'Two'},
+          ],
+        },
+      }),
+    );
+    await pumpReveal(tester, api);
+    expect(
+      find.text('No speed bonus. Every correct answer scores the same.'),
+      findsOneWidget,
+    );
   });
 }

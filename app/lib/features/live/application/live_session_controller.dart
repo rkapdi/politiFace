@@ -13,6 +13,13 @@
 // submission is fire-once, and correctness is NEVER shown before the
 // reveal: submit returns only "accepted", and my result exists only once
 // the reveal payload is in hand.
+//
+// Answering is two taps, like the daily trivia: pick an option (pending,
+// changeable), then say how sure you are, which locks it in. If the
+// countdown runs out on a picked but unconfirmed option, it is sent
+// without a confidence so the pick still counts. Confidence is metadata;
+// the server never scores with it. Each revealed answer that carried one
+// feeds the end-of-session calibration card.
 
 import 'dart:async';
 
@@ -21,6 +28,8 @@ import 'package:supabase_flutter/supabase_flutter.dart'
     show PostgrestException, Supabase, SupabaseClient;
 
 import '../../../core/sync/supabase_config.dart';
+import '../../trivia/domain/calibration.dart';
+import '../../trivia/domain/trivia_question.dart';
 import '../data/live_session_api.dart';
 
 final liveSessionApiProvider = Provider<LiveSessionApi?>(
@@ -58,15 +67,19 @@ class LiveSessionState {
     this.index = -1,
     this.total = 0,
     this.questionSeconds = 20,
+    this.speedBonus = true,
     this.startedAt,
     this.question,
+    this.pendingKey,
     this.lockedKey,
+    this.lockedConfidence,
     this.answerAccepted = false,
     this.submitting = false,
     this.notice,
     this.reveal,
     this.standings = const [],
     this.remainingSeconds = 0,
+    this.outcomes = const [],
   });
 
   const LiveSessionState.initial(String title)
@@ -77,12 +90,21 @@ class LiveSessionState {
   final int index; // 0-based current question index
   final int total;
   final int questionSeconds;
+
+  /// Whether faster correct answers earn bonus points this session.
+  final bool speedBonus;
   final DateTime? startedAt;
   final LiveQuestion? question;
+
+  /// Picked but not yet locked in (waiting for a confidence tap).
+  final String? pendingKey;
 
   /// The choice locked in for the current question, if any. Locking is
   /// visual only until the reveal; it carries zero correctness signal.
   final String? lockedKey;
+
+  /// The confidence the locked choice was sent with, if any.
+  final TriviaConfidence? lockedConfidence;
 
   /// Whether the server accepted the locked answer. False while in flight
   /// and when the submission arrived too late.
@@ -97,6 +119,9 @@ class LiveSessionState {
 
   /// Cosmetic countdown, always derived from server started_at.
   final double remainingSeconds;
+
+  /// Revealed answers that carried a confidence, for calibration.
+  final List<ConfidenceOutcome> outcomes;
 
   LiveOutcome? get outcome {
     final r = reveal;
@@ -122,15 +147,19 @@ class LiveSessionState {
     int? index,
     int? total,
     int? questionSeconds,
+    bool? speedBonus,
     Object? startedAt = _unset,
     Object? question = _unset,
+    Object? pendingKey = _unset,
     Object? lockedKey = _unset,
+    Object? lockedConfidence = _unset,
     bool? answerAccepted,
     bool? submitting,
     Object? notice = _unset,
     Object? reveal = _unset,
     List<LiveStanding>? standings,
     double? remainingSeconds,
+    List<ConfidenceOutcome>? outcomes,
   }) =>
       LiveSessionState(
         phase: phase ?? this.phase,
@@ -138,15 +167,22 @@ class LiveSessionState {
         index: index ?? this.index,
         total: total ?? this.total,
         questionSeconds: questionSeconds ?? this.questionSeconds,
+        speedBonus: speedBonus ?? this.speedBonus,
         startedAt: identical(startedAt, _unset)
             ? this.startedAt
             : startedAt as DateTime?,
         question: identical(question, _unset)
             ? this.question
             : question as LiveQuestion?,
+        pendingKey: identical(pendingKey, _unset)
+            ? this.pendingKey
+            : pendingKey as String?,
         lockedKey: identical(lockedKey, _unset)
             ? this.lockedKey
             : lockedKey as String?,
+        lockedConfidence: identical(lockedConfidence, _unset)
+            ? this.lockedConfidence
+            : lockedConfidence as TriviaConfidence?,
         answerAccepted: answerAccepted ?? this.answerAccepted,
         submitting: submitting ?? this.submitting,
         notice: identical(notice, _unset) ? this.notice : notice as String?,
@@ -154,6 +190,7 @@ class LiveSessionState {
             identical(reveal, _unset) ? this.reveal : reveal as LiveRevealData?,
         standings: standings ?? this.standings,
         remainingSeconds: remainingSeconds ?? this.remainingSeconds,
+        outcomes: outcomes ?? this.outcomes,
       );
 }
 
@@ -187,6 +224,10 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
   /// The question id a submit is in flight for, if any. Scoped per
   /// question so a slow submit for Q(n) never blocks answering Q(n+1).
   String? _submittingQuestionId;
+
+  /// Question ids already folded into [LiveSessionState.outcomes], so a
+  /// reveal retry never counts the same answer twice.
+  final _calibrated = <String>{};
 
   /// When we anchored the current countdown, plus the server started_at it
   /// was anchored to. Re-anchoring on a started_at change gives a monotonic
@@ -245,11 +286,14 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
           index: snapshot.index,
           total: snapshot.total,
           questionSeconds: snapshot.questionSeconds,
+          speedBonus: snapshot.speedBonus,
           startedAt: snapshot.startedAt,
           question: snapshot.question ?? state.question,
           // A brand-new question wipes the previous one's lock, verdict,
           // and notice; a re-clamp of the same question keeps them.
+          pendingKey: isNewQuestion ? null : state.pendingKey,
           lockedKey: isNewQuestion ? null : state.lockedKey,
+          lockedConfidence: isNewQuestion ? null : state.lockedConfidence,
           answerAccepted: !isNewQuestion && state.answerAccepted,
           submitting: !isNewQuestion && state.submitting,
           notice: isNewQuestion ? null : state.notice,
@@ -275,9 +319,12 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
           index: snapshot.index,
           total: snapshot.total,
           questionSeconds: snapshot.questionSeconds,
+          speedBonus: snapshot.speedBonus,
           question: snapshot.question ?? state.question,
           startedAt: null,
           remainingSeconds: 0,
+          // An unconfirmed pick never became an answer.
+          pendingKey: null,
         );
         if (_revealLoadedIndex != snapshot.index) {
           unawaited(_loadReveal(snapshot.index));
@@ -289,24 +336,46 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
     }
   }
 
+  /// First tap: picks an option without sending it. Changeable until a
+  /// confidence locks it in.
+  void pickAnswer(String key) {
+    if (state.phase != LivePhase.question || state.question == null) return;
+    if (state.lockedKey != null) return;
+    state = state.copyWith(pendingKey: key, notice: null);
+  }
+
+  /// Second tap: locks the picked option in with [confidence].
+  Future<void> confirmPick(TriviaConfidence confidence) async {
+    final key = state.pendingKey;
+    if (key == null) return;
+    await selectAnswer(key, confidence: confidence);
+  }
+
   /// Fire-once answer lock. Double-taps and re-taps are ignored; a late
   /// arrival ('time is up' / 'question is not open') keeps the visual lock
   /// but records it as not accepted and shows a gentle notice. The server
   /// withholds correctness, so nothing here can leak the answer.
-  Future<void> selectAnswer(String key) async {
+  Future<void> selectAnswer(String key, {TriviaConfidence? confidence}) async {
     final question = state.question;
     if (question == null || state.phase != LivePhase.question) return;
     if (state.lockedKey != null || _submittingQuestionId == question.id) {
       return;
     }
     _submittingQuestionId = question.id;
-    state = state.copyWith(lockedKey: key, submitting: true, notice: null);
+    state = state.copyWith(
+      lockedKey: key,
+      lockedConfidence: confidence,
+      pendingKey: null,
+      submitting: true,
+      notice: null,
+    );
     try {
       try {
         await _api.submitAnswer(
           sessionId: _args.sessionId,
           questionId: question.id,
           key: key,
+          confidence: confidence?.wireValue,
         );
       } on PostgrestException {
         rethrow; // server verdicts do not get a blind retry
@@ -316,6 +385,7 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
           sessionId: _args.sessionId,
           questionId: question.id,
           key: key,
+          confidence: confidence?.wireValue,
         );
       }
       // Only mark accepted if we are still on this question and have not
@@ -330,9 +400,12 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
       if (mounted) _handleSubmitRejection(e.message);
     } catch (_) {
       if (mounted) {
-        // Never reached the server: unlock so the student can retry.
+        // Never reached the server: unlock so the student can retry. The
+        // pick stays, so one confidence tap resends it.
         state = state.copyWith(
           lockedKey: null,
+          lockedConfidence: null,
+          pendingKey: key,
           submitting: false,
           notice: 'Could not send that. Tap an answer to try again.',
         );
@@ -351,7 +424,9 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
       );
     } else {
       state = state.copyWith(
+        pendingKey: state.lockedKey,
         lockedKey: null,
+        lockedConfidence: null,
         submitting: false,
         notice: 'That did not go through. Tap an answer to try again.',
       );
@@ -367,7 +442,11 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
       if (!mounted) return;
       _revealLoadedIndex = index;
       if (state.phase == LivePhase.reveal && state.index == index) {
-        state = state.copyWith(reveal: reveal, standings: standings);
+        state = state.copyWith(
+          reveal: reveal,
+          standings: standings,
+          outcomes: _withOutcome(reveal),
+        );
       }
     } catch (_) {
       // The dedupe means no snapshot will re-trigger this, so retry
@@ -380,6 +459,23 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
     } finally {
       _revealLoading = false;
     }
+  }
+
+  /// Folds my revealed answer into the calibration list when it carried a
+  /// confidence and the server accepted it. Once per question.
+  List<ConfidenceOutcome> _withOutcome(LiveRevealData reveal) {
+    final confidence = state.lockedConfidence;
+    final key = state.lockedKey;
+    if (confidence == null ||
+        key == null ||
+        !state.answerAccepted ||
+        !_calibrated.add(reveal.questionId)) {
+      return state.outcomes;
+    }
+    return [
+      ...state.outcomes,
+      ConfidenceOutcome(confidence: confidence, correct: key == reveal.correctKey),
+    ];
   }
 
   Future<void> _loadFinalStandings() async {
@@ -446,7 +542,17 @@ class LiveSessionController extends StateNotifier<LiveSessionState> {
     final elapsedMs = serverElapsedAtReceiptMs + sinceReceiptMs;
     final remaining = (state.questionSeconds - elapsedMs / 1000)
         .clamp(0.0, state.questionSeconds.toDouble());
-    if (remaining <= 0) _stopTicker();
+    if (remaining <= 0) {
+      _stopTicker();
+      // Picked but never confirmed: send the pick without a confidence so
+      // it still counts (the server allows a short grace past zero).
+      final pending = state.pendingKey;
+      if (pending != null &&
+          state.lockedKey == null &&
+          state.phase == LivePhase.question) {
+        unawaited(selectAnswer(pending));
+      }
+    }
     if (remaining != state.remainingSeconds) {
       state = state.copyWith(remainingSeconds: remaining);
     }
