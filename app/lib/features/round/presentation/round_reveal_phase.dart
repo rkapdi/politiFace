@@ -139,7 +139,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
         : null;
     final scoreColor = result.totalScore < 0
         ? EditorialPalette.actionRed
-        : (result.totalScore >= 100
+        : (result.isStrongScore
             ? EditorialPalette.civicGreen
             : theme.colorScheme.onSurface);
 
@@ -223,7 +223,7 @@ class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
               const SizedBox(height: 28),
               Center(
                 child: Text(
-                  '${result.totalScore > 0 ? '+' : ''}${result.totalScore} / 150',
+                  '${result.totalScore > 0 ? '+' : ''}${result.totalScore} / ${result.maxScore}',
                   style: theme.textTheme.headlineLarge?.copyWith(
                     color: scoreColor,
                     fontWeight: FontWeight.w900,
@@ -461,7 +461,7 @@ class _ChapterCompleteBanner extends StatelessWidget {
 
 String _shareText(TriviaResult r) =>
     'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
-    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
+    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / ${r.maxScore}\n'
     '${r.gridEmojis.join()}\n'
     'politiface.app';
 

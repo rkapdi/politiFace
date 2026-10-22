@@ -72,6 +72,8 @@ export type LiveQuestion = {
   index?: number
   total?: number
   question_seconds?: number
+  // Absent on servers that predate the switch (they always scored speed).
+  speed_bonus?: boolean
   started_at?: string | null
   question?: {
     id: string
@@ -85,6 +87,9 @@ export type LiveRevealData = {
   correct_key: string
   explanation: string | null
   counts: Record<string, number>
+  // Instructor target for class percent correct (1 to 100), null when unset.
+  goal_pct?: number | null
+  speed_bonus?: boolean
 }
 
 export type ScoreboardRow = {
@@ -109,6 +114,7 @@ const FRIENDLY: Record<string, string> = {
     S.errors.needsInvite,
   'instructor verification required': S.errors.needsVerification,
   'class name too short': S.errors.classNameShort,
+  'class goal must be between 1 and 100 percent': S.errors.badGoal,
   'Handle must be 3 to 20 letters, numbers, or underscores.':
     S.errors.badHandle,
   "Display names use 3 to 30 letters, numbers, spaces, or . ' - _":
@@ -532,6 +538,8 @@ export type LiveSessionMeta = {
   status: string
   join_code: string
   question_seconds: number
+  speed_bonus: boolean
+  goal_pct: number | null
 }
 
 export const liveSessionMeta = async (
@@ -539,7 +547,7 @@ export const liveSessionMeta = async (
 ): Promise<LiveSessionMeta> => {
   const { data, error } = await supabase
     .from('live_sessions')
-    .select('id, title, status, join_code, question_seconds')
+    .select('id, title, status, join_code, question_seconds, speed_bonus, goal_pct')
     .eq('id', sessionId)
     .single()
   if (error) throw new Error(friendlyMessage(error))
@@ -915,6 +923,8 @@ export const useCreateLiveSession = () =>
       questionIds: string[]
       questionSeconds: number
       allowGuests: boolean
+      speedBonus: boolean
+      goalPct: number | null
     }) =>
       rpc<{ id: string; join_code: string; question_count: number }>(
         'create_live_session',
@@ -924,6 +934,9 @@ export const useCreateLiveSession = () =>
           p_question_ids: a.questionIds as unknown as Json,
           p_question_seconds: a.questionSeconds,
           p_allow_guests: a.allowGuests,
+          p_speed_bonus: a.speedBonus,
+          // Omitted when unset so the server default (no goal) applies.
+          ...(a.goalPct === null ? {} : { p_goal_pct: a.goalPct }),
         },
       ),
     a => a.cohortId,

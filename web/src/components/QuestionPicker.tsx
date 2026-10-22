@@ -7,6 +7,7 @@ import {
 import { Alert, Badge, Button, Spinner } from './ui'
 import type { LiveDraft } from './LiveTab'
 import { S } from '../lib/strings'
+import { parseGoal } from '../lib/liveOptions'
 
 export function QuestionPicker({
   cohortId,
@@ -22,7 +23,9 @@ export function QuestionPicker({
   const questions = usePickableQuestions(cohortId)
   const domains = useDomains()
   const create = useCreateLiveSession()
-  const { title, seconds, selected, allowGuests } = draft
+  const { title, seconds, selected, allowGuests, speedBonus, goal } = draft
+  const goalPct = parseGoal(goal)
+  const goalInvalid = goal.trim() !== '' && goalPct === null
 
   const byDomain = useMemo(() => {
     const groups = new Map<number, typeof questions.data>()
@@ -50,6 +53,7 @@ export function QuestionPicker({
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
+    if (goalInvalid) return
     create.mutate(
       {
         cohortId,
@@ -57,6 +61,8 @@ export function QuestionPicker({
         questionIds: [...selected],
         questionSeconds: seconds,
         allowGuests,
+        speedBonus,
+        goalPct,
       },
       { onSuccess: data => onCreated((data as { id: string }).id) },
     )
@@ -100,13 +106,45 @@ export function QuestionPicker({
           />
           {S.live.allowGuests}
         </label>
+        <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={speedBonus}
+            onChange={e => onDraftChange({ ...draft, speedBonus: e.target.checked })}
+          />
+          {S.live.speedBonus}
+        </label>
+        <label className="text-sm text-slate-700">
+          {S.live.goalLabel}
+          <input
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={100}
+            step={1}
+            value={goal}
+            aria-invalid={goalInvalid}
+            aria-describedby="live-goal-hint"
+            onChange={e => onDraftChange({ ...draft, goal: e.target.value })}
+            className="ml-2 w-20 rounded-md border border-slate-300 px-2 py-1 text-sm"
+          />
+        </label>
         <Badge tone={selected.size > 0 ? 'green' : 'slate'}>
           {selected.size} selected
         </Badge>
-        <Button type="submit" disabled={selected.size === 0 || create.isPending}>
+        <Button
+          type="submit"
+          disabled={selected.size === 0 || create.isPending || goalInvalid}
+        >
           Start session
         </Button>
       </div>
+      <p
+        id="live-goal-hint"
+        className={`text-xs ${goalInvalid ? 'text-red-700' : 'text-slate-500'}`}
+      >
+        {goalInvalid ? S.errors.badGoal : S.live.goalHint}
+      </p>
       {create.error ? <Alert tone="error">{create.error.message}</Alert> : null}
       <div className="max-h-96 overflow-y-auto rounded-md border border-slate-200">
         {[...byDomain.entries()].map(([domainId, qs]) => (

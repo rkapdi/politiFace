@@ -5,6 +5,11 @@
 // when signed in (mock_attempts, the efficacy instrument) and local
 // otherwise; the screen cannot tell the difference. Answers persist one by
 // one, so a backgrounded or killed app loses nothing already given.
+//
+// Each answer locks in with a confidence (Guess, Pretty sure, Certain):
+// the confidence buttons replace NEXT, so the tap count is unchanged.
+// Confidence is metadata only; the mock score, readiness and efficacy are
+// correctness-only, and the result screen shows calibration separately.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,6 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/providers.dart';
+import '../../shared/widgets/confidence_bar.dart';
+import '../../trivia/domain/trivia_question.dart';
 import '../application/mock_session_provider.dart';
 import '../domain/fcle_question.dart';
 import '../domain/mock_session.dart';
@@ -37,7 +44,7 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
   /// waits for every answer to settle so finalize cannot race a submit.
   final _pending = <Future<void>>[];
 
-  Future<void> _next(MockSession session) async {
+  Future<void> _next(MockSession session, TriviaConfidence confidence) async {
     final chosen = _selectedKey;
     if (chosen == null || _finishing) return;
     final q = session.questions[_index];
@@ -48,12 +55,16 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
         _selectedKey = null;
       });
       _pending.add(
-        session.submit(q, chosen).catchError((Object _) {}),
+        session
+            .submit(q, chosen, confidence: confidence)
+            .catchError((Object _) {}),
       );
     } else {
       setState(() => _finishing = true);
       _pending.add(
-        session.submit(q, chosen).catchError((Object _) {}),
+        session
+            .submit(q, chosen, confidence: confidence)
+            .catchError((Object _) {}),
       );
       await Future.wait(_pending);
       final result = await session.finish();
@@ -196,34 +207,28 @@ class _MockExamScreenState extends ConsumerState<MockExamScreen> {
             ),
             SafeArea(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: _selectedKey == null || _finishing
-                        ? null
-                        : () => _next(session),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(6)),
-                      ),
-                    ),
-                    child: _finishing
-                        ? const SizedBox(
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
+                child: _finishing
+                    ? const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(
+                          child: SizedBox(
                             height: 18,
                             width: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(
-                            _index + 1 == total ? 'FINISH MOCK' : 'NEXT',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.2,
-                            ),
                           ),
-                  ),
-                ),
+                        ),
+                      )
+                    : ConfidenceBar(
+                        tone: ConfidenceBarTone.calm,
+                        enabled: _selectedKey != null,
+                        title: _selectedKey == null
+                            ? 'PICK AN ANSWER, THEN HOW SURE YOU ARE'
+                            : _index + 1 == total
+                                ? 'LAST ONE. HOW SURE ARE YOU?'
+                                : 'HOW SURE ARE YOU?',
+                        onPick: (c) => _next(session, c),
+                      ),
               ),
             ),
           ],

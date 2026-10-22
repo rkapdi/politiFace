@@ -7,6 +7,7 @@ import 'package:politiface/features/fcle/data/server_mock_api.dart';
 import 'package:politiface/features/fcle/data/server_mock_session.dart';
 import 'package:politiface/features/fcle/domain/fcle_question.dart';
 import 'package:politiface/features/fcle/domain/server_ids.dart';
+import 'package:politiface/features/trivia/domain/trivia_question.dart';
 
 class FakeMockApi implements ServerMockApi {
   FakeMockApi({required this.assembly});
@@ -15,6 +16,7 @@ class FakeMockApi implements ServerMockApi {
   bool submitFails = false;
   bool finalizeFails = false;
   final submitted = <String>[]; // serverQuestionIds
+  final confidences = <String?>[];
   int finalizeCalls = 0;
   ServerMockOutcome? outcome;
 
@@ -27,9 +29,11 @@ class FakeMockApi implements ServerMockApi {
     required String serverQuestionId,
     required String chosenKey,
     required String attemptId,
+    String? confidence,
   }) async {
     if (submitFails) throw Exception('network down');
     submitted.add(serverQuestionId);
+    confidences.add(confidence);
     return chosenKey == 'b'; // server truth: b is always right
   }
 
@@ -129,6 +133,41 @@ void main() {
     expect(await db.fcleAnswersDao.rollingAccuracy('us_constitution'), 0.0);
     // Nothing queued: everything delivered directly.
     expect(await db.outboxDao.pendingCount(), 0);
+  });
+
+  test('confidence rides to the server and onto the result, never the score',
+      () async {
+    final b = bank();
+    final api = FakeMockApi(assembly: assemblyFor(b))
+      ..outcome = const ServerMockOutcome(
+        score: 1,
+        passed: false,
+        perDomain: {
+          'american_democracy': {'correct': 1, 'total': 1},
+          'us_constitution': {'correct': 0, 'total': 1},
+        },
+      );
+    final session = await ServerMockSession.start(
+      kind: 'practice',
+      bank: b,
+      api: api,
+      dao: db.fcleAnswersDao,
+      sync: SyncEngine(db, null),
+      onAnswerRecorded: () {},
+    );
+    await session.submit(
+      session.questions[0],
+      'b',
+      confidence: TriviaConfidence.certain,
+    );
+    await session.submit(session.questions[1], 'a'); // no confidence
+    expect(api.confidences, ['certain', null]);
+
+    final result = await session.finish();
+    expect(result.score, 1); // server verdict, untouched
+    expect(result.calibration.length, 1);
+    expect(result.calibration.single.confidence, TriviaConfidence.certain);
+    expect(result.calibration.single.correct, isTrue);
   });
 
   test(

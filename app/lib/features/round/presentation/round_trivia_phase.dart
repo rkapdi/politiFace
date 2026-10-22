@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../../core/audio/streak_sounds.dart';
 import '../../shared/widgets/card_avatar.dart';
+import '../../shared/widgets/confidence_bar.dart';
 import '../../shared/widgets/feedback_motion.dart';
 import '../../shared/widgets/photo_zoom_modal.dart';
 import '../../trivia/domain/trivia_question.dart';
@@ -197,7 +197,7 @@ class _RoundTriviaPhaseState extends ConsumerState<RoundTriviaPhase> {
             curve: Curves.easeOutCubic,
             child: (pendingOption == null || revealActive)
                 ? const SizedBox(height: 0)
-                : _ConfidenceBar(onPick: _confirm),
+                : ConfidenceBar(onPick: _confirm),
           ),
         ],
       ),
@@ -380,70 +380,6 @@ class _OptionTile extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _ConfidenceBar extends StatelessWidget {
-  const _ConfidenceBar({required this.onPick});
-  final void Function(TriviaConfidence) onPick;
-
-  static const _palette = {
-    TriviaConfidence.guess: EditorialPalette.ochre,
-    TriviaConfidence.prettySure: EditorialPalette.civicNavy,
-    TriviaConfidence.certain: EditorialPalette.actionRed,
-  };
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            'HOW SURE ARE YOU?',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              letterSpacing: 1.8,
-              fontWeight: FontWeight.w800,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              for (final c in TriviaConfidence.values) ...[
-                Expanded(
-                  child: FilledButton(
-                    onPressed: () => onPick(c),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: _palette[c],
-                      // White fails AA on the ochre fill; ink passes.
-                      foregroundColor: _palette[c] == EditorialPalette.ochre
-                          ? EditorialPalette.ink
-                          : Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(4)),
-                      ),
-                    ),
-                    child: Text(
-                      c.label,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-                if (c != TriviaConfidence.values.last) const SizedBox(width: 8),
-              ],
-            ],
-          ),
-        ],
       ),
     );
   }

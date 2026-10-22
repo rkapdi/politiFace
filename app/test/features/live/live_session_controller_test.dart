@@ -5,6 +5,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/features/live/application/live_session_controller.dart';
 import 'package:politiface/features/live/data/live_session_api.dart';
+import 'package:politiface/features/trivia/domain/trivia_question.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
 const _args =
@@ -45,7 +46,12 @@ class FakeLiveSessionApi implements LiveSessionApi {
     ),
   ];
   PostgrestException? submitError;
-  final submissions = <({String sessionId, String questionId, String key})>[];
+  final submissions = <({
+    String sessionId,
+    String questionId,
+    String key,
+    String? confidence,
+  })>[];
   int questionCalls = 0;
   final enteredSessions = <String>[];
   Exception? enterError;
@@ -86,10 +92,18 @@ class FakeLiveSessionApi implements LiveSessionApi {
     required String sessionId,
     required String questionId,
     required String key,
+    String? confidence,
   }) async {
     final error = submitError;
     if (error != null) throw error;
-    submissions.add((sessionId: sessionId, questionId: questionId, key: key));
+    submissions.add(
+      (
+        sessionId: sessionId,
+        questionId: questionId,
+        key: key,
+        confidence: confidence,
+      ),
+    );
   }
 
   @override
@@ -286,5 +300,97 @@ void main() {
     api.snapshot = _questionSnapshot();
     await controller.refresh();
     expect(controller.state.phase, LivePhase.question);
+  });
+
+  test('pick then confidence: changeable pick, one send with the confidence',
+      () async {
+    api.snapshot = _questionSnapshot();
+    await controller.refresh();
+
+    controller.pickAnswer('a');
+    controller.pickAnswer('b'); // changed my mind; nothing sent yet
+    expect(controller.state.pendingKey, 'b');
+    expect(controller.state.lockedKey, isNull);
+    expect(api.submissions, isEmpty);
+
+    await controller.confirmPick(TriviaConfidence.prettySure);
+    expect(controller.state.lockedKey, 'b');
+    expect(controller.state.pendingKey, isNull);
+    expect(controller.state.lockedConfidence, TriviaConfidence.prettySure);
+    expect(api.submissions.single.confidence, 'pretty_sure');
+
+    // Picking after the lock changes nothing.
+    controller.pickAnswer('c');
+    expect(controller.state.pendingKey, isNull);
+  });
+
+  test('calibration collects revealed answers that carried a confidence',
+      () async {
+    api.snapshot = _questionSnapshot();
+    await controller.refresh();
+    controller.pickAnswer('b');
+    await controller.confirmPick(TriviaConfidence.certain);
+
+    api.snapshot = const LiveQuestionState(
+      status: 'reveal',
+      index: 0,
+      total: 2,
+      question: _question0,
+    );
+    await controller.refresh();
+    await Future<void>.delayed(Duration.zero);
+    expect(controller.state.outcomes, hasLength(1));
+    expect(controller.state.outcomes.single.confidence, TriviaConfidence.certain);
+    expect(controller.state.outcomes.single.correct, isTrue);
+  });
+
+  test('time running out sends an unconfirmed pick without a confidence',
+      () async {
+    var deviceNow = DateTime.utc(2026, 7, 22, 12, 0, 1);
+    final timed = LiveSessionController(
+      api: api,
+      args: _args,
+      now: () => deviceNow,
+    );
+    addTearDown(timed.dispose);
+    api.snapshot = _questionSnapshot(startedAt: DateTime.utc(2026, 7, 22, 12));
+    await timed.refresh();
+    timed.pickAnswer('c');
+    expect(api.submissions, isEmpty);
+
+    // The countdown hits zero on the next tick.
+    deviceNow = DateTime.utc(2026, 7, 22, 12, 0, 25);
+    await Future<void>.delayed(const Duration(milliseconds: 250));
+    await Future<void>.delayed(Duration.zero);
+    expect(api.submissions.single.key, 'c');
+    expect(api.submissions.single.confidence, isNull);
+    expect(timed.state.lockedKey, 'c');
+  });
+
+  test('speed bonus and goal parse from the wire, defaults are safe', () {
+    final legacy = LiveQuestionState.fromJson({'status': 'question'});
+    expect(legacy.speedBonus, isTrue); // old servers always scored speed
+    final off = LiveQuestionState.fromJson(
+      {'status': 'question', 'speed_bonus': false},
+    );
+    expect(off.speedBonus, isFalse);
+
+    final reveal = LiveRevealData.fromJson({
+      'question_id': 'q',
+      'correct_key': 'b',
+      'explanation': '',
+      'counts': {'a': 1, 'b': 3},
+      'goal_pct': 70,
+    });
+    expect(reveal.goalPct, 70);
+    expect(reveal.classPercentCorrect, 75);
+    final noGoal = LiveRevealData.fromJson({
+      'question_id': 'q',
+      'correct_key': 'b',
+      'counts': <String, int>{},
+      'goal_pct': null,
+    });
+    expect(noGoal.goalPct, isNull);
+    expect(noGoal.classPercentCorrect, isNull);
   });
 }

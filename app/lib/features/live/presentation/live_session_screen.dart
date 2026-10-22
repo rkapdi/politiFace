@@ -1,11 +1,12 @@
 // lib/features/live/presentation/live_session_screen.dart
 //
 // The student side of a live class session. Four faces, one screen:
-// lobby (waiting for the professor), question (countdown + lock a choice,
-// zero correctness shown), reveal (my verdict, the correct answer, the
-// explanation, per-option counts, standings), and ended (podium + my
-// rank). Leaving mid-session asks first; sounds respect the ringer and
-// skip appear-timed effects under VoiceOver.
+// lobby (waiting for the professor), question (countdown, pick a choice,
+// then lock it in with how sure you are; zero correctness shown), reveal
+// (my verdict, the correct answer, the explanation, per-option counts, the
+// class goal meter when the professor set one, standings), and ended
+// (podium, my rank, calibration). Leaving mid-session asks first; sounds
+// respect the ringer and skip appear-timed effects under VoiceOver.
 
 import 'dart:async';
 
@@ -17,7 +18,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../shared/widgets/calibration_card.dart';
+import '../../shared/widgets/confidence_bar.dart';
 import '../../shared/widgets/feedback_motion.dart';
+import '../../trivia/domain/trivia_question.dart';
 import '../application/live_session_controller.dart';
 import '../data/live_session_api.dart';
 
@@ -165,12 +169,18 @@ class _LiveSessionScreenState extends ConsumerState<LiveSessionScreen> {
           LivePhase.question => _QuestionView(
               state: state,
               onChoose: (key) {
+                HapticFeedback.selectionClick();
+                ref
+                    .read(liveSessionControllerProvider(widget.args).notifier)
+                    .pickAnswer(key);
+              },
+              onConfidence: (confidence) {
                 HapticFeedback.lightImpact();
                 ref.read(soundServiceProvider).play(SoundEffect.flip);
                 unawaited(
                   ref
                       .read(liveSessionControllerProvider(widget.args).notifier)
-                      .selectAnswer(key),
+                      .confirmPick(confidence),
                 );
               },
             ),
@@ -332,10 +342,15 @@ class _AnimatedDotsState extends State<_AnimatedDots>
 // ── question ────────────────────────────────────────────────────────────────
 
 class _QuestionView extends StatelessWidget {
-  const _QuestionView({required this.state, required this.onChoose});
+  const _QuestionView({
+    required this.state,
+    required this.onChoose,
+    required this.onConfidence,
+  });
 
   final LiveSessionState state;
   final void Function(String key) onChoose;
+  final void Function(TriviaConfidence confidence) onConfidence;
 
   @override
   Widget build(BuildContext context) {
@@ -397,6 +412,15 @@ class _QuestionView extends StatelessWidget {
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
+              const SizedBox(height: 4),
+              Text(
+                state.speedBonus
+                    ? 'Faster correct answers earn bonus points.'
+                    : 'No speed bonus. Every correct answer scores the same.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
               const SizedBox(height: 12),
               if (question != null) ...[
                 Text(
@@ -410,7 +434,13 @@ class _QuestionView extends StatelessWidget {
                     option: option,
                     locked: locked,
                     isChosen: option.key == state.lockedKey,
+                    isPending: !locked && option.key == state.pendingKey,
                     onTap: () => onChoose(option.key),
+                  ),
+                if (!locked && state.pendingKey != null)
+                  ConfidenceBar(
+                    tone: ConfidenceBarTone.calm,
+                    onPick: onConfidence,
                   ),
               ] else
                 const Padding(
@@ -439,7 +469,12 @@ class _QuestionView extends StatelessWidget {
                       ),
                     const SizedBox(width: 8),
                     Text(
-                      state.submitting ? 'SENDING' : 'LOCKED IN',
+                      state.submitting
+                          ? 'SENDING'
+                          : state.lockedConfidence == null
+                              ? 'LOCKED IN'
+                              : 'LOCKED IN · '
+                                  '${state.lockedConfidence!.plainLabel.toUpperCase()}',
                       style: theme.textTheme.labelMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         letterSpacing: 1.6,
@@ -481,25 +516,32 @@ class _LiveOptionTile extends StatelessWidget {
     required this.option,
     required this.locked,
     required this.isChosen,
+    required this.isPending,
     required this.onTap,
   });
 
   final LiveOption option;
   final bool locked;
   final bool isChosen;
+  final bool isPending;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final navy = theme.colorScheme.brandNavy;
+    final highlighted = isChosen || isPending;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: MergeSemantics(
         child: Semantics(
           button: true,
-          selected: isChosen,
-          label: isChosen ? 'Your locked choice.' : null,
+          selected: highlighted,
+          label: isChosen
+              ? 'Your locked choice.'
+              : isPending
+                  ? 'Picked. Now choose how sure you are.'
+                  : null,
           child: InkWell(
             borderRadius: BorderRadius.circular(6),
             onTap: locked ? null : onTap,
@@ -507,11 +549,11 @@ class _LiveOptionTile extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
               decoration: BoxDecoration(
                 border: Border.all(
-                  color: isChosen ? navy : theme.colorScheme.outlineVariant,
-                  width: isChosen ? 2 : 1,
+                  color: highlighted ? navy : theme.colorScheme.outlineVariant,
+                  width: highlighted ? 2 : 1,
                 ),
                 borderRadius: BorderRadius.circular(6),
-                color: isChosen ? navy.withOpacity(0.10) : null,
+                color: highlighted ? navy.withOpacity(0.10) : null,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,6 +630,14 @@ class _RevealView extends StatelessWidget {
             count: reveal.counts[option.key] ?? 0,
             totalAnswers: totalAnswers,
           ),
+        if (reveal.goalPct != null) ...[
+          const SizedBox(height: 4),
+          LiveGoalMeter(
+            goalPct: reveal.goalPct!,
+            classPct: reveal.classPercentCorrect,
+          ),
+          const SizedBox(height: 12),
+        ],
         if (reveal.explanation.isNotEmpty) ...[
           const SizedBox(height: 8),
           Container(
@@ -796,6 +846,123 @@ class _RevealOptionTile extends StatelessWidget {
   }
 }
 
+// ── class goal meter (reveal) ───────────────────────────────────────────────
+
+/// The class percent correct on this question against the professor's
+/// target. Text carries the meaning (the bar is decoration, excluded from
+/// semantics) and the copy never shames: below target reads "Goal 70%",
+/// not a failure.
+class LiveGoalMeter extends StatelessWidget {
+  const LiveGoalMeter({required this.goalPct, required this.classPct, super.key});
+
+  final int goalPct;
+
+  /// Null when nobody answered this question.
+  final int? classPct;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final pct = classPct;
+    final met = pct != null && pct >= goalPct;
+    final headline = pct == null
+        ? 'No answers on this one yet.'
+        : met
+            ? 'Class goal met: $pct% correct.'
+            : 'Class: $pct% correct.';
+    final detail = 'Goal $goalPct%.';
+    return MergeSemantics(
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'CLASS GOAL',
+              style: theme.textTheme.labelSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.6,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                if (met) ...[
+                  Icon(
+                    Icons.flag,
+                    size: 18,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Expanded(
+                  child: Text(
+                    headline,
+                    style: theme.textTheme.bodyMedium
+                        ?.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Text(
+                  detail,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            ExcludeSemantics(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = constraints.maxWidth;
+                  return SizedBox(
+                    height: 14,
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Positioned.fill(
+                          top: 4,
+                          bottom: 4,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(3),
+                            child: LinearProgressIndicator(
+                              value: (pct ?? 0) / 100,
+                              minHeight: 6,
+                              color: theme.colorScheme.onSurface,
+                              backgroundColor:
+                                  theme.colorScheme.outlineVariant,
+                            ),
+                          ),
+                        ),
+                        // The target: a tick across the bar.
+                        Positioned(
+                          left: (width * goalPct / 100 - 1)
+                              .clamp(0.0, width - 2),
+                          top: 0,
+                          bottom: 0,
+                          child: Container(
+                            width: 2,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 // ── standings (shared by reveal and ended) ─────────────────────────────────
 
 class _StandingsList extends StatelessWidget {
@@ -940,6 +1107,10 @@ class _EndedView extends StatelessWidget {
           _StandingsList(standings: state.standings, topCount: 3),
         ] else
           const Center(child: CircularProgressIndicator()),
+        if (state.outcomes.isNotEmpty) ...[
+          const SizedBox(height: 20),
+          CalibrationCard(outcomes: state.outcomes),
+        ],
         const SizedBox(height: 16),
         Text(
           'Nice work. Scores also count toward your class board.',

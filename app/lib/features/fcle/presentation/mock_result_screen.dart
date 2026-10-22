@@ -16,6 +16,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../../app/editorial_theme.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../shared/widgets/calibration_card.dart';
 import '../../shared/widgets/feedback_motion.dart';
 import '../../trivia/presentation/share_card_renderer.dart';
 import '../domain/mock_engine.dart';
@@ -220,6 +221,10 @@ class _MockResultScreenState extends ConsumerState<MockResultScreen> {
                     passFraction: MockEngine.passFraction,
                   ),
                   const SizedBox(height: 10),
+                ],
+                if (result.calibration.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  CalibrationCard(outcomes: result.calibration),
                 ],
                 const SizedBox(height: 14),
                 FilledButton.icon(

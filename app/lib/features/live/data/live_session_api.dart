@@ -90,6 +90,7 @@ class LiveQuestionState {
     this.index = -1,
     this.total = 0,
     this.questionSeconds = 20,
+    this.speedBonus = true,
     this.startedAt,
     this.question,
   });
@@ -102,6 +103,9 @@ class LiveQuestionState {
       index: (json['index'] as num?)?.toInt() ?? -1,
       total: (json['total'] as num?)?.toInt() ?? 0,
       questionSeconds: (json['question_seconds'] as num?)?.toInt() ?? 20,
+      // Absent on servers that predate the switch: those always scored
+      // the bonus.
+      speedBonus: json['speed_bonus'] as bool? ?? true,
       startedAt: started is String ? DateTime.tryParse(started) : null,
       question:
           q is Map ? LiveQuestion.fromJson(Map<String, dynamic>.from(q)) : null,
@@ -112,6 +116,9 @@ class LiveQuestionState {
   final int index;
   final int total;
   final int questionSeconds;
+
+  /// Whether faster correct answers earn bonus points in this session.
+  final bool speedBonus;
   final DateTime? startedAt;
   final LiveQuestion? question;
 
@@ -122,13 +129,15 @@ class LiveQuestionState {
       '${startedAt?.toUtc().microsecondsSinceEpoch}:${question?.id}';
 }
 
-/// live_reveal: the correct key, explanation, and per-option answer counts.
+/// live_reveal: the correct key, explanation, per-option answer counts,
+/// and the instructor's class goal (null when unset).
 class LiveRevealData {
   const LiveRevealData({
     required this.questionId,
     required this.correctKey,
     required this.explanation,
     required this.counts,
+    this.goalPct,
   });
 
   factory LiveRevealData.fromJson(Map<String, dynamic> json) => LiveRevealData(
@@ -139,12 +148,26 @@ class LiveRevealData {
           for (final e in (json['counts'] as Map? ?? const {}).entries)
             e.key as String: (e.value as num).toInt(),
         },
+        goalPct: (json['goal_pct'] as num?)?.toInt(),
       );
 
   final String questionId;
   final String correctKey;
   final String explanation;
   final Map<String, int> counts;
+
+  /// Instructor target for the class percent correct, 1..100, or null.
+  final int? goalPct;
+
+  int get totalAnswers => counts.values.fold<int>(0, (sum, n) => sum + n);
+
+  /// Whole-number percent of answers that were correct, or null when
+  /// nobody answered.
+  int? get classPercentCorrect {
+    final total = totalAnswers;
+    if (total == 0) return null;
+    return ((counts[correctKey] ?? 0) * 100 / total).round();
+  }
 }
 
 /// One live_scoreboard row. Handles are the pseudonymous generated ones;
@@ -194,11 +217,13 @@ abstract class LiveSessionApi {
   Future<LiveQuestionState> question(String sessionId);
 
   /// Submits via submit_live_answer. The server returns only "accepted";
-  /// correctness stays hidden until the reveal.
+  /// correctness stays hidden until the reveal. [confidence] (guess |
+  /// pretty_sure | certain) is optional metadata; scoring ignores it.
   Future<void> submitAnswer({
     required String sessionId,
     required String questionId,
     required String key,
+    String? confidence,
   });
 
   /// The reveal payload via live_reveal (reveal phase only for students).
@@ -280,6 +305,7 @@ class SupabaseLiveSessionApi implements LiveSessionApi {
     required String sessionId,
     required String questionId,
     required String key,
+    String? confidence,
   }) async {
     // A hard timeout, not a hope: a stalled classroom socket must surface
     // as a retryable failure within the countdown, never an eternal
@@ -290,6 +316,7 @@ class SupabaseLiveSessionApi implements LiveSessionApi {
         'p_session': sessionId,
         'p_question': questionId,
         'p_key': key,
+        if (confidence != null) 'p_confidence': confidence,
       },
     ).timeout(const Duration(seconds: 6));
   }

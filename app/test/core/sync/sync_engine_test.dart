@@ -41,6 +41,12 @@ class FakeTransport implements SyncTransport {
   Future<void> upsertAppState(OutboxEvent e) => _send(e);
 }
 
+/// Every answer delivery fails transiently (offline mid-mock).
+class _StuckAnswersTransport extends FakeTransport {
+  @override
+  Future<void> sendAnswer(OutboxEvent e) async => throw Exception('offline');
+}
+
 void main() {
   late AppDatabase db;
 
@@ -179,6 +185,37 @@ void main() {
     final rows = await db.select(db.outboxEvents).get();
     expect(rows.single.lastError, contains('42501'));
     expect(rows.single.tries, OutboxDao.maxTries);
+  });
+
+  test('answer confidence rides in the payload, absent when not given',
+      () async {
+    final transport = FakeTransport();
+    final engine = SyncEngine(db, transport);
+    await engine.enqueueAnswer(
+      questionId: 'q1',
+      chosenKey: 'a',
+      confidence: 'pretty_sure',
+    );
+    await engine.enqueueAnswer(questionId: 'q2', chosenKey: 'b');
+    await engine.flush();
+    expect(transport.deliveredEvents.length, 2);
+    OutboxEvent byQuestion(String id) =>
+        transport.deliveredEvents.firstWhere((e) => e.questionId == id);
+    expect(answerConfidenceOf(byQuestion('q1')), 'pretty_sure');
+    expect(answerConfidenceOf(byQuestion('q2')), isNull);
+    expect(byQuestion('q2').payload, '{}');
+  });
+
+  test('hasPendingForAttempt sees a stuck answer for that attempt', () async {
+    final engine = SyncEngine(db, _StuckAnswersTransport());
+    await engine.enqueueAnswer(
+      questionId: 'q-uuid',
+      chosenKey: 'b',
+      attemptId: 'attempt-9',
+    );
+    await engine.flush();
+    expect(await engine.hasPendingForAttempt('attempt-9'), isTrue);
+    expect(await engine.hasPendingForAttempt('attempt-other'), isFalse);
   });
 
   test('mock_finalize flushes after its attempt answers (FIFO)', () async {

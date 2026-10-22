@@ -2961,5 +2961,216 @@ begin
   end if;
 end $$;
 
+-- ── Answer confidence (20261021000100) ──────────────────────────────────────
+-- Stored as metadata, normalized, never allowed on session events, and
+-- never able to change FSRS state. One function per RPC name.
+\set fun_student '''00000000-0000-0000-0000-0000000000f1'''
+reset role;
+insert into auth.users (id, email) values (:fun_student, 'confident@example.edu');
+do $$
+declare n int;
+begin
+  select count(*) into n from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+   where ns.nspname = 'public'
+     and p.proname in ('submit_answer', 'submit_live_answer', 'create_live_session');
+  if n <> 3 then
+    raise exception 'FAIL: expected one function per answer/session RPC, found %', n;
+  end if;
+  perform set_config('app.fun_code',
+    (select join_code from public.cohorts where name = 'Civics Section A'), false);
+  -- Three fresh questions for the FSRS comparison.
+  perform set_config('app.fun_q1', (select id::text from public.questions
+     where cohort_id is null and review_status = 'published' and domain_id = 4
+     order by stem limit 1 offset 20), false);
+  perform set_config('app.fun_q2', (select id::text from public.questions
+     where cohort_id is null and review_status = 'published' and domain_id = 4
+     order by stem limit 1 offset 21), false);
+  perform set_config('app.fun_q3', (select id::text from public.questions
+     where cohort_id is null and review_status = 'published' and domain_id = 4
+     order by stem limit 1 offset 22), false);
+end $$;
+set role authenticated;
+set app.test_uid = :fun_student;
+insert into public.profiles (id, handle) values (:fun_student, 'confident_one');
+select public.join_cohort(current_setting('app.fun_code')) as fun_joined \gset
+
+do $$
+declare
+  e1 uuid := gen_random_uuid(); e2 uuid := gen_random_uuid();
+  e3 uuid := gen_random_uuid();
+  res jsonb;
+begin
+  -- New shape with a confidence; field shape (1.3.2) without one; junk.
+  res := public.submit_answer(e1, current_setting('app.fun_q1')::uuid, 'b', now(),
+                              p_confidence => 'certain');
+  if not (res ->> 'correct')::boolean then
+    raise exception 'FAIL: confidence changed grading: %', res;
+  end if;
+  perform public.submit_answer(e2, current_setting('app.fun_q2')::uuid, 'b', now());
+  perform public.submit_answer(e3, current_setting('app.fun_q3')::uuid, 'b', now(),
+                               p_confidence => 'totally');
+  if (select confidence from public.events where event_id = e1) is distinct from 'certain' then
+    raise exception 'FAIL: confidence not stored';
+  end if;
+  if (select confidence from public.events where event_id = e2) is not null then
+    raise exception 'FAIL: legacy call stored a confidence';
+  end if;
+  if (select confidence from public.events where event_id = e3) is not null then
+    raise exception 'FAIL: junk confidence was not dropped to null';
+  end if;
+  -- Session events never carry one.
+  begin
+    insert into public.events (event_id, user_id, type, client_ts, confidence)
+    values (gen_random_uuid(), auth.uid(), 'session_start', now(), 'guess');
+    raise exception 'FAIL: a session event carried a confidence';
+  exception when check_violation then null;
+  end;
+end $$;
+
+-- FSRS: a Certain answer and a no-confidence answer, both correct on fresh
+-- items, leave identical scheduling state.
+reset role;
+do $$
+declare a record; b record;
+begin
+  select stability, difficulty, reps, lapses, due_at - last_reviewed_at as gap
+    into a from public.item_states
+   where user_id = '00000000-0000-0000-0000-0000000000f1'
+     and question_id = current_setting('app.fun_q1')::uuid;
+  select stability, difficulty, reps, lapses, due_at - last_reviewed_at as gap
+    into b from public.item_states
+   where user_id = '00000000-0000-0000-0000-0000000000f1'
+     and question_id = current_setting('app.fun_q2')::uuid;
+  if a.stability is null or a.stability <> b.stability or a.difficulty <> b.difficulty
+     or a.reps <> b.reps or a.lapses <> b.lapses
+     or abs(extract(epoch from a.gap - b.gap)) > 1 then
+    raise exception 'FAIL: confidence leaked into FSRS state: % vs %', a, b;
+  end if;
+end $$;
+
+-- ── Live speed bonus + class goal (20261021000200) ──────────────────────────
+do $$
+declare v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+begin
+  perform set_config('app.fun_live_qs', (
+    select jsonb_agg(id)::text from (
+      select id from public.questions
+       where cohort_id is null and review_status = 'published'
+         and domain_id = 3
+         and id not in (select app.cohort_locked_question_ids(v_cohort))
+       order by stem limit 1) q), false);
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_flat jsonb; v_fast jsonb;
+begin
+  if (select column_default from information_schema.columns
+       where table_schema = 'public' and table_name = 'live_sessions'
+         and column_name = 'speed_bonus') <> 'false' then
+    raise exception 'FAIL: new sessions must default to no speed bonus';
+  end if;
+  begin
+    perform public.create_live_session(v_cohort, 'Bad goal',
+      current_setting('app.fun_live_qs')::jsonb, 20, false, false, 101);
+    raise exception 'FAIL: a 101 percent goal was accepted';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  -- Old five-argument shape still works and gets bonus off, no goal.
+  v_flat := public.create_live_session(v_cohort, 'Flat scoring',
+    current_setting('app.fun_live_qs')::jsonb, 20, false);
+  if (select speed_bonus or goal_pct is not null from public.live_sessions
+       where id = (v_flat ->> 'id')::uuid) then
+    raise exception 'FAIL: five-argument create picked up bonus or goal';
+  end if;
+  v_fast := public.create_live_session(v_cohort, 'Fast scoring',
+    current_setting('app.fun_live_qs')::jsonb, 20, false,
+    p_speed_bonus => true, p_goal_pct => 70);
+  perform set_config('app.fun_flat', v_flat ->> 'id', false);
+  perform set_config('app.fun_fast', v_fast ->> 'id', false);
+  perform public.advance_live_session((v_flat ->> 'id')::uuid);
+  perform public.advance_live_session((v_fast ->> 'id')::uuid);
+  if (public.get_live_question((v_fast ->> 'id')::uuid) ->> 'speed_bonus')::boolean
+     is distinct from true then
+    raise exception 'FAIL: get_live_question does not expose the speed bonus';
+  end if;
+end $$;
+
+set app.test_uid = :fun_student;
+do $$
+declare q uuid := (current_setting('app.fun_live_qs')::jsonb ->> 0)::uuid;
+begin
+  perform public.submit_live_answer(current_setting('app.fun_flat')::uuid, q, 'b',
+                                    'pretty_sure');
+  -- Field-shape call (no confidence) on the other session.
+  perform public.submit_live_answer(current_setting('app.fun_fast')::uuid, q, 'b');
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_flat uuid := current_setting('app.fun_flat')::uuid;
+  v_fast uuid := current_setting('app.fun_fast')::uuid;
+  v_rev jsonb; v_score bigint;
+begin
+  perform public.advance_live_session(v_flat);  -- reveal
+  perform public.advance_live_session(v_fast);  -- reveal
+  v_rev := public.live_reveal(v_flat);
+  if not (v_rev ? 'goal_pct') or v_rev -> 'goal_pct' <> 'null'::jsonb then
+    raise exception 'FAIL: unset goal should reveal as null: %', v_rev;
+  end if;
+  v_rev := public.live_reveal(v_fast);
+  if (v_rev ->> 'goal_pct')::int <> 70 then
+    raise exception 'FAIL: goal missing from reveal: %', v_rev;
+  end if;
+  select score into v_score from public.live_scoreboard(v_flat) where rank = 1;
+  if v_score <> 100 then
+    raise exception 'FAIL: bonus-off correct answer should score exactly 100, got %', v_score;
+  end if;
+  select score into v_score from public.live_session_report(v_flat)
+   where correct_count = 1;
+  if v_score <> 100 then
+    raise exception 'FAIL: report ignores the bonus switch, got %', v_score;
+  end if;
+  select score into v_score from public.live_scoreboard(v_fast) where rank = 1;
+  if v_score <= 100 or v_score > 150 then
+    raise exception 'FAIL: bonus-on fast answer should score 101 to 150, got %', v_score;
+  end if;
+  perform public.advance_live_session(v_flat);  -- ended + finalize
+  perform public.advance_live_session(v_fast);
+end $$;
+
+reset role;
+do $$
+declare
+  q uuid := (current_setting('app.fun_live_qs')::jsonb ->> 0)::uuid;
+  v_flat uuid := current_setting('app.fun_flat')::uuid;
+begin
+  if (select confidence from public.live_answers
+       where session_id = v_flat
+         and user_id = '00000000-0000-0000-0000-0000000000f1') is distinct from 'pretty_sure' then
+    raise exception 'FAIL: live confidence not stored';
+  end if;
+  if (select confidence from public.events
+       where event_id = md5('live:' || v_flat || ':' || q || ':'
+                            || '00000000-0000-0000-0000-0000000000f1')::uuid)
+     is distinct from 'pretty_sure' then
+    raise exception 'FAIL: live fold dropped the confidence';
+  end if;
+  if exists (select 1 from public.live_answers
+              where session_id = current_setting('app.fun_fast')::uuid
+                and confidence is not null) then
+    raise exception 'FAIL: legacy live answer stored a confidence';
+  end if;
+  if app.live_answer_points(false, 0, 20, true) <> 0
+     or app.live_answer_points(true, 20000, 20, true) <> 100
+     or app.live_answer_points(true, 0, 20, true) <> 150
+     or app.live_answer_points(true, 0, 20, false) <> 100 then
+    raise exception 'FAIL: live_answer_points rule drifted';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

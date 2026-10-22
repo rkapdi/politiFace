@@ -8,7 +8,7 @@ import 'package:politiface/features/trivia/presentation/trivia_share_card.dart';
 /// each archetype, so the golden looks like what a real user would share.
 final _fixtures = <TriviaArchetype, TriviaResult>{
   TriviaArchetype.civicScholar: const TriviaResult(
-    totalScore: 130,
+    totalScore: 952,
     correctCount: 9,
     totalQuestions: 10,
     averageConfidence: 2.6,
@@ -18,7 +18,7 @@ final _fixtures = <TriviaArchetype, TriviaResult>{
     ],
   ),
   TriviaArchetype.luckyGuesser: const TriviaResult(
-    totalScore: 55,
+    totalScore: 310,
     correctCount: 8,
     totalQuestions: 10,
     averageConfidence: 1.4,
@@ -28,7 +28,7 @@ final _fixtures = <TriviaArchetype, TriviaResult>{
     ],
   ),
   TriviaArchetype.civicBullshitter: const TriviaResult(
-    totalScore: -12,
+    totalScore: -1520,
     correctCount: 3,
     totalQuestions: 10,
     averageConfidence: 2.7,
@@ -38,7 +38,7 @@ final _fixtures = <TriviaArchetype, TriviaResult>{
     ],
   ),
   TriviaArchetype.humbleApprentice: const TriviaResult(
-    totalScore: 18,
+    totalScore: 10,
     correctCount: 3,
     totalQuestions: 10,
     averageConfidence: 1.2,
@@ -99,7 +99,7 @@ void main() {
           );
           final scorePrefix = fixture.totalScore > 0 ? '+' : '';
           expect(
-            find.text('$scorePrefix${fixture.totalScore} / 150'),
+            find.text('$scorePrefix${fixture.totalScore} / ${fixture.maxScore}'),
             findsOneWidget,
           );
           expect(

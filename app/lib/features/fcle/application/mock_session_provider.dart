@@ -59,10 +59,15 @@ final mockSessionProvider = FutureProvider.autoDispose<MockSession>(
     return LocalMockSession(
       assembly: const MockEngine().assemble(practiceBank),
       dao: db.fcleAnswersDao,
-      enqueueAnswer: ({required serverQuestionId, required chosenKey}) =>
+      enqueueAnswer: ({
+        required serverQuestionId,
+        required chosenKey,
+        confidence,
+      }) =>
           sync.enqueueAnswer(
         questionId: serverQuestionId,
         chosenKey: chosenKey,
+        confidence: confidence,
       ),
       onAnswerRecorded: tick,
       serverIdOf: serverUuidForQuestion,

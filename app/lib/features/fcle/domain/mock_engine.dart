@@ -7,6 +7,7 @@
 
 import 'dart:math';
 
+import '../../trivia/domain/calibration.dart';
 import '../data/question_bank_loader.dart';
 import 'fcle_question.dart';
 
@@ -32,6 +33,7 @@ class MockResult {
     required this.passed,
     required this.perDomain,
     this.pendingSync = false,
+    this.calibration = const [],
   });
 
   final int score;
@@ -43,6 +45,19 @@ class MockResult {
   /// score shown is the local tally and the server catches up via the
   /// outbox on the next connection.
   final bool pendingSync;
+
+  /// Answers that carried a confidence, for the "how sure vs. how right"
+  /// card. Display only: [score], [passed] and [perDomain] never read it.
+  final List<ConfidenceOutcome> calibration;
+
+  MockResult withCalibration(List<ConfidenceOutcome> outcomes) => MockResult(
+        score: score,
+        total: total,
+        passed: passed,
+        perDomain: perDomain,
+        pendingSync: pendingSync,
+        calibration: List.unmodifiable(outcomes),
+      );
 
   /// Weakest domain by accuracy; break ties in exam order.
   FcleDomain get weakestDomain {

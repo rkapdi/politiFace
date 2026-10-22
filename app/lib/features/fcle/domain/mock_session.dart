@@ -11,6 +11,8 @@
 // order shown, call [finish] exactly once at the end.
 
 import '../../../core/database/daos/fcle_answers_dao.dart';
+import '../../trivia/domain/calibration.dart';
+import '../../trivia/domain/trivia_question.dart';
 import 'fcle_question.dart';
 import 'mock_engine.dart';
 
@@ -21,7 +23,12 @@ abstract class MockSession {
   /// efficacy instrument); drives the separate server-baseline counter.
   bool get isServerBacked;
 
-  Future<void> submit(FcleQuestion question, String chosenKey);
+  /// [confidence] is optional metadata; it never changes the score.
+  Future<void> submit(
+    FcleQuestion question,
+    String chosenKey, {
+    TriviaConfidence? confidence,
+  });
 
   Future<MockResult> finish();
 }
@@ -33,6 +40,7 @@ class LocalMockSession implements MockSession {
     required Future<void> Function({
       required String serverQuestionId,
       required String chosenKey,
+      String? confidence,
     }) enqueueAnswer,
     required void Function() onAnswerRecorded,
     required String Function(String yamlId) serverIdOf,
@@ -47,11 +55,13 @@ class LocalMockSession implements MockSession {
   final Future<void> Function({
     required String serverQuestionId,
     required String chosenKey,
+    String? confidence,
   }) _enqueueAnswer;
   final void Function() _onAnswerRecorded;
   final String Function(String yamlId) _serverIdOf;
 
   final _answers = <String, String>{};
+  final _calibration = <ConfidenceOutcome>[];
   static const _engine = MockEngine();
 
   @override
@@ -61,8 +71,20 @@ class LocalMockSession implements MockSession {
   List<FcleQuestion> get questions => _assembly.questions;
 
   @override
-  Future<void> submit(FcleQuestion question, String chosenKey) async {
+  Future<void> submit(
+    FcleQuestion question,
+    String chosenKey, {
+    TriviaConfidence? confidence,
+  }) async {
     _answers[question.id] = chosenKey;
+    if (confidence != null) {
+      _calibration.add(
+        ConfidenceOutcome(
+          confidence: confidence,
+          correct: question.isCorrect(chosenKey),
+        ),
+      );
+    }
     await _dao.log(
       questionId: question.id,
       domain: question.domain.code,
@@ -75,10 +97,12 @@ class LocalMockSession implements MockSession {
     await _enqueueAnswer(
       serverQuestionId: _serverIdOf(question.id),
       chosenKey: chosenKey,
+      confidence: confidence?.wireValue,
     );
     _onAnswerRecorded();
   }
 
   @override
-  Future<MockResult> finish() async => _engine.grade(_assembly, _answers);
+  Future<MockResult> finish() async =>
+      _engine.grade(_assembly, _answers).withCalibration(_calibration);
 }
