@@ -135,7 +135,7 @@ class TriviaShareCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    '$scorePrefix${result.totalScore} / 150',
+                    '$scorePrefix${result.totalScore} / ${result.maxScore}',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,

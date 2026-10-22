@@ -77,40 +77,82 @@ class TriviaResult {
 
   double get accuracy =>
       totalQuestions == 0 ? 0.0 : correctCount / totalQuestions;
+
+  /// Best possible total for this run (every answer right and Certain).
+  int get maxScore => maxScoreFor(totalQuestions);
+
+  /// A "strong run" for color accents: two thirds of the maximum, the same
+  /// share the old 100-of-150 cutoff used.
+  bool get isStrongScore => totalScore > 0 && totalScore * 3 >= maxScore * 2;
 }
 
-/// Score a single answer using the confidence-weighted matrix.
+/// Points for a perfect answer: right, and you said Certain.
+const int kMaxPointsPerAnswer = 100;
+
+/// Best possible total for a run of [questions] answers.
+int maxScoreFor(int questions) => questions * kMaxPointsPerAnswer;
+
+/// The Brier-score points for one answer, before any wording.
 ///
-///   Correct + Guess        → +5   (lucky)
-///   Correct + Pretty Sure  → +10  (solid)
-///   Correct + 100%         → +15  (knew it cold)
-///   Wrong   + Guess        → +2   (honest "no idea")
-///   Wrong   + Pretty Sure  → -3   (mild penalty)
-///   Wrong   + 100%         → -10  (Dunning-Kruger)
+///   points = 101 - 400 * (outcome - p)^2
 ///
-/// The negative ceiling is the whole point — final score can land below
-/// zero, which is the shareable joke.
+/// where outcome is 1 for right and 0 for wrong, and p is the probability
+/// the chosen label claims (Guess 0.50, Pretty sure 0.75, Certain 0.95).
+/// This is an affine transform of the Brier score, which is strictly
+/// proper: whatever your true chance q of being right, your expected
+/// points are highest when you pick the label whose p is nearest q. Saying
+/// "Certain" only pays when you really are better than about 85% sure,
+/// and "Pretty sure" only beats "Guess" above about 62.5%.
+///
+///   Right + Guess        ->  +1
+///   Right + Pretty sure  -> +76
+///   Right + Certain      -> +100
+///   Wrong + Guess        ->  +1
+///   Wrong + Pretty sure  -> -124
+///   Wrong + Certain      -> -260
+///
+/// Every p is a multiple of 0.05, so the arithmetic is exact in integers:
+/// 400 * (m / 100)^2 == m^2 / 25 for m in {5, 25, 50, 75, 95}.
+int brierPoints({
+  required bool isCorrect,
+  required TriviaConfidence confidence,
+}) {
+  final pct = (confidence.probability * 100).round();
+  final miss = isCorrect ? 100 - pct : pct;
+  return 101 - (miss * miss) ~/ 25;
+}
+
+/// Expected points for reporting [confidence] when the true chance of
+/// being right is [q] (0..1). Used by tests to prove honesty wins.
+double expectedPoints(TriviaConfidence confidence, double q) =>
+    q * brierPoints(isCorrect: true, confidence: confidence) +
+    (1 - q) * brierPoints(isCorrect: false, confidence: confidence);
+
+/// Score a single answer with the Brier rule above. A confident miss can
+/// cost more than a confident hit earns; the final trivia score can land
+/// below zero, which is the shareable joke.
 AnswerScore scoreAnswer({
   required bool isCorrect,
   required TriviaConfidence confidence,
 }) {
+  final points = brierPoints(isCorrect: isCorrect, confidence: confidence);
   if (isCorrect) {
     switch (confidence) {
       case TriviaConfidence.guess:
-        return const AnswerScore(points: 5, reason: 'Right, lucky guess');
+        return AnswerScore(points: points, reason: 'Right, lucky guess');
       case TriviaConfidence.prettySure:
-        return const AnswerScore(points: 10, reason: 'Right, pretty sure');
+        return AnswerScore(points: points, reason: 'Right, pretty sure');
       case TriviaConfidence.certain:
-        return const AnswerScore(points: 15, reason: 'Right, and you knew it');
+        return AnswerScore(points: points, reason: 'Right, and you knew it');
     }
   }
   switch (confidence) {
     case TriviaConfidence.guess:
-      return const AnswerScore(points: 2, reason: 'Wrong, but you said so');
+      return AnswerScore(points: points, reason: 'Wrong, but you said so');
     case TriviaConfidence.prettySure:
-      return const AnswerScore(points: -3, reason: 'Wrong, should have hedged');
+      return AnswerScore(points: points, reason: 'Wrong, should have hedged');
     case TriviaConfidence.certain:
-      return const AnswerScore(points: -10, reason: 'Wrong, and you SWORE');
+      return AnswerScore(points: points, reason: 'Wrong, and you SWORE');
   }
 }
 

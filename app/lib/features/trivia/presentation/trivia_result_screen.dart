@@ -154,7 +154,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
     final color = _archetypeColor(result.archetype);
     final scoreColor = result.totalScore < 0
         ? Colors.red.shade400
-        : (result.totalScore >= 100
+        : (result.isStrongScore
             ? Colors.green.shade400
             : theme.colorScheme.onSurface);
 
@@ -236,7 +236,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
               Center(
                 child: CountUpText(
                   value: result.totalScore,
-                  format: (n) => '${n > 0 ? '+' : ''}$n / 150',
+                  format: (n) => '${n > 0 ? '+' : ''}$n / ${result.maxScore}',
                   style: theme.textTheme.headlineLarge?.copyWith(
                     color: scoreColor,
                     fontWeight: FontWeight.w900,
@@ -341,7 +341,7 @@ class _ResultBodyState extends ConsumerState<_ResultBody> {
 /// pipeline fails.
 String _shareText(TriviaResult r) =>
     'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
-    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
+    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / ${r.maxScore}\n'
     '${r.gridEmojis.join()}\n'
     'politiface.app';
 
