@@ -3,6 +3,12 @@
 // Weak-area / per-domain practice: immediate feedback with the explanation
 // and the primary-source citation after every answer. Recently missed
 // questions come first, then unseen ones.
+//
+// Two taps per question, like the daily trivia: pick an option, then say
+// how sure you are (Guess, Pretty sure, Certain), which locks it in and
+// reveals. Confidence is recorded as metadata and summarized as
+// calibration at the end; it never changes correctness, readiness, or
+// scheduling.
 
 import 'dart:async';
 
@@ -16,7 +22,11 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../../core/audio/sound_service.dart';
+import '../../shared/widgets/calibration_card.dart';
+import '../../shared/widgets/confidence_bar.dart';
 import '../../shared/widgets/feedback_motion.dart';
+import '../../trivia/domain/calibration.dart';
+import '../../trivia/domain/trivia_question.dart';
 import '../application/fcle_providers.dart';
 import '../domain/fcle_question.dart';
 
@@ -36,8 +46,10 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   List<FcleQuestion>? _questions;
   int _index = 0;
   int _correct = 0;
+  String? _pendingKey; // picked, waiting for a confidence
   String? _chosenKey; // non-null = feedback showing
   bool _finished = false;
+  final _outcomes = <ConfidenceOutcome>[];
 
   FcleDomain get _domain =>
       FcleDomain.fromCode(widget.domainCode) ?? FcleDomain.values.first;
@@ -62,14 +74,24 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
     setState(() => _questions = questions);
   }
 
-  Future<void> _choose(String key) async {
+  void _pick(String key) {
+    if (_chosenKey != null) return; // already answered
+    HapticFeedback.selectionClick();
+    setState(() => _pendingKey = key);
+  }
+
+  Future<void> _choose(String key, TriviaConfidence confidence) async {
     if (_chosenKey != null) return; // already answered
     final q = _questions![_index];
     HapticFeedback.lightImpact();
     final correct = q.isCorrect(key);
     setState(() {
       _chosenKey = key;
+      _pendingKey = null;
       if (correct) _correct++;
+      _outcomes.add(
+        ConfidenceOutcome(confidence: confidence, correct: correct),
+      );
     });
     // Sound first, then the announcement: both non-blocking, and the short
     // quiet effect mixes under the utterance.
@@ -90,6 +112,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
           question: q,
           chosenKey: key,
           inMock: false,
+          confidence: confidence,
         );
   }
 
@@ -98,6 +121,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       setState(() {
         _index++;
         _chosenKey = null;
+        _pendingKey = null;
       });
     } else {
       setState(() => _finished = true);
@@ -134,11 +158,13 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
         domain: _domain,
         correct: _correct,
         total: questions.length,
+        outcomes: _outcomes,
       );
     }
 
     final q = questions[_index];
     final answered = _chosenKey != null;
+    final pending = _pendingKey;
 
     return Scaffold(
       appBar: AppBar(
@@ -161,8 +187,15 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                     option: option,
                     answered: answered,
                     isAnswer: option.key == q.answerKey,
-                    isChosen: option.key == _chosenKey,
-                    onTap: () => _choose(option.key),
+                    isChosen: answered
+                        ? option.key == _chosenKey
+                        : option.key == pending,
+                    onTap: () => _pick(option.key),
+                  ),
+                if (!answered && pending != null)
+                  ConfidenceBar(
+                    tone: ConfidenceBarTone.calm,
+                    onPick: (c) => _choose(pending, c),
                   ),
                 if (answered) ...[
                   const SizedBox(height: 12),
@@ -225,7 +258,10 @@ class _FeedbackOptionTile extends StatelessWidget {
 
     var border = theme.colorScheme.outlineVariant;
     Color? fill;
-    if (answered && isAnswer) {
+    if (!answered && isChosen) {
+      // Picked, not yet locked in: a neutral highlight, no verdict.
+      border = theme.colorScheme.onSurface;
+    } else if (answered && isAnswer) {
       border = green;
       fill = green.withOpacity(0.10);
     } else if (answered && isChosen && !isAnswer) {
@@ -250,7 +286,7 @@ class _FeedbackOptionTile extends StatelessWidget {
             button: true,
             selected: isChosen,
             label: !answered
-                ? null
+                ? (isChosen ? 'Picked. Now choose how sure you are.' : null)
                 : isAnswer
                     ? 'Correct answer.'
                     : isChosen
@@ -265,7 +301,7 @@ class _FeedbackOptionTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color: border,
-                    width: answered && (isAnswer || isChosen) ? 2 : 1,
+                    width: isChosen || (answered && isAnswer) ? 2 : 1,
                   ),
                   borderRadius: BorderRadius.circular(6),
                   color: fill,
@@ -359,11 +395,13 @@ class _SummaryView extends StatelessWidget {
     required this.domain,
     required this.correct,
     required this.total,
+    required this.outcomes,
   });
 
   final FcleDomain domain;
   final int correct;
   final int total;
+  final List<ConfidenceOutcome> outcomes;
 
   @override
   Widget build(BuildContext context) {
@@ -378,22 +416,36 @@ class _SummaryView extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Spacer(),
-            Text(
-              '$correct / $total',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.displaySmall
-                  ?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              domain.label,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        '$correct / $total',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.displaySmall
+                            ?.copyWith(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        domain.label,
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      if (outcomes.isNotEmpty) ...[
+                        const SizedBox(height: 24),
+                        CalibrationCard(outcomes: outcomes),
+                      ],
+                    ],
+                  ),
+                ),
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 16),
             FilledButton(
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 14),

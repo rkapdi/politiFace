@@ -1,5 +1,7 @@
 // Practice answers react in place: the chosen tile pops on a right answer
-// and shakes on a wrong one, via the shared AnswerReaction wrapper.
+// and shakes on a wrong one, via the shared AnswerReaction wrapper. Each
+// answer locks in with a confidence (pick, then how sure), and the summary
+// shows calibration per label used.
 
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -71,8 +73,14 @@ void main() {
     }
     expect(find.text('Right answer'), findsOneWidget);
 
-    // Answer the first question correctly.
+    // Picking alone does not reveal: it asks how sure you are.
     await tester.tap(find.text('Right answer'));
+    await tester.pump();
+    expect(_reactionWithKind(AnswerReactionKind.correct), findsNothing);
+    expect(find.text('HOW SURE ARE YOU?'), findsOneWidget);
+
+    // Lock in the first question (correct) as Certain.
+    await tester.tap(find.text('Certain'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 60)),
     );
@@ -88,6 +96,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
     }
     await tester.tap(find.text('Wrong answer'));
+    await tester.pump();
+    await tester.tap(find.text('Guess'));
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 60)),
     );
@@ -96,6 +106,23 @@ void main() {
     }
     expect(_reactionWithKind(AnswerReactionKind.wrong), findsOneWidget);
     expect(_reactionWithKind(AnswerReactionKind.correct), findsNothing);
+
+    // Summary: one calibration line per label used, no points anywhere.
+    await tester.tap(find.text('FINISH'));
+    await tester.pump();
+    expect(find.text('1 / 2'), findsOneWidget);
+    expect(
+      find.text('When you said Guess, you were right 0% of the time (0 of 1).'),
+      findsOneWidget,
+    );
+    expect(
+      find.text(
+        'When you said Certain, you were right 100% of the time (1 of 1).',
+      ),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Pretty sure'), findsNothing);
+    expect(find.textContaining('points'), findsNothing);
 
     // Flush any pending drift work before teardown closes the database.
     await tester.runAsync(() => db.fcleAnswersDao.answerCount('american_democracy'));

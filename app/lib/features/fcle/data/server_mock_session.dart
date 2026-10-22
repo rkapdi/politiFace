@@ -15,6 +15,8 @@
 
 import '../../../core/database/daos/fcle_answers_dao.dart';
 import '../../../core/sync/sync_engine.dart';
+import '../../trivia/domain/calibration.dart';
+import '../../trivia/domain/trivia_question.dart';
 import '../domain/fcle_question.dart';
 import '../domain/mock_engine.dart';
 import '../domain/mock_session.dart';
@@ -106,12 +108,17 @@ class ServerMockSession implements MockSession {
   final void Function() _onAnswerRecorded;
 
   final _tally = <FcleDomain, List<int>>{}; // domain -> [correct, total]
+  final _calibration = <ConfidenceOutcome>[];
 
   @override
   List<FcleQuestion> get questions => _questions;
 
   @override
-  Future<void> submit(FcleQuestion question, String chosenKey) async {
+  Future<void> submit(
+    FcleQuestion question,
+    String chosenKey, {
+    TriviaConfidence? confidence,
+  }) async {
     final serverId = _serverIdByYamlId[question.id]!;
     bool correct;
     try {
@@ -120,6 +127,7 @@ class ServerMockSession implements MockSession {
         serverQuestionId: serverId,
         chosenKey: chosenKey,
         attemptId: attemptId,
+        confidence: confidence?.wireValue,
       );
     } catch (_) {
       // Offline mid-mock: queue for delivery (server re-grades there) and
@@ -128,8 +136,14 @@ class ServerMockSession implements MockSession {
         questionId: serverId,
         chosenKey: chosenKey,
         attemptId: attemptId,
+        confidence: confidence?.wireValue,
       );
       correct = question.isCorrect(chosenKey);
+    }
+    if (confidence != null) {
+      _calibration.add(
+        ConfidenceOutcome(confidence: confidence, correct: correct),
+      );
     }
 
     final counts = _tally.putIfAbsent(question.domain, () => [0, 0]);
@@ -165,7 +179,7 @@ class ServerMockSession implements MockSession {
     }
     try {
       final outcome = await _api.finalize(attemptId);
-      return MockResult(
+      final result = MockResult(
         score: outcome.score,
         total: _questions.length,
         passed: outcome.passed,
@@ -177,6 +191,7 @@ class ServerMockSession implements MockSession {
             ),
         },
       );
+      return result.withCalibration(_calibration);
     } catch (_) {
       return _finishOffline();
     }
@@ -202,6 +217,7 @@ class ServerMockSession implements MockSession {
           ),
       },
       pendingSync: true,
+      calibration: List.unmodifiable(_calibration),
     );
   }
 }

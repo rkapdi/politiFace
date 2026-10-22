@@ -10,6 +10,8 @@ import 'package:politiface/features/fcle/domain/fcle_question.dart';
 import 'package:politiface/features/fcle/domain/mock_engine.dart';
 import 'package:politiface/features/fcle/presentation/mock_result_screen.dart';
 import 'package:politiface/features/shared/widgets/feedback_motion.dart';
+import 'package:politiface/features/trivia/domain/calibration.dart';
+import 'package:politiface/features/trivia/domain/trivia_question.dart';
 
 import '../../../helpers/fake_sound_service.dart';
 
@@ -61,5 +63,45 @@ void main() {
     );
     expect(burst.fire, false);
     expect(sound.played, [SoundEffect.complete]);
+  });
+
+  testWidgets('calibration shows one line per label used, score untouched',
+      (tester) async {
+    final sound = FakeSoundService();
+    final result = _result(passed: false).withCalibration(const [
+      ConfidenceOutcome(confidence: TriviaConfidence.certain, correct: true),
+      ConfidenceOutcome(confidence: TriviaConfidence.certain, correct: true),
+      ConfidenceOutcome(confidence: TriviaConfidence.certain, correct: true),
+      ConfidenceOutcome(confidence: TriviaConfidence.certain, correct: true),
+      ConfidenceOutcome(confidence: TriviaConfidence.certain, correct: false),
+      ConfidenceOutcome(confidence: TriviaConfidence.guess, correct: false),
+    ]);
+    expect(result.score, 30);
+    await tester.pumpWidget(_host(result, sound));
+    for (var f = 0; f < 3; f++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.scrollUntilVisible(find.text('HOW SURE VS. HOW RIGHT'), 200);
+    expect(
+      find.text(
+        'When you said Certain, you were right 80% of the time (4 of 5).',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('When you said Guess, you were right 0% of the time (0 of 1).'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('When you said Pretty sure'), findsNothing);
+  });
+
+  testWidgets('no calibration card when no answer had a confidence',
+      (tester) async {
+    final sound = FakeSoundService();
+    await tester.pumpWidget(_host(_result(passed: false), sound));
+    for (var f = 0; f < 3; f++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(find.text('HOW SURE VS. HOW RIGHT'), findsNothing);
   });
 }

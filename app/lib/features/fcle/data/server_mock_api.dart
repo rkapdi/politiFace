@@ -44,11 +44,14 @@ abstract class ServerMockApi {
   Future<ServerMockAssembly> assembleMock(String kind);
 
   /// Returns the server's grading verdict.
+  /// [confidence] (guess | pretty_sure | certain) is stored as metadata
+  /// only; grading and the mock score ignore it.
   Future<bool> submitAnswer({
     required String eventId,
     required String serverQuestionId,
     required String chosenKey,
     required String attemptId,
+    String? confidence,
   });
 
   Future<ServerMockOutcome> finalize(String attemptId);
@@ -88,6 +91,7 @@ class SupabaseMockApi implements ServerMockApi {
     required String serverQuestionId,
     required String chosenKey,
     required String attemptId,
+    String? confidence,
   }) async {
     final res = await _client.rpc<dynamic>(
       'submit_answer',
@@ -97,6 +101,7 @@ class SupabaseMockApi implements ServerMockApi {
         'p_chosen_key': chosenKey,
         'p_client_ts': DateTime.now().toIso8601String(),
         'p_attempt_id': attemptId,
+        if (confidence != null) 'p_confidence': confidence,
       },
     );
     return (res as Map<String, dynamic>)['correct'] as bool;

@@ -68,8 +68,9 @@ class SupabaseTransport implements SyncTransport {
   bool get isSignedIn => _client.auth.currentUser != null;
 
   @override
-  Future<void> sendAnswer(OutboxEvent e) => _guard(
-        () => _client.rpc<void>(
+  Future<void> sendAnswer(OutboxEvent e) => _guard(() {
+        final confidence = answerConfidenceOf(e);
+        return _client.rpc<void>(
           'submit_answer',
           params: {
             'p_event_id': e.eventId,
@@ -78,9 +79,12 @@ class SupabaseTransport implements SyncTransport {
             'p_client_ts': DateTime.fromMillisecondsSinceEpoch(e.clientTs)
                 .toIso8601String(),
             'p_attempt_id': e.attemptId,
+            // Sent only when present, so the call shape stays identical to
+            // the field builds' when no confidence was given.
+            if (confidence != null) 'p_confidence': confidence,
           },
-        ),
-      );
+        );
+      });
 
   @override
   Future<void> sendReview(OutboxEvent e) => _guard(
@@ -201,16 +205,22 @@ class SyncEngine {
   Future<void> enqueueSessionStart() => _enqueueSession('session_start');
   Future<void> enqueueSessionEnd() => _enqueueSession('session_end');
 
+  /// [confidence] is the server vocabulary (guess | pretty_sure | certain)
+  /// and rides in the row's JSON payload, so the outbox schema is
+  /// unchanged. It is metadata only: the server never grades or schedules
+  /// with it.
   Future<void> enqueueAnswer({
     required String questionId,
     required String chosenKey,
     String? attemptId,
+    String? confidence,
   }) =>
       _enqueue(
         type: 'answer',
         questionId: questionId,
         chosenKey: chosenKey,
         attemptId: attemptId,
+        payload: confidence == null ? null : {'confidence': confidence},
       );
 
   Future<void> enqueueReview({
@@ -358,6 +368,18 @@ Map<String, Object?> cardStatePayload(CardMemoryState row) => {
       'lapses': row.lapses,
       'is_new': row.isNew,
     };
+
+/// The confidence an answer row carries in its payload, or null (older
+/// rows, answers given without one, or a malformed payload).
+String? answerConfidenceOf(OutboxEvent e) {
+  try {
+    final p = jsonDecode(e.payload);
+    if (p is Map && p['confidence'] is String) return p['confidence'] as String;
+  } catch (_) {
+    // A bad payload never blocks delivery of the graded answer itself.
+  }
+  return null;
+}
 
 /// Unix seconds -> UTC ISO-8601, or null for the 0 "never" sentinel.
 String? isoFromUnixSeconds(int unixSeconds) => unixSeconds <= 0

@@ -187,6 +187,25 @@ void main() {
     expect(rows.single.tries, OutboxDao.maxTries);
   });
 
+  test('answer confidence rides in the payload, absent when not given',
+      () async {
+    final transport = FakeTransport();
+    final engine = SyncEngine(db, transport);
+    await engine.enqueueAnswer(
+      questionId: 'q1',
+      chosenKey: 'a',
+      confidence: 'pretty_sure',
+    );
+    await engine.enqueueAnswer(questionId: 'q2', chosenKey: 'b');
+    await engine.flush();
+    expect(transport.deliveredEvents.length, 2);
+    OutboxEvent byQuestion(String id) =>
+        transport.deliveredEvents.firstWhere((e) => e.questionId == id);
+    expect(answerConfidenceOf(byQuestion('q1')), 'pretty_sure');
+    expect(answerConfidenceOf(byQuestion('q2')), isNull);
+    expect(byQuestion('q2').payload, '{}');
+  });
+
   test('hasPendingForAttempt sees a stuck answer for that attempt', () async {
     final engine = SyncEngine(db, _StuckAnswersTransport());
     await engine.enqueueAnswer(

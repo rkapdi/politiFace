@@ -12,6 +12,7 @@ import '../../../app/providers.dart';
 import '../../../core/database/daos/fcle_answers_dao.dart';
 import '../../../core/database/drift/app_database.dart';
 import '../../../core/sync/sync_engine.dart';
+import '../../trivia/domain/trivia_question.dart';
 import '../data/locked_questions_service.dart';
 import '../data/question_bank_loader.dart';
 import '../domain/fcle_question.dart';
@@ -117,10 +118,14 @@ class FcleAnswerRecorder {
   /// Local log always; server outbox only when configured + signed in
   /// (SyncEngine no-ops otherwise). Ids cross the wire as the same
   /// deterministic UUIDs the content ingest wrote.
+  ///
+  /// [confidence] is optional metadata for the server event log; the
+  /// local log, readiness and FSRS never see it.
   Future<void> record({
     required FcleQuestion question,
     required String chosenKey,
     required bool inMock,
+    TriviaConfidence? confidence,
   }) async {
     await _db.fcleAnswersDao.log(
       questionId: question.id,
@@ -132,6 +137,7 @@ class FcleAnswerRecorder {
     await _sync.enqueueAnswer(
       questionId: serverUuidForQuestion(question.id),
       chosenKey: chosenKey,
+      confidence: confidence?.wireValue,
     );
     _tick();
   }
