@@ -1,0 +1,68 @@
+# Runs on every push + PR to main. Tests + analyze, no build / deploy.
+# Codemagic handles the iOS release pipeline.
+
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/flutter-ci.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/**'
+      - '.github/workflows/flutter-ci.yml'
+
+concurrency:
+  group: flutter-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-analyze:
+    name: Test + Analyze
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: stable
+          cache: true
+
+      - name: Cache pub packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            app/.dart_tool
+          key: pub-${{ runner.os }}-${{ hashFiles('app/pubspec.yaml') }}
+          restore-keys: pub-${{ runner.os }}-
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        # flutter analyze exits non-zero on infos by default. We want to fail
+        # only on real issues (errors + warnings), since the info-level lints
+        # are style preferences. Inspect the output and gate on severity.
+        run: |
+          flutter analyze 2>&1 | tee /tmp/analyze.txt
+          if grep -qE "^\s+(warning|error) •" /tmp/analyze.txt; then
+            echo "::error::flutter analyze found warnings or errors"
+            exit 1
+          fi
+          echo "OK — no warnings or errors (infos are advisory)."
+
+      - name: Run tests
+        run: flutter test --reporter expanded

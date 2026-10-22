@@ -1,0 +1,281 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:workmanager/workmanager.dart';
+
+import 'app/politiface_app.dart';
+import 'app/providers.dart';
+import 'app/router.dart';
+import 'core/database/drift/app_database.dart';
+import 'core/ops/ops_log.dart';
+import 'core/ops/presence.dart';
+import 'core/sync/restore_service.dart';
+import 'core/sync/supabase_config.dart';
+import 'core/sync/sync_engine.dart';
+import 'features/atlas/data/people_seed_service.dart';
+import 'features/curriculum/data/curriculum_loader.dart';
+import 'features/government/data/government_seed_service.dart';
+import 'features/notifications/data/notification_orchestrator.dart';
+import 'features/notifications/data/notification_service.dart';
+import 'features/notifications/data/push_service.dart';
+import 'features/notifications/data/washington_watch_service.dart';
+import 'features/onboarding/presentation/onboarding_screen.dart';
+import 'features/session/data/delegation_deck_service.dart';
+import 'features/session/data/yaml_seed_service.dart';
+import 'features/settings/data/settings_service.dart';
+
+/// Sentry DSN. Empty → SDK no-ops (no crash reports sent). Builds you compile
+/// yourself contain no DSN; official builds inject one via
+/// --dart-define=SENTRY_DSN=... (see codemagic.yaml).
+const _sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+/// Runs in a dedicated background Dart isolate for the iOS BGAppRefresh
+/// task (see AppDelegate.swift / Info.plist). Deliberately minimal: opens
+/// its own AppDatabase handle and runs the notification orchestrator (which
+/// detects Washington changes, then decides across every candidate via the
+/// on-device brain) — no Sentry, no content seeding, no Supabase SDK init.
+/// The service talks to the network with a plain HttpClient (via
+/// PulseLiveService), so none of that setup is needed here.
+@pragma('vm:entry-point')
+void washingtonWatchCallbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    final db = AppDatabase();
+    try {
+      await NotificationOrchestrator(db: db).run();
+    } catch (_) {
+      // Best-effort background refresh: a failure here must not crash the
+      // isolate.
+    } finally {
+      await db.close();
+    }
+    return true;
+  });
+}
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final db = AppDatabase();
+
+  // Backend config follows the Sentry DSN pattern: builds without the
+  // --dart-define values never initialize Supabase, so auth and sync no-op
+  // and the app stays fully offline, exactly like v1.
+  if (SupabaseConfig.isConfigured) {
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      // Accepts either key format: the new sb_publishable_... keys or a
+      // legacy anon key. Both are public client credentials; RLS guards.
+      publishableKey: SupabaseConfig.anonKey,
+    );
+  }
+
+  // Crash reporting is on by default (anonymous, no personal info) and
+  // honors the explicit off switch in Settings → Privacy → Crash reports.
+  // The flag is read here (not via SettingsService providers) because Sentry
+  // must wrap the app from startup; changes take effect on the next launch.
+  final crashReportsEnabled =
+      (await db.metaDao.get(SettingsService.kCrashReports)) != '0';
+
+  if (crashReportsEnabled && _sentryDsn.isNotEmpty) {
+    await SentryFlutter.init(
+      (opts) {
+        opts.dsn = _sentryDsn;
+        opts.tracesSampleRate = 0.1; // only 10% of transactions
+        opts.sendDefaultPii = false; // never attach personal info
+      },
+      appRunner: () => _bootstrap(db),
+    );
+  } else {
+    await _bootstrap(db);
+  }
+}
+
+Future<void> _bootstrap(AppDatabase db) async {
+  // Chains whatever handler is already installed (Sentry's, when crash
+  // reporting is on) so the problem log and Sentry both see every error.
+  final previousOnError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    final message = details.exceptionAsString();
+    unawaited(
+      OpsLog.report(
+        'client_error',
+        code: 'flutter_error',
+        detail: {
+          'message':
+              message.length <= 300 ? message : message.substring(0, 300),
+        },
+      ),
+    );
+    previousOnError?.call(details);
+  };
+
+  await YamlSeedService(db).ensureSeeded();
+  await GovernmentSeedService(db).ensureSeeded();
+  await PeopleSeedService(db).ensureSeeded();
+  await DelegationDeckService(db).ensureSeeded();
+  await NotificationService.instance.init();
+  // Route a notification tap through the app's single GoRouter instance.
+  // The closure is only ever invoked later (on tap), by which time the
+  // widget tree — and rootNavigatorKey's context — exists.
+  NotificationService.instance.onSelectRoute = (route) {
+    final ctx = rootNavigatorKey.currentContext;
+    if (ctx != null) GoRouter.of(ctx).go(route);
+  };
+  // Sync the daily-reminder toggle with the OS authorization state. If the
+  // user revoked notifications in iOS Settings since last launch, flip our
+  // toggle off so the UI doesn't lie. If still authorized and the toggle is
+  // on, re-arm the schedule (it would otherwise be lost on reinstall).
+  if ((await db.metaDao.get('settings.daily_reminder')) == '1') {
+    final stillAuthorized = await NotificationService.instance.isAuthorized();
+    if (stillAuthorized) {
+      await NotificationService.instance.scheduleDailyReminder();
+    } else {
+      await db.metaDao.set('settings.daily_reminder', '0');
+      await NotificationService.instance.cancel();
+    }
+  }
+
+  // Washington Watch: iOS BGAppRefresh task, gated by the "What Washington
+  // did" master switch. Initializing the callback dispatcher is required
+  // even when the switch is off — it just wires up the isolate entry
+  // point, it does not itself schedule anything.
+  await Workmanager().initialize(washingtonWatchCallbackDispatcher);
+  if (await SettingsService(db).washingtonNotifEnabled()) {
+    await Workmanager().registerPeriodicTask(
+      washingtonRefreshTaskId,
+      washingtonRefreshTaskId,
+      initialDelay: const Duration(minutes: 15),
+    );
+  } else {
+    await Workmanager().cancelByUniqueName(washingtonRefreshTaskId);
+  }
+  // Record this foreground open so the brain knows the user is active today
+  // (holds low-priority nudges) and can learn the hour they usually play.
+  final orchestrator = NotificationOrchestrator(db: db);
+  await orchestrator.recordAppOpen();
+  // Belt-and-braces: also run the notification sweep on every normal
+  // foreground start, not just from the BGAppRefresh task (iOS may schedule
+  // that rarely, or never, for a given install). Internally rate-limited +
+  // fail-soft.
+  unawaited(orchestrator.run());
+
+  // Drain events queued in a previous run (delivers only when a user is
+  // signed in; no-ops otherwise). Fire-and-forget: launch never waits on
+  // the network.
+  if (SupabaseConfig.isConfigured) {
+    final client = Supabase.instance.client;
+    final engine = SyncEngine(db, SupabaseTransport(client));
+    unawaited(engine.flush());
+    // Cross-device restore on cold start: only when already signed in, at
+    // most once per 6 hours (AppMeta 'sync.last_pull'). Fire-and-forget and
+    // internally fail-safe, so launch never waits or breaks on it.
+    unawaited(
+      RestoreService(
+        db: db,
+        api: SupabaseRestoreApi(client),
+        sync: engine,
+        loadCurriculum: () => CurriculumLoader().load(),
+      ).maybeRestoreOnColdStart(),
+    );
+
+    // Push: a silent-push wake is a faster path to the same notification
+    // sweep the BGAppRefresh task above already runs, so the two share one
+    // AppDatabase handle and one orchestrator run. Wired for the life of the
+    // auth session (sign-in/out, not just cold start), unlike the one-shot
+    // flush/restore calls above.
+    PushChannelBridge.instance.onSilentPush = () async {
+      await NotificationOrchestrator(db: db).run();
+      return true;
+    };
+    final pushService = PushService(db: db, api: SupabasePushTokenApi(client));
+    // Presence for the founders' console "online now" counter. Beats only
+    // while signed in; signed-out beats return before touching the network.
+    final presence = PresenceService(
+      beat: () async {
+        if (client.auth.currentSession == null) return;
+        await client.rpc<void>(
+          'heartbeat',
+          params: {
+            'p_client': 'ios',
+            'p_app_version': await OpsLog.appVersion(),
+          },
+        );
+      },
+    )..start();
+    if (client.auth.currentSession != null) {
+      unawaited(pushService.onSignedIn());
+    }
+    client.auth.onAuthStateChange.listen((state) {
+      switch (state.event) {
+        case AuthChangeEvent.signedIn:
+          unawaited(pushService.onSignedIn());
+          presence.beatNow();
+          if (state.session?.user.isAnonymous != true) {
+            unawaited(OpsLog.report('app_seen'));
+          }
+        case AuthChangeEvent.initialSession:
+          // Fires at every cold start, signed in or not. Only a real
+          // session may ask for notification permission; otherwise a
+          // brand-new student gets the iOS prompt over onboarding.
+          if (state.session != null) {
+            unawaited(pushService.onSignedIn());
+            if (state.session?.user.isAnonymous != true) {
+              unawaited(OpsLog.report('app_seen'));
+            }
+          }
+        case AuthChangeEvent.signedOut:
+          unawaited(pushService.onSignedOut());
+          // A sign-out the user did not perform (server-side session
+          // revocation, refresh-token loss) must be visible, not a silent
+          // mystery discovered screens later. Local-first progress is
+          // unaffected either way.
+          final ctx = rootNavigatorKey.currentContext;
+          if (ctx != null) {
+            ScaffoldMessenger.maybeOf(ctx)?.showSnackBar(
+              const SnackBar(
+                duration: Duration(seconds: 6),
+                content: Text(
+                  'You were signed out. Progress on this phone is safe; '
+                  'sign in again from Settings to keep syncing.',
+                ),
+              ),
+            );
+          }
+        default:
+          break;
+      }
+    });
+  }
+
+  // First launch opens the onboarding sequence; a --dart-define lets
+  // QA/deep-link builds open straight onto any route instead
+  // (e.g. INITIAL_ROUTE=/pulse), and takes precedence. A notification tap
+  // that launched the app from terminated is honored next (the running-app
+  // tap path goes through onSelectRoute above and never reaches here), but
+  // never ahead of onboarding: a brand-new install still onboards first.
+  const envRoute = String.fromEnvironment('INITIAL_ROUTE');
+  final onboarded = (await db.metaDao.get(OnboardingScreen.doneFlagKey)) == '1';
+  // Cold-start taps: local notifications report through the plugin;
+  // visible REMOTE pushes (Washington alerts) only surface through the
+  // native launchOptions stash. Check both.
+  final launchRoute = onboarded
+      ? (await NotificationService.instance.takeLaunchRoute() ??
+          await PushChannelBridge.instance.takeLaunchRoute())
+      : null;
+  final initialRoute = envRoute.isNotEmpty
+      ? envRoute
+      : (launchRoute ?? (onboarded ? '/' : '/onboarding'));
+
+  runApp(
+    ProviderScope(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        initialRouteProvider.overrideWithValue(initialRoute),
+      ],
+      child: const PolitifaceApp(),
+    ),
+  );
+}

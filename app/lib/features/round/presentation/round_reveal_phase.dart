@@ -1,0 +1,480 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:share_plus/share_plus.dart';
+
+import '../../../app/editorial_theme.dart';
+import '../../../app/providers.dart';
+import '../../../core/audio/sound_service.dart';
+import '../../benchmark/domain/benchmark.dart';
+import '../../trivia/domain/trivia_scoring.dart';
+import '../../trivia/presentation/share_card_renderer.dart';
+import '../../trivia/presentation/trivia_share_card.dart';
+import '../domain/round_state.dart';
+
+/// Reveal phase of the daily round — archetype + score + share, plus a
+/// "Chapter day complete" line that distinguishes it from the standalone
+/// trivia reveal.
+///
+/// Shares the share-card pipeline with `trivia_result_screen.dart`:
+/// off-screen `OverlayPortal` mount of `TriviaShareCard`, capture via
+/// `ShareCardRenderer`, hand the PNG to the iOS share sheet. On any
+/// pipeline failure (font race, Skia exception, share-sheet platform
+/// error), falls back to copying the Wordle-style text to the clipboard
+/// and showing a snackbar — never silent.
+class RoundRevealPhase extends ConsumerStatefulWidget {
+  const RoundRevealPhase({
+    required this.state,
+    required this.onDone,
+    super.key,
+  });
+
+  final DailyRoundState state;
+  final VoidCallback onDone;
+
+  @override
+  ConsumerState<RoundRevealPhase> createState() => _RoundRevealPhaseState();
+}
+
+class _RoundRevealPhaseState extends ConsumerState<RoundRevealPhase> {
+  final _portalController = OverlayPortalController();
+  final _boundaryKey = GlobalKey();
+  final _shareButtonKey = GlobalKey();
+  bool _isSharing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _portalController.show();
+    });
+  }
+
+  String get _todayIso => widget.state.dateIso;
+
+  Rect? _shareOriginRect() {
+    final ctx = _shareButtonKey.currentContext;
+    final box = ctx?.findRenderObject() as RenderBox?;
+    if (box == null || !box.attached) return null;
+    return box.localToGlobal(Offset.zero) & box.size;
+  }
+
+  Future<void> _onShare() async {
+    if (_isSharing) return;
+    HapticFeedback.lightImpact();
+    final originRect = _shareOriginRect();
+    setState(() => _isSharing = true);
+    try {
+      await WidgetsBinding.instance.endOfFrame;
+      final renderer = ShareCardRenderer(
+        boundaryKey: _boundaryKey,
+        dateLabel: _todayIso,
+      );
+      final xfile = await renderer.render();
+      await Share.shareXFiles(
+        [xfile],
+        subject: 'Politiface Daily',
+        sharePositionOrigin: originRect,
+      );
+    } on Object catch (e, st) {
+      debugPrint('[round-reveal] share failed: $e\n$st');
+      unawaited(Sentry.captureException(e, stackTrace: st));
+      if (!mounted) return;
+      final result = widget.state.result;
+      if (result != null) {
+        await Clipboard.setData(ClipboardData(text: _shareText(result)));
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Image share unavailable; copied as text instead'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSharing = false);
+    }
+  }
+
+  void _onCopy(TriviaResult result) {
+    HapticFeedback.lightImpact();
+    Clipboard.setData(ClipboardData(text: _shareText(result)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied to clipboard'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _onDone() async {
+    HapticFeedback.lightImpact();
+    ref.read(soundServiceProvider).play(SoundEffect.complete);
+    widget.onDone();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final result = widget.state.result;
+    if (result == null) {
+      // Defensive — DailyRoundScreen should only route us here once the
+      // controller has a result. If somehow not, show a loader.
+      return const Center(child: CircularProgressIndicator());
+    }
+    final theme = Theme.of(context);
+    final color = _archetypeColor(result.archetype, theme.colorScheme);
+    // A national stat keyed to the chapter just played — shown only when the
+    // player got at least one question right, so it reads as encouragement.
+    final benchmarks = ref.watch(benchmarksProvider).valueOrNull;
+    final benchmark = (benchmarks != null && result.correctCount > 0)
+        ? benchmarks.forChapter(
+            widget.state.chapterId,
+            dateIso: widget.state.dateIso,
+          )
+        : null;
+    final scoreColor = result.totalScore < 0
+        ? EditorialPalette.actionRed
+        : (result.totalScore >= 100
+            ? EditorialPalette.civicGreen
+            : theme.colorScheme.onSurface);
+
+    return OverlayPortal(
+      controller: _portalController,
+      overlayChildBuilder: (overlayContext) => Positioned(
+        left: -10000,
+        top: -10000,
+        child: RepaintBoundary(
+          key: _boundaryKey,
+          child: SizedBox(
+            width: TriviaShareCard.canvasWidth,
+            height: TriviaShareCard.canvasHeight,
+            child: MediaQuery(
+              data: const MediaQueryData(),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: TriviaShareCard(
+                  result: result,
+                  dateLabel: formatShareCardDate(_todayIso),
+                  benchmark: benchmark?.stat,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      child: SafeArea(
+        // Fixed height + `Spacer()` clipped the chapter-complete banner
+        // and CTA row on shorter screens once there was enough reveal
+        // content to exceed the viewport (RenderFlex overflow silently
+        // clips in release builds). A scrollable body with fixed gaps
+        // in place of the flexible spacers means content never clips,
+        // it just scrolls, and the bottom padding keeps the last CTA
+        // clear of the home indicator once scrolled to the end.
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _ChapterCompletionStrip(state: widget.state),
+              const SizedBox(height: 24),
+              Center(
+                child: Text(
+                  result.archetype.emoji,
+                  style: const TextStyle(fontSize: 110),
+                )
+                    .animate()
+                    .scale(
+                      begin: const Offset(0.4, 0.4),
+                      end: const Offset(1, 1),
+                      duration: 520.ms,
+                      curve: Curves.elasticOut,
+                    )
+                    .fade(duration: 300.ms),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                result.archetype.name.toUpperCase(),
+                style: theme.textTheme.displaySmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ).animate().fade(delay: 240.ms, duration: 360.ms).slideY(
+                    begin: 0.1,
+                    end: 0,
+                    delay: 240.ms,
+                    duration: 360.ms,
+                    curve: Curves.easeOutCubic,
+                  ),
+              const SizedBox(height: 6),
+              Text(
+                result.archetype.blurb,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ).animate().fade(delay: 520.ms, duration: 360.ms),
+              const SizedBox(height: 28),
+              Center(
+                child: Text(
+                  '${result.totalScore > 0 ? '+' : ''}${result.totalScore} / 150',
+                  style: theme.textTheme.headlineLarge?.copyWith(
+                    color: scoreColor,
+                    fontWeight: FontWeight.w900,
+                    fontFeatures: const [FontFeature.tabularFigures()],
+                  ),
+                ),
+              ).animate().fade(delay: 700.ms, duration: 360.ms),
+              const SizedBox(height: 8),
+              Text(
+                '${result.correctCount}/${result.totalQuestions} correct · '
+                'avg confidence ${result.averageConfidence.toStringAsFixed(1)}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ).animate().fade(delay: 820.ms, duration: 360.ms),
+              const SizedBox(height: 28),
+              Center(
+                child: Text(
+                  result.gridEmojis.join(' '),
+                  style: const TextStyle(fontSize: 26, height: 1.2),
+                  textAlign: TextAlign.center,
+                ),
+              ).animate().fade(delay: 940.ms, duration: 380.ms),
+              if (benchmark != null) ...[
+                const SizedBox(height: 20),
+                _BenchmarkCallout(benchmark: benchmark)
+                    .animate()
+                    .fade(delay: 1060.ms, duration: 420.ms),
+              ],
+              const SizedBox(height: 24),
+              if (widget.state.isFinalDay)
+                _ChapterCompleteBanner(
+                  chapterTitle: widget.state.chapterTitle,
+                  nextChapterTitle: widget.state.nextChapterTitle,
+                ),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  key: _shareButtonKey,
+                  onPressed: _isSharing ? null : _onShare,
+                  icon: _isSharing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.ios_share_rounded, size: 18),
+                  label: Text(_isSharing ? 'Preparing…' : 'Share'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () {
+                        HapticFeedback.lightImpact();
+                        context.push('/round/review');
+                      },
+                      icon: const Icon(Icons.fact_check_outlined, size: 16),
+                      label: const Text('Review'),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: () => _onCopy(result),
+                      icon: const Icon(Icons.copy_outlined, size: 16),
+                      label: const Text('Copy'),
+                    ),
+                  ),
+                  Expanded(
+                    child: TextButton.icon(
+                      onPressed: _onDone,
+                      icon: const Icon(Icons.check_rounded, size: 16),
+                      label: const Text('Done'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Chapter 2 · Day 2 of 3 complete" strip above the archetype reveal —
+/// the only visual element that distinguishes a round reveal from the
+/// standalone trivia reveal.
+class _ChapterCompletionStrip extends StatelessWidget {
+  const _ChapterCompletionStrip({required this.state});
+  final DailyRoundState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Container(height: 3, color: EditorialPalette.ochre),
+        const SizedBox(height: 10),
+        Text(
+          'CHAPTER ${state.chapterTitle.toUpperCase()} · '
+          'DAY ${state.dayInChapter} OF ${state.daysInChapter} COMPLETE',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            letterSpacing: 1.6,
+            fontWeight: FontWeight.w800,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+}
+
+/// "Did you know" stat block on the reveal — a national survey figure for
+/// the chapter just played, plus a short encouragement and the attribution.
+class _BenchmarkCallout extends StatelessWidget {
+  const _BenchmarkCallout({required this.benchmark});
+  final Benchmark benchmark;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: EditorialPalette.ochre.withOpacity(0.10),
+        border: Border.all(color: EditorialPalette.ochre.withOpacity(0.5)),
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            'DID YOU KNOW',
+            style: theme.textTheme.labelSmall?.copyWith(
+              // Text-safe ochre; the plain accent fails AA on light paper.
+              color: theme.colorScheme.brandOchreText,
+              letterSpacing: 1.8,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            benchmark.stat,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w600,
+              height: 1.35,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            benchmark.youLine,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            benchmark.attribution,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontSize: 9,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Shown only on a chapter's final day: the unlock moment that makes the
+/// season feel sequential instead of silently rolling over.
+class _ChapterCompleteBanner extends StatelessWidget {
+  const _ChapterCompleteBanner({
+    required this.chapterTitle,
+    required this.nextChapterTitle,
+  });
+  final String chapterTitle;
+  final String? nextChapterTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final green = theme.colorScheme.brandGreen;
+    final body = nextChapterTitle != null
+        ? 'You closed out $chapterTitle. $nextChapterTitle unlocks with tomorrow\'s round.'
+        : 'You closed out $chapterTitle. That was the final chapter of the season.';
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: green.withOpacity(0.10),
+        border: Border.all(color: green.withOpacity(0.55)),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.flag_rounded, color: green, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'CHAPTER COMPLETE',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: green,
+                    letterSpacing: 1.6,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(body, style: theme.textTheme.bodySmall),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _shareText(TriviaResult r) =>
+    'Politiface Daily: ${r.archetype.emoji} ${r.archetype.name}\n'
+    '${r.totalScore > 0 ? '+' : ''}${r.totalScore} / 150\n'
+    '${r.gridEmojis.join()}\n'
+    'politiface.app';
+
+Color _archetypeColor(TriviaArchetype a, ColorScheme cs) {
+  switch (a) {
+    case TriviaArchetype.civicScholar:
+      return cs.brandGreen;
+    case TriviaArchetype.luckyGuesser:
+      return cs.brandNavy;
+    case TriviaArchetype.civicBullshitter:
+      return cs.brandRed;
+    case TriviaArchetype.humbleApprentice:
+      // Renders the archetype name as text; plain ochre fails AA contrast.
+      return cs.brandOchreText;
+  }
+}

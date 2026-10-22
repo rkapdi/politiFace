@@ -1,0 +1,1702 @@
+updated: '2026-08-24'
+source: api.congress.gov v3 bill endpoint (sorted by update date); summaries from the /summaries
+  endpoint, written by the Congressional Research Service
+bills:
+- bill: HRES 1485
+  congress: 119
+  title: Expressing support for the designation of August 22, 2026, as "Chuck Brown Day",
+    and honoring Chuck Brown's contributions to music and to the District of Columbia.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Oversight and Government Reform.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1485
+- bill: HR 8476
+  congress: 119
+  title: No Antisemitism in Education Act of 2026
+  action_date: '2026-08-20'
+  action: Placed on the Union Calendar, Calendar No. 660.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8476
+- bill: HR 6893
+  congress: 119
+  title: Chesapeake Bay Watershed Advancement for Training, Education, Restoration, and Science
+    (WATERS) Act
+  action_date: '2026-08-20'
+  action: Placed on the Union Calendar, Calendar No. 664.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6893
+- bill: HR 309
+  congress: 119
+  title: National Law Enforcement Officers Remembrance, Support, and Community Outreach Act
+  action_date: '2026-08-20'
+  action: Placed on the Union Calendar, Calendar No. 658.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/309
+  summary: 'National Law Enforcement Officers Remembrance, Support and Community Outreach
+    Act. [sic]
+
+
+    This bill temporarily directs the Department of the Interior to award a grant to the National
+    Law Enforcement Officers Memorial Fund for the expenses associated with operating and
+    enhancing the community outreach, public education, and officer safety and wellness programs
+    of the National Law Enforcement Museum.'
+  summary_version: Introduced in House
+  summary_date: '2025-01-09'
+  summary_truncated: false
+- bill: HR 2406
+  congress: 119
+  title: National Oceanic and Atmospheric Administration Sexual Harassment and Assault Prevention
+    Improvements Act of 2025
+  action_date: '2026-08-20'
+  action: Placed on the Union Calendar, Calendar No. 662.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2406
+  summary: 'National Oceanic and Atmospheric Administration Sexual Harassment and Assault
+    Prevention Improvements Act of 2025
+
+
+    This bill expands requirements for addressing sexual harassment and sexual assault involving
+    personnel of the National Oceanic and Atmospheric Administration (NOAA).
+
+
+    The bill specifies that NOAA''s sexual harassment prevention and response policy applies
+    to personnel such as observers, at-sea monitors, and voting members and staff of regional
+    fishery management councils.
+
+
+    The bill removes the requirement that certain acts, such as assault, intimidation, and
+    sexual harassment of an observer or a data collector, be forcible in nature to be unlawful.
+
+
+    The bill also requires NOAA''s Office of Marine and Aviation Operations to establish a
+    policy for reporting to the Coast Guard the names of NOAA personnel involved in a sexual
+    harassment or sexual assault claim. Specifically, such reports must identify employees
+    or contractors who are the subject of such claim, the time and date of the incident, and
+    the location of the vessel when the incident occurred.
+
+
+    The bill prohibits a person convicted of certain sexual offenses from enlisting with or
+    being commissioned by NOAA.
+
+
+    Additionally, the bill directs NOAA to update its policies to develop a restricted reporting
+    system that allows employees and other personnel to confidentially report sexual harassment
+    or assault and receive services without triggering an investigation.
+
+
+    Finally, the bill also expands reporting requirements on sexual harassment, sexual assault,
+    and equal employment.'
+  summary_version: Introduced in House
+  summary_date: '2025-03-27'
+  summary_truncated: false
+- bill: HR 10137
+  congress: 119
+  title: No Insider Trading on National Security Act of 2026
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Armed Services.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10137
+- bill: HR 10136
+  congress: 119
+  title: Crossett Experimental Forest Act of 2026
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Natural Resources.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10136
+- bill: HR 10135
+  congress: 119
+  title: Not In My Barn Yard Act
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10135
+- bill: HR 10134
+  congress: 119
+  title: Local Health Care Protection Act of 2026
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10134
+- bill: HR 10133
+  congress: 119
+  title: To amend title XXVII of the Public Health Service Act, the Employee Retirement Income
+    Security Act of 1974, and the Internal Revenue Code of 1986 to ensure cost sharing for
+    a drug does not exceed the nationwide average of consumer purchase prices for such drug.
+  action_date: '2026-08-20'
+  action: Referred to the Committee on Energy and Commerce, and in addition to the Committees
+    on Ways and Means, and Education and Workforce, for a period to be subsequently determined
+    by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction
+    of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10133
+- bill: HR 10132
+  congress: 119
+  title: To provide for congressional approval of national emergency declarations.
+  action_date: '2026-08-20'
+  action: Referred to the Committee on Transportation and Infrastructure, and in addition
+    to the Committees on Foreign Affairs, and Rules, for a period to be subsequently determined
+    by the Speaker, in each case for consideration of such provisions as fall within the jurisdiction
+    of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10132
+- bill: HR 10131
+  congress: 119
+  title: National Archives Protection Act
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Oversight and Government Reform.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10131
+- bill: HR 10130
+  congress: 119
+  title: To direct the Secretary of the Army to establish an Army Quantum Readiness and Advanced
+    Computing Initiative, and for other purposes.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Armed Services.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10130
+- bill: HR 10129
+  congress: 119
+  title: To authorize the Director of the Bureau of Prisons to provide postage stamps to indigent
+    inmates.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10129
+- bill: HR 10128
+  congress: 119
+  title: To codify Secretary's Order 3434 of the Department of the Interior.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Natural Resources.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10128
+- bill: HR 10127
+  congress: 119
+  title: To prohibit the use of Federal funds to conduct, support, or fund research that studies
+    the effects of gender-related medical treatment, and for other purposes.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10127
+- bill: HR 10126
+  congress: 119
+  title: DEMAND Act of 2026
+  action_date: '2026-08-20'
+  action: Referred to the Committee on Armed Services, and in addition to the Committee on
+    Foreign Affairs, for a period to be subsequently determined by the Speaker, in each case
+    for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10126
+- bill: HR 10125
+  congress: 119
+  title: NO PROFIT Act
+  action_date: '2026-08-20'
+  action: Referred to the Committee on Financial Services, and in addition to the Committees
+    on Agriculture, and Energy and Commerce, for a period to be subsequently determined by
+    the Speaker, in each case for consideration of such provisions as fall within the jurisdiction
+    of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10125
+- bill: HR 10124
+  congress: 119
+  title: Mail Theft and Postal Key Crime Prevention Act of 2026
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10124
+- bill: HR 10123
+  congress: 119
+  title: STOP Improper Licensing Act
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Transportation and Infrastructure.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10123
+- bill: HR 10122
+  congress: 119
+  title: To establish a Fortified Roof revolving loan fund to assist State agencies in making
+    grants for the installation of Fortified Roofs, and for other purposes.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Transportation and Infrastructure.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10122
+- bill: HR 10121
+  congress: 119
+  title: To obtain and direct the placement in the Capitol or on the Capitol Grounds of a
+    statue to honor American humanitarian and star athlete Roberto Clemente of Puerto Rico.
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on House Administration.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10121
+- bill: HR 10120
+  congress: 119
+  title: National Flood Impact Reduction and Resilience Act of 2026
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Transportation and Infrastructure.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10120
+- bill: HR 10119
+  congress: 119
+  title: Protecting Local Control of Data Centers Act
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10119
+- bill: HR 10118
+  congress: 119
+  title: No Data Center NDAs Act
+  action_date: '2026-08-20'
+  action: Referred to the House Committee on House Administration.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10118
+- bill: HR 10115
+  congress: 119
+  title: Radiation Exposure Compensation Reauthorization Act of 2026
+  action_date: '2026-08-17'
+  action: Referred to the Committee on the Judiciary, and in addition to the Committee on
+    Energy and Commerce, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10115
+- bill: SRES 843
+  congress: 119
+  title: A resolution expressing support for the designation of the first week of August 2026,
+    as "National Community Health Center Week", encouraging all people of the United States
+    to participate by visiting their local community health center, and celebrating the important
+    partnership between community health centers and the communities they serve.
+  action_date: '2026-08-07'
+  action: 'Submitted in the Senate, considered, and agreed to without amendment and with a
+    preamble by Unanimous Consent. (consideration: CR S4553; text: CR S4568-4569)'
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-resolution/843
+- bill: S 5365
+  congress: 119
+  title: Community Mental Wellness Worker Training Act
+  action_date: '2026-08-07'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5365
+- bill: S 5292
+  congress: 119
+  title: GREEN Hospitals Act
+  action_date: '2026-08-06'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5292
+- bill: S 5287
+  congress: 119
+  title: Colorectal Cancer Early Detection Act
+  action_date: '2026-08-06'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5287
+- bill: S 5283
+  congress: 119
+  title: Momnibus Act
+  action_date: '2026-08-06'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5283
+- bill: S 5163
+  congress: 119
+  title: No Bonuses for Bad Service Act
+  action_date: '2026-08-06'
+  action: Committee on Homeland Security and Governmental Affairs. Ordered to be reported
+    with an amendment in the nature of a substitute favorably.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5163
+- bill: HR 10044
+  congress: 119
+  title: AI Tax and Work Protection Act
+  action_date: '2026-08-06'
+  action: Referred to the Committee on Education and Workforce, and in addition to the Committee
+    on Ways and Means, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/10044
+- bill: S 5254
+  congress: 119
+  title: Civil Nuclear Export Act of 2026
+  action_date: '2026-08-05'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5254
+- bill: S 4668
+  congress: 119
+  title: Protect College Sports Act of 2026
+  action_date: '2026-08-05'
+  action: Cloture motion on the motion to proceed to the measure presented in Senate. (CR
+    S4449)
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4668
+  summary: 'Protect College Sports Act of 2026
+
+
+    This bill establishes requirements for name, image, or likeness (NIL) agreements for college
+    student athletes and provides a limited antitrust exemption for schools and conferences
+    to pool and sell certain college sports media rights. The requirements address elements
+    of the court-approved agreement to settle In re College Athlete NIL Litigation (i.e.,
+    House settlement).
+
+
+    First, the bill statutorily prohibits institutions, conferences, or interstate intercollegiate
+    athletic associations (e.g., the National Collegiate Athletic Association [NCAA]) from
+    restricting student athletes from entering NIL agreements (subject to specified limitations).
+    Students must report to their institution NIL compensation greater than $600.
+
+
+    The bill requires agents to register with a state and caps agent endorsement contract
+    fees at 5%.
+
+
+    The bill also provides student athletes with one transfer without losing athletic eligibility
+    and restricts football personnel from becoming the head football coach at a different
+    institution during the same season.
+
+
+    Further, the bill prohibits institutions, conferences, or specified entities acting for
+    the benefit of an institution from providing athletes with compensation that circumvents
+    the limit on sharing revenue with student athletes established under the House settlement.
+    The bill also makes the limit permanent and provides for an annual inflation adjustment.
+
+
+    Additionally, the bill establishes (subject to specified conditions) a limited antitrust
+    exemption for institutions or conferences that form joint agreements to transfer their
+    sports telecasting rights to a third party. Such an agreement requires participation from
+    at least 75% of the institutions in the Football Bowl Subdivision.'
+  summary_version: Introduced in Senate
+  summary_date: '2026-06-02'
+  summary_truncated: false
+- bill: S 4615
+  congress: 119
+  title: Intelligence Authorization Act for Fiscal Year 2027
+  action_date: '2026-08-05'
+  action: By Senator Cotton from Select Committee on Intelligence filed written report. Report
+    No. 119-133. Additional and Minority views filed.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4615
+- bill: S 5134
+  congress: 119
+  title: Green New Deal for Health Act
+  action_date: '2026-07-27'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/5134
+- bill: HR 9965
+  congress: 119
+  title: AI Threat Output and Monitoring Incident Containment Act
+  action_date: '2026-07-27'
+  action: Referred to the House Committee on Science, Space, and Technology.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9965
+- bill: HR 9962
+  congress: 119
+  title: Green New Deal for Health Act
+  action_date: '2026-07-27'
+  action: Referred to the Committee on Energy and Commerce, and in addition to the Committees
+    on Ways and Means, and Science, Space, and Technology, for a period to be subsequently
+    determined by the Speaker, in each case for consideration of such provisions as fall within
+    the jurisdiction of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9962
+- bill: HR 9935
+  congress: 119
+  title: Indigenous Students Excel through Parity Act of 2026
+  action_date: '2026-07-23'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9935
+- bill: S 4802
+  congress: 119
+  title: Hurricane Hunter Aircraft Recapitalization Act
+  action_date: '2026-07-22'
+  action: Committee on Commerce, Science, and Transportation. Ordered to be reported with
+    an amendment in the nature of a substitute favorably.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4802
+- bill: HR 9856
+  congress: 119
+  title: Prediction Markets Are Gambling Act
+  action_date: '2026-07-22'
+  action: Referred to the House Committee on Agriculture.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9856
+- bill: HR 9830
+  congress: 119
+  title: Lawful Hemp Protection Act
+  action_date: '2026-07-22'
+  action: Referred to the Committee on Ways and Means, and in addition to the Committees on
+    Energy and Commerce, Agriculture, and Transportation and Infrastructure, for a period
+    to be subsequently determined by the Speaker, in each case for consideration of such provisions
+    as fall within the jurisdiction of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9830
+- bill: HR 9817
+  congress: 119
+  title: Justice for Incarcerated Moms Act
+  action_date: '2026-07-21'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9817
+- bill: HR 9393
+  congress: 119
+  title: Lower Costs, More Transparency Act of 2026
+  action_date: '2026-07-21'
+  action: 'Ordered to be Reported in the Nature of a Substitute by the Yeas and Nays: 45 -
+    0.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9393
+- bill: HR 9390
+  congress: 119
+  title: Prices on the Wall Act of 2026
+  action_date: '2026-07-21'
+  action: 'Ordered to be Reported (Amended) by the Yeas and Nays: 24 - 21.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9390
+- bill: HR 9471
+  congress: 119
+  title: SAFE Banking Act of 2026
+  action_date: '2026-07-17'
+  action: Referred to the Subcommittee on Economic Opportunity.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9471
+- bill: HRES 1394
+  congress: 119
+  title: Condemning prosecution policies that give preferential treatment to foreign nationals
+    over United States citizens.
+  action_date: '2026-07-15'
+  action: 'Ordered to be Reported by the Yeas and Nays: 14 - 9.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1394
+- bill: HR 9706
+  congress: 119
+  title: Facial Recognition to Protect Children Act
+  action_date: '2026-07-15'
+  action: Referred to the Committee on Agriculture, and in addition to the Committee on Energy
+    and Commerce, for a period to be subsequently determined by the Speaker, in each case
+    for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9706
+- bill: HR 9644
+  congress: 119
+  title: Medicare Advantage MLR Transparency Act
+  action_date: '2026-07-15'
+  action: 'Ordered to be Reported in the Nature of a Substitute by the Yeas and Nays: 42 -
+    0.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9644
+- bill: HR 9642
+  congress: 119
+  title: Medicare Access to Rural Anesthesiology Act
+  action_date: '2026-07-15'
+  action: 'Ordered to be Reported in the Nature of a Substitute by the Yeas and Nays: 41 -
+    0.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9642
+- bill: HR 9641
+  congress: 119
+  title: Essential Caregivers Act of 2026
+  action_date: '2026-07-15'
+  action: 'Ordered to be Reported in the Nature of a Substitute by the Yeas and Nays: 38 -
+    0.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9641
+- bill: HR 9603
+  congress: 119
+  title: Less Bureaucracy, Better International Education Oversight Act
+  action_date: '2026-07-15'
+  action: 'Ordered to be Reported (Amended) by the Yeas and Nays: 20 - 16.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9603
+- bill: HR 9468
+  congress: 119
+  title: STAR Act
+  action_date: '2026-07-15'
+  action: 'Ordered to be Reported in the Nature of a Substitute by the Yeas and Nays: 40 -
+    0.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9468
+- bill: HR 9368
+  congress: 119
+  title: Voter ID Act
+  action_date: '2026-07-15'
+  action: Placed on the Union Calendar, Calendar No. 653.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9368
+  summary: 'Voter ID Act
+
+
+    This bill establishes certain photo identification requirements for voting in federal
+    elections.
+
+
+    Specifically, the bill prohibits a state or local election official from providing a ballot
+    for a federal election to an individual who does not present valid physical photo identification.
+
+
+    Next, the bill outlines the availability of provisional ballots and the requirements for
+    counting those ballots. An individual who does not present a valid photo identification
+    must be permitted to cast a provisional ballot. However, an election official may not
+    determine that the individual is eligible under state law to vote in the election unless,
+    not later than three days after casting the provisional ballot, the individual presents
+    (1) the identification required, or (2) an affidavit attesting that the individual does
+    not possess the identification because of a religious objection to being photographed.
+
+
+    An election official may not allow for voting methods other than in-person voting unless
+    the individual (1) submits the ballot with a copy of their photo identification or the
+    last four digits of their Social Security number with an affidavit attesting that the
+    individual is unable to obtain a copy of a valid photo identification after making reasonable
+    efforts to obtain a copy, or (2) includes a notarization attesting that the individual
+    has personally marked the ballot. This prohibition shall not apply to overseas military
+    voters and certain disabled or elderly voters.
+
+
+    The Election Assistance Commission must make grants to states and tribal governments that
+    provide eligible individuals with free valid photo identification.'
+  summary_version: Reported to House
+  summary_date: '2026-07-15'
+  summary_truncated: false
+- bill: HR 9614
+  congress: 119
+  title: NRC Staff Pay Alignment Act
+  action_date: '2026-07-14'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9614
+- bill: HR 9585
+  congress: 119
+  title: Advancing American Quantum Leadership Act of 2026
+  action_date: '2026-07-02'
+  action: Referred to the House Committee on Financial Services.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9585
+- bill: HR 9560
+  congress: 119
+  title: No Profiting from Public Service Act
+  action_date: '2026-06-30'
+  action: Referred to the Committee on Oversight and Government Reform, and in addition to
+    the Committees on House Administration, the Judiciary, and Ways and Means, for a period
+    to be subsequently determined by the Speaker, in each case for consideration of such provisions
+    as fall within the jurisdiction of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9560
+- bill: HR 9515
+  congress: 119
+  title: MFA Act
+  action_date: '2026-06-29'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9515
+- bill: HR 9397
+  congress: 119
+  title: Premium Transparency Act
+  action_date: '2026-06-25'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9397
+- bill: HR 9396
+  congress: 119
+  title: Prior Authorization Accountability Act
+  action_date: '2026-06-25'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9396
+- bill: HR 9395
+  congress: 119
+  title: Transparency in Medicare Advantage Steering Act
+  action_date: '2026-06-25'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9395
+- bill: HR 9392
+  congress: 119
+  title: Medicare Advantage Cost Transparency Act
+  action_date: '2026-06-25'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9392
+- bill: HR 9389
+  congress: 119
+  title: Nutrition Education and Chronic Disease Prevention in Community Health Centers Act
+    of 2026
+  action_date: '2026-06-25'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9389
+- bill: HR 9429
+  congress: 119
+  title: The Public Service Accountability Act
+  action_date: '2026-06-24'
+  action: Referred to the Committee on Oversight and Government Reform, and in addition to
+    the Committees on House Administration, and the Judiciary, for a period to be subsequently
+    determined by the Speaker, in each case for consideration of such provisions as fall within
+    the jurisdiction of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9429
+- bill: HR 9367
+  congress: 119
+  title: Stop Lawmakers From Predicting Act
+  action_date: '2026-06-24'
+  action: 'Ordered to be Reported (Amended) by the Yeas and Nays: 5 - 4.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9367
+- bill: HRES 1380
+  congress: 119
+  title: Commemorating 50 years of women at the service academies.
+  action_date: '2026-06-23'
+  action: Referred to the Committee on Armed Services, and in addition to the Committee on
+    Transportation and Infrastructure, for a period to be subsequently determined by the Speaker,
+    in each case for consideration of such provisions as fall within the jurisdiction of the
+    committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1380
+- bill: S 4823
+  congress: 119
+  title: Advancing American Quantum Leadership Act of 2026
+  action_date: '2026-06-18'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4823
+- bill: S 4820
+  congress: 119
+  title: Regional Export Promotion Act of 2026
+  action_date: '2026-06-17'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4820
+- bill: S 4794
+  congress: 119
+  title: Precision Agriculture Cybersecurity Act
+  action_date: '2026-06-16'
+  action: Read twice and referred to the Committee on Agriculture, Nutrition, and Forestry.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4794
+- bill: S 4781
+  congress: 119
+  title: Make More in America Act of 2026
+  action_date: '2026-06-15'
+  action: 'Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+    (text: CR S2786-2791; Sponsor introductory remarks on measure: CR S2786)'
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4781
+- bill: HR 9300
+  congress: 119
+  title: Postsecondary Student Success Act of 2026
+  action_date: '2026-06-11'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9300
+- bill: S 2
+  congress: 119
+  title: Secure America Act
+  action_date: '2026-06-10'
+  action: 'Became Public Law No: 119-98.'
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/2
+  summary: 'Secure America Act
+
+
+    This act provides $70 billion in funding to the Department of Homeland Security (DHS),
+    U.S. Customs and Border Protection (CBP), and U.S. Immigration and Customs Enforcement
+    (ICE) through FY2029 for immigration enforcement, border security, and related activities.
+
+
+    It is known as a reconciliation bill and includes legislation submitted by certain congressional
+    committees pursuant to provisions in the FY2026 congressional budget resolution (S. Con.
+    Res. 33) that directed the committees to submit legislation to the House or Senate Budget
+    Committee that will increase the deficit. (Reconciliation bills are considered by Congress
+    using expedited legislative procedures that prevent a filibuster and restrict amendments
+    in the Senate.)
+
+
+    TITLE I--COMMITTEE ON HOMELAND SECURITY AND GOVERNMENTAL AFFAIRS
+
+
+    (Sec. 101) This section provides funding for CBP to hire, pay, train, and equip Border
+    Patrol agents and Border Patrol support personnel to conduct functions other than immigration
+    enforcement and customs functions.
+
+
+    The funds provided by this section may not be used to recruit, hire, or train personnel
+    for the duties of processing coordinators after October 31, 2028.
+
+
+    (Sec. 102) This section provides funding to ICE for (1) hiring, paying, training, and
+    equipping Homeland Security Investigations (HIS) agents and support personnel; and (2)
+    other necessary expenses for HSI’s mission support and operations and maintenance.
+
+
+    It also requires specified funds to be used to hire, pay, and equip additional child exploitation
+    investigators and forensics analysts for certain HSI offices to (1) support the identification
+    and rescue of victims of child sexual exploitation and abuse, and (2) train such personnel
+    and state and local law enforcement regarding identifying victims of child sexual exploitation
+    and abuse.
+
+
+    The funds provided by this section must be used for functions other than those related
+    to HSI’s immigration enforcement and customs enforcement missions.
+
+
+    (Sec. 103) This section provides funding to CBP for border security, technology, and screening,
+    including
+
+
+    procurement and integration of new nonintrusive inspection equipment and associated civil
+    works (e.g., artificial intelligence, machine learning, and other innovative technologies)
+    and other mission support to combat the entry or exit of illicit narcotics at ports of
+    entry and along the southwest, northern, and maritime borders;'
+  summary_version: Public Law
+  summary_date: '2026-06-10'
+  summary_truncated: true
+- bill: HJRES 195
+  congress: 119
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Department of Health and Human Services relating to
+    "Restoring Flexibility in the Child Care and Development Fund (CCDF)".
+  action_date: '2026-06-10'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/195
+- bill: S 4702
+  congress: 119
+  title: China Subsidy Response and Export Competitiveness Act of 2026
+  action_date: '2026-06-08'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4702
+- bill: HR 9183
+  congress: 119
+  title: Artificial Intelligence Environmental Impacts Act of 2026
+  action_date: '2026-06-08'
+  action: Referred to the Committee on Science, Space, and Technology, and in addition to
+    the Committee on Energy and Commerce, for a period to be subsequently determined by the
+    Speaker, in each case for consideration of such provisions as fall within the jurisdiction
+    of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9183
+- bill: HRES 1341
+  congress: 119
+  title: Expressing support for the recognition of June 7, 2026, as "Tourette Syndrome Awareness
+    Day".
+  action_date: '2026-06-04'
+  action: Referred to the House Committee on Oversight and Government Reform.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1341
+- bill: HR 9082
+  congress: 119
+  title: Honesty and Trust in Service Act
+  action_date: '2026-05-29'
+  action: Referred to the House Committee on Armed Services.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9082
+- bill: HR 9059
+  congress: 119
+  title: National Police Athletic/Activities League Youth Enrichment Reauthorization Act
+  action_date: '2026-05-29'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9059
+- bill: HR 9043
+  congress: 119
+  title: Sex Trafficking Demand Reduction Act
+  action_date: '2026-05-26'
+  action: Referred to the House Committee on Foreign Affairs.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/9043
+- bill: HR 8979
+  congress: 119
+  title: Elementary and Secondary School Counseling Act
+  action_date: '2026-05-21'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8979
+- bill: HR 8978
+  congress: 119
+  title: Enhancing Mental Health and Suicide Prevention Through Campus Planning Act
+  action_date: '2026-05-21'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8978
+- bill: HR 8970
+  congress: 119
+  title: Gambling Disorder Health Study Act
+  action_date: '2026-05-21'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8970
+- bill: HJRES 189
+  congress: 119
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Department of Education relating to "Reimagining and
+    Improving Student Education-Federal Student Loan Program Final Regulations".
+  action_date: '2026-05-21'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/189
+- bill: HR 8912
+  congress: 119
+  title: Campaign Funds Integrity Act of 2026
+  action_date: '2026-05-19'
+  action: Referred to the House Committee on House Administration.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8912
+- bill: HR 8907
+  congress: 119
+  title: IMPACT to Save Moms Act
+  action_date: '2026-05-19'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8907
+  summary: 'Innovative Maternal Payment and Coverage To Save Moms Act or the IMPACT to Save
+    Moms Act
+
+
+    This bill requires the Centers for Medicare & Medicaid Services to establish the Perinatal
+    Care Alternative Payment Model Demonstration Project through FY2031 to allow states to
+    test payment models for maternity care, including postpartum care, under Medicaid and
+    the Children''s Health Insurance Program (CHIP).'
+  summary_version: Introduced in House
+  summary_date: '2026-05-19'
+  summary_truncated: false
+- bill: HJRES 187
+  congress: 119
+  title: Providing for congressional disapproval under chapter 8 of title 5, United States
+    Code, of the rule submitted by the Centers for Medicare & Medicaid Services of the Department
+    of Health and Human Services relating to "Medicare Program; Implementation of Prior Authorization
+    for Select Services for the Wasteful and Inappropriate Services Reduction (WISeR) Model".
+  action_date: '2026-05-19'
+  action: Referred to the Committee on Ways and Means, and in addition to the Committee on
+    Energy and Commerce, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-joint-resolution/187
+  summary: 'This joint resolution prohibits the Centers for Medicare & Medicaid Services (CMS)
+    from testing a new Medicare payment model in certain states that involves a prior authorization
+    process and the use of enhanced technology by third-party contractors to determine whether
+    certain claims should be paid.
+
+
+    Specifically, the joint resolution nullifies a notice issued by the CMS on July 1, 2025,
+    titled Medicare Program; Implementation of Prior Authorization for Select Services for
+    the Wasteful and Inappropriate Services Reduction (WISeR) Model. (On May 12, 2026, the
+    Government Accountability Office issued a letter of opinion stating that this notice constituted
+    an agency rule and is therefore subject to the Congressional Review Act.)
+
+
+    The CMS selected six states to participate in this model over a six-year period: New Jersey,
+    Ohio, Oklahoma, Texas, Arizona, and Washington. Under the model, contracted companies
+    must process prior authorization requests (i.e., requests for coverage determinations
+    before a service is furnished) for certain services using enhanced technology (e.g., artificial
+    intelligence). Contracted companies are paid based on the share of resulting savings.
+    The CMS aims to test the model''s ability to produce accurate results while streamlining
+    the prior authorization process for Medicare claims. The model is based in part on similar
+    processes used for Medicare Advantage claims.
+
+
+    CMS began implementing the model on January 1, 2026. This joint resolution prohibits the
+    CMS from continuing to do so.'
+  summary_version: Introduced in House
+  summary_date: '2026-05-19'
+  summary_truncated: false
+- bill: S 4552
+  congress: 119
+  title: Moms Matter Act
+  action_date: '2026-05-18'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4552
+- bill: S 4550
+  congress: 119
+  title: Maternal Health Pandemic Response Act
+  action_date: '2026-05-18'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4550
+- bill: HRES 1286
+  congress: 119
+  title: Calling for a trade policy that supports workers, consumers, independent farmers,
+    small businesses, and the environment.
+  action_date: '2026-05-14'
+  action: Referred to the House Committee on Ways and Means.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1286
+- bill: HRES 1285
+  congress: 119
+  title: Expressing the sense of the House of Representatives that over 25 years of real-world
+    evidence and hundreds of peer-reviewed studies proving that mifepristone is safe and effective
+    should be respected, and law and policy governing access to lifesaving, time-sensitive
+    medication abortion care in the United States should be equitable, transparent, and based
+    on the best available peer-reviewed evidence-based science.
+  action_date: '2026-05-14'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1285
+- bill: HR 8838
+  congress: 119
+  title: Congressional Prediction Market Ban Act of 2026
+  action_date: '2026-05-14'
+  action: Referred to the House Committee on House Administration.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8838
+- bill: HR 8811
+  congress: 119
+  title: Moms Matter Act
+  action_date: '2026-05-14'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8811
+- bill: HR 8807
+  congress: 119
+  title: Maternal Health Pandemic Response Act
+  action_date: '2026-05-14'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8807
+- bill: S 4481
+  congress: 119
+  title: IMPACT to Save Moms Act
+  action_date: '2026-05-11'
+  action: Read twice and referred to the Committee on Finance.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4481
+  summary: 'Innovative Maternal Payment and Coverage To Save Moms Act or the IMPACT to Save
+    Moms Act
+
+
+    This bill requires the Centers for Medicare & Medicaid Services to establish the Perinatal
+    Care Alternative Payment Model Demonstration Project through FY2031 to allow states to
+    test payment models for maternity care, including postpartum care, under Medicaid and
+    the Children''s Health Insurance Program (CHIP).'
+  summary_version: Introduced in Senate
+  summary_date: '2026-05-11'
+  summary_truncated: false
+- bill: HR 8707
+  congress: 119
+  title: No Funds for Iran War Act
+  action_date: '2026-05-07'
+  action: Referred to the Committee on Foreign Affairs, and in addition to the Committee on
+    Armed Services, for a period to be subsequently determined by the Speaker, in each case
+    for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8707
+- bill: S 4469
+  congress: 119
+  title: Prediction Market Act of 2026
+  action_date: '2026-04-30'
+  action: Read twice and referred to the Committee on Agriculture, Nutrition, and Forestry.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4469
+- bill: S 4390
+  congress: 119
+  title: Ending Discrimination in Government Contracting Act
+  action_date: '2026-04-27'
+  action: Read twice and referred to the Committee on Homeland Security and Governmental Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4390
+- bill: HR 8511
+  congress: 119
+  title: Ending Discrimination in Government Contracting Act
+  action_date: '2026-04-27'
+  action: Referred to the Committee on Oversight and Government Reform, and in addition to
+    the Committees on Small Business, Transportation and Infrastructure, and Armed Services,
+    for a period to be subsequently determined by the Speaker, in each case for consideration
+    of such provisions as fall within the jurisdiction of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8511
+- bill: HR 8471
+  congress: 119
+  title: PRIMATE Act
+  action_date: '2026-04-23'
+  action: Referred to the House Committee on Ways and Means.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8471
+- bill: HR 8170
+  congress: 119
+  title: MATCH Act
+  action_date: '2026-04-22'
+  action: 'Ordered to be Reported in the Nature of a Substitute (Amended) by the Yeas and
+    Nays: 36 - 8.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8170
+- bill: S 4356
+  congress: 119
+  title: Protecting Moms and Babies Against Climate Change Act
+  action_date: '2026-04-21'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4356
+- bill: HR 8397
+  congress: 119
+  title: Protecting Moms and Babies Against Climate Change Act
+  action_date: '2026-04-21'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8397
+- bill: HR 8380
+  congress: 119
+  title: To amend the Congressional Budget and Impoundment Control Act of 1974 to establish
+    certain procedures for consideration of annual appropriation bills, and for other purposes.
+  action_date: '2026-04-20'
+  action: Referred to the Committee on Rules, and in addition to the Committee on the Budget,
+    for a period to be subsequently determined by the Speaker, in each case for consideration
+    of such provisions as fall within the jurisdiction of the committee concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8380
+- bill: HR 8376
+  congress: 119
+  title: Concurrent Care for Comfort Act
+  action_date: '2026-04-20'
+  action: Referred to the Committee on Ways and Means, and in addition to the Committee on
+    Energy and Commerce, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8376
+- bill: HR 8317
+  congress: 119
+  title: Tech to Save Moms Act
+  action_date: '2026-04-15'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8317
+- bill: S 4281
+  congress: 119
+  title: Multilateral Alignment of Technology Controls on Hardware (MATCH) Act
+  action_date: '2026-04-13'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4281
+- bill: HR 8153
+  congress: 119
+  title: Maternal Vaccination Act
+  action_date: '2026-03-27'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8153
+- bill: S 753
+  congress: 119
+  title: Strengthening Exports Against China Act
+  action_date: '2026-03-26'
+  action: Committee on Banking, Housing, and Urban Affairs. Hearings held.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/753
+  summary: 'Strengthening Exports Against China Act
+
+
+    This bill allows the Export-Import Bank of the United States (EXIM) to exclude financing
+    provided to certain U.S. exporters from its default rate cap calculations.
+
+
+    EXIM, the official export credit agency of the United States, provides financing for U.S.
+    exports of goods and services. EXIM monitors credit and other transaction risks, reserves
+    against losses, and submits quarterly reports to Congress on its default rate. If its
+    default rate reaches 2%, EXIM faces an immediate lending cap freeze.
+
+
+    This bill exempts certain transactions from EXIM''s default rate calculation, thereby
+    allowing EXIM to provide financing to these U.S. exporters without the risk of reaching
+    the default rate cap.
+
+
+    Specifically, the bill allows EXIM to exclude from the default rate cap any financing
+    provided to U.S. exporters under the China and Transformational Exports Program. (This
+    program allows EXIM to extend loans, guarantees, and insurance to advance the comparative
+    leadership of the United States with respect to China in specified export areas, such
+    as artificial intelligence, biotechnology, and wireless communications equipment.)
+
+
+    Additionally, the bill allows EXIM to exclude from the default rate cap any financing
+    provided to U.S. exporters that are competing with products or services provided by (1)
+    a foreign entity included on the Entity List maintained by the Department of Commerce''s
+    Bureau of Industry and Security (e.g., entities involved in activities contrary to U.S.
+    national security or foreign policy interests), or (2) a foreign individual or entity
+    sanctioned by the Department of the Treasury''s Office of Foreign Assets Control.'
+  summary_version: Introduced in Senate
+  summary_date: '2025-02-26'
+  summary_truncated: false
+- bill: S 4228
+  congress: 119
+  title: ACE Nuclear Energy Act of 2026
+  action_date: '2026-03-26'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4228
+- bill: S 4191
+  congress: 119
+  title: Extending WIC for New Moms Act
+  action_date: '2026-03-25'
+  action: Read twice and referred to the Committee on Agriculture, Nutrition, and Forestry.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4191
+  summary: 'Extending WIC for New Moms Act
+
+
+    This bill extends the eligibility periods for breastfeeding and postpartum women under
+    the Special Supplemental Nutrition Program for Women, Infants, and Children (WIC).
+
+
+    Specifically, a state program may elect to certify a breastfeeding woman for up to 24
+    months (currently 1 year) postpartum. The bill also expands the eligibility period for
+    postpartum women to up to 24 months after termination of pregnancy (currently 6 months).
+
+
+    The Department of Agriculture must submit a report to Congress evaluating the effect of
+    these changes to the WIC program on (1) maternal and infant health outcomes, (2) breastfeeding
+    rates, and (3) qualitative evaluations of family experiences under WIC.'
+  summary_version: Introduced in Senate
+  summary_date: '2026-03-25'
+  summary_truncated: false
+- bill: HR 8055
+  congress: 119
+  title: Extending WIC for New Moms Act
+  action_date: '2026-03-24'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8055
+  summary: 'Extending WIC for New Moms Act
+
+
+    This bill amends the Special Supplemental Nutrition Program for Women, Infants, and Children
+    (WIC) to extend the eligibility periods for breastfeeding and postpartum women.
+
+
+    Specifically, a state program may elect to certify a breastfeeding woman for up to 24
+    months (currently 1 year) postpartum. The bill also expands the eligibility period for
+    postpartum women to up to 24 months after termination of pregnancy (currently 6 months).
+
+
+    The Department of Agriculture must submit a report to Congress evaluating the effect of
+    these changes to the program on (1) maternal and infant health outcomes, (2) breastfeeding
+    rates, and (3) qualitative evaluations of family experiences under WIC.'
+  summary_version: Introduced in House
+  summary_date: '2026-03-24'
+  summary_truncated: false
+- bill: S 4149
+  congress: 119
+  title: Social Determinants for Moms Act
+  action_date: '2026-03-19'
+  action: Read twice and referred to the Committee on Health, Education, Labor, and Pensions.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-bill/4149
+- bill: HR 8008
+  congress: 119
+  title: Social Determinants for Moms Act
+  action_date: '2026-03-19'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/8008
+- bill: HRES 1081
+  congress: 119
+  title: Raising awareness for the sarcoma cancer chordoma.
+  action_date: '2026-02-25'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/1081
+- bill: HR 7718
+  congress: 119
+  title: Officer John Barnes and Chief Michael Ansbro Public Safety Officers’ Benefits Program
+    Expansion Act of 2026
+  action_date: '2026-02-25'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7718
+- bill: HR 7049
+  congress: 119
+  title: Improving Mental Health Care and Coordination for Homeless Veterans Act
+  action_date: '2026-02-24'
+  action: Forwarded by Subcommittee to Full Committee by Voice Vote.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7049
+- bill: HR 7645
+  congress: 119
+  title: Ceasefire Compliance Act of 2026
+  action_date: '2026-02-23'
+  action: Referred to the House Committee on Foreign Affairs.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7645
+- bill: HR 7608
+  congress: 119
+  title: Southeast Asian Deportation Relief Act of 2026
+  action_date: '2026-02-20'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7608
+- bill: HR 2870
+  congress: 119
+  title: Working Families Flexibility Act of 2025
+  action_date: '2026-02-12'
+  action: Placed on the Union Calendar, Calendar No. 422.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2870
+- bill: HR 7352
+  congress: 119
+  title: PASTEUR Act of 2026
+  action_date: '2026-02-04'
+  action: Referred to the Committee on Energy and Commerce, and in addition to the Committee
+    on the Budget, for a period to be subsequently determined by the Speaker, in each case
+    for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/7352
+- bill: HR 4611
+  congress: 119
+  title: EACH Act of 2025
+  action_date: '2025-12-19'
+  action: Referred to the Subcommittee on Health.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4611
+- bill: HR 5490
+  congress: 119
+  title: Dismantle Foreign Scam Syndicates Act
+  action_date: '2025-12-03'
+  action: 'Ordered to be Reported in the Nature of a Substitute (Amended) by the Yeas and
+    Nays: 48 - 0.'
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5490
+  summary: 'Dismantle Foreign Scam Syndicates Act
+
+
+    This bill requires the President to (1) impose applicable sanctions on foreign persons
+    (individuals or entities) responsible for online financial scams against U.S. nationals,
+    and (2) establish an interagency task force to shut down the criminal syndicates perpetuating
+    such scams.
+
+
+    Under the bill, the President must determine whether 43 specified foreign persons, and
+    any other foreign persons the President determines are responsible for or complicit in
+    online financial scams against U.S. nationals, are subject to sanctions under specified
+    laws and Executive Order 13581. Upon such determination, the President must impose applicable
+    sanctions (for example, blocking the sanctioned person''s property transactions within
+    the United States).
+
+
+    The President must also establish an interagency task force to shut down transnational
+    criminal syndicates that use large scam centers and forced labor of trafficked persons
+    to perpetuate mass online scams against Americans. The task force must (1) submit a comprehensive
+    strategy to Congress to combat these scam centers and dismantle the criminal elements
+    involved with them, and (2) coordinate and oversee implementation of the strategy. Within
+    360 days of submitting the strategy to Congress and annually thereafter for five years
+    the task force must submit to Congress a report addressing various topics related to such
+    scam centers including a list of all foreign persons sanctioned by the United States for
+    their scam center involvement.
+
+
+    The Department of State is authorized to provide trauma-informed care, shelter, reintegration,
+    and support services for victims of trafficking in persons within online scam centers.'
+  summary_version: Introduced in House
+  summary_date: '2025-09-18'
+  summary_truncated: false
+- bill: HR 5731
+  congress: 119
+  title: School Food Modernization Act
+  action_date: '2025-12-02'
+  action: Referred to the Subcommittee on Nutrition and Foreign Agriculture.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5731
+- bill: HR 6152
+  congress: 119
+  title: Foreign Robocall Elimination Act
+  action_date: '2025-11-19'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6152
+- bill: HR 6130
+  congress: 119
+  title: ASAP Act
+  action_date: '2025-11-19'
+  action: Referred to the Committee on Energy and Commerce, and in addition to the Committee
+    on Ways and Means, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/6130
+- bill: SRES 476
+  congress: 119
+  title: A resolution supporting the designation of October 2025 as "Substance Use & Misuse
+    Prevention Month" to raise awareness of substance use and misuse in the United States.
+  action_date: '2025-10-30'
+  action: 'Referred to the Committee on Health, Education, Labor, and Pensions. (text: CR
+    S7851)'
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/119th-congress/senate-resolution/476
+  summary: This resolution supports the designation of October 2025 as Substance Use & Misuse
+    Prevention Month and supports effective programs to prevent substance use and misuse in
+    the United States.
+  summary_version: Introduced in Senate
+  summary_date: '2025-10-30'
+  summary_truncated: false
+- bill: HR 5835
+  congress: 119
+  title: REPO Implementation Act of 2025
+  action_date: '2025-10-24'
+  action: Referred to the House Committee on Foreign Affairs.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5835
+- bill: HRES 806
+  congress: 119
+  title: Supporting the recognition of October 2025 as "National Breast Cancer Awareness Month".
+  action_date: '2025-10-14'
+  action: Referred to the House Committee on Oversight and Government Reform.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-resolution/806
+  summary: This resolution supports the recognition of National Breast Cancer Awareness Month.
+  summary_version: Introduced in House
+  summary_date: '2025-10-14'
+  summary_truncated: false
+- bill: HR 5733
+  congress: 119
+  title: Community Mental Wellness Worker Training Act
+  action_date: '2025-10-10'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5733
+- bill: HR 5269
+  congress: 119
+  title: RESULTS Act
+  action_date: '2025-09-10'
+  action: Referred to the Committee on Energy and Commerce, and in addition to the Committee
+    on Ways and Means, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5269
+  summary: 'Reforming and Enhancing Sustainable Updates to Laboratory Testing Services Act
+    of 2025 or the RESULTS Act
+
+
+    This bill requires the use of particular data from the private sector to inform Medicare
+    payment rates for certain widely available laboratory tests.
+
+
+    Specifically, the Centers for Medicare & Medicaid Services (CMS) must contract with an
+    entity that maintains a database of claims data for clinical diagnostic laboratory tests
+    that (1) are not advanced diagnostic tests, and (2) were furnished by more than 100 providers
+    and suppliers of such services over a specified six-month period (i.e., widely available
+    tests).
+
+
+    The database must meet specified requirements, such as having data that is representative
+    of the entire country and from more than 50 private payors and claims administrators.
+    The contracted entity must be a nonprofit entity that is not affiliated with any government
+    agency, any insurance issuer or provider, or any other organization in the health care
+    sector.
+
+
+    Beginning January 1, 2028, the CMS must use the information obtained from the database
+    to inform Medicare payment rates for these widely available laboratory tests.
+
+
+    The bill additionally specifies processes for determining payment rates for laboratory
+    tests that are not advanced diagnostic tests, are not widely available, and lack adequate
+    claims data. The CMS must use certain existing processes to set appropriate rates.
+
+
+    The bill also delays scheduled payment reductions for laboratory tests until 2028 and
+    allows for judicial and administrative review of payment rates.'
+  summary_version: Introduced in House
+  summary_date: '2025-09-10'
+  summary_truncated: false
+- bill: HR 5162
+  congress: 119
+  title: Colorectal Cancer Early Detection Act
+  action_date: '2025-09-04'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5162
+- bill: HR 5085
+  congress: 119
+  title: To exempt Federal actions related to the construction of infill housing from the
+    requirements of the National Environmental Policy Act of 1969, and for other purposes.
+  action_date: '2025-09-03'
+  action: Referred to the Subcommittee on Economic Development, Public Buildings, and Emergency
+    Management.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/5085
+- bill: HR 4744
+  congress: 119
+  title: Community Mental Wellness and Resilience Act of 2025
+  action_date: '2025-07-23'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4744
+- bill: HR 4696
+  congress: 119
+  title: Renewing Immigration Provisions of the Immigration Act of 1929
+  action_date: '2025-07-23'
+  action: Referred to the House Committee on the Judiciary.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/4696
+- bill: HR 3598
+  congress: 119
+  title: Deescalation Drone Pilot Program Act of 2025
+  action_date: '2025-05-24'
+  action: Referred to the Subcommittee on Aviation.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/3598
+- bill: HR 3295
+  congress: 119
+  title: Federal Animal Research Accountability Act of 2025
+  action_date: '2025-05-08'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/3295
+- bill: HR 2818
+  congress: 119
+  title: Early Childhood Nutrition Improvement Act
+  action_date: '2025-04-10'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2818
+- bill: HR 2809
+  congress: 119
+  title: Fair College Admissions for Students Act
+  action_date: '2025-04-10'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2809
+  summary: 'Fair College Admissions for Students Act
+
+
+    This bill prohibits an institution of higher education (IHE) that participates in federal
+    student aid programs from giving preferential treatment in the admissions process to applicants
+    based on their relationships to donors or alumni of the IHE.'
+  summary_version: Introduced in House
+  summary_date: '2025-04-10'
+  summary_truncated: false
+- bill: HR 2703
+  congress: 119
+  title: Advancing GETs Act of 2025
+  action_date: '2025-04-08'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2703
+- bill: HR 2547
+  congress: 119
+  title: Secure Family Futures Act of 2025
+  action_date: '2025-04-01'
+  action: Referred to the House Committee on Ways and Means.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2547
+- bill: HR 2355
+  congress: 119
+  title: Collegiate Housing and Infrastructure Act of 2025
+  action_date: '2025-03-26'
+  action: Referred to the House Committee on Ways and Means.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2355
+- bill: HR 2199
+  congress: 119
+  title: Restore Protections for Dialysis Patients Act
+  action_date: '2025-03-18'
+  action: Referred to the Committee on Ways and Means, and in addition to the Committee on
+    Energy and Commerce, for a period to be subsequently determined by the Speaker, in each
+    case for consideration of such provisions as fall within the jurisdiction of the committee
+    concerned.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/2199
+  summary: 'Restore Protections for Dialysis Patients Act
+
+
+    This bill specifies certain requirements for private health insurers regarding coverage
+    of individuals with end stage renal disease (ESRD) who are also covered under Medicare.
+
+
+    In particular, the bill specifies that insurers may not limit benefits, including limiting
+    network composition, in a manner that will affect ESRD Medicare beneficiaries differently
+    compared to others without ESRD. The bill additionally specifies that insurers are not
+    required to include a particular renal dialysis provider or a particular number of such
+    providers as part of their networks.'
+  summary_version: Introduced in House
+  summary_date: '2025-03-18'
+  summary_truncated: false
+- bill: HR 1810
+  congress: 119
+  title: Safe Schools Improvement Act
+  action_date: '2025-03-03'
+  action: Referred to the House Committee on Education and Workforce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1810
+  summary: 'Safe Schools Improvement Act
+
+
+    This bill requires states to direct their local educational agencies (LEAs) to establish
+    policies that prevent and prohibit bullying and harassment of elementary and secondary
+    school students. In particular, these policies must prohibit bullying and harassment based
+    on race, color, national origin, disability, religion, or sex. Sex includes sexual orientation,
+    gender identity, and sex characteristics (including intersex traits).
+
+
+    Further, LEAs must provide (1) students, parents, and educational professionals with annual
+    notice of the conduct prohibited in their disciplinary policies; (2) students and parents
+    with grievance procedures that target such conduct; and (3) the public with annual data
+    on the incidence and frequency of that conduct at the school and LEA level.
+
+
+    The Department of Education must conduct and report on an independent biennial evaluation
+    of programs and policies to combat bullying and harassment in elementary and secondary
+    schools. The National Center for Education Statistics must collect state data to determine
+    the incidence and frequency of the conduct prohibited by LEA disciplinary policies.'
+  summary_version: Introduced in House
+  summary_date: '2025-03-03'
+  summary_truncated: false
+- bill: HR 1589
+  congress: 119
+  title: American Dream and Promise Act of 2025
+  action_date: '2025-02-27'
+  action: Sponsor introductory remarks on measure. (CR H884)
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1589
+  summary: 'American Dream and Promise Act of 2025
+
+
+    This bill provides certain non-U.S. nationals (aliens under federal law) with a path to
+    receive permanent resident status and contains other immigration-related provisions.
+
+
+    The Department of Homeland Security (DHS) or the Department of Justice (DOJ) shall provide
+    conditional permanent resident status for 10 years to a qualifying individual who entered
+    the United States as a minor and (1) is deportable or inadmissible, (2) has deferred enforced
+    departure (DED) status or temporary protected status (TPS), or (3) is the child of certain
+    classes of nonimmigrants. The bill imposes various qualifying requirements, such as the
+    individual being continuously physically present in the United States since January 1,
+    2021, passing a background check, and being enrolled in or having completed certain educational
+    programs.
+
+
+    DHS shall remove the conditions placed on permanent resident status granted under this
+    bill if the individual applies and meets certain requirements, such as completing certain
+    programs at an educational institution, serving in the military, or being employed.
+
+
+    Furthermore, DHS or DOJ shall provide lawful permanent resident status to certain individuals
+    who had TPS, were eligible for TPS, or were eligible for DED status on certain dates.
+    Such individuals must meet certain requirements and apply for such status within three
+    years of this bill''s enactment.
+
+
+    This bill also repeals a restriction that bars a state from providing higher education
+    benefits to undocumented individuals unless those benefits are available to all U.S. nationals
+    without regard to residency in the state.'
+  summary_version: Introduced in House
+  summary_date: '2025-02-26'
+  summary_truncated: false
+- bill: HR 1615
+  congress: 119
+  title: Strengthening Exports Against China Act
+  action_date: '2025-02-26'
+  action: Referred to the House Committee on Financial Services.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1615
+  summary: 'Strengthening Exports Against China Act
+
+
+    This bill allows the Export-Import Bank of the United States (EXIM) to exclude financing
+    provided to certain U.S. exporters from its default rate cap calculations.
+
+
+    EXIM, the official export credit agency of the United States, provides financing for U.S.
+    exports of goods and services. EXIM monitors credit and other transaction risks, reserves
+    against losses, and submits quarterly reports to Congress on its default rate. If its
+    default rate reaches 2%, EXIM faces an immediate lending cap freeze.
+
+
+    This bill exempts certain transactions from EXIM''s default rate calculation, thereby
+    allowing EXIM to provide financing to these U.S. exporters without the risk of reaching
+    the default rate cap.
+
+
+    Specifically, the bill allows EXIM to exclude from the default rate cap any financing
+    provided to U.S. exporters under the China and Transformational Exports Program. (This
+    program allows EXIM to extend loans, guarantees, and insurance to advance the comparative
+    leadership of the United States with respect to China in specified export areas, such
+    as artificial intelligence, biotechnology, and wireless communications equipment.)
+
+
+    Additionally, the bill allows EXIM to exclude from the default rate cap any financing
+    provided to U.S. exporters that are competing with products or services provided by (1)
+    a foreign entity included on the Entity List maintained by the Department of Commerce''s
+    Bureau of Industry and Security (e.g., entities involved in activities contrary to U.S.
+    national security or foreign policy interests), or (2) a foreign individual or entity
+    sanctioned by the Department of the Treasury''s Office of Foreign Assets Control.'
+  summary_version: Introduced in House
+  summary_date: '2025-02-26'
+  summary_truncated: false
+- bill: HR 1532
+  congress: 119
+  title: Scientific EXPERT Act of 2025
+  action_date: '2025-02-24'
+  action: Referred to the House Committee on Energy and Commerce.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/1532
+  summary: 'Scientific External Process for Educated Review of Therapeutics Act of 2025 or
+    the Scientific EXPERT Act of 2025
+
+
+    This bill requires the Food and Drug Administration (FDA) to facilitate and participate
+    in externally led, science-focused drug development meetings to discuss the development
+    of treatments for rare diseases and conditions.
+
+
+    The FDA must enter into an arrangement with the Reagan-Udall Foundation for the FDA under
+    which the foundation agrees to convene such meetings. Meetings must be held at least four
+    times a year, and each meeting must focus on a different rare disease or condition.
+
+
+    The foundation must establish a permanent steering committee to review and recommend topics
+    for each meeting. In evaluating potential topics, the committee must consider unmet therapeutic
+    needs, patient population sizes for different diseases and conditions, and whether a disease
+    or condition would benefit from clarity and alignment on drug development questions, among
+    other factors.
+
+
+    In planning each meeting, the foundation must develop a list of medical experts, drug
+    sponsors, scientific organizations, patient organizations, and other entities to be invited
+    to participate. Representatives of the FDA’s review divisions must attend each meeting.
+
+
+    After each meeting, the foundation must make available a summary of the meeting noting
+    areas of consensus, areas where additional clarification or information is needed, and
+    next steps agreed upon with the FDA.
+
+
+    The bill also requires the FDA to indicate whether it incorporated any input from these
+    meetings when approving a new drug or biologic.'
+  summary_version: Introduced in House
+  summary_date: '2025-02-24'
+  summary_truncated: false
+- bill: HR 802
+  congress: 119
+  title: STAR Act of 2025
+  action_date: '2025-01-28'
+  action: Referred to the House Committee on Ways and Means.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/119th-congress/house-bill/802
+- bill: S 1102
+  congress: 113
+  title: Export-Import Bank Termination Act
+  action_date: '2013-06-06'
+  action: Read twice and referred to the Committee on Banking, Housing, and Urban Affairs.
+  origin_chamber: Senate
+  url: https://www.congress.gov/bill/113th-congress/senate-bill/1102
+  summary: Export-Import Bank Termination Act - Abolishes the Export-Import Bank of the United
+    States three years after enactment of this Act.
+  summary_version: Introduced in Senate
+  summary_date: '2013-06-06'
+  summary_truncated: false
+- bill: HR 2263
+  congress: 113
+  title: Export-Import Bank Termination Act
+  action_date: '2013-06-05'
+  action: Referred to the House Committee on Financial Services.
+  origin_chamber: House
+  url: https://www.congress.gov/bill/113th-congress/house-bill/2263
+  summary: Export-Import Bank Termination Act - Abolishes the Export-Import Bank of the United
+    States three years after enactment of this Act.
+  summary_version: Introduced in House
+  summary_date: '2013-06-05'
+  summary_truncated: false

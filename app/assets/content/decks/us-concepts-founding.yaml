@@ -1,0 +1,104 @@
+# Concept cards for Chapter 1 — The Founding.
+#
+# Card ids deliberately equal the curriculum item ids in us_civics.yaml:
+# ContentLinker resolves curriculum items by externalId, so matching ids
+# light up chapter sampling automatically (no fallback face cards).
+#
+# type: concept → teach-first (body) on first encounter, recall (prompt)
+# afterward. body doubles as the revealed answer. All claims sourced to
+# official archives. Editorial review required before merging changes.
+
+meta:
+  id: us-concepts-founding
+  name: "Founding Concepts"
+  tier_order: 0
+
+cards:
+  - id: decl.purpose
+    type: concept
+    name: "The Declaration of Independence"
+    title: "Founding document"
+    body: >
+      Adopted by the Continental Congress on July 4, 1776, the Declaration
+      of Independence announced the thirteen colonies' separation from
+      Great Britain. Thomas Jefferson was its principal author. It lists
+      grievances against King George III and states the reasons the
+      colonies were breaking away.
+    prompt: "What did the Declaration of Independence do, who principally wrote it, and when was it adopted?"
+    source: "https://www.archives.gov/founding-docs/declaration"
+
+  - id: decl.unalienable-rights
+    type: concept
+    name: "Unalienable Rights"
+    title: "Founding principle"
+    body: >
+      The Declaration asserts that all people are created equal and have
+      unalienable rights — among them life, liberty, and the pursuit of
+      happiness — and that governments derive their just powers from the
+      consent of the governed.
+    prompt: "Name the three unalienable rights listed in the Declaration, and where government's power comes from according to it."
+    source: "https://www.archives.gov/founding-docs/declaration-transcript"
+
+  - id: founders.washington
+    type: concept
+    name: "George Washington"
+    title: "Founding figure"
+    body: >
+      George Washington commanded the Continental Army in the Revolutionary
+      War, presided over the Constitutional Convention of 1787, and became
+      the first President of the United States in 1789. He set the
+      precedent of stepping down after two terms.
+    prompt: "Which three founding roles did George Washington hold — in war, at the Convention, and in the new government?"
+    source: "https://www.whitehouse.gov/about-the-white-house/presidents/george-washington/"
+
+  - id: founders.jefferson-madison-franklin-hamilton
+    type: concept
+    name: "Jefferson, Madison, Franklin, Hamilton"
+    title: "Founding figures"
+    body: >
+      Thomas Jefferson drafted the Declaration of Independence. James
+      Madison is called the Father of the Constitution for his role in
+      drafting and ratifying it. Benjamin Franklin was the Convention's
+      elder statesman and a key diplomat. Alexander Hamilton co-wrote the
+      Federalist Papers and became the first Secretary of the Treasury.
+    prompt: "Who drafted the Declaration, who is called the Father of the Constitution, and who co-wrote the Federalist Papers?"
+    source: "https://www.archives.gov/founding-docs/founding-fathers"
+
+  - id: const.articles-of-confederation
+    type: concept
+    name: "The Articles of Confederation"
+    title: "Before the Constitution"
+    body: >
+      America's first framework of government, in force from 1781. It
+      created a deliberately weak central government: Congress could not
+      tax, there was no executive or national courts, and amendments
+      required unanimous consent. Economic disarray and Shays' Rebellion
+      exposed these weaknesses and led to calls for a new framework.
+    prompt: "Why did the Articles of Confederation fail?"
+    source: "https://www.archives.gov/milestone-documents/articles-of-confederation"
+
+  - id: const.convention-1787
+    type: concept
+    name: "The Constitutional Convention"
+    title: "Philadelphia, 1787"
+    body: >
+      Delegates from twelve states met in Philadelphia in the summer of
+      1787, charged with revising the Articles of Confederation. Instead
+      they drafted an entirely new Constitution. George Washington presided.
+      The document was signed on September 17, 1787, then sent to the
+      states for ratification.
+    prompt: "What did the 1787 Philadelphia Convention set out to do, what did it actually produce, and who presided?"
+    source: "https://www.archives.gov/milestone-documents/constitution"
+
+  - id: const.we-the-people
+    type: concept
+    name: "We the People"
+    title: "The Preamble"
+    body: >
+      The Constitution's opening words name its source of authority: the
+      people themselves, not the states and not a monarch. The Preamble
+      lists six purposes — a more perfect union, justice, domestic
+      tranquility, common defense, the general welfare, and the blessings
+      of liberty.
+    prompt: "What does 'We the People' establish about the Constitution's authority, and how many purposes does the Preamble list?"
+    source: "https://www.archives.gov/founding-docs/constitution-transcript"

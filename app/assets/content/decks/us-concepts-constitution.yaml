@@ -1,0 +1,105 @@
+# Concept cards for Chapter 2 — The Constitution.
+# Card ids equal curriculum item ids (ContentLinker convention).
+# Editorial review required before merging changes.
+
+meta:
+  id: us-concepts-constitution
+  name: "Constitution Concepts"
+  tier_order: 0
+
+cards:
+  - id: const.supreme-law
+    type: concept
+    name: "The Supreme Law of the Land"
+    title: "Constitutional principle"
+    body: >
+      Article VI declares the Constitution the supreme law of the land.
+      Federal and state laws, and every government officer, are bound by
+      it. When a law conflicts with the Constitution, the Constitution
+      prevails.
+    prompt: "What does Article VI's Supremacy Clause establish?"
+    source: "https://constitution.congress.gov/constitution/article-6/"
+
+  - id: const.amendment-process
+    type: concept
+    name: "Amending the Constitution"
+    title: "Article V"
+    body: >
+      Amendments are proposed by a two-thirds vote of both chambers of
+      Congress (or a convention called by two-thirds of state
+      legislatures), then ratified by three-fourths of the states. The
+      bar is deliberately high — only 27 amendments have ever passed.
+    prompt: "How is the Constitution amended, and how many amendments exist?"
+    source: "https://constitution.congress.gov/constitution/article-5/"
+
+  - id: prin.separation-of-powers
+    type: concept
+    name: "Separation of Powers"
+    title: "Constitutional principle"
+    body: >
+      The Constitution splits federal power three ways: Congress makes
+      laws (Article I), the President enforces them (Article II), and the
+      courts interpret them (Article III). No branch holds all three
+      powers — that division is the design, not an accident.
+    prompt: "Which branch holds each of the three federal powers, and under which articles?"
+    source: "https://constitution.congress.gov/browse/"
+
+  - id: prin.checks-and-balances
+    type: concept
+    name: "Checks and Balances"
+    title: "Constitutional principle"
+    body: >
+      Each branch can restrain the others: the President vetoes bills,
+      Congress overrides vetoes and controls spending, the Senate
+      confirms appointments, courts strike down unconstitutional acts,
+      and Congress can impeach. Power checks power.
+    prompt: "Name three ways one branch can check another."
+    source: "https://constitution.congress.gov/browse/"
+
+  - id: prin.federalism
+    type: concept
+    name: "Federalism"
+    title: "Constitutional principle"
+    body: >
+      Power is divided between the national government and the states.
+      The federal government holds the powers the Constitution grants it;
+      the Tenth Amendment reserves the rest to the states or the people.
+      Some powers — like taxation — are shared.
+    prompt: "How does federalism divide power, and what does the Tenth Amendment reserve?"
+    source: "https://constitution.congress.gov/constitution/amendment-10/"
+
+  - id: bor.what-and-why
+    type: concept
+    name: "The Bill of Rights"
+    title: "First ten amendments"
+    body: >
+      The first ten amendments, ratified in 1791. Several states would
+      only ratify the Constitution with the promise of explicit
+      protections for individual liberties against federal power —
+      speech, religion, due process, jury trial, and more.
+    prompt: "What is the Bill of Rights, and why was it added?"
+    source: "https://www.archives.gov/founding-docs/bill-of-rights"
+
+  - id: bor.first-amendment
+    type: concept
+    name: "The First Amendment"
+    title: "Five freedoms"
+    body: >
+      One amendment, five freedoms: religion, speech, press, assembly,
+      and petition. It bars Congress from establishing a religion or
+      prohibiting its free exercise, and protects the right to criticize
+      the government.
+    prompt: "Name the five freedoms the First Amendment protects."
+    source: "https://constitution.congress.gov/constitution/amendment-1/"
+
+  - id: fed.papers-overview
+    type: concept
+    name: "The Federalist Papers"
+    title: "Ratification argument"
+    body: >
+      85 essays by Alexander Hamilton, James Madison, and John Jay,
+      published under the name Publius to argue for ratifying the
+      Constitution. Still cited by courts today as evidence of what the
+      framers intended.
+    prompt: "Who wrote the Federalist Papers, and what were they for?"
+    source: "https://guides.loc.gov/federalist-papers"

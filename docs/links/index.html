@@ -1,0 +1,316 @@
+---
+layout: null
+permalink: /links/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Politiface: Civics practice that sticks</title>
+<meta name="description" content="Cited FCLE practice, full-length mock exams, and a searchable civic Atlas covering every member of Congress. Nonpartisan and citation-backed. Download Politiface for iPhone.">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Politiface: Civics practice that sticks">
+<meta property="og:description" content="Cited FCLE practice, full-length mock exams, and a searchable civic Atlas. Nonpartisan and citation-backed.">
+<meta property="og:image" content="{{ '/assets/icon.png' | absolute_url }}">
+<meta property="og:url" content="{{ '/links/' | absolute_url }}">
+<meta property="og:site_name" content="Politiface">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Politiface: Civics practice that sticks">
+<meta name="twitter:description" content="Cited FCLE practice, mock exams, and a searchable civic Atlas. Nonpartisan and citation-backed.">
+<meta name="twitter:image" content="{{ '/assets/icon.png' | absolute_url }}">
+<meta name="theme-color" content="#1A1A2E">
+
+<link rel="icon" type="image/png" href="{{ '/assets/icon.png' | relative_url }}">
+<link rel="apple-touch-icon" href="{{ '/assets/icon.png' | relative_url }}">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script>
+/* Platform detection before first paint: no flash, no swap after render.
+   The static default is the App Store button (iOS + unknown). */
+(function () {
+  var ua = navigator.userAgent || '';
+  var p = /android/i.test(ua) ? 'android'
+        : /iphone|ipad|ipod/i.test(ua) ? 'ios'
+        : 'desktop';
+  document.documentElement.setAttribute('data-platform', p);
+})();
+</script>
+
+<style>
+  :root{
+    --navy:#1A1A2E; --navy-2:#0F0F16;
+    --ink:#1A1A1F; --muted:#5C5C66;
+    --paper:#F5F1E8; --line:#D8D2C2;
+    --gold:#C9A05B; --gold-2:#B98F49;
+    --cream:#F5F1E4; --cream-muted:#B6B6C0;
+    --serif:'Fraunces',Georgia,'Times New Roman',serif;
+    --sans:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --bg:var(--paper); --fg:var(--ink); --fg-muted:var(--muted);
+    --card:rgba(26,26,46,.03); --card-line:var(--line);
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:var(--navy-2); --fg:var(--cream); --fg-muted:var(--cream-muted);
+      --card:rgba(255,255,255,.045); --card-line:rgba(255,255,255,.16);
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--sans); background:var(--bg); color:var(--fg);
+    line-height:1.55; -webkit-font-smoothing:antialiased;
+    min-height:100svh; display:flex; flex-direction:column;
+  }
+  main{width:100%; max-width:480px; margin:0 auto; padding:56px 20px 24px; flex:1}
+  a{color:inherit; text-decoration:none}
+
+  .id{display:flex; flex-direction:column; align-items:center; text-align:center; margin-bottom:36px}
+  .id img{width:88px; height:88px; border-radius:22px; box-shadow:0 10px 30px -12px rgba(0,0,0,.4)}
+  .id h1{font-family:var(--serif); font-weight:700; font-size:1.7rem; letter-spacing:-.01em; margin-top:16px}
+  .id p{color:var(--fg-muted); font-size:.95rem; margin-top:6px; max-width:34ch}
+
+  /* Primary slot: height reserved so the platform swap never shifts layout. */
+  .primary-slot{min-height:132px; display:flex; flex-direction:column; justify-content:flex-start}
+  .cta{
+    display:block; width:100%; text-align:center; background:var(--gold); color:var(--ink);
+    border:0; border-radius:var(--radius); padding:17px 20px; cursor:pointer;
+    font-family:var(--sans); font-weight:700; font-size:1.05rem;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .cta .sub{display:block; font-weight:600; font-size:.78rem; color:rgba(26,26,31,.72); margin-top:2px}
+  .cta:hover{background:var(--gold-2)}
+  .cta:active{transform:scale(.985)}
+
+  /* Android email capture: hidden unless the platform says otherwise. */
+  .capture{display:none}
+  [data-platform="android"] .capture{display:block}
+  [data-platform="android"] .store-only{display:none}
+  .capture p.lead{font-weight:600; margin-bottom:10px}
+  .capture p.lead .sub{display:block; font-weight:500; font-size:.85rem; color:var(--fg-muted)}
+  .capture form{display:flex; gap:8px}
+  .capture label{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+  .capture input[type=email]{
+    flex:1; min-width:0; font:inherit; font-size:.95rem; color:var(--fg);
+    background:var(--card); border:1px solid var(--card-line); border-radius:var(--radius);
+    padding:13px 14px;
+  }
+  .capture input[type=email]::placeholder{color:var(--fg-muted)}
+  .capture button{width:auto; padding:13px 18px; font-size:.95rem}
+  .capture .status{font-size:.85rem; margin-top:8px; min-height:1.3em}
+  .capture .status.ok{color:#2F6F4F}
+  .capture .status.err{color:#A03030}
+  @media (prefers-color-scheme: dark){
+    .capture .status.ok{color:#7FC79F}
+    .capture .status.err{color:#E09090}
+  }
+
+  /* Desktop QR: shown only when the platform is desktop. */
+  .qr{display:none; align-items:center; gap:14px; margin-top:14px; color:var(--fg-muted); font-size:.85rem}
+  [data-platform="desktop"] .qr{display:flex}
+  .qr img{width:84px; height:84px; border-radius:10px; background:#fff; padding:6px}
+
+  .group{margin-top:34px}
+  .group h2{
+    font-size:.72rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--fg-muted); margin-bottom:12px;
+  }
+  .links{list-style:none; display:flex; flex-direction:column; gap:13px}
+  .link{
+    display:block; background:var(--card); border:1px solid var(--card-line);
+    border-radius:var(--radius); padding:14px 16px; text-align:center;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+  }
+  .link:hover{transform:translateY(-1px); border-color:var(--gold)}
+  .link:active{transform:scale(.985)}
+  .link b{font-weight:600; font-size:.98rem}
+  .link .sub{display:block; color:var(--fg-muted); font-size:.82rem; margin-top:1px}
+  .link.featured{border-color:var(--gold)}
+  .link.featured .tag{
+    display:inline-block; font-size:.66rem; font-weight:700; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--gold-2); margin-bottom:4px;
+  }
+  @media (prefers-color-scheme: dark){ .link.featured .tag{color:var(--gold)} }
+
+  footer{
+    max-width:480px; width:100%; margin:0 auto; padding:28px 20px 34px;
+    text-align:center; color:var(--fg-muted); font-size:.8rem;
+  }
+  footer a{border-bottom:1px solid transparent}
+  footer a:hover{border-bottom-color:var(--fg-muted)}
+  footer .dot{margin:0 7px}
+
+  a:focus-visible, button:focus-visible, input:focus-visible{
+    outline:2px solid var(--gold-2); outline-offset:2px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important}
+    .cta:active, .link:active{transform:none}
+    .link:hover{transform:none}
+  }
+</style>
+</head>
+<body>
+{%- assign live = site.data.links | where: "visible", true -%}
+<main>
+  <header class="id">
+    <img src="{{ '/assets/icon.png' | relative_url }}" alt="Politiface app icon" width="88" height="88">
+    <h1>Politiface</h1>
+    <p>Civics practice that sticks. Nonpartisan, cited to primary sources, free to start.</p>
+  </header>
+
+  <section class="primary-slot" aria-label="Get the app">
+    {%- assign primary = live | where: "group", "primary" -%}
+    {%- for l in primary -%}
+    <a class="cta store-only" data-id="{{ l.id }}" data-group="primary"
+       href="{{ l.href }}" rel="noopener noreferrer">
+      {{ l.label }}
+      {%- if l.sublabel %}<span class="sub">{{ l.sublabel }}</span>{% endif -%}
+    </a>
+    {%- endfor -%}
+
+    <div class="capture">
+      <p class="lead">Android version in development.
+        <span class="sub">Leave your email and we will tell you the day it launches.</span></p>
+      <form id="android-form" novalidate>
+        <label for="android-email">Email address</label>
+        <input id="android-email" name="email" type="email" autocomplete="email"
+               placeholder="you@example.com" required>
+        <button class="cta" type="submit">Notify me</button>
+      </form>
+      <p class="status" id="android-status" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="qr">
+      <img src="{{ '/assets/qr-appstore.svg' | relative_url }}" alt="QR code linking to Politiface on the App Store" width="84" height="84">
+      <span>On your phone? Scan to open Politiface on the App Store.</span>
+    </div>
+  </section>
+
+  {%- assign groups = "main|Explore,connect|Follow along,institutional|For institutions" | split: "," -%}
+  {%- for g in groups -%}
+    {%- assign parts = g | split: "|" -%}
+    {%- assign gkey = parts[0] -%}
+    {%- assign gname = parts[1] -%}
+    {%- assign glinks = live | where: "group", gkey -%}
+    {%- if glinks.size > 0 -%}
+  <section class="group">
+    <h2>{{ gname }}</h2>
+    <ul class="links">
+      {%- assign spotlight = glinks | where: "featured", true -%}
+      {%- for l in spotlight -%}
+      <li><a class="link featured" data-id="{{ l.id }}" data-group="{{ gkey }}"
+             href="{% if l.href contains '://' or l.href contains 'mailto:' %}{{ l.href }}{% else %}{{ l.href | relative_url }}{% endif %}"
+             rel="noopener noreferrer">
+        <span class="tag">Featured</span><br>
+        <b>{{ l.label }}</b>
+        {%- if l.sublabel %}<span class="sub">{{ l.sublabel }}</span>{% endif -%}
+      </a></li>
+      {%- endfor -%}
+      {%- for l in glinks -%}
+      {%- unless l.featured -%}
+      <li><a class="link" data-id="{{ l.id }}" data-group="{{ gkey }}"
+             href="{% if l.href contains '://' or l.href contains 'mailto:' %}{{ l.href }}{% else %}{{ l.href | relative_url }}{% endif %}"
+             rel="noopener noreferrer">
+        <b>{{ l.label }}</b>
+        {%- if l.sublabel %}<span class="sub">{{ l.sublabel }}</span>{% endif -%}
+      </a></li>
+      {%- endunless -%}
+      {%- endfor -%}
+    </ul>
+  </section>
+    {%- endif -%}
+  {%- endfor -%}
+</main>
+
+<footer>
+  <span>&copy; 2026 Politiface</span><span class="dot">&middot;</span>
+  <a href="{{ '/privacy-policy/' | relative_url }}">Privacy</a><span class="dot">&middot;</span>
+  <a href="{{ '/support/' | relative_url }}">Support</a>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---- Attribution: one shared helper appends UTMs to every
+     outbound http(s) link. utm_source honors an optional ?src=
+     param on this page (default instagram). --------------------- */
+  var src = new URLSearchParams(location.search).get('src') || 'instagram';
+  function withUtm(href, id) {
+    try {
+      var u = new URL(href, location.href);
+      if (u.protocol !== 'http:' && u.protocol !== 'https:') return href;
+      u.searchParams.set('utm_source', src);
+      u.searchParams.set('utm_medium', 'bio');
+      u.searchParams.set('utm_campaign', 'links');
+      u.searchParams.set('utm_content', id);
+      return u.toString();
+    } catch (e) { return href; }
+  }
+
+  /* ---- Analytics: click event per link with id, group, platform.
+     TODO: the site currently ships no analytics at all (see the
+     privacy policy, which advertises that). When a privacy-safe
+     site analytics is chosen, wire track() to it here. ----------- */
+  var platform = document.documentElement.getAttribute('data-platform') || 'unknown';
+  function track(id, group) {
+    var ev = { event: 'link_click', id: id, group: group, platform: platform };
+    if (window.console && console.debug) console.debug('[links]', ev);
+  }
+
+  document.querySelectorAll('a[data-id]').forEach(function (a) {
+    a.setAttribute('href', withUtm(a.getAttribute('href'), a.dataset.id));
+    a.addEventListener('click', function () { track(a.dataset.id, a.dataset.group); });
+  });
+
+  /* ---- Android launch-notify capture. -------------------------- */
+  /* TODO: point this at the Supabase android_waitlist insert (edge
+     function or REST endpoint with the publishable key) once the
+     table ships with the Android release work. Until it is set,
+     submissions show the error path with a mailto fallback so no
+     address is silently dropped. */
+  var WAITLIST_ENDPOINT = '';
+
+  var form = document.getElementById('android-form');
+  var status = document.getElementById('android-status');
+  if (form) {
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = document.getElementById('android-email').value.trim();
+      if (!email || email.indexOf('@') < 1) {
+        status.className = 'status err';
+        status.textContent = 'Enter a valid email address.';
+        return;
+      }
+      status.className = 'status';
+      status.textContent = 'Saving…';
+      var fail = function () {
+        status.className = 'status err';
+        status.innerHTML = 'Something went wrong. Email us at ' +
+          '<a href="mailto:support@politiface.io?subject=Android%20launch%20list">support@politiface.io</a>' +
+          ' and we will add you by hand.';
+      };
+      if (!WAITLIST_ENDPOINT) { fail(); track('android-waitlist-error', 'primary'); return; }
+      fetch(WAITLIST_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, source: src })
+      }).then(function (r) {
+        if (!r.ok) throw new Error(String(r.status));
+        status.className = 'status ok';
+        status.textContent = 'You are on the list. We will email you at launch.';
+        form.reset();
+        track('android-waitlist-signup', 'primary');
+      }).catch(function () { fail(); track('android-waitlist-error', 'primary'); });
+    });
+  }
+})();
+</script>
+</body>
+</html>

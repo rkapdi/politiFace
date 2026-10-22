@@ -1,0 +1,375 @@
+/// Typed models for the parsed `us_civics.yaml` curriculum.
+///
+/// Pure value types — no Flutter / Drift / Riverpod dependencies. Created
+/// once by [CurriculumLoader] and held in memory; mutations to user
+/// progress live in Drift via [ChapterProgressService].
+///
+/// Vocabulary:
+///   - [Season] is the player-facing arc (right now just one — "Civic
+///     Foundations"). Future locales / topics get new seasons.
+///   - [Chapter] is the curated narrative bucket the player walks through
+///     day by day (~6 per season).
+///   - [Branch] is the content-taxonomy bucket that mirrors the map's
+///     existing top-level structure (Foundations, Legislative, Executive,
+///     Judicial, State and Local).
+///   - [ConceptNode] is a map-renderable sub-node inside a branch
+///     (e.g., "The Constitution" inside Foundations).
+///   - [CurriculumItem] is a single atomic testable fact. It belongs to
+///     exactly one [ConceptNode] (for the map) and exactly one [Chapter]
+///     (for the daily round). The chapter/branch axes are independent.
+class Curriculum {
+  Curriculum({
+    required this.version,
+    required this.locale,
+    required this.season,
+    required this.chapters,
+    required this.branches,
+  })  : _itemsById = _indexItems(branches),
+        _branchByItem = _indexBranchByItem(branches),
+        _chapterByItem = _indexChapterByItem(chapters);
+
+  final int version;
+  final String locale;
+  final Season season;
+  final List<Chapter> chapters;
+  final List<Branch> branches;
+
+  /// Flat lookup: curriculum item id → [CurriculumItem]. O(1).
+  final Map<String, CurriculumItem> _itemsById;
+
+  /// Reverse index: curriculum item id → owning [Branch]. O(1).
+  /// Lets us answer "which branches does this chapter touch?" by walking
+  /// the chapter's `itemIds` — drives the Atlas chapter spotlight.
+  final Map<String, Branch> _branchByItem;
+
+  /// Reverse index: curriculum item id → owning [Chapter]. O(1).
+  /// Used by the question picker to figure out which chapter an item belongs
+  /// to (e.g., for cross-chapter FSRS reinforcement weighting).
+  final Map<String, Chapter> _chapterByItem;
+
+  /// All items across all branches as a flat iterable. Order matches branch
+  /// declaration order in the YAML.
+  Iterable<CurriculumItem> get allItems => _itemsById.values;
+
+  /// Total item count — the moat metric. ~80 for US Civics v1.
+  int get itemCount => _itemsById.length;
+
+  CurriculumItem? itemById(String id) => _itemsById[id];
+
+  Chapter? chapterById(String id) {
+    for (final c in chapters) {
+      if (c.id == id) return c;
+    }
+    return null;
+  }
+
+  Chapter? chapterForItem(String itemId) => _chapterByItem[itemId];
+
+  Branch? branchForItem(String itemId) => _branchByItem[itemId];
+
+  /// Set of branch ids the [chapter] touches. Used by the Atlas spotlight
+  /// to highlight which branches are relevant to the current chapter.
+  /// Returns ids in branch-declaration order so callers can render them
+  /// consistently.
+  List<String> branchIdsForChapter(Chapter chapter) {
+    final touched = <String>{};
+    for (final id in chapter.itemIds) {
+      final branch = _branchByItem[id];
+      if (branch != null) touched.add(branch.id);
+    }
+    return [
+      for (final b in branches)
+        if (touched.contains(b.id)) b.id,
+    ];
+  }
+
+  Branch? branchById(String id) {
+    for (final b in branches) {
+      if (b.id == id) return b;
+    }
+    return null;
+  }
+
+  /// Returns the next chapter after [chapterId], or null if it's the last.
+  Chapter? chapterAfter(String chapterId) {
+    final idx = chapters.indexWhere((c) => c.id == chapterId);
+    if (idx < 0 || idx >= chapters.length - 1) return null;
+    return chapters[idx + 1];
+  }
+
+  static Map<String, CurriculumItem> _indexItems(List<Branch> branches) {
+    final map = <String, CurriculumItem>{};
+    for (final branch in branches) {
+      for (final node in branch.conceptNodes) {
+        for (final item in node.items) {
+          map[item.id] = item;
+        }
+      }
+    }
+    return map;
+  }
+
+  static Map<String, Chapter> _indexChapterByItem(List<Chapter> chapters) {
+    final map = <String, Chapter>{};
+    for (final chapter in chapters) {
+      for (final id in chapter.itemIds) {
+        map[id] = chapter;
+      }
+    }
+    return map;
+  }
+
+  static Map<String, Branch> _indexBranchByItem(List<Branch> branches) {
+    final map = <String, Branch>{};
+    for (final branch in branches) {
+      for (final node in branch.conceptNodes) {
+        for (final item in node.items) {
+          map[item.id] = branch;
+        }
+      }
+    }
+    return map;
+  }
+}
+
+/// The player-facing arc. Today there is one season ("Civic Foundations");
+/// future content adds more.
+class Season {
+  const Season({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.totalChapters,
+    required this.estimatedDays,
+  });
+
+  final String id;
+  final String title;
+  final String subtitle;
+  final int totalChapters;
+  final int estimatedDays;
+}
+
+/// A narratively-ordered chapter inside a [Season]. Pulls items from
+/// multiple [Branch]es — chapters narrate a story, branches organize
+/// content.
+class Chapter {
+  const Chapter({
+    required this.id,
+    required this.order,
+    required this.title,
+    required this.subtitle,
+    required this.days,
+    required this.itemIds,
+    this.lessons = const [],
+    this.decks = const [],
+  });
+
+  final String id;
+
+  /// 1-based position in the season's chapter list.
+  final int order;
+  final String title;
+  final String subtitle;
+
+  /// Recommended pace: number of daily rounds to fully traverse this
+  /// chapter's items. Drives the "Day X of Y" home-screen indicator.
+  final int days;
+
+  /// Curriculum item ids this chapter samples from. Each id must resolve
+  /// against [Curriculum.itemById] — [CurriculumLoader] validates this.
+  final List<String> itemIds;
+
+  /// Readable teaching content, the round's briefing phase. Ordered as
+  /// declared in the YAML. A chapter (or a given day) may have none —
+  /// the round then skips straight to cards.
+  final List<Lesson> lessons;
+
+  /// Decks that power this chapter, in display order. May be empty for
+  /// chapters whose deck mapping predates this feature.
+  final List<ChapterDeckRef> decks;
+
+  /// Lessons for a specific 1-based day of this chapter, in declaration
+  /// order.
+  List<Lesson> lessonsForDay(int day) => [
+        for (final l in lessons)
+          if (l.day == day) l,
+      ];
+}
+
+/// A single readable lesson page — the teach step that precedes recall.
+/// Shown in the daily round's briefing phase and re-readable from the
+/// chapter sheet once encountered.
+class Lesson {
+  const Lesson({
+    required this.id,
+    required this.day,
+    required this.title,
+    required this.body,
+    this.relatedCardIds = const [],
+    this.source,
+  });
+
+  final String id;
+
+  /// 1-based day within the owning chapter this lesson briefs.
+  final int day;
+  final String title;
+
+  /// 2–4 sentences of neutral, sourced prose. Folded YAML scalar, trimmed.
+  final String body;
+
+  /// Cards the round should prefer drilling right after this briefing.
+  final List<String> relatedCardIds;
+
+  /// Citation URL (official source) backing the lesson's claims.
+  final String? source;
+}
+
+/// A deck that powers a chapter. Declared explicitly in the curriculum
+/// YAML so the player can see a chapter's constituent decks and their
+/// progress. `id` is the deck's externalId in LocalDecks (YamlSeedService
+/// stores the Drift primary key as 'deck_<externalId>').
+class ChapterDeckRef {
+  const ChapterDeckRef({
+    required this.id,
+    required this.title,
+    this.planned = false,
+  });
+
+  /// Deck externalId, e.g. 'us-concepts-founding'.
+  final String id;
+
+  /// Display title fallback used when the deck is not seeded yet
+  /// (planned decks) or the DB row is missing.
+  final String title;
+
+  /// True when the deck content has not been authored yet. Rendered as
+  /// an "IN PRODUCTION" row; skipped by samplers and progress queries.
+  final bool planned;
+}
+
+/// A top-level taxonomy bucket. Mirrors the map's existing branch structure
+/// (Foundations is the new fifth branch added by Phase 1).
+class Branch {
+  const Branch({
+    required this.id,
+    required this.title,
+    required this.color,
+    required this.conceptNodes,
+    this.description,
+  });
+
+  final String id;
+  final String title;
+
+  /// Editorial-theme palette token. Matches one of:
+  /// `ochre`, `civicNavy`, `actionRed`, `civicGreen`, `civicLight`.
+  final String color;
+  final String? description;
+  final List<ConceptNode> conceptNodes;
+}
+
+/// A map-renderable sub-node inside a [Branch]. Holds a bundle of related
+/// [CurriculumItem]s (typically 3-6) that share a theme.
+class ConceptNode {
+  const ConceptNode({
+    required this.id,
+    required this.title,
+    required this.items,
+  });
+
+  final String id;
+  final String title;
+  final List<CurriculumItem> items;
+}
+
+/// A single atomic testable fact. The unit the question picker samples and
+/// the trivia generator turns into a 4-option MCQ.
+class CurriculumItem {
+  const CurriculumItem({
+    required this.id,
+    required this.prompt,
+    required this.tier,
+    required this.sources,
+    required this.coverage,
+    this.crossLinks = const [],
+    this.cardIds = const [],
+  });
+
+  final String id;
+
+  /// One-line human-readable description of the fact this item teaches.
+  /// Used as the front of the concept flashcard and the basis for the
+  /// trivia question stem.
+  final String prompt;
+
+  /// Priority signal — drives sampling weight and v1 vs. v1.1 inclusion.
+  final CurriculumTier tier;
+
+  /// Which canonical exam sources test this item (USCIS, FCLE, AP, NAEP,
+  /// iCivics). Lets us filter by audience later (e.g., "USCIS-prep mode").
+  final List<CurriculumSource> sources;
+
+  /// Whether the item is already covered by an existing face-card deck or
+  /// needs a brand-new concept flashcard authored. Drives the Phase 0
+  /// content backlog.
+  final ItemCoverage coverage;
+
+  /// Other concept node ids that should surface this item as a "see also".
+  /// Used by the map to draw cross-links between related concepts (e.g.,
+  /// Federalism in Foundations + State-and-Local).
+  final List<String> crossLinks;
+
+  /// Explicit [LocalCard] ids that back this item, in priority order. Lets a
+  /// `face_card` item name the exact card(s) the round should drill instead
+  /// of falling back to a random face. Concept items still resolve by
+  /// id==externalId and usually leave this empty. The content linker returns
+  /// the first active card in this list when the externalId match misses.
+  final List<String> cardIds;
+}
+
+/// Curriculum-source priority tier.
+enum CurriculumTier {
+  /// Appears in 3+ sources. Non-negotiable for v1.
+  core,
+
+  /// Appears in 2 sources. Strong v1 fill, v1.1 floor.
+  standard,
+
+  /// Appears in 1 source. Specialized; deferred unless we target that
+  /// audience explicitly.
+  niceToHave,
+}
+
+/// Which canonical civics curriculum source tests an item. Lets future
+/// modes filter by exam (USCIS-prep, AP-Gov-prep, etc.).
+enum CurriculumSource {
+  /// USCIS 2008 Naturalization Test (100 questions).
+  uscis,
+
+  /// Florida Civic Literacy Exam (FCLE).
+  fcle,
+
+  /// AP US Government and Politics (College Board CED).
+  apGov,
+
+  /// NAEP Civics Framework (Nation's Report Card).
+  naep,
+
+  /// iCivics / representative 8th-grade state standards.
+  iCivics,
+}
+
+/// Whether content for an item already exists or is part of the Phase 0
+/// concept-deck authoring backlog.
+enum ItemCoverage {
+  /// An existing face-card deck already teaches this. No new authoring.
+  faceCard,
+
+  /// Needs a brand-new concept flashcard authored (Phase 0 work).
+  concept,
+
+  /// Partial face-card coverage plus supplementary concept content needed.
+  mixed,
+}

@@ -1,0 +1,111 @@
+# codemagic.yaml
+#
+# Codemagic CI/CD for Politiface. V1 ships iOS-only; Android and Web
+# pipelines will return in V1.1 + when the Drift WASM setup lands.
+#
+# Setup (one-time, in Codemagic dashboard):
+#   1. Connect GitHub repo (rkapdi/politiFace)
+#   2. Add environment variable group "politiface-secrets" with the vars below
+#   3. iOS signing: upload App Store Connect API key + provisioning profile
+#
+# Required secrets:
+#   SENTRY_DSN                      (optional — empty disables crash reports)
+#   SUPABASE_URL                    (optional — empty disables backend/auth/sync)
+#   SUPABASE_ANON_KEY               (optional — public client key; RLS is the guard)
+#   APP_STORE_CONNECT_ISSUER_ID
+#   APP_STORE_CONNECT_KEY_IDENTIFIER
+#   APP_STORE_CONNECT_PRIVATE_KEY
+#   CERTIFICATE_PRIVATE_KEY
+
+workflows:
+
+  # ── iOS: Build + TestFlight ─────────────────────────────────────────────────
+  ios-release:
+    name: iOS Release
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    environment:
+      flutter: 3.22.0
+      xcode: latest
+      cocoapods: default
+      groups:
+        - politiface-secrets
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: io.politiface.politiface
+    scripts:
+      - name: Install Flutter dependencies
+        script: cd app && flutter pub get
+
+      - name: Generate Drift code
+        script: cd app && dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run tests
+        script: cd app && flutter test
+
+      - name: Install pods
+        script: cd app/ios && pod install
+
+      - name: Build iOS release IPA
+        script: |
+          cd app
+          flutter build ipa \
+            --release \
+            --dart-define=SENTRY_DSN="$SENTRY_DSN" \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - app/build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        submit_to_testflight: true
+        beta_groups:
+          - Internal Testers
+      email:
+        recipients:
+          - rissalat@politiface.io
+        notify:
+          success: true
+          failure: true
+
+  # ── PR / feature branch: tests only ─────────────────────────────────────────
+  pr-tests:
+    name: PR Tests
+    max_build_duration: 20
+    instance_type: linux_x2
+    triggering:
+      events:
+        - pull_request
+      branch_patterns:
+        # Run on every PR. (This previously excluded 'main', which for
+        # pull_request events matches the TARGET branch — so the workflow
+        # never ran at all. Push-to-main is covered by ios-release.)
+        - pattern: '*'
+          include: true
+    environment:
+      flutter: 3.22.0
+    scripts:
+      - name: Install dependencies
+        script: cd app && flutter pub get
+
+      - name: Generate Drift code
+        script: cd app && dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        script: cd app && flutter analyze
+
+      - name: Run tests
+        script: cd app && flutter test --reporter expanded

@@ -1,0 +1,108 @@
+# Concept cards for Chapter 3 — Three Branches.
+# Card ids equal curriculum item ids (ContentLinker convention).
+# Prose adapted from content/governments/us/government.yaml descriptions
+# and concepts. Editorial review required before merging changes.
+
+meta:
+  id: us-concepts-branches
+  name: "Three Branches Concepts"
+  tier_order: 0
+
+cards:
+  - id: leg.bicameral
+    type: concept
+    name: "A Bicameral Congress"
+    title: "Legislative branch"
+    body: >
+      Congress has two chambers: the Senate and the House of
+      Representatives. Article I grants Congress all federal legislative
+      power, and both chambers must pass identical legislation before it
+      goes to the President.
+    prompt: "What are the two chambers of Congress, and what must both do before a bill reaches the President?"
+    source: "https://www.congress.gov/about"
+
+  - id: leg.senate-basics
+    type: concept
+    name: "The Senate"
+    title: "Upper chamber"
+    body: >
+      100 senators — two per state regardless of population — serving
+      six-year staggered terms. Senate-specific powers: confirming
+      Presidential appointments, ratifying treaties by a two-thirds
+      majority, and serving as the jury in impeachment trials. The Vice
+      President presides and breaks tie votes.
+    prompt: "How many senators does each state get, how long are their terms, and name one Senate-only power."
+    source: "https://www.senate.gov/about/powers-procedures.htm"
+
+  - id: leg.house-basics
+    type: concept
+    name: "The House of Representatives"
+    title: "Lower chamber"
+    body: >
+      435 representatives apportioned by state population, all elected
+      every two years. House-specific powers: originating all revenue
+      bills, initiating impeachment, and electing the President if no
+      candidate wins an Electoral College majority.
+    prompt: "How are House seats divided among states, and name one House-only power."
+    source: "https://www.house.gov/the-house-explained"
+
+  - id: exec.president-basics
+    type: concept
+    name: "Presidential Powers"
+    title: "Executive branch"
+    body: >
+      The President commands the military, vetoes or signs legislation,
+      issues executive orders, grants pardons for federal crimes,
+      nominates judges and Cabinet members, and conducts foreign policy.
+      The President cannot declare war — that power belongs to Congress.
+    prompt: "Name three formal powers of the President, and one power the President does NOT have."
+    source: "https://constitution.congress.gov/constitution/article-2/"
+
+  - id: exec.vp-succession
+    type: concept
+    name: "Succession and the 25th Amendment"
+    title: "Executive branch"
+    body: >
+      If the President cannot serve, power passes to the Vice President —
+      the 25th Amendment (1967) made this explicit and added procedures
+      for disability and temporary transfers. After the Vice President,
+      the Speaker of the House is next in the statutory line.
+    prompt: "Who is first and second in line if the President cannot serve, and which amendment governs this?"
+    source: "https://constitution.congress.gov/constitution/amendment-25/"
+
+  - id: exec.cabinet
+    type: concept
+    name: "The Cabinet"
+    title: "Executive branch"
+    body: >
+      Fifteen department secretaries who advise the President and lead
+      the major federal agencies. Appointed by the President and
+      confirmed by the Senate. The statutory line of succession to the
+      Presidency runs through the Cabinet in a fixed order.
+    prompt: "Who appoints and who confirms Cabinet secretaries, and how many departments are there?"
+    source: "https://www.whitehouse.gov/administration/cabinet/"
+
+  - id: jud.scotus-basics
+    type: concept
+    name: "The Supreme Court"
+    title: "Judicial branch"
+    body: >
+      The highest federal court and final interpreter of the
+      Constitution: nine justices nominated by the President and
+      confirmed by the Senate. Its power of judicial review — striking
+      down unconstitutional laws and executive actions — was established
+      by Marbury v. Madison (1803), not written in the Constitution.
+    prompt: "How many justices sit on the Supreme Court, and which case established judicial review?"
+    source: "https://www.supremecourt.gov/about/about.aspx"
+
+  - id: jud.lifetime-tenure
+    type: concept
+    name: "Lifetime Tenure"
+    title: "Judicial branch"
+    body: >
+      Federal judges serve during "good behaviour" — in practice, for
+      life or until they retire. The design insulates judges from
+      political pressure: they never face an election and their salary
+      cannot be cut. Removal requires impeachment.
+    prompt: "How long do federal judges serve, and why did the framers design it that way?"
+    source: "https://constitution.congress.gov/constitution/article-3/"

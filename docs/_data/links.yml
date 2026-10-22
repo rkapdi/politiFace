@@ -1,0 +1,86 @@
+# ============================================================
+# Link-in-bio config for /links
+# ============================================================
+# This file IS the page content. Edit it, commit, and GitHub
+# Pages republishes automatically. No code changes needed.
+#
+# Each entry:
+#   id:        stable slug; becomes utm_content and the analytics
+#              event key. Never reuse or rename an id once live.
+#   label:     the button text.
+#   sublabel:  (optional) small second line under the label.
+#   href:      full URL for external links (https://...), or a
+#              site path starting with / for internal pages, or
+#              mailto:someone@politiface.io.
+#   group:     primary | main | connect | institutional
+#   featured:  (optional) true puts it in the spotlight slot at
+#              the top of the MAIN group. Keep exactly one, tied
+#              to the current reel.
+#   visible:   false hides the link without deleting it.
+#
+# Order within this file is the order on the page.
+
+# ---- PRIMARY (the one big button) --------------------------
+- id: download-ios
+  label: Download Politiface
+  sublabel: Free on the App Store
+  href: https://apps.apple.com/us/app/politiface/id6774765582
+  group: primary
+  visible: true
+
+# ---- MAIN --------------------------------------------------
+# TODO: point the featured slot at the link for the current
+# reel, flip visible to true, and update the label.
+- id: featured-reel
+  label: 'Featured: this week''s explainer'
+  sublabel: The topic from the latest reel
+  href: 'TODO'
+  group: main
+  featured: true
+  visible: false
+
+- id: how-it-works
+  label: How Politiface works
+  sublabel: Cited practice, mock exams, readiness by domain
+  href: /
+  group: main
+  visible: true
+
+# TODO: link the latest long-form explainer once one is chosen.
+- id: latest-explainer
+  label: Latest explainer
+  href: 'TODO'
+  group: main
+  visible: false
+
+# ---- CONNECT -----------------------------------------------
+- id: tiktok
+  label: TikTok
+  sublabel: '@playpolitiface'
+  href: https://www.tiktok.com/@playpolitiface
+  group: connect
+  visible: true
+
+- id: instagram
+  label: Instagram
+  sublabel: '@playpolitiface'
+  href: https://www.instagram.com/playpolitiface
+  group: connect
+  visible: true
+
+# ---- INSTITUTIONAL -----------------------------------------
+# TODO: replace with a dedicated educators marketing page when
+# one exists; this currently opens the faculty console.
+- id: educators
+  label: For educators and institutions
+  sublabel: Class tools, cohort insight, faculty review
+  href: /faculty/
+  group: institutional
+  visible: true
+
+- id: contact-press
+  label: Contact and press
+  sublabel: Support, questions, media
+  href: /support/
+  group: institutional
+  visible: true

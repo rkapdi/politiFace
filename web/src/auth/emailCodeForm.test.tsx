@@ -1,0 +1,76 @@
+import { describe, expect, it, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+
+const { signInWithOtp, verifyOtp, logOpsEvent } = vi.hoisted(() => ({
+  signInWithOtp: vi.fn(async () => ({ error: null })),
+  verifyOtp: vi.fn(async () => ({ error: null })),
+  logOpsEvent: vi.fn(),
+}))
+vi.mock('../lib/supabase', () => ({
+  supabase: { auth: { signInWithOtp, verifyOtp } },
+}))
+vi.mock('../lib/opsLog', () => ({ logOpsEvent }))
+
+import { EmailCodeForm } from './EmailCodeForm'
+
+describe('EmailCodeForm', () => {
+  it('sends a code, then verifies it for the same trimmed email', async () => {
+    render(<EmailCodeForm hint="Sign in to join." />)
+    expect(screen.getByText('Sign in to join.')).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText(/email/i), ' maria@students.example.edu ')
+    await userEvent.click(screen.getByRole('button', { name: /send code/i }))
+    expect(signInWithOtp).toHaveBeenCalledWith({ email: 'maria@students.example.edu' })
+    await userEvent.type(await screen.findByLabelText(/^code$/i), '123456')
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    expect(verifyOtp).toHaveBeenCalledWith({
+      email: 'maria@students.example.edu',
+      token: '123456',
+      type: 'email',
+    })
+  })
+
+  it('shows an error when the code does not match', async () => {
+    verifyOtp.mockResolvedValueOnce({ error: { message: 'bad' } } as never)
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.co')
+    await userEvent.click(screen.getByRole('button', { name: /send code/i }))
+    await userEvent.type(await screen.findByLabelText(/^code$/i), '000000')
+    await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/did not match/i)
+  })
+
+  it('shows a rate-limit message, not "bad email", when sending is throttled', async () => {
+    signInWithOtp.mockResolvedValueOnce({
+      error: { message: 'rate limited', status: 429 },
+    } as never)
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.co')
+    await userEvent.click(screen.getByRole('button', { name: /send code/i }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/too many codes/i)
+  })
+
+  it('re-enables the send button if signInWithOtp throws', async () => {
+    signInWithOtp.mockRejectedValueOnce(new Error('boom'))
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'a@b.co')
+    const button = screen.getByRole('button', { name: /send code/i })
+    await userEvent.click(button)
+    expect(await screen.findByRole('alert')).toHaveTextContent(/could not send/i)
+    expect(button).not.toBeDisabled()
+  })
+
+  it('reports a failed code send to the problem log with the typed email', async () => {
+    signInWithOtp.mockResolvedValueOnce({
+      error: { status: 429, code: 'over_email_send_rate_limit', message: 'x' },
+    } as never)
+    render(<EmailCodeForm />)
+    await userEvent.type(screen.getByLabelText(/email/i), 'Maria@Students.Example.edu')
+    await userEvent.click(screen.getByRole('button', { name: /send code/i }))
+    expect(logOpsEvent).toHaveBeenCalledWith('signin_send_failed', {
+      code: 'over_email_send_rate_limit',
+      detail: { status: 429 },
+      email: 'Maria@Students.Example.edu',
+    })
+  })
+})

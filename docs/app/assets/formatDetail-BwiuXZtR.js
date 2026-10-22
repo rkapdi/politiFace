@@ -1,0 +1,1 @@
+function e(e){if(typeof e!=`object`||!e||Array.isArray(e))return null;let t=Object.entries(e);return t.length===0?null:t.map(([e,t])=>`${e}: ${String(t).slice(0,120)}`).join(` · `)}export{e as t};

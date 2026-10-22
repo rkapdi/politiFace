@@ -1,0 +1,119 @@
+# Civic vocabulary for the Atlas reference layer.
+#
+# Rules: definitions are ORIGINAL phrasing (never copied from the cited
+# page); every term carries a working primary public source verified at
+# authoring time. Terms are evergreen and nonpartisan. The FCLE domain tag
+# is optional and links a term into exam-prep surfaces later.
+#
+# All citation hosts verified reachable 2026-07-04. senate.gov and
+# congress.gov glossaries block automated verification; prefer
+# archives.gov, uscourts.gov, and federalregister.gov citations until the
+# pipeline can verify those hosts.
+
+terms:
+  - id: habeas-corpus
+    term: Habeas corpus
+    definition: >
+      A court order requiring that a person held in custody be brought
+      before a judge so the government must justify the detention. The
+      Constitution forbids suspending it except in rebellion or invasion.
+    citation: https://www.uscourts.gov/glossary
+    domain: us_constitution
+
+  - id: due-process
+    term: Due process
+    definition: >
+      The constitutional guarantee, in the Fifth and Fourteenth Amendments,
+      that the government must follow fair procedures and respect a
+      person's legal rights before taking away life, liberty, or property.
+    citation: https://www.uscourts.gov/glossary
+    domain: us_constitution
+
+  - id: jurisdiction
+    term: Jurisdiction
+    definition: >
+      A court's legal authority to hear and decide a case. Jurisdiction can
+      depend on geography, subject matter, or the parties involved.
+    citation: https://www.uscourts.gov/glossary
+    domain: landmark_impact
+
+  - id: precedent
+    term: Precedent
+    definition: >
+      A prior court decision that guides how judges decide later cases
+      presenting similar facts or legal questions.
+    citation: https://www.uscourts.gov/glossary
+    domain: landmark_impact
+
+  - id: judicial-review
+    term: Judicial review
+    definition: >
+      The power of courts to decide whether laws and government actions
+      comply with the Constitution, established for the federal courts in
+      Marbury v. Madison (1803).
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    domain: landmark_impact
+
+  - id: executive-order
+    term: Executive order
+    definition: >
+      A signed, published directive from the President that manages how the
+      executive branch operates. Executive orders carry the force of law
+      within the executive branch but cannot override statutes, and they
+      are numbered and published in the Federal Register.
+    citation: https://www.federalregister.gov/presidential-documents/executive-orders
+    domain: american_democracy
+
+  - id: veto
+    term: Veto
+    definition: >
+      The President's constitutional power to refuse to sign a bill passed
+      by Congress, sending it back with objections. Congress can override a
+      veto with a two-thirds vote in both chambers (Article I, Section 7).
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    domain: american_democracy
+
+  - id: separation-of-powers
+    term: Separation of powers
+    definition: >
+      The constitutional design that divides federal authority among a
+      legislative branch that makes laws, an executive branch that carries
+      them out, and a judicial branch that interprets them.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    domain: american_democracy
+
+  - id: ratification
+    term: Ratification
+    definition: >
+      Formal approval that gives a document legal force. The Constitution
+      took effect when nine states ratified it (Article VII), and
+      amendments require ratification by three-fourths of the states.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    domain: founding_documents
+
+  - id: impeachment
+    term: Impeachment
+    definition: >
+      The House of Representatives' power to formally charge a federal
+      officer with misconduct. The Senate then tries the case; conviction
+      and removal require a two-thirds Senate vote.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    domain: us_constitution
+
+  - id: bill-of-rights
+    term: Bill of Rights
+    definition: >
+      The first ten amendments to the Constitution, ratified in 1791,
+      protecting rights such as speech, press, religion, assembly, and due
+      process against government intrusion.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    domain: founding_documents
+
+  - id: unalienable-rights
+    term: Unalienable rights
+    definition: >
+      Rights the Declaration of Independence describes as belonging to
+      every person and not grantable or removable by government, naming
+      life, liberty, and the pursuit of happiness among them.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    domain: founding_documents
