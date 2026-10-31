@@ -1,5 +1,5 @@
 // Flood prevention: cards in unsubscribed decks stay out of every global
-// pool (daily session sampler, Endless/Trivia/round fallback face pool,
+// pool (daily session sampler, Endless/round fallback face pool,
 // brain-strength denominator) while deck-scoped study and explicit
 // card-id loads stay unfiltered. Subscribing flips the same cards back in
 // with zero state bookkeeping.
@@ -147,7 +147,7 @@ void main() {
   });
 
   test(
-      'face-card pool (Endless, Trivia, round fallback) excludes unsubscribed '
+      'face-card pool (Endless, round fallback) excludes unsubscribed '
       'decks and includes them after subscribe', () async {
     var pool = await db.cardsDao.subscribedActiveFaceCards();
     expect(pool.map((c) => c.id).toSet(), {'core-new', 'core-due'});

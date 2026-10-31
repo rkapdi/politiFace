@@ -243,25 +243,4 @@ void main() {
     expect(result.cards.length, 5);
     expect(result.cards.every((c) => c.id.startsWith('pool_card_')), isTrue);
   });
-
-  test('cards vs trivia sample for same date pull different subsets', () async {
-    // Big pool so the deterministic shuffles for cards/trivia produce
-    // distinguishable picks.
-    await seedDeckWithCards(20);
-    final cards = await sampler.sampleCards(
-      chapter: chapter,
-      count: 5,
-      dateIso: '2026-05-26',
-    );
-    final trivia = await sampler.sampleTrivia(
-      chapter: chapter,
-      count: 10,
-      dateIso: '2026-05-26',
-    );
-    final cardIds = cards.cards.map((c) => c.id).toSet();
-    final triviaIds = trivia.cards.map((c) => c.id).toSet();
-    // Overlap is fine, but identical sets would mean the salt isn't
-    // working.
-    expect(cardIds == triviaIds, isFalse);
-  });
 }

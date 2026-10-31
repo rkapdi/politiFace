@@ -1,6 +1,4 @@
 import '../../curriculum/domain/curriculum.dart';
-import '../../trivia/domain/trivia_question.dart';
-import '../../trivia/domain/trivia_scoring.dart';
 
 /// The phases a daily round walks through, in order.
 enum RoundPhase {
@@ -11,10 +9,7 @@ enum RoundPhase {
   /// 5 flashcards drawn from the current chapter. Grade each → advance.
   cards,
 
-  /// 10 confidence-scored trivia questions drawn from the current chapter.
-  trivia,
-
-  /// Archetype + score reveal screen with share card.
+  /// Day-complete summary. Completing it advances the chapter day.
   reveal,
 
   /// Round persisted, chapter day advanced. Terminal.
@@ -28,8 +23,6 @@ extension RoundPhaseSerialization on RoundPhase {
         return 'briefing';
       case RoundPhase.cards:
         return 'cards';
-      case RoundPhase.trivia:
-        return 'trivia';
       case RoundPhase.reveal:
         return 'reveal';
       case RoundPhase.done:
@@ -43,8 +36,10 @@ extension RoundPhaseSerialization on RoundPhase {
         return RoundPhase.briefing;
       case 'cards':
         return RoundPhase.cards;
+      // Rounds saved mid-quiz by older builds: the cards are already
+      // graded, so they resume on the day-complete screen.
       case 'trivia':
-        return RoundPhase.trivia;
+        return RoundPhase.reveal;
       case 'reveal':
         return RoundPhase.reveal;
       case 'done':
@@ -119,26 +114,6 @@ class RoundCard {
       );
 }
 
-/// One trivia MCQ inside the trivia phase. The question + answer match
-/// the existing `TriviaQuestion` + `TriviaAnswer` shape so the existing
-/// trivia UI widgets can render this without changes.
-class RoundTrivia {
-  const RoundTrivia({
-    required this.question,
-    this.answer,
-  });
-
-  final TriviaQuestion question;
-
-  /// Set once the user picks an option + confidence; null while pending.
-  final TriviaAnswer? answer;
-
-  RoundTrivia copyWith({TriviaAnswer? answer}) =>
-      RoundTrivia(question: question, answer: answer ?? this.answer);
-
-  bool get isAnswered => answer != null;
-}
-
 /// Immutable snapshot of a single day's round. Held by
 /// `DailyRoundController`; replaced wholesale on every state transition.
 class DailyRoundState {
@@ -151,10 +126,8 @@ class DailyRoundState {
     required this.daysInChapter,
     required this.phase,
     required this.cards,
-    required this.trivia,
     this.lessons = const [],
     this.nextChapterTitle,
-    this.result,
   });
 
   final String dateIso;
@@ -171,9 +144,6 @@ class DailyRoundState {
   /// Phase 0 authoring backlog).
   final List<RoundCard> cards;
 
-  /// Always 10 entries (or fewer; same reason).
-  final List<RoundTrivia> trivia;
-
   /// Today's briefing lessons (chapter day scoped). Re-derived from the
   /// curriculum on resume — not persisted — so content edits propagate.
   final List<Lesson> lessons;
@@ -183,17 +153,12 @@ class DailyRoundState {
   /// not persisted.
   final String? nextChapterTitle;
 
-  /// Computed when the round enters [RoundPhase.reveal]. The
-  /// existing trivia archetype scoring lives in `trivia_scoring.dart`.
-  final TriviaResult? result;
-
   /// True when today's round is the last day of its chapter; completing it
   /// marks the chapter complete and unlocks the next one.
   bool get isFinalDay => dayInChapter >= daysInChapter;
 
   bool get isBriefingPhase => phase == RoundPhase.briefing;
   bool get isCardsPhase => phase == RoundPhase.cards;
-  bool get isTriviaPhase => phase == RoundPhase.trivia;
   bool get isRevealPhase => phase == RoundPhase.reveal;
   bool get isDone => phase == RoundPhase.done;
 
@@ -205,36 +170,9 @@ class DailyRoundState {
     return null;
   }
 
-  /// Index of the next trivia to answer, or null if all are answered.
-  int? get nextUnansweredTrivia {
-    for (var i = 0; i < trivia.length; i++) {
-      if (trivia[i].answer == null) return i;
-    }
-    return null;
-  }
-
-  /// Trailing run of consecutive correct trivia answers. Drives the streak
-  /// chip in the trivia phase — borrows the visual vocabulary of Endless's
-  /// score bar so the game-feel reads the same in both modes.
-  int get currentCorrectStreak {
-    var streak = 0;
-    for (final t in trivia) {
-      final a = t.answer;
-      if (a == null) break;
-      if (a.isCorrect) {
-        streak++;
-      } else {
-        streak = 0;
-      }
-    }
-    return streak;
-  }
-
   DailyRoundState copyWith({
     RoundPhase? phase,
     List<RoundCard>? cards,
-    List<RoundTrivia>? trivia,
-    TriviaResult? result,
   }) =>
       DailyRoundState(
         dateIso: dateIso,
@@ -245,10 +183,8 @@ class DailyRoundState {
         daysInChapter: daysInChapter,
         phase: phase ?? this.phase,
         cards: cards ?? this.cards,
-        trivia: trivia ?? this.trivia,
         lessons: lessons,
         nextChapterTitle: nextChapterTitle,
-        result: result ?? this.result,
       );
 }
 

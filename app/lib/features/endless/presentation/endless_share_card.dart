@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../app/editorial_theme.dart';
 
 /// Off-screen 360x640 logical-pt canvas captured to PNG (1080x1920 at
-/// pixelRatio 3.0) for the Endless share artifact. Mirrors the shape of
-/// [TriviaShareCard] so the two share cards feel like siblings — but
-/// surfaces streak + correct/total since Endless has no archetype.
+/// pixelRatio 3.0) for the Endless share artifact. Surfaces streak +
+/// correct/total.
 class EndlessShareCard extends StatelessWidget {
   const EndlessShareCard({
     required this.currentStreak,

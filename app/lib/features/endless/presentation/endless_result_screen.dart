@@ -9,12 +9,12 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../shared/widgets/feedback_motion.dart';
-import '../../trivia/presentation/share_card_renderer.dart';
+import '../../shared/widgets/share_card_renderer.dart';
 import '../application/endless_controller.dart';
 import 'endless_share_card.dart';
 
-/// Post-run summary for an ended Endless session. Mirrors the structure of
-/// [TriviaResultScreen]: hero stats, share button, review CTA, dismiss.
+/// Post-run summary for an ended Endless session: hero stats, share button,
+/// review CTA, dismiss.
 class EndlessResultScreen extends ConsumerStatefulWidget {
   const EndlessResultScreen({super.key});
 

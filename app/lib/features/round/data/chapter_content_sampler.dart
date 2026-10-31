@@ -4,7 +4,7 @@ import '../../../core/database/drift/app_database.dart';
 import '../../curriculum/data/content_linker.dart';
 import '../../curriculum/domain/curriculum.dart';
 
-/// Samples flashcards + trivia source-cards from a [Chapter]'s item pool,
+/// Samples flashcards from a [Chapter]'s item pool,
 /// resolving curriculum items to real database cards via [ContentLinker].
 ///
 /// Phase 2 reality: most curriculum items resolve to null today because
@@ -18,8 +18,7 @@ import '../../curriculum/domain/curriculum.dart';
 ///
 /// Sampling order today is deterministic-by-date — same date produces the
 /// same sample, so backgrounding/reopening shows the same round. FSRS-due
-/// bias (cards) and coverage bias (trivia) will land in a future patch
-/// once concept-deck resolution is real.
+/// bias will land in a future patch once concept-deck resolution is real.
 class ChapterContentSampler {
   ChapterContentSampler(this._db, this._linker);
 
@@ -48,30 +47,6 @@ class ChapterContentSampler {
         preferItemIds: preferItemIds,
       );
 
-  /// Samples [count] cards to seed trivia questions from. Same shape as
-  /// [sampleCards] but with a different deterministic seed so a single
-  /// day's cards-phase and trivia-phase pull different subsets of the
-  /// same chapter (rather than asking about the same card twice).
-  Future<SampledContent> sampleTrivia({
-    required Chapter chapter,
-    required int count,
-    required String dateIso,
-    Curriculum? curriculum,
-    bool allowFallback = true,
-  }) async =>
-      _sample(
-        chapter: chapter,
-        count: count,
-        dateIso: dateIso,
-        saltSuffix: 'trivia',
-        curriculum: curriculum,
-        allowFallback: allowFallback,
-        // Trivia is a who-is-this photo quiz; a concept card has no face
-        // and renders as an unanswerable question. Faces only, everywhere
-        // this sample draws from.
-        faceOnly: true,
-      );
-
   Future<SampledContent> _sample({
     required Chapter chapter,
     required int count,
@@ -80,9 +55,7 @@ class ChapterContentSampler {
     required bool allowFallback,
     Curriculum? curriculum,
     List<String> preferItemIds = const [],
-    bool faceOnly = false,
   }) async {
-    bool eligible(LocalCard c) => !faceOnly || c.cardType == 'face';
     final seed = _seedFor(dateIso, chapter.id, saltSuffix);
     final rng = Random(seed);
 
@@ -95,7 +68,7 @@ class ChapterContentSampler {
       if (picked.length >= count) break;
       if (!preferred.add(itemId)) continue;
       final card = await _resolveItemId(itemId, curriculum);
-      if (card != null && eligible(card)) {
+      if (card != null) {
         picked.add(_ResolvedItem(itemId: itemId, card: card));
       }
     }
@@ -107,9 +80,9 @@ class ChapterContentSampler {
     for (final itemId in chapter.itemIds) {
       if (preferred.contains(itemId)) continue;
       final card = await _resolveItemId(itemId, curriculum);
-      if (card != null && eligible(card)) {
+      if (card != null) {
         resolved.add(_ResolvedItem(itemId: itemId, card: card));
-      } else if (card == null) {
+      } else {
         missingItemIds.add(itemId);
       }
     }
@@ -133,7 +106,7 @@ class ChapterContentSampler {
         final deckCards = await _db.cardsDao.cardsByDeckId(deck.id);
         final candidates = deckCards
             .where(
-              (c) => c.isActive && eligible(c) && !usedCardIds.contains(c.id),
+              (c) => c.isActive && !usedCardIds.contains(c.id),
             )
             .toList()
           ..shuffle(rng);

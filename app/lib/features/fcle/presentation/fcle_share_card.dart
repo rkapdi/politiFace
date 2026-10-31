@@ -2,7 +2,7 @@
 //
 // The score-challenge share artifact: "I got X of 80. Could you pass?"
 // Off-screen 360x640 logical-pt canvas captured to PNG (1080x1920 at
-// pixelRatio 3.0), sibling to TriviaShareCard and EndlessShareCard.
+// pixelRatio 3.0), sibling to EndlessShareCard.
 // Positioning holds even here: a mock is practice, never the official
 // exam, so the card says Mock FCLE and challenges, it does not certify.
 

@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/app/providers.dart';
 import 'package:politiface/core/database/drift/app_database.dart';
 import 'package:politiface/features/round/domain/round_state.dart';
-import 'package:politiface/features/trivia/domain/trivia_question.dart';
 
 void main() {
   setUpAll(TestWidgetsFlutterBinding.ensureInitialized);
@@ -120,10 +119,8 @@ void main() {
     final state = await buildPastBriefing(container);
     expect(state.phase, RoundPhase.cards);
     expect(state.cards.length, 5);
-    expect(state.trivia.length, 10);
     expect(state.chapterId, isNotEmpty);
     expect(state.dayInChapter, 1);
-    expect(state.result, isNull);
   });
 
   test('build resumes a persisted round mid-cards-phase', () async {
@@ -151,37 +148,44 @@ void main() {
     expect(hydrated.cards[2].grade, isNull);
   });
 
-  test('grading the last card flips to trivia phase', () async {
+  test('grading the last card flips to reveal phase', () async {
     await seedDeck(20);
     final notifier = container.read(dailyRoundControllerProvider.notifier);
     final initial = await buildPastBriefing(container);
 
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
-    }
-    final after = container.read(dailyRoundControllerProvider).value!;
-    expect(after.phase, RoundPhase.trivia);
-  });
-
-  test('answering the last trivia flips to reveal phase with a result',
-      () async {
-    await seedDeck(20);
-    final notifier = container.read(dailyRoundControllerProvider.notifier);
-    final initial = await buildPastBriefing(container);
-
-    // Burn through the cards phase to reach trivia.
-    for (var i = 0; i < initial.cards.length; i++) {
-      await notifier.gradeCard(i, 2);
-    }
-    // Answer all trivia (always pick option 0 with guess confidence).
-    final mid = container.read(dailyRoundControllerProvider).value!;
-    for (var i = 0; i < mid.trivia.length; i++) {
-      await notifier.answerTrivia(i, 0, TriviaConfidence.guess);
     }
     final after = container.read(dailyRoundControllerProvider).value!;
     expect(after.phase, RoundPhase.reveal);
-    expect(after.result, isNotNull);
-    expect(after.result!.totalQuestions, mid.trivia.length);
+  });
+
+  test('a round saved mid-trivia by an older build resumes on reveal '
+      'and can still complete', () async {
+    await seedDeck(20);
+    final notifier = container.read(dailyRoundControllerProvider.notifier);
+    final initial = await buildPastBriefing(container);
+    for (var i = 0; i < initial.cards.length; i++) {
+      await notifier.gradeCard(i, 2);
+    }
+    await db.update(db.dailyRounds).write(
+      const DailyRoundsCompanion(phase: Value('trivia')),
+    );
+
+    final container2 = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+      ],
+    );
+    addTearDown(container2.dispose);
+    final hydrated = await container2.read(dailyRoundControllerProvider.future);
+    expect(hydrated.phase, RoundPhase.reveal);
+
+    await container2.read(dailyRoundControllerProvider.notifier).completeRound();
+    expect(
+      container2.read(dailyRoundControllerProvider).value!.phase,
+      RoundPhase.done,
+    );
   });
 
   test('completeRound advances phase to done + advances chapter day', () async {
@@ -191,10 +195,6 @@ void main() {
 
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
-    }
-    final mid = container.read(dailyRoundControllerProvider).value!;
-    for (var i = 0; i < mid.trivia.length; i++) {
-      await notifier.answerTrivia(i, 0, TriviaConfidence.guess);
     }
     await notifier.completeRound();
     final after = container.read(dailyRoundControllerProvider).value!;
@@ -216,7 +216,7 @@ void main() {
     for (var i = 0; i < initial.cards.length; i++) {
       await notifier.gradeCard(i, 2);
     }
-    // Now in trivia phase. Grading again should be ignored.
+    // Now in reveal phase. Grading again should be ignored.
     await notifier.gradeCard(0, 0);
     final after = container.read(dailyRoundControllerProvider).value!;
     expect(
@@ -224,17 +224,6 @@ void main() {
       2,
       reason: 'gradeCard should not overwrite once past cards phase',
     );
-  });
-
-  test('answerTrivia is no-op until cards phase completes', () async {
-    await seedDeck(20);
-    final notifier = container.read(dailyRoundControllerProvider.notifier);
-    await buildPastBriefing(container);
-
-    await notifier.answerTrivia(0, 1, TriviaConfidence.certain);
-    final after = container.read(dailyRoundControllerProvider).value!;
-    expect(after.trivia[0].answer, isNull);
-    expect(after.phase, RoundPhase.cards);
   });
 
   test('completeRound throws when called before reveal phase', () async {
@@ -309,7 +298,6 @@ void main() {
           daysInChapter: 3,
           phase: RoundPhase.cards,
           cards: const [],
-          trivia: const [],
         );
     expect(stateAtDay(2).isFinalDay, isFalse);
     expect(stateAtDay(3).isFinalDay, isTrue);

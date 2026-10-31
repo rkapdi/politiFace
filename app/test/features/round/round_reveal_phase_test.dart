@@ -12,9 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:politiface/features/round/domain/round_state.dart';
 import 'package:politiface/features/round/presentation/round_reveal_phase.dart';
-import 'package:politiface/features/trivia/domain/trivia_scoring.dart';
 
-DailyRoundState _finalDayState() => DailyRoundState(
+DailyRoundState _finalDayState() => const DailyRoundState(
       dateIso: '2026-07-12',
       chapterId: 'ch1',
       chapterTitle: 'The Executive',
@@ -22,17 +21,11 @@ DailyRoundState _finalDayState() => DailyRoundState(
       dayInChapter: 3,
       daysInChapter: 3,
       phase: RoundPhase.reveal,
-      cards: const [],
-      trivia: const [],
+      cards: [
+        RoundCard(cardId: 'a', prompt: 'A', answer: 'a', grade: 2),
+        RoundCard(cardId: 'b', prompt: 'B', answer: 'b', grade: 3),
+      ],
       nextChapterTitle: 'The Legislature',
-      result: TriviaResult(
-        totalScore: 120,
-        correctCount: 9,
-        totalQuestions: 10,
-        averageConfidence: 2.4,
-        archetype: TriviaArchetype.civicScholar,
-        gridEmojis: [...List.filled(9, '🟩'), '🟨'],
-      ),
     );
 
 Widget _app(DailyRoundState state) {
@@ -75,6 +68,7 @@ void main() {
     // No RenderFlex overflow (would surface as a FlutterError caught by
     // the test binding and fail the test via takeException below).
     expect(tester.takeException(), isNull);
+    expect(find.text('2 cards reviewed'), findsOneWidget);
 
     final bannerFinder = find.text('CHAPTER COMPLETE');
     expect(bannerFinder, findsOneWidget);

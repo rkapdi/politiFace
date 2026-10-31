@@ -17,7 +17,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../core/audio/sound_service.dart';
 import '../../shared/widgets/feedback_motion.dart';
-import '../../trivia/presentation/share_card_renderer.dart';
+import '../../shared/widgets/share_card_renderer.dart';
 import '../domain/mock_engine.dart';
 import 'fcle_share_card.dart';
 
