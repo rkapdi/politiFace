@@ -84,7 +84,7 @@ class LocalDecks extends Table {
   IntColumn get cardCount => integer().withDefault(const Constant(0))();
   IntColumn get updatedAt => integer()(); // Unix timestamp for watermark sync
   // Whether this deck's cards enter the global rotation (daily session,
-  // Endless, Trivia, round fallback). Defaults true so curated decks keep
+  // Endless, round fallback). Defaults true so curated decks keep
   // current behavior; delegation decks are seeded unsubscribed (opt-in).
   BoolColumn get isSubscribed => boolean().withDefault(const Constant(true))();
   // 'curated' (bundled YAML decks) or 'delegation' (in-app generated state
@@ -108,7 +108,7 @@ class LocalCards extends Table {
   TextColumn get oneLiner => text().nullable()();
   TextColumn get sourceUrl => text()();
   // Wikidata P21 sex/gender: 'male', 'female', 'nonbinary', or null. Drives
-  // gender-aware distractor selection in TriviaGenerator + EndlessEngine so
+  // gender-aware distractor selection in EndlessEngine so
   // "identify the male senator" doesn't get women as wrong-option foils.
   TextColumn get gender => text().nullable()();
   // 'face' (politician recognition) or 'concept' (civics fact). Concept
@@ -238,8 +238,11 @@ class DailyRounds extends Table {
   TextColumn get chapterId => text()();
   IntColumn get dayInChapter => integer()();
   TextColumn get cardIdsJson => text().withDefault(const Constant('[]'))();
+  // Unused since the round's trivia phase was removed; kept so existing
+  // databases need no migration.
   TextColumn get triviaJson => text().withDefault(const Constant('[]'))();
   TextColumn get gradesJson => text().withDefault(const Constant('[]'))();
+  // Unused for the same reason as triviaJson.
   TextColumn get answersJson => text().withDefault(const Constant('[]'))();
   TextColumn get phase => text().withDefault(const Constant('cards'))();
   IntColumn get startedAt => integer()(); // Unix timestamp
@@ -251,14 +254,15 @@ class DailyRounds extends Table {
 }
 
 // ── Completed runs (cross-mode history log) ──────────────────────────────────
-// One row per finished trivia run, daily round, or ended endless session.
+// One row per finished daily round or ended endless session. Older databases
+// may also hold rows from the removed trivia mode.
 // Powers the Memory tab's history view + per-mode review screens. Payload
 // is opaque JSON keyed by mode — review screens deserialize on read.
 @DataClassName('CompletedRunEntry')
 class CompletedRuns extends Table {
   TextColumn get id => text()();
   TextColumn get userId => text().withDefault(const Constant('local-user'))();
-  TextColumn get mode => text()(); // 'trivia' | 'round' | 'endless'
+  TextColumn get mode => text()(); // 'round' | 'endless' ('trivia' on old rows)
   IntColumn get completedAt => integer()(); // Unix seconds
   IntColumn get durationMs => integer().nullable()();
   IntColumn get score => integer().nullable()();

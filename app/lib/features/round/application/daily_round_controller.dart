@@ -13,18 +13,15 @@ import '../../curriculum/domain/curriculum.dart';
 import '../../notifications/data/chapter_ready_service.dart';
 import '../../session/data/card_review_repository.dart';
 import '../../session/domain/fsrs_algorithm.dart';
-import '../../trivia/data/trivia_generator.dart';
-import '../../trivia/domain/trivia_question.dart';
-import '../../trivia/domain/trivia_scoring.dart';
 import '../data/chapter_content_sampler.dart';
 import '../domain/round_state.dart';
 
-/// Orchestrates one daily round: cards → trivia → reveal → done.
+/// Orchestrates one daily round: briefing → cards → reveal → done.
 ///
 /// Phase 2 scope (NO UI YET):
 ///   - Loads today's round (resume) or creates a new one
-///   - Samples 5 cards + 10 trivia questions from the current chapter
-///   - Tracks per-card grades + per-trivia answers in memory + persists
+///   - Samples 5 cards from the current chapter
+///   - Tracks per-card grades in memory + persists
 ///     after every state change so backgrounding is safe
 ///   - Calls `ChapterProgressService.recordRoundCompletion` on completion
 ///   - Calls `ProfileService.recordReview` per graded card so XP + streak
@@ -37,7 +34,6 @@ import '../domain/round_state.dart';
 class DailyRoundController extends AsyncNotifier<DailyRoundState> {
   static const _userId = ChapterProgressService.defaultUserId;
   static const int cardsPerRound = 5;
-  static const int triviaPerRound = 10;
 
   ChapterProgressService get _progressService =>
       ref.read(chapterProgressServiceProvider);
@@ -85,14 +81,8 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         for (final l in lessons) ...l.relatedCardIds,
       ],
     );
-    final triviaSample = await _sampler.sampleTrivia(
-      chapter: chapter,
-      count: triviaPerRound,
-      dateIso: dateIso,
-      curriculum: curriculum,
-    );
 
-    if (cardSample.isEmpty && triviaSample.isEmpty) {
+    if (cardSample.isEmpty) {
       throw const _NoContent();
     }
 
@@ -124,10 +114,6 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         );
       }
     }
-    final triviaQuestions = const TriviaGenerator()
-        .generate(date: DateTime.now(), cards: triviaSample.cards);
-    final trivia =
-        triviaQuestions.map((q) => RoundTrivia(question: q)).toList();
 
     final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
     final initial = DailyRoundState(
@@ -141,7 +127,6 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       // straight to cards (content not authored yet — back-compat).
       phase: lessons.isEmpty ? RoundPhase.cards : RoundPhase.briefing,
       cards: cards,
-      trivia: trivia,
       lessons: lessons,
       nextChapterTitle: curriculum.chapterAfter(chapter.id)?.title,
     );
@@ -167,7 +152,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
   /// Grade the card at [index] with [grade] (0..3). Routes the grade
   /// through [CardReviewRepository.recordGrade] so the existing FSRS
   /// pipeline + profile XP/streak update — same path the free-explore
-  /// session uses. Advances to the trivia phase when the last card is
+  /// session uses. Advances to the reveal phase when the last card is
   /// graded.
   /// Indices with a grade in flight; the graded-check alone reads state
   /// captured before the await, so a double-tap could record twice.
@@ -203,47 +188,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
     var nextState = fresh.copyWith(cards: updatedCards);
     final allGraded = updatedCards.every((c) => c.grade != null);
     if (allGraded) {
-      // Skip directly to reveal if there's no trivia (sparse chapter
-      // content). Otherwise move to the trivia phase.
-      nextState = nextState.copyWith(
-        phase: fresh.trivia.isEmpty ? RoundPhase.reveal : RoundPhase.trivia,
-      );
-      if (fresh.trivia.isEmpty) {
-        nextState = nextState.copyWith(result: _emptyResult());
-      }
-    }
-    state = AsyncData(nextState);
-    await _persist(nextState);
-  }
-
-  /// Answer the trivia question at [index]. Advances to reveal phase when
-  /// the last question is answered.
-  Future<void> answerTrivia(
-    int index,
-    int optionIdx,
-    TriviaConfidence confidence,
-  ) async {
-    final s = state.value;
-    if (s == null || s.phase != RoundPhase.trivia) return;
-    if (index < 0 || index >= s.trivia.length) return;
-    if (s.trivia[index].answer != null) return;
-
-    final answer = TriviaAnswer(
-      question: s.trivia[index].question,
-      answerIndex: optionIdx,
-      confidence: confidence,
-    );
-    final updatedTrivia = [...s.trivia];
-    updatedTrivia[index] = updatedTrivia[index].copyWith(answer: answer);
-
-    var nextState = s.copyWith(trivia: updatedTrivia);
-    final allAnswered = updatedTrivia.every((t) => t.answer != null);
-    if (allAnswered) {
-      final answers = updatedTrivia.map((t) => t.answer!).toList();
-      nextState = nextState.copyWith(
-        phase: RoundPhase.reveal,
-        result: summarize(answers),
-      );
+      nextState = nextState.copyWith(phase: RoundPhase.reveal);
     }
     state = AsyncData(nextState);
     await _persist(nextState);
@@ -310,9 +255,6 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
     required int completedAt,
   }) async {
     try {
-      final result = s.result;
-      final correct = result?.correctCount;
-      final total = result?.totalQuestions;
       // Salt the id so re-completing the same chapter on the same day (rare
       // but possible — backgrounded, reloaded, replayed) inserts a fresh
       // history row instead of upserting over the original.
@@ -322,9 +264,6 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
           id: 'round_${s.dateIso}_${s.chapterId}_$salt',
           mode: 'round',
           completedAt: completedAt,
-          score: Value(result?.totalScore),
-          correctCount: Value(correct),
-          totalCount: Value(total),
           summary: Value(s.chapterTitle),
           payload: Value(
             jsonEncode({
@@ -335,8 +274,6 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
               'daysInChapter': s.daysInChapter,
               'cards': _serializeCards(s.cards),
               'grades': s.cards.map((c) => c.grade).toList(),
-              'trivia': _serializeTrivia(s.trivia),
-              'answers': _serializeAnswers(s.trivia),
             }),
           ),
         ),
@@ -368,9 +305,7 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         chapterId: Value(s.chapterId),
         dayInChapter: Value(s.dayInChapter),
         cardIdsJson: Value(jsonEncode(_serializeCards(s.cards))),
-        triviaJson: Value(jsonEncode(_serializeTrivia(s.trivia))),
         gradesJson: Value(jsonEncode(s.cards.map((c) => c.grade).toList())),
-        answersJson: Value(jsonEncode(_serializeAnswers(s.trivia))),
         phase: Value(s.phase.wireName),
         startedAt: Value(startedAtValue),
         completedAt: Value(completedAtValue),
@@ -410,34 +345,12 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
         ),
       );
     }
-    final triviaData = (jsonDecode(row.triviaJson) as List<dynamic>)
-        .cast<Map<dynamic, dynamic>>();
-    final answerData = jsonDecode(row.answersJson) as List<dynamic>;
-    final trivia = <RoundTrivia>[];
-    for (var i = 0; i < triviaData.length; i++) {
-      final q = _deserializeQuestion(triviaData[i]);
-      TriviaAnswer? a;
-      if (i < answerData.length && answerData[i] != null) {
-        final raw = answerData[i] as Map<dynamic, dynamic>;
-        a = TriviaAnswer(
-          question: q,
-          answerIndex: raw['optionIdx'] as int,
-          confidence: TriviaConfidence.values
-              .firstWhere((c) => c.name == raw['confidence']),
-        );
-      }
-      trivia.add(RoundTrivia(question: q, answer: a));
+    var phase = RoundPhaseSerialization.fromWire(row.phase);
+    // A stored cards phase with nothing left to grade (only possible on
+    // rounds saved by older builds) would otherwise strand the player.
+    if (phase == RoundPhase.cards && cards.every((c) => c.grade != null)) {
+      phase = RoundPhase.reveal;
     }
-
-    final phase = RoundPhaseSerialization.fromWire(row.phase);
-    final result = phase == RoundPhase.reveal || phase == RoundPhase.done
-        ? summarize(
-            trivia
-                .where((t) => t.answer != null)
-                .map((t) => t.answer!)
-                .toList(),
-          )
-        : null;
 
     return DailyRoundState(
       dateIso: row.dateIso,
@@ -448,10 +361,8 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
       daysInChapter: chapter.days,
       phase: phase,
       cards: cards,
-      trivia: trivia,
       lessons: chapter.lessonsForDay(row.dayInChapter),
       nextChapterTitle: curriculum.chapterAfter(chapter.id)?.title,
-      result: result,
     );
   }
 
@@ -468,42 +379,6 @@ class DailyRoundController extends AsyncNotifier<DailyRoundState> {
             'teachFirst': c.teachFirst,
           },
       ];
-
-  List<Map<String, dynamic>> _serializeTrivia(List<RoundTrivia> trivia) => [
-        for (final t in trivia) _serializeQuestion(t.question),
-      ];
-
-  Map<String, dynamic> _serializeQuestion(TriviaQuestion q) => {
-        'cardId': q.cardId,
-        'format': q.format.name,
-        'prompt': q.prompt,
-        'photoUrl': q.photoUrl,
-        'options': q.options,
-        'correctIndex': q.correctIndex,
-      };
-
-  TriviaQuestion _deserializeQuestion(Map<dynamic, dynamic> m) =>
-      TriviaQuestion(
-        cardId: m['cardId'] as String,
-        format: TriviaFormat.values.firstWhere((f) => f.name == m['format']),
-        prompt: m['prompt'] as String,
-        photoUrl: m['photoUrl'] as String?,
-        options: (m['options'] as List<dynamic>).cast<String>(),
-        correctIndex: m['correctIndex'] as int,
-      );
-
-  List<Map<String, dynamic>?> _serializeAnswers(List<RoundTrivia> trivia) => [
-        for (final t in trivia)
-          if (t.answer == null)
-            null
-          else
-            {
-              'optionIdx': t.answer!.answerIndex,
-              'confidence': t.answer!.confidence.name,
-            },
-      ];
-
-  TriviaResult _emptyResult() => summarize(const []);
 
   String _todayIso() {
     final now = DateTime.now();

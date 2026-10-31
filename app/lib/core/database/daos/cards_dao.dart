@@ -13,8 +13,8 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
         ..orderBy([(c) => OrderingTerm.asc(c.sortOrder)]))
       .get();
 
-  /// Active face (politician) cards only. The Atlas grid, trivia/endless
-  /// MCQ pools, and round fallback sampling must never mix concept cards
+  /// Active face (politician) cards only. The Atlas grid, Endless
+  /// MCQ pool, and round fallback sampling must never mix concept cards
   /// into politician name/photo questions or listings.
   Future<List<LocalCard>> allActiveFaceCards() => (select(localCards)
         ..where((c) => c.isActive.equals(true) & c.cardType.equals('face'))
@@ -31,8 +31,8 @@ class CardsDao extends DatabaseAccessor<AppDatabase> with _$CardsDaoMixin {
     return row.read(localCards.id.count()) ?? 0;
   }
 
-  /// Active face cards whose deck is subscribed. THE pool for Endless,
-  /// Trivia, and round fallback. Keeps unsubscribed delegation decks
+  /// Active face cards whose deck is subscribed. THE pool for Endless
+  /// and round fallback. Keeps unsubscribed delegation decks
   /// out of every global surface.
   Future<List<LocalCard>> subscribedActiveFaceCards() async {
     final query = select(localCards).join([

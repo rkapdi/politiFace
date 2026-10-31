@@ -109,7 +109,7 @@ class _ActiveChapterCard extends StatelessWidget {
             : 'Round complete. Next chapter day unlocks tomorrow.')
         : (isFinalDay && nextChapterTitle != null
             ? "Final day of this chapter. $nextChapterTitle unlocks after today's round."
-            : "Today's round · 5 cards + 10-question trivia · ≈ 4 min");
+            : "Today's round · 5 cards · ≈ 2 min");
 
     return Container(
       decoration: BoxDecoration(

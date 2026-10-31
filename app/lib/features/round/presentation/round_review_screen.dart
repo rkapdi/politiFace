@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/providers.dart';
 import '../../shared/widgets/state_views.dart';
-import '../../trivia/domain/trivia_question.dart';
 import '../domain/round_state.dart';
 
 /// Review of a daily round. Two read paths:
@@ -62,7 +61,7 @@ class RoundReviewScreen extends ConsumerWidget {
           onRetry: () => ref.invalidate(dailyRoundControllerProvider),
         ),
         data: (state) {
-          if (state.cards.isEmpty && state.trivia.isEmpty) {
+          if (state.cards.isEmpty) {
             return const AppEmptyView(
               icon: Icons.fact_check_outlined,
               title: 'Nothing to review yet',
@@ -93,19 +92,16 @@ class _RoundReviewData {
     required this.chapterTitle,
     required this.chapterSubtitle,
     required this.cards,
-    required this.trivia,
   });
 
   final String chapterTitle;
   final String chapterSubtitle;
   final List<RoundCard> cards;
-  final List<RoundTrivia> trivia;
 
   factory _RoundReviewData.fromState(DailyRoundState s) => _RoundReviewData(
         chapterTitle: s.chapterTitle,
         chapterSubtitle: s.chapterSubtitle,
         cards: s.cards,
-        trivia: s.trivia,
       );
 
   factory _RoundReviewData.fromPayload(Map<dynamic, dynamic> m) {
@@ -128,44 +124,10 @@ class _RoundReviewData {
       );
     }
 
-    final triviaMaps =
-        (m['trivia'] as List<dynamic>?)?.cast<Map<dynamic, dynamic>>() ??
-            const [];
-    final answerMaps = (m['answers'] as List<dynamic>?) ?? const [];
-    final trivia = <RoundTrivia>[];
-    for (var i = 0; i < triviaMaps.length; i++) {
-      final tm = triviaMaps[i];
-      final q = TriviaQuestion(
-        cardId: tm['cardId'] as String,
-        format: TriviaFormat.values.firstWhere(
-          (f) => f.name == tm['format'],
-          orElse: () => TriviaFormat.photoToName,
-        ),
-        prompt: tm['prompt'] as String,
-        photoUrl: tm['photoUrl'] as String?,
-        options: (tm['options'] as List<dynamic>).cast<String>(),
-        correctIndex: tm['correctIndex'] as int,
-      );
-      TriviaAnswer? a;
-      if (i < answerMaps.length && answerMaps[i] != null) {
-        final am = answerMaps[i] as Map<dynamic, dynamic>;
-        a = TriviaAnswer(
-          question: q,
-          answerIndex: am['optionIdx'] as int,
-          confidence: TriviaConfidence.values.firstWhere(
-            (c) => c.name == am['confidence'],
-            orElse: () => TriviaConfidence.guess,
-          ),
-        );
-      }
-      trivia.add(RoundTrivia(question: q, answer: a));
-    }
-
     return _RoundReviewData(
       chapterTitle: m['chapterTitle'] as String? ?? 'Round',
       chapterSubtitle: '',
       cards: cards,
-      trivia: trivia,
     );
   }
 }
@@ -178,7 +140,6 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final gradedCards = data.cards.where((c) => c.grade != null).toList();
-    final answeredTrivia = data.trivia.where((t) => t.answer != null).toList();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -207,18 +168,6 @@ class _Body extends StatelessWidget {
           const SizedBox(height: 8),
           for (final c in gradedCards) _CardRow(card: c),
           const SizedBox(height: 18),
-        ],
-        if (answeredTrivia.isNotEmpty) ...[
-          const _SectionHeader(label: 'TRIVIA'),
-          const SizedBox(height: 8),
-          for (var i = 0; i < answeredTrivia.length; i++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _TriviaRow(
-                index: i + 1,
-                trivia: answeredTrivia[i],
-              ),
-            ),
         ],
       ],
     );
@@ -327,125 +276,5 @@ class _CardRow extends StatelessWidget {
         ],
       ),
     );
-  }
-}
-
-class _TriviaRow extends StatelessWidget {
-  const _TriviaRow({required this.index, required this.trivia});
-  final int index;
-  final RoundTrivia trivia;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final answer = trivia.answer!;
-    final q = trivia.question;
-    final isCorrect = answer.isCorrect;
-    final accent = isCorrect ? Colors.green.shade400 : Colors.red.shade400;
-    final confColor = _confColor(answer.confidence);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      decoration: BoxDecoration(
-        border: Border.all(color: theme.colorScheme.outline, width: 1.5),
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: Text(
-                  '$index',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(
-                isCorrect ? Icons.check_circle : Icons.cancel,
-                color: accent,
-                size: 18,
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  isCorrect ? 'CORRECT' : 'WRONG',
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: confColor.withOpacity(0.12),
-                  border: Border.all(color: confColor.withOpacity(0.5)),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  answer.confidence.label.toUpperCase(),
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: confColor,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            q.prompt,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'You: ${q.options[answer.answerIndex]}',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: accent,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          if (!isCorrect)
-            Text(
-              'Answer: ${q.options[q.correctIndex]}',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: Colors.green.shade400,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  static Color _confColor(TriviaConfidence c) {
-    switch (c) {
-      case TriviaConfidence.certain:
-        return const Color(0xFFEF4444);
-      case TriviaConfidence.prettySure:
-        return const Color(0xFF60A5FA);
-      case TriviaConfidence.guess:
-        return const Color(0xFFF59E0B);
-    }
   }
 }

@@ -79,7 +79,7 @@ class PhotoZoomModal extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Caption is suppressed when empty so trivia can zoom the
+                  // Caption is suppressed when empty so quizzes can zoom the
                   // portrait without revealing the answer (name/role).
                   if (name.isNotEmpty) ...[
                     const SizedBox(height: 20),

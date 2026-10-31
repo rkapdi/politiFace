@@ -8,12 +8,12 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart' show XFile;
 
 /// Captures a [RenderRepaintBoundary] mounted off-screen (via OverlayPortal
-/// from the trivia result screen) into a 1080x1920 PNG and writes it to a
+/// from a result screen) into a 1080x1920 PNG and writes it to a
 /// shareable temp file.
 ///
 /// All failure modes (font race, Skia capture failure, FS errors) surface as
 /// thrown exceptions — the caller is responsible for the user-facing
-/// fallback (copy text to clipboard + snackbar). See `trivia_result_screen`
+/// fallback (copy text to clipboard + snackbar). See `endless_result_screen`
 /// for the catch-and-fallback path.
 class ShareCardRenderer {
   ShareCardRenderer({

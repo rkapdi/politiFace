@@ -11,7 +11,6 @@ import '../domain/round_state.dart';
 import 'round_briefing_phase.dart';
 import 'round_cards_phase.dart';
 import 'round_reveal_phase.dart';
-import 'round_trivia_phase.dart';
 
 /// Top-level screen for the chapter-aware daily round. Switches between
 /// phase widgets based on [DailyRoundState.phase].
@@ -92,17 +91,7 @@ class _RoundBody extends ConsumerWidget {
         }
         return RoundBriefingPhase(state: state);
       case RoundPhase.cards:
-        if (state.cards.isEmpty) {
-          // Sparse chapter content + no fallback — should not happen with
-          // current sampler, but defensive.
-          return _SkipToTriviaView();
-        }
         return RoundCardsPhase(state: state);
-      case RoundPhase.trivia:
-        if (state.trivia.isEmpty) {
-          return _NoTriviaView(state: state);
-        }
-        return RoundTriviaPhase(state: state);
       case RoundPhase.reveal:
         return RoundRevealPhase(
           state: state,
@@ -141,10 +130,8 @@ class _ChapterHeader extends StatelessWidget {
         return 'BRIEFING';
       case RoundPhase.cards:
         return 'CARDS';
-      case RoundPhase.trivia:
-        return 'TRIVIA';
       case RoundPhase.reveal:
-        return 'REVEAL';
+        return 'COMPLETE';
       case RoundPhase.done:
         return 'DONE';
     }
@@ -249,29 +236,4 @@ class _RoundErrorView extends StatelessWidget {
       onRetry: () => ref.invalidate(dailyRoundControllerProvider),
     );
   }
-}
-
-class _NoTriviaView extends StatelessWidget {
-  const _NoTriviaView({required this.state});
-  final DailyRoundState state;
-
-  @override
-  Widget build(BuildContext context) => AppEmptyView(
-        icon: Icons.quiz_outlined,
-        title: 'No trivia today',
-        body: 'Cards done. Trivia for Chapter ${state.chapterTitle} '
-            'is still being authored, your day still counts.',
-        action: FilledButton(
-          onPressed: () => context.go('/'),
-          child: const Text('Home'),
-        ),
-      );
-}
-
-class _SkipToTriviaView extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => const AppEmptyView(
-        icon: Icons.arrow_forward_rounded,
-        title: 'Skipping to trivia…',
-      );
 }

@@ -284,8 +284,7 @@ class ConceptNode {
   final List<CurriculumItem> items;
 }
 
-/// A single atomic testable fact. The unit the question picker samples and
-/// the trivia generator turns into a 4-option MCQ.
+/// A single atomic testable fact. The unit the question picker samples.
 class CurriculumItem {
   const CurriculumItem({
     required this.id,
@@ -300,8 +299,7 @@ class CurriculumItem {
   final String id;
 
   /// One-line human-readable description of the fact this item teaches.
-  /// Used as the front of the concept flashcard and the basis for the
-  /// trivia question stem.
+  /// Used as the front of the concept flashcard.
   final String prompt;
 
   /// Priority signal — drives sampling weight and v1 vs. v1.1 inclusion.

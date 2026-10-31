@@ -37,9 +37,6 @@ import '../features/round/presentation/round_review_screen.dart';
 import '../features/session/presentation/session_screen.dart';
 import '../features/session/presentation/summary_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
-import '../features/trivia/presentation/trivia_result_screen.dart';
-import '../features/trivia/presentation/trivia_review_screen.dart';
-import '../features/trivia/presentation/trivia_screen.dart';
 import 'shell_scaffold.dart';
 
 /// Lets code outside the widget tree (a notification tap) navigate through
@@ -131,20 +128,6 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
         GoRoute(
           path: '/endless',
           builder: (context, state) => const EndlessScreen(),
-        ),
-        GoRoute(
-          path: '/trivia',
-          builder: (context, state) => const TriviaScreen(),
-        ),
-        GoRoute(
-          path: '/trivia/result',
-          builder: (context, state) => const TriviaResultScreen(),
-        ),
-        GoRoute(
-          path: '/trivia/review',
-          builder: (context, state) => TriviaReviewScreen(
-            runId: state.uri.queryParameters['runId'],
-          ),
         ),
         GoRoute(
           path: '/round/review',

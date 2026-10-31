@@ -17,7 +17,7 @@ class HistoryScreen extends ConsumerStatefulWidget {
   ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-enum _HistoryFilter { all, daily, trivia, endless }
+enum _HistoryFilter { all, daily, endless }
 
 extension _HistoryFilterMode on _HistoryFilter {
   String? get mode {
@@ -26,8 +26,6 @@ extension _HistoryFilterMode on _HistoryFilter {
         return null;
       case _HistoryFilter.daily:
         return 'round';
-      case _HistoryFilter.trivia:
-        return 'trivia';
       case _HistoryFilter.endless:
         return 'endless';
     }
@@ -75,7 +73,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     icon: Icons.history,
                     title: 'No runs yet',
                     body: _filter == _HistoryFilter.all
-                        ? 'Finish a daily round, trivia, or endless run to see it here.'
+                        ? 'Finish a daily round or endless run to see it here.'
                         : 'No ${_filter.name} runs yet.',
                   ),
                 )
@@ -97,7 +95,6 @@ class _FilterRow extends StatelessWidget {
   static const _labels = {
     _HistoryFilter.all: 'All',
     _HistoryFilter.daily: 'Daily',
-    _HistoryFilter.trivia: 'Trivia',
     _HistoryFilter.endless: 'Endless',
   };
 
@@ -230,8 +227,6 @@ class _Row extends StatelessWidget {
     // recent in-memory one.
     final uri = Uri(queryParameters: {'runId': entry.id}).toString();
     switch (entry.mode) {
-      case 'trivia':
-        context.push('/trivia/review$uri');
       case 'round':
         context.push('/round/review$uri');
       case 'endless':
@@ -333,8 +328,6 @@ class _Row extends StatelessWidget {
 
   static String _modeLabel(String mode) {
     switch (mode) {
-      case 'trivia':
-        return 'TRIVIA';
       case 'round':
         return 'DAILY';
       case 'endless':
@@ -346,8 +339,6 @@ class _Row extends StatelessWidget {
 
   static Color _modeColor(String mode) {
     switch (mode) {
-      case 'trivia':
-        return const Color(0xFFD6242C); // action red
       case 'round':
         return const Color(0xFFC9A05B); // ochre
       case 'endless':

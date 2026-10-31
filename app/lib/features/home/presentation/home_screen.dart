@@ -429,7 +429,7 @@ class _MoreWaysRow extends ConsumerWidget {
               glyph: Icons.sports_esports_outlined,
               onTap: () {
                 HapticFeedback.lightImpact();
-                context.go('/trivia');
+                context.go('/endless');
               },
             ),
           ),

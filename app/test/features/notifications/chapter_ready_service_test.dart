@@ -82,7 +82,6 @@ DailyRoundState roundAt({
       daysInChapter: daysInChapter,
       phase: RoundPhase.done,
       cards: const [],
-      trivia: const [],
       nextChapterTitle: nextChapterTitle,
     );
 
