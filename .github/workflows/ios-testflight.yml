@@ -28,7 +28,7 @@ name: iOS TestFlight
 
 on:
   push:
-    branches: [main]
+    branches: [main, ci/ios-testflight]  # TEMP: first run from the PR branch
     paths:
       - 'app/**'
       - '!app/assets/content/**'
