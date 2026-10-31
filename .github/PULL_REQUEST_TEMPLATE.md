@@ -11,6 +11,10 @@
 - [ ] Infrastructure / CI change
 - [ ] Documentation
 
+## Changelog
+
+- [ ] Added an entry at the top of `docs/_data/changelog.yml` (public page: no people, schools, or plans), or put `[no-changelog]` in this description
+
 ## Testing
 
 - [ ] All existing tests pass (`flutter test`)
