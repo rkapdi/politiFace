@@ -14,7 +14,7 @@ export const A = {
     person: 'Person',
     klass: 'Class',
     session: 'Session',
-    invites: 'Invites',
+    invites: 'Invites and requests',
     audit: 'Audit log',
   },
   comingIn2b: 'Coming in 2b',
@@ -149,6 +149,10 @@ export const A = {
     confirmGroupLabel: 'Confirm invite revocation',
     confirm: 'Confirm',
     cancel: 'Cancel',
+    requestsTitle: 'Instructor requests',
+    noRequests: 'No pending requests.',
+    approve: 'Approve',
+    deny: 'Deny',
   },
 
   audit: {

@@ -1,7 +1,46 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
-import { inviteLink } from '../lib/api'
+import { inviteLink, useDecideFacultyRequest, useFacultyRequests } from '../lib/api'
 import { useAdminInvites, useMintInvite, useRevokeInvite } from './adminApi'
 import { A } from './strings'
+
+function RequestQueue() {
+  const requests = useFacultyRequests(true)
+  const decide = useDecideFacultyRequest()
+  return (
+    <section className="admin-panel p-2" aria-label={A.invites.requestsTitle}>
+      <h2 className="admin-label mb-1">{A.invites.requestsTitle}</h2>
+      {requests.error ? <p className="sev-fail">{requests.error.message}</p> : null}
+      {decide.error ? <p className="sev-fail">{decide.error.message}</p> : null}
+      {requests.data?.length === 0 ? (
+        <p className="text-[var(--a-muted)]">{A.invites.noRequests}</p>
+      ) : null}
+      <ul>
+        {(requests.data ?? []).map(r => (
+          <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 border-t border-[var(--a-line)] py-1">
+            <span>
+              <span className="admin-strong">{r.handle}</span>, {r.email}
+              <span className="block text-[var(--a-muted)]">
+                {r.school}, {r.courses}{r.note ? `. ${r.note}` : ''}
+              </span>
+            </span>
+            <span className="flex gap-2">
+              <button type="button" disabled={decide.isPending}
+                onClick={() => decide.mutate({ id: r.id, approve: true })}
+                className="border border-[var(--a-info)] px-2 text-[var(--a-info)]">
+                {A.invites.approve}
+              </button>
+              <button type="button" disabled={decide.isPending}
+                onClick={() => decide.mutate({ id: r.id, approve: false })}
+                className="border border-[var(--a-line)] px-2">
+                {A.invites.deny}
+              </button>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}
 
 const tone: Record<string, string> = {
   active: 'sev-ok',
@@ -59,6 +98,7 @@ export function InvitesPage() {
   return (
     <div className="flex flex-col gap-2">
       <h1 className="admin-strong">{A.titles.invites}</h1>
+      <RequestQueue />
       <form onSubmit={submit} className="admin-panel flex flex-wrap items-end gap-2 p-2">
         <label className="flex flex-col">
           <span className="admin-label">{A.invites.emailLabel}</span>

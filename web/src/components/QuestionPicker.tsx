@@ -8,6 +8,9 @@ import { Alert, Badge, Button, Spinner } from './ui'
 import type { LiveDraft } from './LiveTab'
 import { S } from '../lib/strings'
 
+// create_live_session refuses more than this.
+const MAX_QUESTIONS = 50
+
 export function QuestionPicker({
   cohortId,
   draft,
@@ -22,17 +25,19 @@ export function QuestionPicker({
   const questions = usePickableQuestions(cohortId)
   const domains = useDomains()
   const create = useCreateLiveSession()
-  const { title, seconds, selected, allowGuests } = draft
+  const { title, seconds, selected, allowGuests, domainId, mineOnly } = draft
 
   const byDomain = useMemo(() => {
     const groups = new Map<number, typeof questions.data>()
     for (const q of questions.data ?? []) {
+      if (domainId !== null && q.domain_id !== domainId) continue
+      if (mineOnly && !q.cohort_id) continue
       const list = groups.get(q.domain_id) ?? []
       list.push(q)
       groups.set(q.domain_id, list)
     }
     return groups
-  }, [questions.data])
+  }, [questions.data, domainId, mineOnly])
 
   if (questions.isPending || domains.isPending) {
     return <Spinner label="Loading question bank" />
@@ -103,17 +108,56 @@ export function QuestionPicker({
         <Badge tone={selected.size > 0 ? 'green' : 'slate'}>
           {selected.size} selected
         </Badge>
-        <Button type="submit" disabled={selected.size === 0 || create.isPending}>
+        <Button
+          type="submit"
+          disabled={selected.size === 0 || selected.size > MAX_QUESTIONS || create.isPending}
+        >
           Start session
         </Button>
       </div>
+      {selected.size > MAX_QUESTIONS ? (
+        <Alert tone="info">{S.live.tooMany}</Alert>
+      ) : null}
       {create.error ? <Alert tone="error">{create.error.message}</Alert> : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="text-sm text-slate-700">
+          {S.live.filterDomain}
+          <select
+            value={domainId ?? ''}
+            onChange={e =>
+              onDraftChange({
+                ...draft,
+                domainId: e.target.value === '' ? null : Number(e.target.value),
+              })
+            }
+            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+          >
+            <option value="">{S.live.allDomains}</option>
+            {(domains.data ?? []).map(d => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            checked={mineOnly}
+            onChange={e => onDraftChange({ ...draft, mineOnly: e.target.checked })}
+          />
+          {S.live.mineOnly}
+        </label>
+      </div>
       <div className="max-h-96 overflow-y-auto rounded-md border border-slate-200">
-        {[...byDomain.entries()].map(([domainId, qs]) => (
-          <fieldset key={domainId} className="border-b border-slate-100 p-3">
+        {byDomain.size === 0 ? (
+          <p className="p-3 text-sm text-slate-500">{S.live.noMatches}</p>
+        ) : null}
+        {[...byDomain.entries()].map(([groupId, qs]) => (
+          <fieldset key={groupId} className="border-b border-slate-100 p-3">
             <legend className="px-1 text-xs font-semibold text-slate-500">
-              {domains.data?.find(d => d.id === domainId)?.name ??
-                `Domain ${domainId}`}
+              {domains.data?.find(d => d.id === groupId)?.name ??
+                `Domain ${groupId}`}
             </legend>
             <ul className="flex flex-col gap-1">
               {(qs ?? []).map(q => (

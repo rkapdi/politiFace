@@ -80,7 +80,17 @@ async function sendAlert(
   return res.status;
 }
 
-Deno.serve(async (req) => {
+// The web console calls this cross-origin with an Authorization header, so
+// the browser preflights it. Without these headers every browser call fails
+// before reaching the handler.
+const cors = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+async function handle(req: Request): Promise<Response> {
   if (req.method !== "POST") {
     return new Response("method not allowed", { status: 405 });
   }
@@ -91,12 +101,6 @@ Deno.serve(async (req) => {
     return new Response("announcement_id required", { status: 400 });
   }
 
-  // Load the announcement and re-verify the caller is faculty of its
-  // cohort, using the caller's JWT (not the service key) so RLS + the
-  // faculty check apply.
-  const asCaller = createClient(SUPABASE_URL, SERVICE_KEY, {
-    global: { headers: { Authorization: `Bearer ${jwtCaller}` } },
-  });
   const { data: ann } = await admin.from("class_announcements")
     .select("id, cohort_id, author, body, pushed_at")
     .eq("id", announcement_id).single();
@@ -108,7 +112,7 @@ Deno.serve(async (req) => {
   // The row can only exist because send_class_announcement already
   // enforced faculty when creating it, so a matching author IS the
   // authorization: verify the caller's JWT resolves to that author.
-  const { data: caller } = await asCaller.auth.getUser();
+  const { data: caller } = await admin.auth.getUser(jwtCaller);
   if (!caller?.user?.id || caller.user.id !== ann.author) {
     return new Response("forbidden", { status: 403 });
   }
@@ -146,4 +150,13 @@ Deno.serve(async (req) => {
     await admin.from("push_tokens").delete().in("token", dead);
   }
   return Response.json({ sent, pruned: dead.length });
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  const res = await handle(req);
+  for (const [name, value] of Object.entries(cors)) {
+    res.headers.set(name, value);
+  }
+  return res;
 });

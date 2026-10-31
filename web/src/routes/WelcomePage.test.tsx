@@ -12,6 +12,8 @@ const m = vi.hoisted(() => ({
     }),
   ),
   role: vi.fn(async () => 'none'),
+  classes: vi.fn(async (): Promise<unknown[]> => []),
+  profile: { handle: 'user_1234abcd', school: null as string | null },
   redeem: vi.fn(async () => undefined),
   updateProfile: vi.fn((_a: unknown, o?: { onSuccess?: () => void }) => o?.onSuccess?.()),
   createCohort: vi.fn((_a: unknown, o?: { onSuccess?: (d: { id: string; join_code: string }) => void }) =>
@@ -24,11 +26,12 @@ vi.mock('../auth/SessionProvider', () => ({
 vi.mock('../auth/EmailCodeForm', () => ({ EmailCodeForm: () => <p>email code form</p> }))
 vi.mock('../lib/api', () => ({
   invitePreview: m.preview,
+  myClasses: m.classes,
   myConsoleRole: m.role,
   redeemFacultyInvite: m.redeem,
   useUpdateMyProfile: () => ({ mutate: m.updateProfile, isPending: false, error: null }),
   useCreateCohort: () => ({ mutate: m.createCohort, isPending: false, error: null }),
-  useMyProfile: () => ({ data: { handle: 'user_1234abcd', school: null } }),
+  useMyProfile: () => ({ data: m.profile }),
 }))
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -48,6 +51,7 @@ describe('WelcomePage', () => {
     m.loading = false
     m.redeem.mockClear()
     m.createCohort.mockClear()
+    m.profile = { handle: 'user_1234abcd', school: null }
   })
 
   it('session still loading: shows a spinner, no email form yet', () => {
@@ -95,5 +99,30 @@ describe('WelcomePage', () => {
     wrap()
     expect(await screen.findByLabelText(/display name/i)).toBeInTheDocument()
     expect(m.redeem).not.toHaveBeenCalled()
+  })
+
+  it('reopening an old invite with classes already: straight to the classes', async () => {
+    m.session = { user: { id: 'u1', is_anonymous: false } }
+    m.role.mockResolvedValueOnce('faculty')
+    m.classes.mockResolvedValueOnce([{ cohort_id: 'c1' }])
+    wrap()
+    await waitFor(() => expect(window.location.hash).toBe('#/'))
+    expect(screen.queryByLabelText(/display name/i)).toBeNull()
+  })
+
+  it('profile already filled in: skips to the first class', async () => {
+    m.session = { user: { id: 'u1', is_anonymous: false } }
+    m.profile = { handle: 'Rivera Demo', school: 'Example College' }
+    wrap()
+    expect(await screen.findByLabelText(/class name/i)).toBeInTheDocument()
+    expect(screen.queryByLabelText(/display name/i)).toBeNull()
+  })
+
+  it('a refused invite offers a way out, not a dead end', async () => {
+    m.session = { user: { id: 'u1', is_anonymous: false } }
+    m.redeem.mockRejectedValueOnce(new Error('That invite link has expired'))
+    wrap()
+    expect(await screen.findByText(/invite link has expired/i)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /go to your classes/i })).toHaveAttribute('href', '#/')
   })
 })

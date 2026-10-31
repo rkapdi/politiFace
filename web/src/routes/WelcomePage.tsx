@@ -4,6 +4,7 @@ import { useSession } from '../auth/SessionProvider'
 import { EmailCodeForm } from '../auth/EmailCodeForm'
 import {
   invitePreview,
+  myClasses,
   myConsoleRole,
   redeemFacultyInvite,
   useCreateCohort,
@@ -39,6 +40,8 @@ function Setup({ userId }: { userId: string }) {
     setSeeded(true)
     if (!isGenerated(profile.data.handle)) setHandle(profile.data.handle)
     setSchool(profile.data.school ?? '')
+    // Nothing to ask: go straight to the class.
+    if (!isGenerated(profile.data.handle) && profile.data.school) setStep('class')
   }, [seeded, profile.data])
 
   const saveProfile = (e: FormEvent) => {
@@ -108,13 +111,32 @@ function Verify({ code, userId }: { code: string; userId: string }) {
     queryFn: async () => {
       const role = await myConsoleRole()
       if (role !== 'staff' && role !== 'faculty') await redeemFacultyInvite(code)
-      return true
+      return { hasClasses: (await myClasses()).length > 0 }
     },
     retry: false,
     staleTime: Infinity,
   })
-  if (verified.isPending) return <Spinner label={S.welcome.verifying} />
-  if (verified.error) return <Alert tone="error">{verified.error.message}</Alert>
+  // Decided once, on arrival: an instructor reopening an old invite link is
+  // already set up. Creating a first class below must not re-trigger this.
+  const alreadySetUp = verified.data?.hasClasses === true
+
+  useEffect(() => {
+    if (alreadySetUp) window.location.hash = '#/'
+  }, [alreadySetUp])
+
+  if (verified.error) {
+    return (
+      <>
+        <Alert tone="error">{verified.error.message}</Alert>
+        <a href="#/" className="text-sm font-medium text-slate-900 underline">
+          {S.welcome.goHome}
+        </a>
+      </>
+    )
+  }
+  if (verified.isPending || alreadySetUp) {
+    return <Spinner label={S.welcome.verifying} />
+  }
   return <Setup userId={userId} />
 }
 

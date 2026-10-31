@@ -11,11 +11,11 @@ function Nav() {
   const profile = useMyProfile(session?.user.id ?? '')
   const isAdmin = useAmAdmin().data === true
   return (
-    <header className="border-b border-slate-200 bg-white">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+    <header className="border-b border-slate-200 bg-white print:hidden">
+      <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-2 whitespace-nowrap px-4 py-3">
         <div className="flex items-center gap-6">
           <span className="font-semibold text-slate-900">Politiface</span>
-          <nav aria-label="Main">
+          <nav aria-label="Main" className="flex items-center gap-4">
             <Link
               to="/"
               className="text-sm text-slate-600 hover:text-slate-900 [&.active]:font-medium [&.active]:text-slate-900"

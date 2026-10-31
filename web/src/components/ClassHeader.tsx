@@ -1,10 +1,17 @@
 import { useState } from 'react'
+import { Send } from 'lucide-react'
 import { useCohortInfo } from '../lib/api'
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card } from './ui'
 
 /** Class name plus the join code the professor hands out to students. */
-export function ClassHeader({ cohortId }: { cohortId: string }) {
+export function ClassHeader({
+  cohortId,
+  onMessage,
+}: {
+  cohortId: string
+  onMessage?: () => void
+}) {
   const info = useCohortInfo(cohortId)
   const [copied, setCopied] = useState(false)
 
@@ -24,6 +31,14 @@ export function ClassHeader({ cohortId }: { cohortId: string }) {
         {term ? (
           <div className="mt-1">
             <Badge>{term}</Badge>
+          </div>
+        ) : null}
+        {onMessage ? (
+          <div className="mt-3">
+            <Button variant="ghost" onClick={onMessage}>
+              <Send aria-hidden="true" className="size-4" />
+              {S.message.open}
+            </Button>
           </div>
         ) : null}
       </div>

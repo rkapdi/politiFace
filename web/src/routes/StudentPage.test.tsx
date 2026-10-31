@@ -34,6 +34,7 @@ const drilldown: Drilldown = {
 vi.mock('../lib/api', () => ({
   useDrilldown: () => ({ data: drilldown, isPending: false, error: null }),
   useSendAnnouncement: () => ({ mutate: sendMutate, isPending: false, isSuccess: false }),
+  useClassAnnouncements: () => ({ data: [], isPending: false, error: null }),
   useLogExport: () => ({ mutate: vi.fn() }),
   useStudentTrend: () => ({
     data: {
@@ -63,6 +64,10 @@ describe('StudentView', () => {
   it('renders the picture and prefills the class message from a suggestion', async () => {
     render(<StudentView cohortId="c1" studentRef="u1" />)
     expect(screen.getByRole('heading', { name: /Sam P/ })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /back to class/i })).toHaveAttribute(
+      'href',
+      '#/class/c1?tab=students',
+    )
     const bars = screen.getAllByRole('img')
     expect(bars[0]).toHaveAccessibleName(/U.S. Constitution/)
     expect(screen.getByText(/Articles of the Constitution/)).toBeInTheDocument()

@@ -74,7 +74,7 @@
 - id: educators
   label: For educators and institutions
   sublabel: Class tools, cohort insight, faculty review
-  href: /faculty/
+  href: /app/
   group: institutional
   visible: true
 

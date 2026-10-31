@@ -3,6 +3,7 @@
 // sentences here, once.
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
+import { logOpsEvent } from './opsLog'
 import { S } from './strings'
 import type { Database, Json } from './database.types'
 
@@ -123,6 +124,10 @@ const FRIENDLY: Record<string, string> = {
   'sign in with your email to join as a student': S.errors.signInToJoin,
   'you teach this class': S.errors.youTeach,
   'join the class first': S.errors.membersOnly,
+  'too many messages this hour (5 max); try again shortly':
+    S.errors.tooManyMessages,
+  'daily message limit reached for this class': S.errors.dailyMessageLimit,
+  'message is too long (240 characters max)': S.errors.messageTooLong,
 }
 
 export function friendlyMessage(error: { message: string }): string {
@@ -377,11 +382,14 @@ export const useStudentTrend = (cohortId: string, studentRef: string) =>
 export const useAssignPractice = () => {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (a: { cohortId: string; domainId: number }) =>
-      rpc<{ input_id: string; domain: string }>('assign_domain_practice', {
-        p_cohort: a.cohortId,
-        p_domain: a.domainId,
-      }),
+    mutationFn: async (a: { cohortId: string; domainId: number }) => {
+      const res = await rpc<{ input_id: string; domain: string }>(
+        'assign_domain_practice',
+        { p_cohort: a.cohortId, p_domain: a.domainId },
+      )
+      await pushLatestAnnouncement(a.cohortId)
+      return res
+    },
     onSuccess: (_d, a) => {
       void qc.invalidateQueries({ queryKey: ['cohort', a.cohortId] })
     },
@@ -759,8 +767,8 @@ export const useDecideFacultyRequest = () => {
   return useMutation({
     mutationFn: (a: { id: string; approve: boolean }) =>
       rpc('admin_decide_faculty_request', { p_id: a.id, p_approve: a.approve }),
-    onSuccess: () =>
-      void qc.invalidateQueries({ queryKey: ['admin', 'faculty-requests'] }),
+    // Also refreshes the console home's pending-requests count.
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin'] }),
   })
 }
 
@@ -859,15 +867,111 @@ export const useAddCoFaculty = () =>
     a => a.cohortId,
   )
 
+// The announcement row is the record students read in the in-app inbox; this
+// call is what sends the phone alert. Delivery is best-effort, so a failure
+// never undoes the send, but it is logged and reported: returns the number of
+// devices alerted, or null if the alert did not go out.
+export const pushAnnouncement = async (
+  announcementId: string,
+): Promise<number | null> => {
+  try {
+    const { data, error } = await supabase.functions.invoke<{ sent: number }>(
+      'class-announce',
+      { body: { announcement_id: announcementId } },
+    )
+    if (error) throw error
+    return data?.sent ?? 0
+  } catch (err) {
+    logOpsEvent('client_error', {
+      code: 'announce_push_failed',
+      detail: { message: String((err as Error)?.message ?? err).slice(0, 200) },
+    })
+    return null
+  }
+}
+
+// assign_domain_practice records its announcement but does not return the
+// id, so find the row it just wrote: the caller's newest in this class.
+const pushLatestAnnouncement = async (cohortId: string): Promise<void> => {
+  const { data: auth } = await supabase.auth.getSession()
+  const author = auth.session?.user.id
+  if (!author) return
+  const { data } = await supabase
+    .from('class_announcements')
+    .select('id')
+    .eq('cohort_id', cohortId)
+    .eq('author', author)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (data) await pushAnnouncement(data.id)
+}
+
 export const useSendAnnouncement = () => {
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: (a: { cohortId: string; body: string }) =>
-      rpc('send_class_announcement', {
+    mutationFn: async (a: { cohortId: string; body: string }) => {
+      const row = await rpc<{ id: string }>('send_class_announcement', {
         p_cohort: a.cohortId,
         p_body: a.body,
-      }),
+      })
+      return { alerted: await pushAnnouncement(row.id) }
+    },
+    onSuccess: (_d, a) => {
+      void qc.invalidateQueries({
+        queryKey: ['cohort', a.cohortId, 'announcements'],
+      })
+    },
   })
 }
+
+export type Announcement = { id: string; body: string; created_at: string }
+
+export const classAnnouncements = async (
+  cohortId: string,
+): Promise<Announcement[]> => {
+  const { data, error } = await supabase
+    .from('class_announcements')
+    .select('id, body, created_at')
+    .eq('cohort_id', cohortId)
+    .order('created_at', { ascending: false })
+    .limit(20)
+  if (error) throw new Error(friendlyMessage(error))
+  return data ?? []
+}
+
+export const useClassAnnouncements = (cohortId: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ['cohort', cohortId, 'announcements'],
+    queryFn: () => classAnnouncements(cohortId),
+    enabled,
+  })
+
+// Faculty only under RLS: TAs would always read zero.
+export const answeredCount = async (
+  sessionId: string,
+  questionId: string,
+): Promise<number> => {
+  const { count, error } = await supabase
+    .from('live_answers')
+    .select('*', { count: 'exact', head: true })
+    .eq('session_id', sessionId)
+    .eq('question_id', questionId)
+  if (error) throw new Error(friendlyMessage(error))
+  return count ?? 0
+}
+
+export const useAnsweredCount = (
+  sessionId: string,
+  questionId: string | undefined,
+  enabled: boolean,
+) =>
+  useQuery({
+    queryKey: ['session', sessionId, 'answered', questionId],
+    queryFn: () => answeredCount(sessionId, questionId as string),
+    enabled: enabled && questionId !== undefined,
+    refetchInterval: 3000,
+  })
 
 export type OwnQuestionInput = {
   cohortId: string
