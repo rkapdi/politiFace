@@ -1,0 +1,141 @@
+# Builds the iOS app and uploads it to TestFlight on every merge to main
+# that changes the app. Internal testers get the build once Apple finishes
+# processing (about 15 minutes). Releasing to the App Store stays a manual
+# step in App Store Connect.
+#
+# Daily content refreshes (app/assets/content) do not trigger a build; run
+# this workflow by hand (Actions -> iOS TestFlight -> Run workflow) to ship
+# fresh bundled content.
+#
+# Signing uses the Codemagic CLI tools (pip, no Codemagic account): they
+# fetch or create the App Store certificate and profile through the App
+# Store Connect API, so no .p12 or profile lives in the repo or in secrets.
+#
+# Required repository secrets:
+#   APP_STORE_CONNECT_ISSUER_ID       App Store Connect API key issuer id
+#   APP_STORE_CONNECT_KEY_IDENTIFIER  API key id
+#   APP_STORE_CONNECT_PRIVATE_KEY     contents of the AuthKey_<id>.p8 file
+#   CERTIFICATE_PRIVATE_KEY           RSA key the distribution certificate
+#                                     is bound to (PEM)
+#   SENTRY_DSN                        optional; empty disables crash reports
+#
+# Versioning: the marketing version comes from app/pubspec.yaml. Bump it
+# after each App Store release, because Apple rejects new builds for a
+# version that is already live. The build number is the latest TestFlight
+# build plus one.
+
+name: iOS TestFlight
+
+on:
+  push:
+    branches: [main, ci/ios-testflight]  # TEMP: first run from the PR branch
+    paths:
+      - 'app/**'
+      - '!app/assets/content/**'
+      - '.github/workflows/ios-testflight.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  BUNDLE_ID: io.politiface.politiface
+  APP_STORE_APPLE_ID: '6774765582'
+  # Public client values by design (row-level security is the guard); same
+  # as web/src/lib/config.ts.
+  SUPABASE_URL: https://sbjpiajjlufrhigmovnk.supabase.co
+  SUPABASE_ANON_KEY: sb_publishable_BIJdeOXfjzXlJhsc8bX_Fw_YNX902qU
+
+jobs:
+  testflight:
+    name: Build + upload
+    if: github.repository == 'rkapdi/politiFace'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: app
+    env:
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_CONNECT_KEY_IDENTIFIER }}
+      APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+      CERTIFICATE_PRIVATE_KEY: ${{ secrets.CERTIFICATE_PRIVATE_KEY }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check secrets
+        run: |
+          for v in APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_KEY_IDENTIFIER \
+                   APP_STORE_CONNECT_PRIVATE_KEY CERTIFICATE_PRIVATE_KEY; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Repository secret $v is not set."
+              exit 1
+            fi
+          done
+
+      - name: Select Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: stable
+          cache: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Codemagic CLI tools
+        run: pip3 install --upgrade codemagic-cli-tools
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Set up signing
+        run: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles --project ios/Runner.xcodeproj
+
+      - name: Pick build number
+        id: build
+        run: |
+          latest=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" || echo 0)
+          echo "number=$((latest + 1))" >> "$GITHUB_OUTPUT"
+          echo "Build number $((latest + 1))"
+
+      - name: Build IPA
+        run: |
+          flutter build ipa --release \
+            --build-number=${{ steps.build.outputs.number }} \
+            --dart-define=SUPABASE_URL="$SUPABASE_URL" \
+            --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
+            --dart-define=SENTRY_DSN="$SENTRY_DSN" \
+            --export-options-plist="$HOME/export_options.plist"
+
+      - name: Upload to TestFlight
+        run: app-store-connect publish --path "build/ios/ipa/*.ipa"
+
+      - name: Clean up keychain
+        if: always()
+        run: keychain use-login || true

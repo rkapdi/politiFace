@@ -1,5 +1,5 @@
 # Cheap guards against accidentally committing secrets.
-# Dependency vulnerability scanning lives in Codemagic once we wire it.
+# Dependency vulnerability scanning is not wired yet.
 
 name: Security Audit
 
