@@ -1,0 +1,552 @@
+# ============================================================
+# Changelog for /changelog
+# ============================================================
+# This file IS the page content. Add a new entry at the top in the
+# same PR as the change; it goes live when that PR merges to main.
+# CI runs scripts/validate_changelog.py against this file.
+#
+# Each entry:
+#   id:        stable slug, used as the page anchor. Never rename one.
+#   date:      YYYY-MM-DD. Newest first.
+#   platform:  iOS | Web | Website | Content
+#   version:   iOS only, the marketing version in app/pubspec.yaml.
+#   build:     iOS only, the build number in app/pubspec.yaml.
+#   channel:   (optional) App Store, only once Apple shows it released.
+#   title:     the main theme, as a short phrase.
+#   items:     one plain sentence each, ending in a period. Say what a
+#              person can now do. No internal names, plans, or partners.
+#   link:      (optional) the public PR or release page.
+#
+# Public page: no em-dashes, no people, schools, or plans.
+
+- id: web-2026-10-31-changelog
+  date: 2026-10-31
+  platform: Website
+  title: This changelog
+  items:
+    - Added this page, covering every build and web release back to the first one.
+
+- id: ios-34
+  date: 2026-10-07
+  platform: iOS
+  version: 1.3.2
+  build: 34
+  channel: App Store
+  title: Sounds and motion
+  items:
+    - A new sound set covers right and wrong answers, card flips, finished rounds, passing a mock exam, joining a class, and streaks.
+    - Your chosen answer pops when it is right and shakes when it is wrong across onboarding, practice, trivia, rounds, Endless, and live sessions.
+    - Scores count up, and confetti marks your onboarding result and a passed mock exam. All of it respects Reduce Motion, and sounds respect the silent switch.
+    - Streak sounds play at 3, 7, 14, 30, 50, 100, and 365 days, and at 5, 10, and 20 answers in a row.
+    - Onboarding is now a 5-question check, then your score, then an account step that takes any email.
+    - The guided tour spotlight follows its target, and the exam-date picker title no longer gets cut off.
+    - The app now tells our admin console when it is open, and reports sign-in failures, refused joins, and errors, so we can spot problems.
+
+- id: web-2026-10-07-admin
+  date: 2026-10-07
+  platform: Web
+  title: Admin console
+  items:
+    - Added an internal admin console for the Politiface team, with search, activity, and records for people, classes, and sessions.
+    - Every instructor-access change made in the admin console now lands in an audit log.
+    - The web console reports sign-in failures, refused joins, and errors to a problem log, and shows when someone was last online.
+
+- id: web-2026-10-04-class-names
+  date: 2026-10-04
+  platform: Web
+  title: Neutral class names
+  items:
+    - Class names and session titles can no longer contain course codes or section numbers.
+    - The console suggests neutral names such as Section A.
+    - Sign-up now asks for any email, and the join page reminds students to reuse the email from the app so they keep one account.
+
+- id: ios-33
+  date: 2026-09-28
+  platform: iOS
+  version: 1.3.2
+  build: 33
+  title: Join a class from anywhere
+  items:
+    - Students not yet in a class can join with a class code from Home or Account.
+
+- id: web-2026-09-28-onboarding
+  date: 2026-09-28
+  platform: Web
+  title: Invite links and browser students
+  items:
+    - Instructors can be invited with a single-use link that expires after 14 days and walks them through setting up a first class.
+    - Anyone signed in without a role can request instructor access instead of hitting an error.
+    - The home page now depends on who you are. Staff and instructors get the console, and students get their classes and a way to join one.
+    - Students in a browser sign in with the same email code as the app and join live sessions as themselves.
+    - Guest access to a live session is now off by default and can be turned on per session.
+    - The class page shows its join code, instructors can watch their own live sessions, and reports say Joined, no answers instead of 0/0.
+    - Display names can now include spaces and name punctuation.
+
+- id: web-2026-09-27-questions
+  date: 2026-09-27
+  platform: Web
+  title: Your own questions
+  items:
+    - Instructors can write, edit, and remove their own class-scoped questions from the Live tab.
+    - Editing a question keeps past session results on the wording students actually saw.
+    - The class summary one-pager now opens as a printable page.
+    - Instructors can manage their account, including changing email, signing out everywhere, and deleting the account with a class transfer.
+    - A live session draft now survives switching tabs.
+
+- id: content-2026-08-30
+  date: 2026-08-30
+  platform: Content
+  title: Roster and executive order refresh
+  items:
+    - Updated the congressional roster and executive orders.
+
+- id: ios-32
+  date: 2026-08-30
+  platform: iOS
+  version: 1.3.1
+  build: 32
+  title: Washington fast lane
+  items:
+    - Pulse has a White House lane that shows presidential actions the same day, with badges and a filter.
+    - Tapping an alert now opens the exact action it was about, even from a cold start.
+    - Fixed Washington alerts, which had silently stopped sending.
+    - The readiness projection now follows your recent answers and no longer starts too high after a cold diagnostic.
+    - The readiness bar scales down instead of clipping on narrow screens.
+
+- id: web-2026-08-30-coaching
+  date: 2026-08-30
+  platform: Web
+  title: Class pulse and coaching queue
+  items:
+    - Classes open with a pulse banner, action cards, and a score distribution against the pass line.
+    - The Students tab is now a coaching queue, with the lowest projected score first.
+    - Each student page shows a weekly trend against the pass line and can assign weak-area practice in one click.
+    - Instructor views now use the same readiness calculation as the app.
+    - New shared design foundations cover icons, loading states, empty states, and error fallbacks.
+
+- id: web-2026-08-22-console
+  date: 2026-08-22
+  platform: Web
+  title: New web console
+  items:
+    - Politiface moved to politiface.app, with a new web console at politiface.app/app.
+    - Instructors can sign in with an email code, create classes, and see domain and engagement analytics per class.
+    - Added an at-risk list, roster progress, and CSV exports, with exports logged.
+    - Added a per-student page with suggested next steps.
+    - Each class has its own reporting setting, enforced on the server, and instructors can add teaching assistants.
+    - The live session console has QR join and realtime phases, and guests can join from a browser.
+    - The console went through a WCAG 2.1 AA pass, with automated accessibility checks in CI.
+
+- id: site-2026-08-18-links
+  date: 2026-08-18
+  platform: Website
+  title: Links page
+  items:
+    - Added a links page at politiface.app/links.
+
+- id: ios-31
+  date: 2026-08-13
+  platform: iOS
+  version: 1.3.0
+  build: 31
+  title: New app icon
+  items:
+    - The app has a new navy icon.
+
+- id: ios-30
+  date: 2026-08-12
+  platform: iOS
+  version: 1.3.0
+  build: 30
+  title: Cleaner Pulse sheet
+  items:
+    - Removed a redundant button from the Pulse sheet.
+
+- id: ios-29
+  date: 2026-08-12
+  platform: iOS
+  version: 1.3.0
+  build: 29
+  title: Atlas branches as study decks
+  items:
+    - Atlas branches now read as study decks instead of rosters.
+
+- id: ios-28
+  date: 2026-08-12
+  platform: iOS
+  version: 1.3.0
+  build: 28
+  title: Search everything in Atlas
+  items:
+    - Atlas search now reaches every section, not just face cards.
+    - The Atlas spotlight opens the chapter progress sheet.
+    - The Drill tile on Home is now FCLE, exam prep.
+    - Pulse digests show exactly what they covered.
+    - Memory analytics are now in plain language.
+
+- id: ios-27
+  date: 2026-08-12
+  platform: iOS
+  version: 1.3.0
+  build: 27
+  title: A shorter path to the FCLE
+  items:
+    - Study, Drill, and Play now sit right under your readiness band on Home.
+    - Study picks up The Season where you left off, and every chapter opens with its Continue button on top.
+    - The readiness card now says what it measures, FCLE readiness.
+    - Atlas opens with its reference shelf of Congress, recent laws, executive orders, and vocabulary.
+    - Pulse notifications are tappable, and each filter explains what it shows.
+    - Tap the streak flame to see your streak, XP, and level.
+    - Your class pick now sticks across the app, and the Memory radar sweep is smoother.
+
+- id: content-2026-07-31
+  date: 2026-07-31
+  platform: Content
+  title: Roster refresh
+  items:
+    - Updated the congressional roster.
+
+- id: ios-26
+  date: 2026-07-30
+  platform: iOS
+  version: 1.2.0
+  build: 26
+  title: Pulse gets its own tab
+  items:
+    - Pulse is now the fourth tab, with delivered alerts pinned in the feed.
+    - Added the latest congressional data.
+    - Unexpected sign-outs now show a message with a way to recover.
+
+- id: web-2026-07-29-portal
+  date: 2026-07-29
+  platform: Web
+  title: Faculty portal redesign
+  items:
+    - The faculty portal has a new light design.
+    - Instructors can message a class from the portal.
+    - Classes can have co-instructors, who join through an invite.
+    - A persistent header shows who is signed in, with one sign-out button.
+    - Errors now show the real message, and saving a question no longer fails silently.
+    - Vote bars on a reveal only appear when there are votes.
+
+- id: ios-25
+  date: 2026-07-28
+  platform: iOS
+  version: 1.2.0
+  build: 25
+  title: New Home and a new look
+  items:
+    - Home is rebuilt around a readiness card, one main button, your class, and clear actions.
+    - Onboarding now opens with a diagnostic instead of a tour.
+    - A guided tour walks you through the real app, and you can replay it.
+    - The whole app has a new visual design, in dark and light.
+    - Fixed notifications about new laws.
+
+- id: ios-24
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 24
+  title: Your account
+  items:
+    - You can edit your handle and school, pick an avatar, and delete your account from the app.
+    - Your avatar now shows next to your handle on leaderboards.
+    - Fixes for live sessions, notifications, and sync.
+
+- id: ios-23
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 23
+  title: Class messages
+  items:
+    - Students get a class inbox for messages from their instructor, reachable from the leaderboard.
+    - Security fixes.
+
+- id: ios-22
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 22
+  title: Smarter notifications
+  items:
+    - The app now decides which notification is most useful for you, and that decision happens on your device.
+
+- id: ios-21
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 21
+  title: Push for Washington alerts
+  items:
+    - The app registers for push, so a silent wake can check for Washington news sooner.
+
+- id: ios-20
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 20
+  title: Notifications
+  items:
+    - Washington Watch notifies you about new executive orders, laws, and bill actions.
+    - You get a nudge when your next chapter is ready.
+    - Added notification preferences in Settings.
+    - The app now requires iOS 14 or later.
+
+- id: ios-19
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 19
+  title: Live session pacing
+  items:
+    - Live questions now default to 60 seconds, and the last ten seconds look urgent.
+
+- id: ios-18
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 18
+  title: More reliable live answers
+  items:
+    - Live answers now time out cleanly, retry on their own, and show when they are still sending.
+
+- id: ios-17
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 17
+  title: Crash reporting on by default
+  items:
+    - Crash reporting is now on by default, with an off switch in Settings. Reports carry no personal information.
+
+- id: ios-16
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 16
+  title: Crash reporting connected
+  items:
+    - Release builds can now send crash reports for people who opted in.
+
+- id: web-2026-07-23-live
+  date: 2026-07-23
+  platform: Web
+  title: Live sessions for instructors
+  items:
+    - Instructors can build a session from the question bank and their own questions, then run it from a projector-ready console.
+    - The faculty portal now requires an instructor invite code, and instructors can invite colleagues.
+    - Added printable per-student session reports and a sortable student progress tab per class.
+    - Added session history and cross-class rollups.
+
+- id: ios-15
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 15
+  title: Roster names
+  items:
+    - You join a class with a roster name that only your instructor can see. Your handle stays pseudonymous everywhere else.
+    - Live session lobbies show a headcount.
+
+- id: ios-14
+  date: 2026-07-23
+  platform: iOS
+  version: 1.2.0
+  build: 14
+  title: Live class sessions
+  items:
+    - Students can join a live class game from the class screen, with server-timed scoring.
+
+- id: ios-13
+  date: 2026-07-22
+  platform: iOS
+  version: 1.2.0
+  build: 13
+  title: Sturdier sign-in
+  items:
+    - The sign-in sheet can no longer be dragged away mid-flow, and it clears the keyboard.
+
+- id: ios-12
+  date: 2026-07-22
+  platform: iOS
+  version: 1.2.0
+  build: 12
+  title: Onboarding into the FCLE
+  items:
+    - A new three-page onboarding leads into the can-you-pass check.
+    - Fixed sign-in emails.
+    - The keyboard no longer hides the sign-in field, and the reveal banner no longer clips.
+
+- id: content-2026-07-22
+  date: 2026-07-22
+  platform: Content
+  title: First bill summaries
+  items:
+    - Updated the congressional roster and added the first Congressional Research Service bill summaries.
+    - Updated executive orders from the Federal Register.
+
+- id: ios-11
+  date: 2026-07-22
+  platform: iOS
+  version: 1.2.0
+  build: 11
+  title: Audit fixes
+  items:
+    - Mock exams shuffle properly, and readiness rounds correctly.
+    - Fixed leaderboard bugs, including duplicate class chips, silent refreshes, and misleading join errors.
+    - Fixed a failed-state gap on bill summaries and a Pulse timeout.
+    - Fixed sync, trivia sampling, and settings reset bugs.
+    - Security fixes.
+
+- id: ios-10
+  date: 2026-07-21
+  platform: iOS
+  version: 1.2.0
+  build: 10
+  title: Cross-device sync
+  items:
+    - Sign in on a new device and your progress comes with you.
+    - The class leaderboard now signs you in right there, with no trip to Settings.
+    - All sign-in now goes through one shared email-code sheet.
+
+- id: ios-9
+  date: 2026-07-20
+  platform: iOS
+  version: 1.2.0
+  build: 9
+  title: The FCLE question bank
+  items:
+    - Published a cited 80-question FCLE practice bank, 20 questions per domain.
+    - Readiness now goes down to the objective level, and the app includes the exam blueprint.
+    - Pulse has Congressional Research Service bill summaries with tappable vocabulary.
+    - Opt-in decks, including one for each state's delegation.
+    - Chapters show per-deck progress, an unlock moment, and a guided start to the day.
+    - Added interface sounds, with a setting to control them.
+
+- id: web-2026-07-20-site
+  date: 2026-07-20
+  platform: Website
+  title: Website refresh
+  items:
+    - Refreshed the website for FCLE practice, Atlas, Pulse, and leaderboards.
+    - Added a faculty page that shows which domains a class misses most, as class-level aggregates.
+
+- id: ios-8
+  date: 2026-07-08
+  platform: iOS
+  version: 1.2.0
+  build: 8
+  title: FCLE practice and the Atlas
+  items:
+    - Optional accounts with email codes. The app still works without one.
+    - Added the Mock FCLE, a readiness indicator, and weak-area practice.
+    - Added class leaderboards and a score-challenge card to share your mock result.
+    - Atlas now covers all 537 members of Congress offline, with legislative activity and recent laws.
+    - Atlas adds executive orders from the Federal Register and a civic vocabulary.
+    - Added Pulse, a civic news feed, along with detailed per-card stats.
+    - Accessibility fixes for contrast and screen readers.
+
+- id: ios-appstore-launch
+  date: 2026-06-24
+  platform: iOS
+  version: 1.1.0
+  channel: App Store
+  title: Politiface on the App Store
+  items:
+    - The first public release of Politiface for iPhone.
+
+- id: ios-7
+  date: 2026-06-18
+  platform: iOS
+  version: 1.1.0
+  build: 7
+  title: Answer leaks fixed
+  items:
+    - Continue today's round from the chapter sheet no longer bounces you home.
+    - Zooming a photo in trivia or Endless no longer reveals the answer.
+    - Who holds this role questions in Endless can no longer offer two correct faces.
+
+- id: ios-6
+  date: 2026-06-18
+  platform: iOS
+  version: 1.1.0
+  build: 6
+  title: Portrait and trivia fixes
+  items:
+    - Corrected a wrong portrait of Chief Justice Roberts.
+    - Fixed an ambiguous who holds this role trivia question.
+
+- id: ios-5
+  date: 2026-06-18
+  platform: iOS
+  version: 1.1.0
+  build: 5
+  title: Review today fix
+  items:
+    - Review today no longer bounces you back to Home.
+
+- id: ios-4
+  date: 2026-06-16
+  platform: iOS
+  version: 1.1.0
+  build: 4
+  title: iPhone only
+  items:
+    - The app now targets iPhone only.
+
+- id: ios-3
+  date: 2026-06-15
+  platform: iOS
+  version: 1.1.0
+  build: 3
+  title: Lessons and chapters
+  items:
+    - Daily rounds now teach first, with a briefing and concept cards.
+    - Added lessons for six chapters, and completed chapters can be replayed.
+    - Added a first-run tour and a branded launch screen.
+    - Added a retention curve for each card in Memory.
+    - The round reveal compares you against a national civics benchmark.
+    - Crash reporting became truly opt-in, and the unused analytics toggle is gone.
+    - Politiface is now open source under the MIT license.
+
+- id: site-2026-06-15
+  date: 2026-06-15
+  platform: Website
+  title: Branded landing page
+  items:
+    - Redesigned the landing page with the Politiface brand.
+
+- id: ios-2
+  date: 2026-06-10
+  platform: iOS
+  version: 1.1.0
+  build: 2
+  title: Feedback, history, and themes
+  items:
+    - Answers now give instant feedback, photos are bigger, and chapters are clickable.
+    - Daily rounds have photos, and Home has a streak chip.
+    - Added history, reviews, Brain Strength, and a theme toggle.
+    - Softened some wording ahead of the App Store release.
+
+- id: site-2026-06-10
+  date: 2026-06-10
+  platform: Website
+  title: First website
+  items:
+    - Added the first landing page, with clean links for privacy and support.
+
+- id: ios-1
+  date: 2026-05-19
+  platform: iOS
+  version: 1.0.0
+  build: 1
+  title: First build
+  items:
+    - Spaced repetition with FSRS over a map of the U.S. government.
+    - Per-card stars, progress by node, and a Memory tab.
+    - Sessions survive backgrounding and crashes.
+    - Endless mode and a graph view of the system.
+    - A progression engine with an org-chart map and unlocks.
+    - Face-card decks for the Cabinet, the Executive Office, Congress, and the Supreme Court.
+    - Daily Trivia scored by how confident you are.
