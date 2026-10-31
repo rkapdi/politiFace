@@ -19,6 +19,18 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: ios-35
+  date: 2026-10-31
+  platform: iOS
+  version: 1.3.3
+  build: 35
+  title: Endless is back, trivia is gone
+  items:
+    - The Play button on Home now opens Endless.
+    - Daily rounds are shorter, with a briefing and five cards followed by a summary of your day.
+    - Removed Daily Trivia, including the daily round's score and share card.
+    - Past trivia runs no longer appear in History.
+
 - id: web-2026-10-31-console
   date: 2026-10-31
   platform: Web
