@@ -32,7 +32,9 @@ export function AdminHome() {
         <Stat label={A.home.statPeople} value={h.totals.people} />
         <Stat label={A.home.statStudents} value={h.totals.students} />
         <Stat label={A.home.statAnsweredLive7d} value={h.totals.answered_live_7d} />
-        <Stat label={A.home.statPendingRequests} value={h.pending_requests} tone={h.pending_requests > 0 ? 'sev-warn' : undefined} />
+        <Link to="/admin/invites" className="block">
+          <Stat label={A.home.statPendingRequests} value={h.pending_requests} tone={h.pending_requests > 0 ? 'sev-warn' : undefined} />
+        </Link>
         <Stat label={A.home.statSystem} value={healthLabel} tone={healthTone} />
       </div>
       <div className="grid gap-2 lg:grid-cols-[1.25fr_1fr]">

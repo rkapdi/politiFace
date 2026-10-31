@@ -38,7 +38,12 @@ export const S = {
       'That invite link has expired or was already used. Ask the person who invited you for a new one.',
     alreadyFaculty: 'You are already a verified instructor.',
     rosterName: 'Enter your name as your professor knows it (2 to 60 characters).',
-    badClassCode: 'That class code does not match a class. Check it with your professor.',
+    badClassCode:
+      'That code does not match a class or a running session. Check it with your professor.',
+    tooManyMessages:
+      'This class has reached 5 messages this hour. Try again shortly.',
+    dailyMessageLimit: 'This class has reached its 20 messages for today.',
+    messageTooLong: 'Keep the message to 240 characters.',
     signInToJoin: 'Sign in with your email to join as a student.',
     youTeach: 'You teach this class. Run the session from your console instead.',
     courseIdentifier:
@@ -81,6 +86,27 @@ export const S = {
     hint: 'Students enter this code in the Politiface app to join your class. Students without the app join when they sign in to a live session.',
     copy: 'Copy code',
     copied: 'Copied',
+  },
+  students: {
+    find: 'Find a student',
+    noMatch: 'No student matches that name.',
+  },
+  message: {
+    open: 'Message class',
+    title: 'Message the class',
+    intro:
+      'A short alert goes to every student with the app, and the message stays in their class inbox. Messages go to the whole class, so keep it general. Up to 5 an hour and 20 a day.',
+    label: 'Message',
+    send: 'Send to class',
+    close: 'Close',
+    sent: (devices: number) =>
+      `Sent. ${devices} ${devices === 1 ? 'device' : 'devices'} alerted.`,
+    noDevices:
+      'Saved to the class inbox. No student devices are registered for alerts yet.',
+    alertFailed:
+      'Saved to the class inbox, but the phone alert did not go out. Students will see it next time they open the app.',
+    recent: 'Sent to this class',
+    none: 'No messages sent yet.',
   },
   policy: {
     perStudent: 'This class reports per-student detail to faculty.',
@@ -155,6 +181,7 @@ export const S = {
     classHint:
       "Use a neutral name like 'Section A'; course codes, section and CRN numbers, and the official course title aren't allowed. Students join with a code you get on the next screen.",
     next: 'Next',
+    goHome: 'Go to your classes',
     createClass: 'Create class',
     className: 'Class name',
     classNamePlaceholder: 'Section A',
@@ -162,8 +189,12 @@ export const S = {
   },
   requestAccess: {
     title: 'Are you an instructor?',
+    open: 'Set up instructor access',
     intro:
-      'Request instructor access to create classes and run live sessions. If a colleague sent you an invite link, open that link instead.',
+      'Request instructor access to create classes and run live sessions. If a colleague sent you an invite, enter the code here or open the link.',
+    inviteCode: 'Invite code',
+    useInvite: 'Use invite',
+    requestHeading: 'No invite? Request access',
     school: 'School',
     courses: 'Courses you teach',
     coursesPlaceholder: 'American Government, 6 sections',
@@ -175,12 +206,12 @@ export const S = {
   student: {
     title: 'Your classes',
     none: 'You have not joined a class yet.',
-    joinSession: 'Join a live session',
+    enterCode: 'Have a code from your professor?',
+    enterCodeHint: 'It works for a class or a live session.',
+    code: 'Class or session code',
+    continue: 'Continue',
     sessionCode: 'Session code',
-    join: 'Join',
-    joinClass: 'Join a class',
     joinClassButton: 'Join class',
-    classCode: 'Class code',
     rosterName: 'Your name as your professor knows it',
     joined: 'You joined the class.',
     getAppPre: 'Practice between sessions with the',
@@ -190,6 +221,25 @@ export const S = {
   live: {
     allowGuests: 'Allow guests without sign-in',
     joinedNoAnswers: 'Joined, no answers',
+    filterDomain: 'Domain',
+    allDomains: 'All domains',
+    mineOnly: 'Only my questions',
+    noMatches: 'No questions match these filters.',
+    tooMany: 'A session can have up to 50 questions.',
+    answered: (n: number, joined: number) => `${n} of ${joined} answered`,
+    finish: 'Finish session',
+    endConfirm: 'End this session for everyone?',
+    endYes: 'End session',
+    endNo: 'Keep running',
+    standings: 'Final standings',
+    print: 'Print',
+    questions: 'Questions',
+    questionResult: (index: number, result: string) =>
+      `Question ${index}: ${result}`,
+    correct: 'correct',
+    incorrect: 'incorrect',
+    unanswered: 'no answer',
+    answeredOf: (n: number) => `${n} answered`,
   },
   join: {
     title: 'Join a live session',
@@ -207,8 +257,10 @@ export const S = {
     openConsole: 'Open your console',
     yourself: 'yourself',
     tryAgain: 'Try again',
+    backHome: 'Back to your classes',
   },
   staffTools: {
+    inviteOpen: 'Invite a colleague',
     inviteTitle: 'Invite an instructor',
     inviteHint: 'Creates a single-use link that verifies them and walks them into their first class. Links expire in 14 days.',
     recipient: 'Their email (optional, for your records)',
@@ -217,10 +269,6 @@ export const S = {
     inviteLinkLabel: 'Invite link',
     copy: 'Copy link',
     copied: 'Copied',
-    requestsTitle: 'Instructor requests',
-    noRequests: 'No pending requests.',
-    approve: 'Approve',
-    deny: 'Deny',
   },
   provenance: {
     verified: 'Server-verified',

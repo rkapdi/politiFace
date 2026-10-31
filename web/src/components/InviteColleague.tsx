@@ -2,8 +2,6 @@ import { useState, type FormEvent } from 'react'
 import {
   inviteLink,
   useAmVerifiedFaculty,
-  useDecideFacultyRequest,
-  useFacultyRequests,
   useMintFacultyInvite,
   useMyConsoleRole,
 } from '../lib/api'
@@ -12,7 +10,7 @@ import { Alert, Button, Card } from './ui'
 
 const field = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
 
-function InviteCard() {
+function InviteForm() {
   const mint = useMintFacultyInvite()
   const [recipient, setRecipient] = useState('')
   const [note, setNote] = useState('')
@@ -60,56 +58,26 @@ function InviteCard() {
   )
 }
 
-function RequestQueue() {
-  const requests = useFacultyRequests(true)
-  const decide = useDecideFacultyRequest()
-  return (
-    <Card>
-      <h2 className="mb-2 text-sm font-semibold text-slate-900">{S.staffTools.requestsTitle}</h2>
-      {requests.error ? <Alert tone="error">{requests.error.message}</Alert> : null}
-      {requests.data && requests.data.length === 0 ? (
-        <p className="text-sm text-slate-500">{S.staffTools.noRequests}</p>
-      ) : null}
-      <ul className="flex flex-col divide-y divide-slate-100">
-        {(requests.data ?? []).map(r => (
-          <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-slate-900">{r.handle}, {r.email}</p>
-              <p className="text-xs text-slate-500">
-                {r.school}, {r.courses}{r.note ? `. ${r.note}` : ''}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button disabled={decide.isPending}
-                onClick={() => decide.mutate({ id: r.id, approve: true })}>
-                {S.staffTools.approve}
-              </Button>
-              <Button variant="ghost" disabled={decide.isPending}
-                onClick={() => decide.mutate({ id: r.id, approve: false })}>
-                {S.staffTools.deny}
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
-    </Card>
-  )
-}
-
-/** Onboarding tools until the phase 2 admin console replaces them. */
-export function StaffTools() {
+/**
+ * For verified instructors. Staff invite from the console instead. Console
+ * role 'faculty' also covers unverified co-faculty (added by a verified
+ * professor but who has not redeemed their own invite yet), who cannot mint,
+ * so this gates on actual verification, not just the role.
+ */
+export function InviteColleague() {
   const role = useMyConsoleRole()
-  // Console role 'faculty' also covers unverified co-faculty (added by a
-  // verified professor but who has not redeemed their own invite yet).
-  // Minting an invite as one of those hits an unmapped server error, so the
-  // invite card is gated on actual verification, not just the role.
   const verified = useAmVerifiedFaculty(role.data === 'faculty')
-  if (role.data !== 'staff' && role.data !== 'faculty') return null
-  const showInvite = role.data === 'staff' || verified.data === true
+  const [open, setOpen] = useState(false)
+  if (role.data !== 'faculty' || verified.data !== true) return null
   return (
-    <div className="mt-6 grid gap-4 lg:grid-cols-2">
-      {showInvite ? <InviteCard /> : null}
-      {role.data === 'staff' ? <RequestQueue /> : null}
+    <div className="mt-6">
+      {open ? (
+        <InviteForm />
+      ) : (
+        <Button variant="ghost" aria-expanded={false} onClick={() => setOpen(true)}>
+          {S.staffTools.inviteOpen}
+        </Button>
+      )}
     </div>
   )
 }

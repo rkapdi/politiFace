@@ -6,6 +6,8 @@ import {
   liveReveal,
   liveScoreboard,
   useAdvanceLiveSession,
+  useAnsweredCount,
+  useCohortRole,
   useEndLiveSession,
   useLiveSessionMeta,
   useLogExport,
@@ -124,6 +126,47 @@ function RevealPanel({ sessionId, index }: { sessionId: string; index: number })
   )
 }
 
+// One mark per question, in the same order for every student. Glyphs as well
+// as color, so the pattern survives printing and color blindness.
+function QuestionMarks({
+  questionIds,
+  perQuestion,
+}: {
+  questionIds: string[]
+  perQuestion: Record<string, boolean | undefined>
+}) {
+  return (
+    <span className="inline-flex gap-1">
+      {questionIds.map((id, i) => {
+        const v = perQuestion[id]
+        const result =
+          v === true
+            ? S.live.correct
+            : v === false
+              ? S.live.incorrect
+              : S.live.unanswered
+        return (
+          <span
+            key={id}
+            role="img"
+            aria-label={S.live.questionResult(i + 1, result)}
+            title={S.live.questionResult(i + 1, result)}
+            className={
+              v === true
+                ? 'text-pass'
+                : v === false
+                  ? 'text-risk'
+                  : 'text-slate-400'
+            }
+          >
+            {v === true ? '✓' : v === false ? '✗' : '·'}
+          </span>
+        )
+      })}
+    </span>
+  )
+}
+
 function EndedPanel({
   cohortId,
   sessionId,
@@ -133,7 +176,12 @@ function EndedPanel({
 }) {
   const stats = useSessionStats(sessionId)
   const report = useSessionReport(sessionId)
+  const board = useQuery({
+    queryKey: ['session', sessionId, 'board', 'final'],
+    queryFn: () => liveScoreboard(sessionId),
+  })
   const logExport = useLogExport()
+  const questionIds = (stats.data ?? []).map(s => s.question_id)
 
   const exportReport = () => {
     if (!report.data) return
@@ -151,6 +199,12 @@ function EndedPanel({
 
   return (
     <div className="flex flex-col gap-4">
+      <Card className="print:hidden">
+        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          {S.live.standings}
+        </h2>
+        {board.data ? <Scoreboard rows={board.data} /> : <Spinner />}
+      </Card>
       <Card>
         <h2 className="mb-3 text-sm font-semibold text-slate-900">
           What to reteach
@@ -164,9 +218,10 @@ function EndedPanel({
                   {s.stem}
                 </span>
                 <span
-                  className={`font-medium ${s.correct_rate < 0.6 ? 'text-red-700' : 'text-slate-500'}`}
+                  className={`shrink-0 font-medium ${s.correct_rate < 0.6 ? 'text-red-700' : 'text-slate-500'}`}
                 >
-                  {Math.round(s.correct_rate * 100)}% correct
+                  {Math.round(s.correct_rate * 100)}% correct,{' '}
+                  {S.live.answeredOf(s.answered)}
                 </span>
               </li>
             ))}
@@ -179,9 +234,14 @@ function EndedPanel({
             Student report
           </h2>
           {report.data ? (
-            <Button variant="ghost" onClick={exportReport}>
-              Export CSV
-            </Button>
+            <div className="flex gap-2 print:hidden">
+              <Button variant="ghost" onClick={() => window.print()}>
+                {S.live.print}
+              </Button>
+              <Button variant="ghost" onClick={exportReport}>
+                Export CSV
+              </Button>
+            </div>
           ) : null}
         </div>
         {report.error ? (
@@ -195,7 +255,8 @@ function EndedPanel({
                 <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
                   <th scope="col" className="py-2 pr-3 font-medium">Student</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Score</th>
-                  <th scope="col" className="py-2 font-medium">Correct</th>
+                  <th scope="col" className="py-2 pr-3 font-medium">Correct</th>
+                  <th scope="col" className="py-2 font-medium">{S.live.questions}</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,7 +264,7 @@ function EndedPanel({
                   <tr key={r.student_ref} className="border-b border-slate-100">
                     <td className="py-2 pr-3">{r.roster_name}</td>
                     <td className="py-2 pr-3 tabular-nums">{r.score}</td>
-                    <td className="py-2 tabular-nums">
+                    <td className="py-2 pr-3 tabular-nums">
                       {r.answered === 0 ? (
                         <span className="text-slate-500">
                           {S.live.joinedNoAnswers}
@@ -211,6 +272,14 @@ function EndedPanel({
                       ) : (
                         `${r.correct_count}/${r.answered}`
                       )}
+                    </td>
+                    <td className="py-2">
+                      <QuestionMarks
+                        questionIds={questionIds}
+                        perQuestion={
+                          (r.per_question ?? {}) as Record<string, boolean | undefined>
+                        }
+                      />
                     </td>
                   </tr>
                 ))}
@@ -234,51 +303,89 @@ export function LiveRunner({
   const { state, error } = useLiveSession(sessionId)
   const advance = useAdvanceLiveSession()
   const end = useEndLiveSession()
+  // Instructors decide when to reveal by how many have answered. TAs can run
+  // sessions but cannot read answers under RLS, so they would only see zero.
+  const isFaculty = useCohortRole(cohortId).data === 'faculty'
+  const running = state?.status === 'question'
+  const answered = useAnsweredCount(
+    sessionId,
+    state?.question?.id,
+    isFaculty && running,
+  )
+  const joined = useParticipantCount(sessionId, isFaculty && running)
+  const [confirmingEnd, setConfirmingEnd] = useState(false)
 
   if (meta.isPending) return <Spinner label="Loading session" />
   if (meta.error) return <Alert tone="error">{meta.error.message}</Alert>
   if (!meta.data) return null
 
   const status = state?.status ?? meta.data.status
+  const isLastQuestion =
+    state?.total != null && (state.index ?? 0) + 1 >= state.total
+  const actionError = advance.error ?? end.error
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <a href={`#/class/${cohortId}`} className="text-sm text-slate-500 hover:underline">
+          <a href={`#/class/${cohortId}?tab=live`} className="text-sm text-slate-500 hover:underline print:hidden">
             Back to class
           </a>
           <h1 className="text-xl font-semibold text-slate-900">
             {meta.data.title}
           </h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 print:hidden">
           <Badge tone={status === 'ended' ? 'slate' : 'green'}>{status}</Badge>
-          {status !== 'ended' ? (
-            <>
-              <Button
-                onClick={() => advance.mutate({ sessionId })}
-                disabled={advance.isPending}
-              >
-                {status === 'lobby'
-                  ? 'Start'
-                  : status === 'question'
-                    ? 'Reveal'
-                    : 'Next question'}
-              </Button>
-              <Button
-                variant="danger"
-                onClick={() => end.mutate({ sessionId })}
-                disabled={end.isPending}
-              >
-                End session
-              </Button>
-            </>
+          {status === 'question' || status === 'reveal' ? (
+            <Button
+              onClick={() => advance.mutate({ sessionId })}
+              disabled={advance.isPending}
+            >
+              {status === 'question'
+                ? 'Reveal'
+                : isLastQuestion
+                  ? S.live.finish
+                  : 'Next question'}
+            </Button>
+          ) : null}
+          {status !== 'ended' && !confirmingEnd ? (
+            <Button
+              variant="danger"
+              onClick={() => setConfirmingEnd(true)}
+              disabled={end.isPending}
+            >
+              End session
+            </Button>
           ) : null}
         </div>
       </div>
 
+      {status !== 'ended' && confirmingEnd ? (
+        <Card className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm font-medium text-slate-900">{S.live.endConfirm}</p>
+          <div className="flex gap-2">
+            <Button
+              variant="danger"
+              disabled={end.isPending}
+              onClick={() =>
+                end.mutate(
+                  { sessionId },
+                  { onSettled: () => setConfirmingEnd(false) },
+                )
+              }
+            >
+              {S.live.endYes}
+            </Button>
+            <Button variant="ghost" onClick={() => setConfirmingEnd(false)}>
+              {S.live.endNo}
+            </Button>
+          </div>
+        </Card>
+      ) : null}
+
       {error ? <Alert tone="error">{error}</Alert> : null}
+      {actionError ? <Alert tone="error">{actionError.message}</Alert> : null}
 
       {status === 'lobby' ? (
         <Lobby
@@ -303,6 +410,11 @@ export function LiveRunner({
           <p className="text-lg font-medium text-slate-900">
             {state.question.stem}
           </p>
+          {isFaculty && answered.data !== undefined ? (
+            <p aria-live="polite" className="mt-1 text-sm text-slate-600">
+              {S.live.answered(answered.data, joined.data ?? answered.data)}
+            </p>
+          ) : null}
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {state.question.options.map(o => (
               <li

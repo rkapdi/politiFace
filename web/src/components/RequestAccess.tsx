@@ -6,10 +6,34 @@ import { Alert, Button, Card, Spinner } from './ui'
 
 const field = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
 
-export function RequestAccess() {
+function InviteCodeForm() {
+  const [code, setCode] = useState('')
+  return (
+    <form
+      onSubmit={(e: FormEvent) => {
+        e.preventDefault()
+        window.location.hash = `#/welcome?invite=${encodeURIComponent(code.trim().toUpperCase())}`
+      }}
+      className="mt-3 flex items-end gap-2"
+    >
+      <label className="flex-1 text-sm text-slate-700">
+        {S.requestAccess.inviteCode}
+        <input required autoComplete="off" value={code}
+          onChange={e => setCode(e.target.value.toUpperCase())}
+          className={`${field} uppercase`} />
+      </label>
+      <Button type="submit" variant="ghost">{S.requestAccess.useInvite}</Button>
+    </form>
+  )
+}
+
+// Most accounts reaching this are students, so it starts as one line unless
+// the person already has a request in flight or just hit the need for it.
+export function RequestAccess({ defaultOpen = false }: { defaultOpen?: boolean }) {
   const queryClient = useQueryClient()
   const request = useMyAccessRequest()
   const submit = useRequestFacultyAccess()
+  const [expanded, setExpanded] = useState(defaultOpen)
   const [school, setSchool] = useState('')
   const [courses, setCourses] = useState('')
   const [note, setNote] = useState('')
@@ -30,8 +54,19 @@ export function RequestAccess() {
     submit.mutate({ school: school.trim(), courses: courses.trim(), note: note.trim() })
   }
 
+  if (!expanded && !status) {
+    return (
+      <div className="mx-auto w-full max-w-lg text-center">
+        <span className="text-sm text-slate-600">{S.requestAccess.title} </span>
+        <Button variant="ghost" aria-expanded={false} onClick={() => setExpanded(true)}>
+          {S.requestAccess.open}
+        </Button>
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto flex max-w-lg flex-col gap-4">
+    <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
       <Card>
         <h2 className="text-lg font-semibold text-slate-900">{S.requestAccess.title}</h2>
         <p className="mt-1 text-sm text-slate-600">{S.requestAccess.intro}</p>
@@ -40,29 +75,35 @@ export function RequestAccess() {
             <Alert tone="info">{S.requestAccess.pending}</Alert>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="mt-3 flex flex-col gap-3">
-            {status === 'denied' ? <Alert tone="error">{S.requestAccess.denied}</Alert> : null}
-            <label className="text-sm text-slate-700">
-              {S.requestAccess.school}
-              <input required minLength={2} maxLength={120} value={school}
-                onChange={e => setSchool(e.target.value)} className={field} />
-            </label>
-            <label className="text-sm text-slate-700">
-              {S.requestAccess.courses}
-              <input required minLength={2} maxLength={200} value={courses}
-                placeholder={S.requestAccess.coursesPlaceholder}
-                onChange={e => setCourses(e.target.value)} className={field} />
-            </label>
-            <label className="text-sm text-slate-700">
-              {S.requestAccess.note}
-              <textarea rows={2} maxLength={500} value={note}
-                onChange={e => setNote(e.target.value)} className={field} />
-            </label>
-            {submit.error ? <Alert tone="error">{submit.error.message}</Alert> : null}
-            <div>
-              <Button type="submit" disabled={submit.isPending}>{S.requestAccess.submit}</Button>
-            </div>
-          </form>
+          <>
+            <InviteCodeForm />
+            <h3 className="mt-4 border-t border-slate-100 pt-3 text-sm font-semibold text-slate-900">
+              {S.requestAccess.requestHeading}
+            </h3>
+            <form onSubmit={onSubmit} className="mt-2 flex flex-col gap-3">
+              {status === 'denied' ? <Alert tone="error">{S.requestAccess.denied}</Alert> : null}
+              <label className="text-sm text-slate-700">
+                {S.requestAccess.school}
+                <input required minLength={2} maxLength={120} value={school}
+                  onChange={e => setSchool(e.target.value)} className={field} />
+              </label>
+              <label className="text-sm text-slate-700">
+                {S.requestAccess.courses}
+                <input required minLength={2} maxLength={200} value={courses}
+                  placeholder={S.requestAccess.coursesPlaceholder}
+                  onChange={e => setCourses(e.target.value)} className={field} />
+              </label>
+              <label className="text-sm text-slate-700">
+                {S.requestAccess.note}
+                <textarea rows={2} maxLength={500} value={note}
+                  onChange={e => setNote(e.target.value)} className={field} />
+              </label>
+              {submit.error ? <Alert tone="error">{submit.error.message}</Alert> : null}
+              <div>
+                <Button type="submit" disabled={submit.isPending}>{S.requestAccess.submit}</Button>
+              </div>
+            </form>
+          </>
         )}
       </Card>
     </div>

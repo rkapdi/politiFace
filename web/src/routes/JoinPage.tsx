@@ -270,11 +270,13 @@ function GuestReveal({ sessionId, index }: { sessionId: string; index: number })
 }
 
 function GuestEnded({ sessionId }: { sessionId: string }) {
+  const { session } = useSession()
   const board = useQuery<ScoreboardRow[]>({
     queryKey: ['guest', sessionId, 'final'],
     queryFn: () => liveScoreboard(sessionId),
   })
   const me = board.data?.find(r => r.is_me)
+  const hasHome = session !== null && !session.user.is_anonymous
   return (
     <div className="flex flex-col gap-4">
       {me ? (
@@ -302,6 +304,14 @@ function GuestEnded({ sessionId }: { sessionId: string }) {
         >
           Get Politiface
         </a>
+        {hasHome ? (
+          <a
+            href="#/"
+            className="mt-2 block text-sm font-medium text-slate-900 underline"
+          >
+            {S.join.backHome}
+          </a>
+        ) : null}
       </Card>
     </div>
   )
@@ -314,7 +324,13 @@ function codeFromHash(): string {
 
 export function JoinPage() {
   const { session, loading } = useSession()
-  const [code, setCode] = useState(codeFromHash)
+  const [code, setCodeState] = useState(codeFromHash)
+  // Keep a typed code in the URL, so a reload mid-session (flaky campus wifi)
+  // lands back on this session instead of an empty form.
+  const setCode = (next: string) => {
+    window.history.replaceState(null, '', `#/join?code=${encodeURIComponent(next)}`)
+    setCodeState(next)
+  }
   const [joined, setJoined] = useState<LiveJoin | null>(null)
   const [asGuest, setAsGuest] = useState(false)
   // While the session is still resolving, session is always null: do not

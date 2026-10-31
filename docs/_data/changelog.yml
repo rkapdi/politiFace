@@ -19,6 +19,21 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-10-31-console
+  date: 2026-10-31
+  platform: Web
+  title: One console for instructors and students
+  items:
+    - The old faculty page now opens the class console, which has everything it did.
+    - Class messages now alert student phones, and instructors can message a class and see past messages from the top of any class page.
+    - The class page remembers its open tab when you go into a student or a session and come back.
+    - The Students tab is now a single table with a name search and one export.
+    - Live sessions show how many students have answered, ask before ending for everyone, and end with final standings, per-question results, and a printable report.
+    - The session question picker can filter by domain or to your own questions.
+    - A reteach suggestion now opens a new session on the weak domain.
+    - Students enter one code for a class or a live session, without choosing which kind it is.
+    - A new class opens directly on its own page, and an instructor reopening an old invite link goes straight to their classes.
+
 - id: web-2026-10-31-changelog
   date: 2026-10-31
   platform: Website

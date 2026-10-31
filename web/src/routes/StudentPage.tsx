@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
-import * as Dialog from '@radix-ui/react-dialog'
 import {
   useAssignPractice,
   useDrilldown,
   useLogExport,
-  useSendAnnouncement,
   useStudentTrend,
 } from '../lib/api'
 import { downloadCsv } from '../lib/csv'
 import { Alert, Button, Card, Stat } from '../components/ui'
 import { DomainBars } from '../components/DomainBars'
+import { MessageClassDialog } from '../components/MessageClassDialog'
 import { StudentTrendChart } from '../components/StudentTrendChart'
 import { SkeletonChart, SkeletonStats } from '../components/Skeleton'
 import { daysAgo } from '../components/StudentsTab'
@@ -21,64 +20,6 @@ export function StudentPage() {
     studentRef: string
   }
   return <StudentView cohortId={cohortId} studentRef={studentRef} />
-}
-
-export function MessageClassDialog({
-  cohortId,
-  prefill,
-  open,
-  onOpenChange,
-}: {
-  cohortId: string
-  prefill: string
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  const send = useSendAnnouncement()
-  const [body, setBody] = useState(prefill)
-
-  return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-slate-900/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-[min(28rem,90vw)] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 shadow-lg">
-          <Dialog.Title className="text-base font-semibold text-slate-900">
-            Message the class
-          </Dialog.Title>
-          <Dialog.Description className="mt-1 text-sm text-slate-500">
-            Announcements go to the whole class in the app. Per-student
-            messages are not supported, so keep it general.
-          </Dialog.Description>
-          <label htmlFor="announce-body" className="mt-3 block text-sm font-medium text-slate-700">
-            Message
-          </label>
-          <textarea
-            id="announce-body"
-            rows={4}
-            value={body}
-            onChange={e => setBody(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900"
-          />
-          <div className="mt-3 flex justify-end gap-2">
-            <Dialog.Close asChild>
-              <Button variant="ghost">Cancel</Button>
-            </Dialog.Close>
-            <Button
-              disabled={send.isPending || body.trim().length === 0}
-              onClick={() =>
-                send.mutate(
-                  { cohortId, body: body.trim() },
-                  { onSuccess: () => onOpenChange(false) },
-                )
-              }
-            >
-              Send to class
-            </Button>
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
-  )
 }
 
 export function StudentView({
@@ -124,7 +65,7 @@ export function StudentView({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
-          <a href={`#/class/${cohortId}`} className="text-sm text-slate-500 hover:underline">
+          <a href={`#/class/${cohortId}?tab=students`} className="text-sm text-slate-500 hover:underline">
             Back to class
           </a>
           <h1 className="text-xl font-semibold text-slate-900">
