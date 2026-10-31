@@ -5,47 +5,32 @@ import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card } from '../components/ui'
 import { EmptyState } from '../components/EmptyState'
 import { SkeletonStats } from '../components/Skeleton'
-import { StaffTools } from '../components/StaffTools'
+import { InviteColleague } from '../components/InviteColleague'
 import { RequestAccess } from '../components/RequestAccess'
 
-export function CreateClassCard() {
+// A new class opens on its own page, where the join code is already at the
+// top, so there is no separate "created" screen to get stuck on.
+export function CreateClassForm({ onCancel }: { onCancel?: () => void }) {
   const create = useCreateCohort()
-  const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [term, setTerm] = useState('')
-  const created = create.data as { join_code: string } | undefined
-
-  if (created) {
-    return (
-      <Card>
-        <h2 className="text-sm font-semibold text-slate-900">Class created</h2>
-        <p className="mt-2 text-sm text-slate-600">
-          Students join with this code in the app:
-        </p>
-        <p className="mt-1 text-3xl font-bold tracking-[0.3em] text-slate-900">
-          {created.join_code}
-        </p>
-      </Card>
-    )
-  }
-
-  if (!open) {
-    return (
-      <div>
-        <Button onClick={() => setOpen(true)}>Create a class</Button>
-      </div>
-    )
-  }
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    create.mutate({ name: name.trim(), term: term.trim() || null })
+    create.mutate(
+      { name: name.trim(), term: term.trim() || null },
+      {
+        onSuccess: d => {
+          window.location.hash = `#/class/${(d as { id: string }).id}`
+        },
+      },
+    )
   }
 
   return (
     <Card>
       <h2 className="mb-3 text-sm font-semibold text-slate-900">
-        Create a class
+        {S.common.createClass}
       </h2>
       <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
         <label className="text-sm text-slate-700">
@@ -72,9 +57,11 @@ export function CreateClassCard() {
         <Button type="submit" disabled={create.isPending}>
           Create
         </Button>
-        <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-          Cancel
-        </Button>
+        {onCancel ? (
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            {S.common.cancel}
+          </Button>
+        ) : null}
       </form>
       <p id="class-name-hint" className="mt-2 text-xs text-slate-500">
         {S.classNames.hint}
@@ -85,7 +72,7 @@ export function CreateClassCard() {
           {/* A TA or an unverified co-faculty who tries to create a class:
               give them the ask right here instead of a dead end. */}
           {create.error.message === S.errors.needsVerification ? (
-            <RequestAccess />
+            <RequestAccess defaultOpen />
           ) : null}
         </div>
       ) : null}
@@ -95,6 +82,7 @@ export function CreateClassCard() {
 
 export function ClassesPage() {
   const { data, isPending, error } = useMyClasses()
+  const [creating, setCreating] = useState(false)
 
   if (isPending) return <SkeletonStats count={2} />
   if (error) return <Alert tone="error">{error.message}</Alert>
@@ -107,8 +95,8 @@ export function ClassesPage() {
           title={S.empty.classesTitle}
           hint={S.empty.classesHint}
         />
-        <CreateClassCard />
-        <StaffTools />
+        <CreateClassForm />
+        <InviteColleague />
       </div>
     )
   }
@@ -116,8 +104,16 @@ export function ClassesPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">Your classes</h1>
+        <h1 className="text-xl font-semibold text-slate-900">{S.common.yourClasses}</h1>
+        {creating ? null : (
+          <Button onClick={() => setCreating(true)}>{S.common.createClass}</Button>
+        )}
       </div>
+      {creating ? (
+        <div className="mb-4">
+          <CreateClassForm onCancel={() => setCreating(false)} />
+        </div>
+      ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         {data.map(c => (
           <Card key={c.cohort_id} className="hover:border-slate-400">
@@ -166,10 +162,7 @@ export function ClassesPage() {
           </Card>
         ))}
       </div>
-      <div className="mt-4">
-        <CreateClassCard />
-      </div>
-      <StaffTools />
+      <InviteColleague />
     </div>
   )
 }

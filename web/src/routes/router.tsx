@@ -13,7 +13,7 @@ import { S } from '../lib/strings'
 import { logOpsEvent } from '../lib/opsLog'
 import { HomePage } from './HomePage'
 import { StyleguidePage } from './StyleguidePage'
-import { ClassPage } from './ClassPage'
+import { ClassPage, parseClassTab } from './ClassPage'
 import { StudentPage } from './StudentPage'
 import { LiveRunnerPage } from './LiveRunnerPage'
 import { JoinPage } from './JoinPage'
@@ -53,6 +53,10 @@ const classRoute = createRoute({
   getParentRoute: () => shellRoute,
   path: '/class/$cohortId',
   component: ClassPage,
+  validateSearch: (search: Record<string, unknown>) => {
+    const tab = parseClassTab(search.tab)
+    return tab ? { tab } : {}
+  },
 })
 
 const studentRoute = createRoute({

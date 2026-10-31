@@ -1,7 +1,15 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 
+const role = vi.hoisted(() => ({
+  value: 'ta',
+  send: vi.fn(),
+  sent: undefined as number | null | undefined,
+  sendError: null as null | Error,
+}))
+
 vi.mock('../lib/api', () => ({
+  useOwnQuestions: () => ({ data: [], isPending: false, error: null }),
   useCohortOverview: () => ({
     data: { students: 32, active_7d: 21, answers_total: 480, mocks_completed: 12 },
     isPending: false,
@@ -40,7 +48,7 @@ vi.mock('../lib/api', () => ({
     isPending: false,
     error: null,
   }),
-  useCohortRole: () => ({ data: 'ta', isPending: false, error: null }),
+  useCohortRole: () => ({ data: role.value, isPending: false, error: null }),
   useCohortInfo: () => ({
     data: { name: 'POS 2041-67', term: '2026F', join_code: 'K7QX2M' },
     isPending: false,
@@ -59,6 +67,16 @@ vi.mock('../lib/api', () => ({
           kind: 'at_risk',
           headline: '14 students project below the pass line',
           detail: 'The Students tab ranks them lowest readiness first.',
+        },
+        {
+          kind: 'weak_domain',
+          headline: 'U.S. Constitution is dragging the class',
+          detail: 'Average readiness 46%.',
+        },
+        {
+          kind: 'participation',
+          headline: 'Only 12 of 32 practiced this week',
+          detail: 'A class announcement brings students back.',
         },
       ],
     },
@@ -79,7 +97,20 @@ vi.mock('../lib/api', () => ({
   useAtRisk: () => ({ data: [], isPending: false, error: null }),
   useStudentProgress: () => ({ data: [], isPending: false, error: null }),
   useCohortSessions: () => ({ data: [], isPending: false, error: null }),
-  useSendAnnouncement: () => ({ mutate: vi.fn(), isPending: false }),
+  useSendAnnouncement: () => ({
+    mutate: role.send,
+    isPending: false,
+    isSuccess: role.sent !== undefined,
+    data: role.sent === undefined ? undefined : { alerted: role.sent },
+    error: role.sendError,
+  }),
+  useClassAnnouncements: (_c: string, enabled: boolean) => ({
+    data: enabled
+      ? [{ id: 'a1', body: 'Bring a laptop Thursday.', created_at: new Date().toISOString() }]
+      : undefined,
+    isPending: false,
+    error: null,
+  }),
   usePickableQuestions: () => ({
     data: [
       { id: 'q1', stem: 'Which article establishes the judiciary?', domain_id: 2, cohort_id: null },
@@ -105,7 +136,91 @@ vi.mock('../lib/supabase', () => ({
   },
 }))
 
-import { ClassView } from './ClassPage'
+import { ClassView, parseClassTab } from './ClassPage'
+
+describe('ClassView messaging', () => {
+  beforeEach(() => {
+    role.value = 'faculty'
+    role.send.mockReset()
+    role.sent = undefined
+    role.sendError = null
+  })
+  afterEach(() => {
+    role.value = 'ta'
+  })
+
+  it('lets faculty message the class from the header and shows past messages', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('button', { name: /^message class$/i }))
+    expect(await screen.findByText('Bring a laptop Thursday.')).toBeInTheDocument()
+    const box = screen.getByLabelText(/^message$/i)
+    expect(box).toHaveValue('')
+    expect(box).toHaveAttribute('maxlength', '240')
+    await userEvent.type(box, 'Mock on Friday')
+    await userEvent.click(screen.getByRole('button', { name: /send to class/i }))
+    expect(role.send.mock.calls[0][0]).toEqual({ cohortId: 'c1', body: 'Mock on Friday' })
+  })
+
+  it.each([
+    [14, /14 devices alerted/i],
+    [1, /1 device alerted/i],
+    [0, /no student devices/i],
+    [null, /phone alert did not go out/i],
+  ])('reports what happened to the alert (%s)', async (alerted, expected) => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    role.sent = alerted
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('button', { name: /^message class$/i }))
+    expect(await screen.findByText(expected)).toBeInTheDocument()
+  })
+
+  it('shows a send failure instead of swallowing it', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    role.sendError = new Error('This class has reached 5 messages this hour. Try again shortly.')
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('button', { name: /^message class$/i }))
+    expect(await screen.findByRole('alert')).toHaveTextContent(/5 messages this hour/i)
+  })
+
+  it('gives TAs neither message path, since the server refuses them', () => {
+    role.value = 'ta'
+    render(<ClassView cohortId="c1" />)
+    expect(screen.queryByRole('button', { name: /^message class$/i })).toBeNull()
+    expect(screen.queryByRole('button', { name: /message the class/i })).toBeNull()
+  })
+})
+
+describe('ClassView tabs and pulse', () => {
+  it('follows the tab it is given and reports changes, so the URL can hold it', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    const onTabChange = vi.fn()
+    render(<ClassView cohortId="c1" tab="students" onTabChange={onTabChange} />)
+    expect(screen.getByRole('tab', { name: /students/i })).toHaveAttribute('aria-selected', 'true')
+    await userEvent.click(screen.getByRole('tab', { name: /live/i }))
+    expect(onTabChange).toHaveBeenCalledWith('live')
+  })
+
+  it('sends a TA who follows a settings link to the overview, not a blank panel', () => {
+    render(<ClassView cohortId="c1" tab="settings" />)
+    expect(screen.getByRole('tab', { name: /overview/i })).toHaveAttribute('aria-selected', 'true')
+  })
+
+  it('reads only known tabs from the URL', () => {
+    expect(parseClassTab('students')).toBe('students')
+    expect(parseClassTab('nonsense')).toBeUndefined()
+    expect(parseClassTab(undefined)).toBeUndefined()
+  })
+
+  it('reteach opens a session already filtered to the weak domain', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    render(<ClassView cohortId="c1" />)
+    await userEvent.click(screen.getByRole('button', { name: /run a reteach session/i }))
+    expect(screen.getByRole('tab', { name: /live/i })).toHaveAttribute('aria-selected', 'true')
+    expect(screen.getByLabelText(/session title/i)).toBeInTheDocument()
+    expect(screen.getByRole('combobox', { name: /^domain$/i })).toHaveValue('2')
+  })
+})
 
 describe('ClassView overview', () => {
   it('shows the class name and the join code professors hand out', async () => {

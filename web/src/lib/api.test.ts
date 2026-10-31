@@ -1,13 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const { rpcMock } = vi.hoisted(() => ({
+const { rpcMock, invokeMock, opsMock } = vi.hoisted(() => ({
   rpcMock: vi.fn(async () => ({ data: [{ ok: true }], error: null })),
+  invokeMock: vi.fn(),
+  opsMock: vi.fn(),
 }))
 vi.mock('./supabase', () => ({
-  supabase: { rpc: rpcMock },
+  supabase: { rpc: rpcMock, functions: { invoke: invokeMock } },
 }))
+vi.mock('./opsLog', () => ({ logOpsEvent: opsMock }))
 
-import { atRiskStudents, friendlyMessage, inviteLink } from './api'
+import { atRiskStudents, friendlyMessage, inviteLink, pushAnnouncement } from './api'
 
 describe('friendlyMessage', () => {
   it('explains the course-identifier rule for class names and session titles', () => {
@@ -72,5 +75,44 @@ describe('inviteLink', () => {
     expect(inviteLink('D7QMJA')).toBe(
       `${window.location.origin}${window.location.pathname}#/welcome?invite=D7QMJA`,
     )
+  })
+})
+
+describe('pushAnnouncement', () => {
+  it('asks class-announce to alert devices, and returns how many it reached', async () => {
+    invokeMock.mockResolvedValueOnce({ data: { sent: 14 }, error: null })
+    await expect(pushAnnouncement('a1')).resolves.toBe(14)
+    expect(invokeMock).toHaveBeenCalledWith('class-announce', {
+      body: { announcement_id: 'a1' },
+    })
+  })
+
+  it('reports and logs a failed delivery instead of hiding it', async () => {
+    opsMock.mockClear()
+    invokeMock.mockResolvedValueOnce({
+      data: null,
+      error: { message: 'Failed to send a request to the Edge Function' },
+    })
+    await expect(pushAnnouncement('a1')).resolves.toBeNull()
+    expect(opsMock).toHaveBeenCalledWith(
+      'client_error',
+      expect.objectContaining({ code: 'announce_push_failed' }),
+    )
+  })
+
+  it('survives a thrown network error', async () => {
+    invokeMock.mockRejectedValueOnce(new Error('offline'))
+    await expect(pushAnnouncement('a1')).resolves.toBeNull()
+  })
+})
+
+describe('announcement limits', () => {
+  it('explains the rate limits rather than a generic failure', () => {
+    expect(
+      friendlyMessage({ message: 'too many messages this hour (5 max); try again shortly' }),
+    ).toMatch(/5 messages this hour/)
+    expect(
+      friendlyMessage({ message: 'daily message limit reached for this class' }),
+    ).toMatch(/20 messages for today/)
   })
 })

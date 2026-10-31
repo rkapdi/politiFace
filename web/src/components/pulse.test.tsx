@@ -35,11 +35,11 @@ describe('PulseBanner', () => {
       screen.getByText(/18 of 32 students project above the pass line/),
     ).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: /see who/i }))
-    expect(onAction).toHaveBeenCalledWith('at_risk')
+    expect(onAction).toHaveBeenCalledWith(pulse.cards[0])
     await userEvent.click(
       screen.getByRole('button', { name: /run a reteach session/i }),
     )
-    expect(onAction).toHaveBeenCalledWith('weak_domain')
+    expect(onAction).toHaveBeenCalledWith(pulse.cards[1])
   })
 
   it('renders the below-floor state without statistics', () => {

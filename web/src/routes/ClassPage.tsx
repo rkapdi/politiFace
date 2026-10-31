@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useParams } from '@tanstack/react-router'
+import { useNavigate, useParams, useSearch } from '@tanstack/react-router'
 import {
   useCohortDistribution,
   useCohortOverview,
   useCohortPulse,
   useCohortRole,
+  useDomains,
   useDomainStats,
   useEngagementTrend,
   useLogExport,
@@ -37,11 +38,34 @@ import { SettingsTab } from '../components/SettingsTab'
 import { LiveTab, emptyLiveDraft } from '../components/LiveTab'
 import { PulseBanner } from '../components/PulseBanner'
 import { DistributionChart } from '../components/DistributionChart'
-import { MessageClassDialog } from './StudentPage'
+import { MessageClassDialog } from '../components/MessageClassDialog'
 
+const CLASS_TABS = ['overview', 'students', 'live', 'settings'] as const
+export type ClassTab = (typeof CLASS_TABS)[number]
+
+export const parseClassTab = (value: unknown): ClassTab | undefined =>
+  CLASS_TABS.find(t => t === value)
+
+// The open tab lives in the URL, so Back from a student or a session returns
+// to where the instructor was, and a tab can be linked or reloaded.
 export function ClassPage() {
   const { cohortId } = useParams({ strict: false }) as { cohortId: string }
-  return <ClassView cohortId={cohortId} />
+  const { tab } = useSearch({ strict: false }) as { tab?: ClassTab }
+  const navigate = useNavigate()
+  return (
+    <ClassView
+      cohortId={cohortId}
+      tab={tab ?? 'overview'}
+      onTabChange={next =>
+        void navigate({
+          to: '/class/$cohortId',
+          params: { cohortId },
+          search: next === 'overview' ? {} : { tab: next },
+          replace: true,
+        })
+      }
+    />
+  )
 }
 
 function OverviewTab({ cohortId }: { cohortId: string }) {
@@ -156,41 +180,74 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
   )
 }
 
-export function ClassView({ cohortId }: { cohortId: string }) {
+export function ClassView({
+  cohortId,
+  tab: tabProp,
+  onTabChange,
+}: {
+  cohortId: string
+  tab?: ClassTab
+  onTabChange?: (tab: ClassTab) => void
+}) {
   const policy = useReportingPolicy(cohortId)
   const role = useCohortRole(cohortId)
   const pulse = useCohortPulse(cohortId)
+  const domains = useDomains()
   const isFaculty = role.data === 'faculty'
-  const [tab, setTab] = useState('overview')
-  const [announcing, setAnnouncing] = useState(false)
+  const [localTab, setLocalTab] = useState<ClassTab>('overview')
+  const requestedTab = tabProp ?? localTab
+  const setTab = onTabChange ?? setLocalTab
+  // A TA following a settings link lands on the overview, not a blank panel.
+  const tab = requestedTab === 'settings' && !isFaculty ? 'overview' : requestedTab
+  // The prefilled text when the dialog is open; null when closed.
+  const [announcing, setAnnouncing] = useState<string | null>(null)
   // Held here so a half-built session survives tab switches (tab content
   // unmounts when inactive).
   const [liveDraft, setLiveDraft] = useState(emptyLiveDraft)
 
-  const onPulseAction = (kind: PulseCardData['kind']) => {
-    if (kind === 'at_risk') setTab('students')
-    else if (kind === 'weak_domain') setTab('live')
-    else setAnnouncing(true)
+  const onPulseAction = (card: PulseCardData) => {
+    if (card.kind === 'at_risk') setTab('students')
+    else if (card.kind === 'weak_domain') {
+      // Straight into a session scoped to the weak domain. The card names
+      // the domain only in its headline ("<name> is dragging the class"); if
+      // that ever stops matching, the picker just opens on all domains.
+      const domain = domains.data?.find(d => card.headline.startsWith(d.name))
+      setLiveDraft(d => ({ ...d, composing: true, domainId: domain?.id ?? null }))
+      setTab('live')
+    } else {
+      setAnnouncing(
+        'Quick reminder: a few minutes of FCLE practice this week keeps your projection moving.',
+      )
+    }
+  }
+
+  // Only faculty can message a class (the server refuses TAs).
+  const visiblePulse = pulse.data && {
+    ...pulse.data,
+    cards: pulse.data.cards.filter(c => isFaculty || c.kind !== 'participation'),
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <ClassHeader cohortId={cohortId} />
+      <ClassHeader
+        cohortId={cohortId}
+        onMessage={isFaculty ? () => setAnnouncing('') : undefined}
+      />
       {policy.data ? <PolicyBanner policy={policy.data} /> : null}
-      {pulse.data ? (
-        <PulseBanner pulse={pulse.data} onAction={onPulseAction} />
+      {visiblePulse ? (
+        <PulseBanner pulse={visiblePulse} onAction={onPulseAction} />
       ) : null}
-      {announcing ? (
+      {announcing !== null ? (
         <MessageClassDialog
           cohortId={cohortId}
-          prefill="Quick reminder: a few minutes of FCLE practice this week keeps your projection moving."
+          prefill={announcing}
           open={true}
           onOpenChange={open => {
-            if (!open) setAnnouncing(false)
+            if (!open) setAnnouncing(null)
           }}
         />
       ) : null}
-      <Tabs value={tab} onValueChange={setTab}>
+      <Tabs value={tab} onValueChange={t => setTab(t as ClassTab)}>
         <TabsList aria-label="Class sections">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="students">Students</TabsTrigger>

@@ -1,0 +1,53 @@
+name: changelog-ci
+
+# Keeps politiface.app/changelog honest.
+#
+#   1. docs/_data/changelog.yml is well formed, and the build in
+#      app/pubspec.yaml has an entry.
+#   2. A PR that changes what people see (the app, the web console, the public
+#      pages) also changes the changelog. For a change nobody will notice, put
+#      [no-changelog] in the PR description.
+#
+# Bot data-refresh PRs only touch content/ and app/assets/, so they pass check 2.
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pyyaml
+      - run: python scripts/tests/test_validate_changelog.py
+      - run: python scripts/validate_changelog.py
+      - name: Require an entry for user-facing changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          case "$PR_BODY" in
+            *'[no-changelog]'*) echo "Skipped: [no-changelog] in the PR description."; exit 0 ;;
+          esac
+          changed="$(git diff --name-only "$BASE_SHA...$HEAD_SHA")"
+          if ! printf '%s\n' "$changed" | grep -Eq '^(app/lib/|web/src/|docs/(index\.html|support/|privacy-policy/|faculty/|links/))'; then
+            echo "No user-facing paths changed."
+            exit 0
+          fi
+          if printf '%s\n' "$changed" | grep -qx 'docs/_data/changelog.yml'; then
+            echo "Changelog updated."
+            exit 0
+          fi
+          echo "::error file=docs/_data/changelog.yml::User-facing change without a changelog entry. Add one at the top of docs/_data/changelog.yml, or put [no-changelog] in the PR description."
+          exit 1

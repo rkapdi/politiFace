@@ -6,6 +6,7 @@ import { axe } from 'vitest-axe'
 const m = vi.hoisted(() => ({
   mint: vi.fn((_a: unknown, o?: { onSuccess?: (c: string) => void }) => o?.onSuccess?.('D7QMJA')),
   revoke: vi.fn(),
+  decide: vi.fn(),
   auditArg: undefined as string | undefined,
 }))
 vi.mock('@tanstack/react-router', () => ({
@@ -13,7 +14,15 @@ vi.mock('@tanstack/react-router', () => ({
     <a href={`#${Object.entries(params ?? {}).reduce((p, [k, v]) => p.replace(`$${k}`, v), to)}`}>{children}</a>
   ),
 }))
-vi.mock('../lib/api', () => ({ inviteLink: (c: string) => `https://politiface.app/app/#/welcome?invite=${c}` }))
+vi.mock('../lib/api', () => ({
+  inviteLink: (c: string) => `https://politiface.app/app/#/welcome?invite=${c}`,
+  useFacultyRequests: () => ({
+    data: [{ id: 'r1', user_id: 'u1', handle: 'jdoe', email: 'jd@example.edu', school: 'Example College', courses: 'American Government', note: null, created_at: '2026-09-28T12:00:00Z' }],
+    isPending: false,
+    error: null,
+  }),
+  useDecideFacultyRequest: () => ({ mutate: m.decide, isPending: false, error: null }),
+}))
 vi.mock('./adminApi', () => ({
   useAdminInvites: () => ({
     data: [
@@ -42,6 +51,15 @@ import { InvitesPage } from './InvitesPage'
 import { AuditPage } from './AuditPage'
 
 describe('InvitesPage', () => {
+  it('holds the instructor request queue', async () => {
+    render(<InvitesPage />)
+    expect(screen.getByRole('region', { name: /instructor requests/i })).toHaveTextContent('jd@example.edu')
+    await userEvent.click(screen.getByRole('button', { name: /^approve$/i }))
+    expect(m.decide).toHaveBeenCalledWith({ id: 'r1', approve: true })
+    await userEvent.click(screen.getByRole('button', { name: /^deny$/i }))
+    expect(m.decide).toHaveBeenCalledWith({ id: 'r1', approve: false })
+  })
+
   it('lists invites with status, mints a link, revokes only active ones', async () => {
     render(<InvitesPage />)
     expect(screen.getByText('AAAAAA')).toBeInTheDocument()

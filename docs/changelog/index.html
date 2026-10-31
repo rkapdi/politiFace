@@ -1,0 +1,114 @@
+---
+layout: null
+permalink: /changelog/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog | Politiface</title>
+<meta name="description" content="Every change to Politiface: the iPhone app, the web console, the website, and the content.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Politiface changelog">
+<meta property="og:description" content="Every change to Politiface: the iPhone app, the web console, the website, and the content.">
+<meta property="og:image" content="{{ '/assets/icon.png' | absolute_url }}">
+<meta property="og:url" content="{{ '/changelog/' | absolute_url }}">
+<meta name="theme-color" content="#1A1A2E">
+<link rel="icon" type="image/png" href="{{ '/assets/icon.png' | relative_url }}">
+<link rel="apple-touch-icon" href="{{ '/assets/icon.png' | relative_url }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ '/assets/site.css' | relative_url }}">
+<style>
+  .cl-intro{color:var(--muted);font-size:1.06rem;margin-top:14px;max-width:60ch}
+  .cl-entry{padding:38px 0;border-bottom:1px solid var(--line);scroll-margin-top:72px}
+  .cl-entry:last-child{border-bottom:0;padding-bottom:0}
+  .cl-meta{display:flex;flex-wrap:wrap;gap:4px 10px;color:var(--muted);font-size:.9rem}
+  .cl-label{color:var(--ink);font-weight:700}
+  .cl-channel{color:var(--green);font-weight:700}
+  .cl-entry h2{font-family:var(--serif);font-weight:600;font-size:1.5rem;line-height:1.2;letter-spacing:-.01em;margin-top:8px}
+  .cl-entry h2 a:hover{color:var(--red-2)}
+  .cl-entry ol{margin:14px 0 0 1.5em;display:flex;flex-direction:column;gap:7px;color:#34343c}
+  .cl-entry li{padding-left:4px;line-height:1.55}
+  .cl-entry li::marker{color:var(--muted);font-weight:600}
+  .cl-more{display:inline-block;margin-top:14px;color:var(--red-2);font-weight:600;font-size:.95rem}
+  .cl-more:hover{text-decoration:underline}
+  .cl-entry a:focus-visible{outline:2px solid var(--red-2);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="{{ '/' | relative_url }}"><img src="{{ '/assets/icon.png' | relative_url }}" alt="Politiface logo"><b>Politiface</b></a>
+    <nav class="nav-links">
+      <a href="{{ '/#features' | relative_url }}">Features</a>
+      <a href="{{ '/changelog/' | relative_url }}" aria-current="page">Changelog</a>
+      <a href="{{ '/privacy-policy/' | relative_url }}">Privacy</a>
+      <a href="{{ '/support/' | relative_url }}">Support</a>
+      <a class="nav-cta" href="https://github.com/rkapdi/politiFace">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="doc">
+  <div class="wrap doc-inner">
+    <div class="doc-head">
+      <h1>Changelog</h1>
+      <p class="cl-intro">Every change to Politiface, newest first. Entries before October 31, 2026 were reconstructed from our build history. Entries marked App Store use Apple's release date. Other iOS entries are dated by when the build was made, and many of those went only to testers.</p>
+    </div>
+    <hr class="doc-rule">
+    {% for e in site.data.changelog %}
+    <article class="cl-entry" id="{{ e.id }}">
+      <p class="cl-meta">
+        <span class="cl-label">{% if e.platform == "iOS" %}iOS {{ e.version }}{% if e.build %} (build {{ e.build }}){% endif %}{% elsif e.platform == "Web" %}Web console{% else %}{{ e.platform }}{% endif %}</span>
+        <time datetime="{{ e.date | date: '%Y-%m-%d' }}">{{ e.date | date: "%b %-d, %Y" }}</time>
+        {% if e.channel %}<span class="cl-channel">{{ e.channel }}</span>{% endif %}
+      </p>
+      <h2><a href="#{{ e.id }}">{{ e.title }}</a></h2>
+      <ol>
+        {% for item in e.items %}<li>{{ item }}</li>
+        {% endfor %}
+      </ol>
+      {% if e.link %}<a class="cl-more" href="{{ e.link }}">Full details on GitHub <span aria-hidden="true">&#8599;</span></a>{% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="brand" href="{{ '/' | relative_url }}"><img src="{{ '/assets/icon.png' | relative_url }}" alt=""><b>Politiface</b></a>
+        <p>Nonpartisan civic education: cited practice questions, a searchable Atlas of the U.S. government, and a memory engine that makes it stick.</p>
+      </div>
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="{{ '/#features' | relative_url }}">Features</a>
+        <a href="{{ '/#fcle' | relative_url }}">FCLE practice</a>
+        <a href="{{ '/changelog/' | relative_url }}">Changelog</a>
+      </div>
+      <div class="foot-col">
+        <h5>Support</h5>
+        <a href="{{ '/app/' | relative_url }}">For faculty</a>
+        <a href="{{ '/privacy-policy/' | relative_url }}">Privacy Policy</a>
+        <a href="{{ '/support/' | relative_url }}">Support</a>
+      </div>
+      <div class="foot-col">
+        <h5>Code</h5>
+        <a href="https://github.com/rkapdi/politiFace">Source on GitHub</a>
+        <a href="https://github.com/rkapdi/politiFace/blob/main/LICENSE">License (MIT)</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 Rissalat Kapdi</span>
+      <span>Nonpartisan, cited, open source &middot; Hosted on GitHub Pages</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

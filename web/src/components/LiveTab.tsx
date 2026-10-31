@@ -16,6 +16,9 @@ export type LiveDraft = {
   seconds: number
   selected: Set<string>
   allowGuests: boolean
+  // Picker filters only: a question stays selected when filtered out of view.
+  domainId: number | null
+  mineOnly: boolean
 }
 
 export const emptyLiveDraft = (): LiveDraft => ({
@@ -24,6 +27,8 @@ export const emptyLiveDraft = (): LiveDraft => ({
   seconds: 20,
   selected: new Set(),
   allowGuests: false,
+  domainId: null,
+  mineOnly: false,
 })
 
 export function LiveTab({

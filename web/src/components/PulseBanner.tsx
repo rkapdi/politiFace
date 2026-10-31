@@ -13,7 +13,7 @@ export function PulseBanner({
   onAction,
 }: {
   pulse: CohortPulse
-  onAction: (kind: PulseCardData['kind']) => void
+  onAction: (card: PulseCardData) => void
 }) {
   return (
     <Card>
@@ -34,7 +34,7 @@ export function PulseBanner({
                 </p>
                 <p className="mt-1 text-xs text-slate-500">{c.detail}</p>
               </div>
-              <Button variant="ghost" onClick={() => onAction(c.kind)}>
+              <Button variant="ghost" onClick={() => onAction(c)}>
                 {ACTION_LABEL[c.kind]}
               </Button>
             </li>
