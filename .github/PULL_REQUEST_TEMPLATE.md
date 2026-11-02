@@ -1,42 +1,14 @@
-## What changed
+## What this changes
 
-<!-- Brief description of what this PR does -->
+<!-- One change per PR. If you are about to write "and also", that is a second PR. -->
 
-## Type of change
+## What it could break
 
-- [ ] Bug fix
-- [ ] New feature (app code)
-- [ ] New country deck (YAML content)
-- [ ] New politician cards (YAML content)
-- [ ] Infrastructure / CI change
-- [ ] Documentation
+<!-- Screens and flows that share code with this change. -->
 
-## Changelog
+## How it was checked
 
-- [ ] Added an entry at the top of `docs/_data/changelog.yml` (public page: no people, schools, or plans), or put `[no-changelog]` in this description
-
-## Testing
-
-- [ ] All existing tests pass (`flutter test`)
-- [ ] New code has unit tests
-- [ ] Tested on iOS simulator
-- [ ] Tested on Android emulator
-- [ ] Tested on web (Chrome)
-- [ ] FSRS algorithm tests pass (`flutter test test/features/session/domain/`)
-
-## Content changes (fill in if adding/editing YAML)
-
-- [ ] All cards have official `source` URLs (government websites only)
-- [ ] `last_verified` date is today
-- [ ] Card descriptions are neutral (no partisan language, no controversy content)
-- [ ] Description length is consistent across parties
-- [ ] Photo sources are official government headshots
-- [ ] If adding a party chair from one party, the opposing party chair is also included
-- [ ] Government YAML validation passes locally:
-  ```
-  python3 scripts/validate_government.py content/governments/{country}/government.yaml
-  ```
-
-## Screenshots (if UI changes)
-
-<!-- Add before/after screenshots for any visual changes -->
+- [ ] `scripts/check-app.sh` passes (analyze, smoke test, all tests)
+- [ ] A bug fix adds a test that fails without the fix
+- [ ] Checked on a simulator or device (anything you can see or touch)
+- [ ] Changelog entry, or `[no-changelog]` below for changes nobody will notice

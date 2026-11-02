@@ -34,7 +34,7 @@ void main() {
 
     test('handles a missing or empty payload', () {
       expect(parseWhActions({}), isEmpty);
-      expect(parseWhActions({'actions': []}), isEmpty);
+      expect(parseWhActions({'actions': <Object?>[]}), isEmpty);
     });
   });
 
