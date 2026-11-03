@@ -23,7 +23,7 @@ root="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
 dir="$root/.claude/worktrees/${branch#*/}"
 
 git fetch --quiet origin main
-git worktree add -b "$branch" "$dir" origin/main
+git worktree add --no-track -b "$branch" "$dir" origin/main
 echo
 echo "Ready: $dir (branch $branch, from origin/main $(git rev-parse --short origin/main))"
 echo "Before pushing: scripts/check-app.sh"
