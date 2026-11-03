@@ -18,7 +18,8 @@ case "$branch" in
     ;;
 esac
 
-root="$(git rev-parse --show-toplevel)"
+# The main checkout, even when run from inside another worktree.
+root="$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")"
 dir="$root/.claude/worktrees/${branch#*/}"
 
 git fetch --quiet origin main
