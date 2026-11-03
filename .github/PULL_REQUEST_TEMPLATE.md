@@ -1,6 +1,11 @@
 ## What changed
 
-<!-- Brief description of what this PR does -->
+<!-- Brief description of what this PR does. One change per PR: if you are
+about to write "and also", that is a second PR. -->
+
+## What it could break
+
+<!-- Screens and flows that share code with this change. -->
 
 ## Type of change
 
@@ -17,8 +22,9 @@
 
 ## Testing
 
-- [ ] All existing tests pass (`flutter test`)
+- [ ] `scripts/check-app.sh` passes (analyze, smoke test over every screen, all tests)
 - [ ] New code has unit tests
+- [ ] A bug fix adds a test that fails without the fix
 - [ ] Tested on iOS simulator
 - [ ] Tested on Android emulator
 - [ ] Tested on web (Chrome)
