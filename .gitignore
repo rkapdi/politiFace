@@ -88,9 +88,9 @@ desktop.ini
 coverage/
 *.lcov
 
-# ── Codemagic ─────────────────────────────────────────────────────────────────
-# Codemagic uses its own environment — no local artifacts to ignore
-# but exclude any downloaded certs/profiles from local dev
+# ── iOS signing ───────────────────────────────────────────────────────────────
+# CI fetches signing files at build time; never commit downloaded
+# certs/profiles from local dev
 *.p12
 *.mobileprovision
 *.cer

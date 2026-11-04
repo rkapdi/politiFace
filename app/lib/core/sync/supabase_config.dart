@@ -2,7 +2,7 @@
 //
 // Backend endpoint configuration. Follows the Sentry DSN pattern: builds you
 // compile yourself have no backend and every sync/auth feature no-ops;
-// official builds inject values via --dart-define (see codemagic.yaml).
+// official builds inject values via --dart-define (see .github/workflows/ios-testflight.yml).
 // The anon key is a public client credential by design (RLS is the guard).
 
 class SupabaseConfig {

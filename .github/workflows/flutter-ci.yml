@@ -1,5 +1,5 @@
 # Runs on every push + PR to main. Tests + analyze, no build / deploy.
-# Codemagic handles the iOS release pipeline.
+# ios-testflight.yml handles the iOS release pipeline.
 
 name: Flutter CI
 
