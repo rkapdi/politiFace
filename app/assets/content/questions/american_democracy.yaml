@@ -502,3 +502,1789 @@ questions:
     difficulty: 4
     objective: SS.912.CG.1.2
     status: published
+
+  - id: amdem-representative-govt-001
+    stem: >
+      Residents of a city elect seven council members. Each year the
+      council, not the residents themselves, debates and votes to approve
+      the city budget. This arrangement best illustrates which principle?
+    options:
+      - key: a
+        text: "Direct democracy by assembly"
+      - key: b
+        text: "Judicial review of statutes"
+      - key: c
+        text: "Representative government"
+      - key: d
+        text: "Separation of powers"
+    answer: c
+    explanation: >
+      In representative government, citizens elect officials who make
+      decisions on their behalf. In Federalist No. 10, Madison describes a
+      republic as "the delegation of the government" to "a small number of
+      citizens elected by the rest," unlike a democracy in which citizens
+      decide directly.
+    citation: https://avalon.law.yale.edu/18th_century/fed10.asp
+    difficulty: 2
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-constitutionalism-001
+    stem: >
+      Constitutionalism holds that government power is defined and limited
+      by a written constitution. Which statement best expresses how this
+      principle treats the Constitution in relation to ordinary laws?
+    options:
+      - key: a
+        text: "It is a higher law, so acts that conflict with it are not valid"
+      - key: b
+        text: "It is equal to statutes, so a newer law replaces older provisions"
+      - key: c
+        text: "It guides lawmakers, but courts must apply any law Congress passes"
+      - key: d
+        text: "It binds the states only, while Congress may set it aside by vote"
+    answer: a
+    explanation: >
+      Constitutionalism treats the written constitution as a superior law
+      that ordinary legislation cannot override. In Marbury v. Madison
+      (1803), Chief Justice Marshall wrote that the constitution is "a
+      superior, paramount law" and that a legislative act contrary to it "is
+      not law."
+    citation: https://www.law.cornell.edu/supremecourt/text/5/137
+    difficulty: 3
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-individual-rights-scenario-001
+    stem: >
+      A state legislature passes a law that fines any newspaper that
+      publishes articles criticizing the governor. A newspaper challenges
+      the law in court. Which constitutional protection most directly
+      supports the newspaper's challenge?
+    options:
+      - key: a
+        text: "The Second Amendment right to bear arms"
+      - key: b
+        text: "The Fifth Amendment right to remain silent"
+      - key: c
+        text: "The Sixth Amendment right to a speedy trial"
+      - key: d
+        text: "The First Amendment freedom of the press"
+    answer: d
+    explanation: >
+      The First Amendment bars laws "abridging the freedom of speech, or of
+      the press." In Near v. Minnesota (1931), the Supreme Court held that
+      liberty of the press is "safeguarded by the due process clause of the
+      Fourteenth Amendment from invasion by state action" and struck down a
+      state law used to suppress a newspaper.
+    citation: https://www.law.cornell.edu/supremecourt/text/283/697
+    difficulty: 2
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-majority-minority-rights-001
+    stem: >
+      American democracy combines majority rule with protection of minority
+      rights. Which statement best describes the role the Bill of Rights
+      plays in that balance?
+    options:
+      - key: a
+        text: "It lets a majority of voters suspend any right during a crisis"
+      - key: b
+        text: "It places some liberties beyond the reach of any majority vote"
+      - key: c
+        text: "It requires that every law receive unanimous consent in Congress"
+      - key: d
+        text: "It gives the largest states a veto over laws affecting small ones"
+    answer: b
+    explanation: >
+      In West Virginia State Board of Education v. Barnette (1943), Justice
+      Jackson wrote that the very purpose of a Bill of Rights was to place
+      certain subjects "beyond the reach of majorities and officials," so
+      that fundamental rights "may not be submitted to vote."
+    citation: https://www.law.cornell.edu/supremecourt/text/319/624
+    difficulty: 3
+    objective: SS.912.C.3.1
+    status: draft
+
+  - id: amdem-athens-direct-democracy-001
+    stem: >
+      In the democracy of ancient Athens, how were laws and major public
+      decisions made?
+    options:
+      - key: a
+        text: "By a hereditary king ruling for life"
+      - key: b
+        text: "By citizens voting in the Assembly"
+      - key: c
+        text: "By elected members of a Senate"
+      - key: d
+        text: "By judges chosen by a ruling council"
+    answer: b
+    explanation: >
+      Athens practiced direct democracy: citizens attended the Assembly and
+      voted on laws and policy themselves. Aristotle's The Athenian
+      Constitution says the democracy "administers everything by its votes
+      in the Assembly and by the law-courts."
+    citation: https://www.gutenberg.org/cache/epub/26095/pg26095-images.html
+    difficulty: 1
+    objective: SS.7.CG.1.1
+    status: draft
+
+  - id: amdem-twelve-tables-001
+    stem: >
+      The Twelve Tables of ancient Rome (about 450 B.C.) are often cited as
+      an early foundation of the rule of law. Why?
+    options:
+      - key: a
+        text: "They let citizens vote directly on each new law"
+      - key: b
+        text: "They divided power among three separate branches"
+      - key: c
+        text: "They gave the Senate power to remove any consul"
+      - key: d
+        text: "They set the laws in writing on public display"
+    answer: d
+    explanation: >
+      According to the Avalon Project's introduction, the code was drawn up
+      by a commission in 451-450 B.C., ratified in 449 B.C., and engraved on
+      twelve tablets attached to the Rostra in the Roman Forum. Writing the
+      laws down and posting them publicly let everyone know the rules that
+      officials had to apply.
+    citation: https://avalon.law.yale.edu/ancient/twelve_tables.asp
+    difficulty: 3
+    objective: SS.7.CG.1.1
+    status: draft
+
+  - id: amdem-ten-commandments-moral-law-001
+    stem: >
+      The Ten Commandments, recorded in the Hebrew Bible, are often cited as
+      a Judeo-Christian influence on American law. Which idea associated
+      with this tradition shaped the later principle that no one is above
+      the law?
+    options:
+      - key: a
+        text: "A written moral law binds rulers as well as the people they rule"
+      - key: b
+        text: "A king's commands are law because he alone is chosen by God"
+      - key: c
+        text: "Laws are valid only when approved by a majority in an assembly"
+      - key: d
+        text: "Each local community may write its own moral code as it sees fit"
+    answer: a
+    explanation: >
+      Exodus 20 records the commandments as a written code given to the
+      whole people, and Deuteronomy 17:18-20 directs a king to keep a copy
+      of the law and obey it "That his heart be not lifted up above his
+      brethren." The idea that rulers are bound by a higher written law fed
+      into the rule of law tradition.
+    citation: https://www.gutenberg.org/cache/epub/8005/pg8005-images.html
+    difficulty: 3
+    objective: SS.7.CG.1.1
+    status: draft
+
+  - id: amdem-polybius-mixed-constitution-001
+    stem: >
+      The Greek historian Polybius praised the Roman Republic because its
+      consuls, Senate, and popular assemblies each held part of political
+      power, and each part could "counteract or co-operate with the others."
+      Which feature of the U.S. Constitution most closely reflects this
+      idea?
+    options:
+      - key: a
+        text: "Federalism, which divides power between nation and states"
+      - key: b
+        text: "Popular sovereignty, which places final power in the people"
+      - key: c
+        text: "Checks and balances, which let each branch limit the others"
+      - key: d
+        text: "Judicial review, which lets courts void unconstitutional laws"
+    answer: c
+    explanation: >
+      In Book VI of his Histories, Polybius explains that because none of
+      Rome's three parts was absolute, "any aggressive impulse is sure to be
+      checked." The U.S. system of checks and balances, in which each branch
+      can limit the others, applies the same mixed-constitution reasoning.
+    citation: https://penelope.uchicago.edu/Thayer/E/Roman/Texts/Polybius/6*.html
+    difficulty: 5
+    objective: SS.7.CG.1.1
+    status: draft
+
+  - id: amdem-mayflower-covenant-001
+    stem: >
+      "Do by these Presents, solemnly and mutually, in the Presence of God
+      and one another, covenant and combine ourselves together into a civil
+      Body Politick, for our better Ordering and Preservation" (Mayflower
+      Compact, 1620). How does this passage apply a religious idea to civil
+      government?
+    options:
+      - key: a
+        text: "It claims the colony's laws come directly from the English king"
+      - key: b
+        text: "It names a church council to make and enforce the colony's laws"
+      - key: c
+        text: "It says each settler is governed only by private conscience"
+      - key: d
+        text: "It treats a sacred covenant as the model for a civil compact"
+    answer: d
+    explanation: >
+      The signers drew on the religious idea of a covenant, a solemn mutual
+      promise made before God, and used it to "combine" themselves into a
+      "civil Body Politick" that would enact laws to which they promised
+      "all due Submission and Obedience," as the Avalon Project text shows.
+    citation: https://avalon.law.yale.edu/17th_century/mayflower.asp
+    difficulty: 4
+    objective: SS.7.CG.1.1
+    status: draft
+
+  - id: amdem-montesquieu-spirit-laws-001
+    stem: >
+      Which Enlightenment work, published by Montesquieu in 1748, is most
+      associated with the idea of separating government power into
+      legislative, executive, and judicial branches?
+    options:
+      - key: a
+        text: "The Wealth of Nations"
+      - key: b
+        text: "The Social Contract"
+      - key: c
+        text: "The Spirit of the Laws"
+      - key: d
+        text: "Two Treatises of Government"
+    answer: c
+    explanation: >
+      The Online Library of Liberty describes The Spirit of Laws (1748) as
+      Montesquieu's best known work, in which he reflects on "the separation
+      of political powers." The Wealth of Nations was written by Adam Smith,
+      The Social Contract by Rousseau, and Two Treatises of Government by
+      Locke.
+    citation: https://oll.libertyfund.org/titles/montesquieu-complete-works-vol-1-the-spirit-of-laws
+    difficulty: 1
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-montesquieu-liberty-quote-001
+    stem: >
+      "There can be no liberty where the legislative and executive powers
+      are united in the same person, or body of magistrates" (Montesquieu,
+      as quoted by James Madison in Federalist No. 47). Which constitutional
+      principle does this statement most directly support?
+    options:
+      - key: a
+        text: "Consent of the governed"
+      - key: b
+        text: "Separation of powers"
+      - key: c
+        text: "Federal supremacy"
+      - key: d
+        text: "Popular sovereignty"
+    answer: b
+    explanation: >
+      Montesquieu warned that placing lawmaking and law-enforcing power in
+      the same hands endangers liberty, the core argument for separation of
+      powers. Madison quotes this maxim in Federalist No. 47 while defending
+      the Constitution's division of power among three branches.
+    citation: https://avalon.law.yale.edu/18th_century/fed47.asp
+    difficulty: 3
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-hobbes-leviathan-001
+    stem: >
+      In Leviathan (1651), Thomas Hobbes described life without government
+      as "solitary, poore, nasty, brutish, and short." What conclusion did
+      Hobbes draw from this view, in contrast to John Locke?
+    options:
+      - key: a
+        text: "People should give their power to a strong sovereign to keep order"
+      - key: b
+        text: "People may overthrow any ruler who fails to protect their property"
+      - key: c
+        text: "Power should be divided among separate branches to protect liberty"
+      - key: d
+        text: "Citizens should meet in an assembly and vote directly on each law"
+    answer: a
+    explanation: >
+      Hobbes argued that to escape the state of nature, people must
+      "conferre all their power and strength upon one Man, or upon one
+      Assembly of men." Locke, by contrast, held that government is limited
+      by its duty to protect natural rights and may be resisted when it
+      fails.
+    citation: https://www.gutenberg.org/files/3207/3207-h/3207-h.htm
+    difficulty: 3
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-rousseau-general-will-001
+    stem: >
+      Which statement best distinguishes Jean-Jacques Rousseau's view of
+      sovereignty in The Social Contract (1762) from Thomas Hobbes's view in
+      Leviathan?
+    options:
+      - key: a
+        text: "Sovereignty stays in the people's general will and cannot be transferred"
+      - key: b
+        text: "Sovereignty belongs to a monarch whose authority comes directly from God"
+      - key: c
+        text: "Sovereignty is split among three branches that check one another's power"
+      - key: d
+        text: "Sovereignty rests with judges who interpret natural law for the community"
+    answer: a
+    explanation: >
+      Rousseau wrote that sovereignty, "being nothing less than the exercise
+      of the general will, can never be alienated," so it remains with the
+      people as a collective body. Hobbes, by contrast, argued that people
+      confer their power on a sovereign ruler or assembly.
+    citation: https://www.gutenberg.org/cache/epub/46333/pg46333-images.html
+    difficulty: 4
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-locke-toleration-001
+    stem: >
+      In A Letter Concerning Toleration (1689), John Locke made which
+      argument about government and religion?
+    options:
+      - key: a
+        text: "Rulers should require every subject to join one national church"
+      - key: b
+        text: "Civil government and religion should keep to separate spheres"
+      - key: c
+        text: "Church leaders should hold final authority over all civil laws"
+      - key: d
+        text: "Government should pay clergy of every faith from public taxes"
+    answer: b
+    explanation: >
+      Locke wrote that it is "above all things necessary to distinguish
+      exactly the business of civil government from that of religion and to
+      settle the just bounds that lie between the one and the other." His
+      case for toleration influenced later American ideas about religious
+      liberty.
+    citation: https://constitution.org/2-Authors/jl/tolerati.htm
+    difficulty: 3
+    objective: SS.7.CG.1.4
+    status: draft
+
+  - id: amdem-decl-alter-abolish-001
+    stem: >
+      "That whenever any Form of Government becomes destructive of these
+      ends, it is the Right of the People to alter or to abolish it, and to
+      institute new Government" (Declaration of Independence, 1776). This
+      passage most directly expresses which Enlightenment idea?
+    options:
+      - key: a
+        text: "The divine right of kings"
+      - key: b
+        text: "The principle of federalism"
+      - key: c
+        text: "The right of revolution"
+      - key: d
+        text: "The supremacy of federal law"
+    answer: c
+    explanation: >
+      The Declaration states that governments exist to secure the people's
+      rights and derive their just powers from the consent of the governed,
+      so a government that destroys those ends may be altered or abolished.
+      This claim is the right of revolution.
+    citation: https://www.archives.gov/founding-docs/declaration-transcript
+    difficulty: 3
+    objective: SS.912.CG.1.2
+    status: draft
+
+  - id: amdem-decl-jefferson-author-001
+    stem: >
+      In June 1776, the Continental Congress appointed a Committee of Five
+      to prepare a declaration of independence. Which committee member wrote
+      the original draft?
+    options:
+      - key: a
+        text: "Robert Livingston"
+      - key: b
+        text: "Benjamin Franklin"
+      - key: c
+        text: "Roger Sherman"
+      - key: d
+        text: "Thomas Jefferson"
+    answer: d
+    explanation: >
+      The National Archives explains that the committee (Adams, Sherman,
+      Franklin, Robert R. Livingston, and Jefferson) pressed Jefferson to
+      write the draft. Franklin and Adams made only a few changes, and the
+      basic document remained Jefferson's.
+    citation: https://www.archives.gov/founding-docs/declaration-history
+    difficulty: 1
+    objective: SS.912.CG.1.2
+    status: draft
+
+  - id: amdem-decl-pursuit-happiness-001
+    stem: >
+      John Locke wrote that people unite in society for "the mutual
+      preservation of their lives, liberties and estates." How does the
+      Declaration of Independence's list of unalienable rights compare with
+      Locke's?
+    options:
+      - key: a
+        text: "It replaces liberty with the right to vote"
+      - key: b
+        text: "It replaces estates with the pursuit of happiness"
+      - key: c
+        text: "It replaces life with equal protection of the laws"
+      - key: d
+        text: "It replaces estates with freedom of religious worship"
+    answer: b
+    explanation: >
+      Locke's Second Treatise (Sect. 123) speaks of "lives, liberties and
+      estates," while the Declaration names "Life, Liberty and the pursuit
+      of Happiness." Jefferson kept life and liberty but put the pursuit of
+      happiness where Locke had put estates, or property.
+    citation: https://www.gutenberg.org/cache/epub/7370/pg7370-images.html
+    difficulty: 4
+    objective: SS.912.CG.1.2
+    status: draft
+
+  - id: amdem-virginia-declaration-rights-001
+    stem: >
+      "That all men are by nature equally free and independent and have
+      certain inherent rights, of which, when they enter into a state of
+      society, they cannot, by any compact, deprive or divest their
+      posterity" (Virginia Declaration of Rights, Section 1, adopted June
+      12, 1776). Thomas Jefferson drew on this document most directly for
+      which part of the Declaration of Independence?
+    options:
+      - key: a
+        text: "Its opening statement of equality and rights"
+      - key: b
+        text: "Its long list of grievances against the King"
+      - key: c
+        text: "Its closing pledge of lives, fortunes, and honor"
+      - key: d
+        text: "Its appeal to the British people as brethren"
+    answer: a
+    explanation: >
+      The National Archives states that the Virginia Declaration of Rights,
+      written by George Mason, "was drawn upon by Thomas Jefferson for the
+      opening paragraphs of the Declaration of Independence," which proclaim
+      that all men are created equal and hold unalienable rights.
+    citation: https://www.archives.gov/founding-docs/virginia-declaration-of-rights
+    difficulty: 3
+    objective: SS.912.CG.1.2
+    status: draft
+
+  - id: amdem-senate-confirmation-check-001
+    stem: >
+      The President nominates a person to serve as Secretary of Defense.
+      After hearings, a majority of senators vote against the nominee, and
+      the person cannot take office. This outcome is an example of which
+      check?
+    options:
+      - key: a
+        text: "The Supreme Court checking the President's power to appoint"
+      - key: b
+        text: "The President checking Congress through the veto power"
+      - key: c
+        text: "The states checking federal power through ratification"
+      - key: d
+        text: "The Senate checking the President by advice and consent"
+    answer: d
+    explanation: >
+      Article II, Section 2 provides that the President appoints officers
+      "by and with the Advice and Consent of the Senate." A Senate vote
+      rejecting a nominee is therefore a legislative check on executive
+      appointments.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.7.CG.1.9
+    status: draft
+
+  - id: amdem-power-purse-001
+    stem: >
+      "No Money shall be drawn from the Treasury, but in Consequence of
+      Appropriations made by Law" (U.S. Constitution, Article I, Section 9).
+      How does this clause check the executive branch?
+    options:
+      - key: a
+        text: "It lets the President spend tax revenue as needed in emergencies"
+      - key: b
+        text: "It lets federal courts approve each payment from the Treasury"
+      - key: c
+        text: "It makes executive spending depend on funds Congress approves"
+      - key: d
+        text: "It requires the states to consent before federal funds are spent"
+    answer: c
+    explanation: >
+      Under Article I, Section 9, money may leave the Treasury only under
+      appropriations made by law, and laws must pass Congress. Executive
+      agencies can therefore spend only what Congress has approved, a key
+      legislative check often called the power of the purse.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.7.CG.1.9
+    status: draft
+
+  - id: amdem-magna-carta-law-of-land-001
+    stem: >
+      "No freemen shall be taken or imprisoned or disseised or exiled or in
+      any way destroyed, nor will we go upon him nor send upon him, except
+      by the lawful judgment of his peers or by the law of the land" (Magna
+      Carta, 1215, clause 39). This clause is an early forerunner of which
+      American constitutional protection?
+    options:
+      - key: a
+        text: "The right to keep and bear arms"
+      - key: b
+        text: "The ban on quartering soldiers in homes"
+      - key: c
+        text: "The freedom to petition the government"
+      - key: d
+        text: "The guarantee of due process of law"
+    answer: d
+    explanation: >
+      Clause 39, as translated by the Avalon Project, barred the king from
+      punishing a free man except by lawful judgment of his peers or the law
+      of the land. The Fifth and Fourteenth Amendments carry this idea
+      forward by forbidding the government to deprive any person of life,
+      liberty, or property without due process of law.
+    citation: https://avalon.law.yale.edu/medieval/magna.asp
+    difficulty: 3
+    objective: SS.7.CG.1.9
+    status: draft
+
+  - id: amdem-bicameralism-001
+    stem: >
+      Under Article I of the Constitution, what must happen to a bill passed
+      by the House of Representatives before it can be presented to the
+      President?
+    options:
+      - key: a
+        text: "It must be reviewed by the Supreme Court"
+      - key: b
+        text: "It must also be passed by the Senate"
+      - key: c
+        text: "It must be approved by a majority of states"
+      - key: d
+        text: "It must be ratified by state legislatures"
+    answer: b
+    explanation: >
+      Article I, Section 7 provides that "Every Bill which shall have passed
+      the House of Representatives and the Senate, shall, before it become a
+      Law, be presented to the President." Requiring both chambers to agree
+      is bicameralism, a check within Congress itself.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.7.CG.1.9
+    status: draft
+
+  - id: amdem-absolute-monarchy-001
+    stem: >
+      Scenario: A country is ruled by a king who inherited the throne from
+      his father. The country has no written constitution and no elected
+      legislature, and the king's decrees become law with no legal limits on
+      his power. Which form of government does this country have?
+    options:
+      - key: a
+        text: "A constitutional monarchy"
+      - key: b
+        text: "An oligarchy"
+      - key: c
+        text: "An absolute monarchy"
+      - key: d
+        text: "A parliamentary democracy"
+    answer: c
+    explanation: >
+      The CIA World Factbook defines absolute monarchy as a form of
+      government where the monarch rules unhindered, without any laws,
+      constitution, or legally organized opposition. A constitutional
+      monarchy, by contrast, limits the monarch through a constitution.
+    citation: https://start.csail.mit.edu/mirror/cia.gov/library/publications/the-world-factbook/fields/2128.html
+    difficulty: 2
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-oligarchy-001
+    stem: >
+      A government in which control is held by a small group of people whose
+      authority usually rests on their wealth or power is called what?
+    options:
+      - key: a
+        text: "An oligarchy"
+      - key: b
+        text: "A theocracy"
+      - key: c
+        text: "A direct democracy"
+      - key: d
+        text: "A confederation"
+    answer: a
+    explanation: >
+      The CIA World Factbook defines oligarchy as a government in which
+      control is exercised by a small group of individuals whose authority
+      generally is based on wealth or power. The word comes from the Greek
+      for rule by the few.
+    citation: https://start.csail.mit.edu/mirror/cia.gov/library/publications/the-world-factbook/fields/2128.html
+    difficulty: 2
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-parliamentary-vs-presidential-001
+    stem: >
+      How does a parliamentary system typically differ from the presidential
+      system of the United States in selecting the head of government?
+    options:
+      - key: a
+        text: "The prime minister is chosen by a nationwide popular vote."
+      - key: b
+        text: "The prime minister is appointed by the nation's highest court."
+      - key: c
+        text: "The prime minister is chosen from and by the legislature."
+      - key: d
+        text: "The prime minister inherits the office through a royal family."
+    answer: c
+    explanation: >
+      The CIA World Factbook describes parliamentary government as one in
+      which the cabinet and its leader, a prime minister, are nominated by
+      the legislature and are directly responsible to it. In a presidential
+      system such as the United States, the executive is chosen separately
+      from the legislature.
+    citation: https://start.csail.mit.edu/mirror/cia.gov/library/publications/the-world-factbook/fields/2128.html
+    difficulty: 3
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-authoritarian-elections-001
+    stem: >
+      Scenario: In Country Y, a single political party holds all power.
+      Ballots list only that party's candidates, and newspapers that
+      criticize leaders are shut down. Which statement best describes
+      Country Y compared with a constitutional republic?
+    options:
+      - key: a
+        text: "It is authoritarian, since no free elections or press check leaders."
+      - key: b
+        text: "It is a republic, since citizens still cast ballots for officials."
+      - key: c
+        text: "It is a direct democracy, since the people vote directly on each new law."
+      - key: d
+        text: "It is a federal system, since one party governs at every level."
+    answer: a
+    explanation: >
+      The CIA World Factbook describes authoritarian government as one that
+      imposes state authority on many aspects of citizens' lives, and notes
+      that in some systems a single party holds power. A constitutional
+      republic instead protects liberty through competitive elections and
+      rights such as a free press.
+    citation: https://start.csail.mit.edu/mirror/cia.gov/library/publications/the-world-factbook/fields/2128.html
+    difficulty: 3
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-theocracy-001
+    stem: >
+      A form of government in which religious authorities rule and the laws
+      are based on religious law is called what?
+    options:
+      - key: a
+        text: "An oligarchy"
+      - key: b
+        text: "An anarchy"
+      - key: c
+        text: "A confederacy"
+      - key: d
+        text: "A theocracy"
+    answer: d
+    explanation: >
+      The CIA World Factbook defines theocracy as a form of government in
+      which a deity is recognized as the supreme civil ruler and the deity's
+      laws are interpreted by religious authorities, that is, a government
+      subject to religious authority.
+    citation: https://start.csail.mit.edu/mirror/cia.gov/library/publications/the-world-factbook/fields/2128.html
+    difficulty: 1
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-constitutional-monarchy-001
+    stem: >
+      The United Kingdom is a constitutional monarchy. Which statement best
+      describes the role of its monarch?
+    options:
+      - key: a
+        text: "The monarch rules alone and issues laws by royal decree."
+      - key: b
+        text: "The monarch is head of state, but an elected Parliament makes laws."
+      - key: c
+        text: "The monarch is head of government and is elected every five years."
+      - key: d
+        text: "The monarch is chief judge and reviews each act of Parliament."
+    answer: b
+    explanation: >
+      The official website of the Royal Family explains that in a
+      constitutional monarchy the Sovereign is head of state, but the
+      ability to make and pass legislation resides with an elected
+      Parliament. The Sovereign no longer has a political or executive role.
+    citation: https://www.royal.uk/the-role-of-the-monarchy
+    difficulty: 3
+    objective: SS.7.CG.3.1
+    status: draft
+
+  - id: amdem-guarantee-clause-001
+    stem: >
+      "The United States shall guarantee to every State in this Union a
+      Republican Form of Government, and shall protect each of them against
+      Invasion" (U.S. Constitution, Article IV, Section 4). By requiring a
+      republican form of government, this clause most directly ensures that
+      state governments are what?
+    options:
+      - key: a
+        text: "Led by officials who share an official state religion"
+      - key: b
+        text: "Run by representatives whom the people elect"
+      - key: c
+        text: "Directed by governors whom Congress appoints"
+      - key: d
+        text: "Governed by direct popular votes on every law"
+    answer: b
+    explanation: >
+      Article IV, Section 4 of the Constitution, as transcribed by the
+      National Archives, guarantees every state a republican form of
+      government. A republic is governed by representatives chosen by the
+      people rather than by a hereditary ruler or by direct votes on every
+      measure.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.1.5
+    status: draft
+
+  - id: amdem-house-popular-election-001
+    stem: >
+      Article I, Section 2 provides that members of the House of
+      Representatives are chosen "by the People of the several States." This
+      provision most directly gives effect to which principle?
+    options:
+      - key: a
+        text: "The separation of powers"
+      - key: b
+        text: "Judicial review of laws"
+      - key: c
+        text: "The supremacy of federal law"
+      - key: d
+        text: "Representative government"
+    answer: d
+    explanation: >
+      The National Archives transcript of Article I, Section 2 states that
+      the House is composed of members chosen every second year by the
+      people of the several states. Letting voters elect the lawmakers who
+      act for them is the core of representative government.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.1.5
+    status: draft
+
+  - id: amdem-no-religious-test-001
+    stem: >
+      Article VI of the Constitution states that no religious test shall
+      ever be required as a qualification for any federal office. How does
+      this provision protect individual rights?
+    options:
+      - key: a
+        text: "A person's faith cannot bar them from federal office."
+      - key: b
+        text: "Federal officials must swear their oath on a holy text."
+      - key: c
+        text: "States may set religious rules for federal officers."
+      - key: d
+        text: "Clergy members are barred from voting in federal races."
+    answer: a
+    explanation: >
+      Article VI, as transcribed by the National Archives, provides that "no
+      religious Test shall ever be required as a Qualification to any Office
+      or public Trust under the United States." A person's religion, or lack
+      of one, therefore cannot be a condition for holding federal office.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.1.5
+    status: draft
+
+  - id: amdem-vesting-clauses-001
+    stem: >
+      Where is the separation of powers most directly built into the text of
+      the U.S. Constitution?
+    options:
+      - key: a
+        text: "In the Preamble's list of the government's purposes"
+      - key: b
+        text: "In the Tenth Amendment's reservation of powers"
+      - key: c
+        text: "In the opening clauses of Articles I, II, and III"
+      - key: d
+        text: "In the First Amendment's guarantees of free speech"
+    answer: c
+    explanation: >
+      The National Archives transcript shows Article I opening by vesting
+      legislative powers in Congress, Article II vesting the executive power
+      in a President, and Article III vesting the judicial power in the
+      courts. These vesting clauses assign each kind of power to a separate
+      branch.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.1.5
+    status: draft
+
+  - id: amdem-titles-nobility-001
+    stem: >
+      Article I, Section 9 provides that "No Title of Nobility shall be
+      granted by the United States." This ban most directly reflects which
+      principle?
+    options:
+      - key: a
+        text: "Federalism"
+      - key: b
+        text: "Due process"
+      - key: c
+        text: "Judicial review"
+      - key: d
+        text: "Republicanism"
+    answer: d
+    explanation: >
+      The National Archives transcript of Article I, Section 9 bars the
+      United States from granting titles of nobility. Refusing to create a
+      hereditary aristocracy reflects republicanism, the idea that
+      government rests on the people and their elected representatives
+      rather than on inherited rank.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.1.5
+    status: draft
+
+  - id: amdem-alien-sedition-001
+    stem: >
+      The Sedition Act of 1798 made it a federal crime to do which of the
+      following?
+    options:
+      - key: a
+        text: "Refuse to serve in the army after being drafted"
+      - key: b
+        text: "Burn or deface the national flag in a public place"
+      - key: c
+        text: "Publish false and malicious writing against the government"
+      - key: d
+        text: "Meet with foreign diplomats without federal permission"
+    answer: c
+    explanation: >
+      The text of the Sedition Act, published by the Avalon Project at Yale
+      Law School, punished anyone who would write, print, utter, or publish
+      "false, scandalous and malicious" writing against the government,
+      Congress, or the President. The act was set to expire on March 3,
+      1801.
+    citation: https://avalon.law.yale.edu/18th_century/sedact.asp
+    difficulty: 3
+    objective: SS.912.CG.2.5
+    status: draft
+
+  - id: amdem-lincoln-habeas-001
+    stem: >
+      Early in the Civil War, President Abraham Lincoln authorized military
+      commanders to suspend which legal protection along troop routes
+      between Philadelphia and Washington, D.C.?
+    options:
+      - key: a
+        text: "The right to a trial by jury"
+      - key: b
+        text: "The writ of habeas corpus"
+      - key: c
+        text: "The freedom of the press"
+      - key: d
+        text: "The ban on quartering troops"
+    answer: b
+    explanation: >
+      The Federal Judicial Center records that Lincoln authorized his
+      commanders to suspend the writ of habeas corpus along these routes,
+      prompting Chief Justice Taney's ruling in Ex parte Merryman (1861).
+      The Constitution allows suspension of the writ in cases of rebellion
+      or invasion when public safety requires it.
+    citation: https://www.fjc.gov/history/administration/executive-enforcement-judicial-orders
+    difficulty: 3
+    objective: SS.912.CG.2.5
+    status: draft
+
+  - id: amdem-espionage-act-001
+    stem: >
+      During World War I, Charles Schenck was convicted for distributing
+      leaflets that urged resistance to the draft. Under which federal law
+      was he convicted?
+    options:
+      - key: a
+        text: "The Espionage Act of 1917"
+      - key: b
+        text: "The Sedition Act of 1798"
+      - key: c
+        text: "The Smith Act of 1940"
+      - key: d
+        text: "The Alien Enemies Act of 1798"
+    answer: a
+    explanation: >
+      Oyez reports that Schenck was charged with conspiracy to violate the
+      Espionage Act of 1917 by attempting to obstruct military recruitment.
+      In Schenck v. United States (1919), the Supreme Court upheld the
+      conviction.
+    citation: https://www.oyez.org/cases/1900-1940/249us47
+    difficulty: 3
+    objective: SS.912.CG.2.5
+    status: draft
+
+  - id: amdem-time-place-manner-001
+    stem: >
+      Scenario: A city requires groups to obtain a permit before holding a
+      large march on public streets, and it bans amplified sound in parks
+      after 10 p.m. The rules apply the same way no matter what message a
+      group wants to express. How would courts most likely classify these
+      rules?
+    options:
+      - key: a
+        text: "As a ban on speech based on the speaker's viewpoint"
+      - key: b
+        text: "As a content-neutral time, place, and manner limit"
+      - key: c
+        text: "As an unconstitutional establishment of religion"
+      - key: d
+        text: "As a prior restraint on the publication of news"
+    answer: b
+    explanation: >
+      In Ward v. Rock Against Racism (1989), published by Cornell's Legal
+      Information Institute, the Supreme Court held that government may
+      impose reasonable restrictions on the time, place, or manner of
+      protected speech if they are justified without reference to content,
+      narrowly tailored to a significant interest, and leave open other
+      channels of communication.
+    citation: https://www.law.cornell.edu/supremecourt/text/491/781
+    difficulty: 3
+    objective: SS.912.CG.2.5
+    status: draft
+
+  - id: amdem-ex-parte-milligan-001
+    stem: >
+      Applying the rule of Ex parte Milligan (1866), in which situation
+      would a military commission's trial of a civilian be unconstitutional?
+    options:
+      - key: a
+        text: "When no civilian court is available because of battle"
+      - key: b
+        text: "When the accused is a soldier serving in the army"
+      - key: c
+        text: "When the civilian courts in that state are open"
+      - key: d
+        text: "When the trial takes place in an enemy country"
+    answer: c
+    explanation: >
+      Oyez summarizes the holding: it is unconstitutional to try civilians
+      by military tribunals unless no civilian court is available. Because
+      federal courts in Indiana were open, the commission that sentenced
+      Lambden Milligan lacked jurisdiction.
+    citation: https://www.oyez.org/cases/1850-1900/71us2
+    difficulty: 5
+    objective: SS.912.CG.2.5
+    status: draft
+
+  - id: amdem-marbury-province-quote-001
+    stem: >
+      "It is emphatically the province and duty of the judicial department
+      to say what the law is. Those who apply the rule to particular cases,
+      must of necessity expound and interpret that rule." (Chief Justice
+      John Marshall, Marbury v. Madison, 1803). What role does this passage
+      claim for the courts?
+    options:
+      - key: a
+        text: "Writing new laws whenever Congress fails to act"
+      - key: b
+        text: "Enforcing laws through the executive branch"
+      - key: c
+        text: "Advising Congress on bills before passage"
+      - key: d
+        text: "Interpreting the law in the cases they decide"
+    answer: d
+    explanation: >
+      In this passage from Marbury v. Madison, reproduced by the National
+      Archives, Marshall reasons that courts must interpret the law to apply
+      it, and when a law conflicts with the Constitution they must follow
+      the Constitution. This reasoning is the basis of judicial review.
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    difficulty: 3
+    objective: SS.912.CG.3.8
+    status: draft
+
+  - id: amdem-judicial-review-not-explicit-001
+    stem: >
+      Which statement accurately describes where the power of judicial
+      review comes from?
+    options:
+      - key: a
+        text: "Article III expressly lists it among the Supreme Court's powers."
+      - key: b
+        text: "It is not written in the text; the Court derived it in Marbury."
+      - key: c
+        text: "The Tenth Amendment granted it to the courts in 1791."
+      - key: d
+        text: "Congress created it by statute in the Judiciary Act of 1801."
+    answer: b
+    explanation: >
+      The National Archives notes that nothing stated in the Constitution
+      gave the Supreme Court the specific power of judicial review. Chief
+      Justice Marshall established it through his reasoning in Marbury v.
+      Madison (1803).
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    difficulty: 3
+    objective: SS.912.CG.3.8
+    status: draft
+
+  - id: amdem-federalist78-001
+    stem: >
+      In Federalist No. 78, Alexander Hamilton calls the judiciary the
+      "least dangerous" branch yet says courts must declare void any act
+      contrary to the Constitution. Which reasoning connects these two
+      claims?
+    options:
+      - key: a
+        text: "Courts hold neither sword nor purse, yet must uphold the higher law."
+      - key: b
+        text: "Courts are elected by the people, so they speak for the majority."
+      - key: c
+        text: "Courts command the army, so they can enforce their own rulings."
+      - key: d
+        text: "Courts control taxation, so they can check spending by Congress."
+    answer: a
+    explanation: >
+      In Federalist No. 78, published by the Avalon Project, Hamilton writes
+      that the judiciary has "no influence over either the sword or the
+      purse" and has "neither FORCE nor WILL, but merely judgment." Because
+      the Constitution is fundamental law, courts must declare void "all
+      acts contrary to the manifest tenor of the Constitution."
+    citation: https://avalon.law.yale.edu/18th_century/fed78.asp
+    difficulty: 4
+    objective: SS.912.CG.3.8
+    status: draft
+
+  - id: amdem-fletcher-peck-001
+    stem: >
+      Marbury v. Madison (1803) struck down part of a federal law. How did
+      Fletcher v. Peck (1810) extend the reach of judicial review?
+    options:
+      - key: a
+        text: "It let the President veto rulings of the Supreme Court."
+      - key: b
+        text: "It let Congress override decisions by a simple majority."
+      - key: c
+        text: "It let state courts strike down acts passed by Congress."
+      - key: d
+        text: "It applied judicial review to strike down a state law."
+    answer: d
+    explanation: >
+      The Federal Judicial Center explains that Fletcher v. Peck marked the
+      first time the Supreme Court struck down a state law as
+      unconstitutional. The Court held that Georgia's 1796 act voiding a
+      land grant violated the Contract Clause.
+    citation: https://www.fjc.gov/node/13861
+    difficulty: 5
+    objective: SS.912.CG.3.8
+    status: draft
+
+  - id: amdem-judicial-review-scenario-001
+    stem: >
+      Scenario: A state passes a law limiting what residents may say at
+      public rallies. A person sues, and a federal court rules that the law
+      violates the First Amendment and cannot be enforced. Which power did
+      the court use?
+    options:
+      - key: a
+        text: "Executive privilege"
+      - key: b
+        text: "Original jurisdiction"
+      - key: c
+        text: "Judicial review"
+      - key: d
+        text: "Legislative oversight"
+    answer: c
+    explanation: >
+      Judicial review is the power of courts to declare a law
+      unconstitutional and refuse to enforce it. As the National Archives
+      explains, Chief Justice Marshall established this principle in Marbury
+      v. Madison (1803); courts apply it to state laws as well as federal
+      ones.
+    citation: https://www.archives.gov/milestone-documents/marbury-v-madison
+    difficulty: 2
+    objective: SS.912.CG.3.8
+    status: draft
+
+  - id: amdem-270-electoral-votes-001
+    stem: >
+      The Electoral College has 538 electors. How many electoral votes must
+      a presidential candidate receive to win the presidency?
+    options:
+      - key: a
+        text: "At least 300"
+      - key: b
+        text: "At least 218"
+      - key: c
+        text: "At least 400"
+      - key: d
+        text: "At least 270"
+    answer: d
+    explanation: >
+      According to the National Archives, the Electoral College consists of
+      538 electors, and a majority of 270 electoral votes is required to
+      elect the President. Since 270 is just over half of 538, it is the
+      smallest possible majority.
+    citation: https://www.archives.gov/electoral-college/about
+    difficulty: 1
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-electors-per-state-001
+    stem: >
+      How is the number of presidential electors assigned to each state
+      determined?
+    options:
+      - key: a
+        text: "It equals the state's population in millions, rounded up"
+      - key: b
+        text: "It equals the state's House seats plus its two senators"
+      - key: c
+        text: "It equals the number of counties in the state"
+      - key: d
+        text: "It is fixed at the same number for every state"
+    answer: b
+    explanation: >
+      The National Archives explains that each state has as many electors as
+      it has members in its congressional delegation: one for each member of
+      the House of Representatives plus two for its senators. Larger states
+      therefore have more electors, but every state has at least three.
+    citation: https://www.archives.gov/electoral-college/about
+    difficulty: 2
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-house-contingent-election-001
+    stem: >
+      Suppose no presidential candidate wins a majority of the electoral
+      votes. Under the Twelfth Amendment, how would a state with 52 House
+      members compare with a state with a single House member when the
+      President is then chosen?
+    options:
+      - key: a
+        text: "The larger state casts 52 votes and the smaller state casts one"
+      - key: b
+        text: "Each state's vote is weighted by its share of electoral votes"
+      - key: c
+        text: "Each state's delegation casts a single vote of equal weight"
+      - key: d
+        text: "Only senators vote, so every state casts exactly two votes"
+    answer: c
+    explanation: >
+      The Twelfth Amendment provides that if no person has a majority of
+      electoral votes, the House of Representatives chooses the President
+      from the top three candidates, with the votes taken by states and each
+      state's delegation having one vote. A majority of all the states is
+      needed to win, so population size does not change a state's weight in
+      this vote.
+    citation: https://www.law.cornell.edu/constitution/amendmentxii
+    difficulty: 4
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-florida-supervisor-elections-001
+    stem: >
+      In Florida, which official, elected in each county, is responsible for
+      entering new voter registrations and keeping the county's voter
+      registration records current?
+    options:
+      - key: a
+        text: "The county supervisor of elections"
+      - key: b
+        text: "The county clerk of the circuit court"
+      - key: c
+        text: "The county property appraiser"
+      - key: d
+        text: "The chair of the county commission"
+    answer: a
+    explanation: >
+      Section 98.015 of the Florida Statutes provides that a supervisor of
+      elections shall be elected in each county and directs the supervisor
+      to update voter registration information and enter new voter
+      registrations. Election administration is therefore handled locally by
+      this county officer.
+    citation: https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0000-0099/0098/Sections/0098.015.html
+    difficulty: 2
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-florida-closed-primary-001
+    stem: >
+      Florida holds closed primary elections. Under Florida law, who is
+      generally entitled to vote for a party's candidates in that party's
+      primary election?
+    options:
+      - key: a
+        text: "Any registered voter, whatever the party"
+      - key: b
+        text: "Any county resident who is at least eighteen"
+      - key: c
+        text: "Voters registered as members of that party"
+      - key: d
+        text: "Voters who sign a party pledge at the polls"
+    answer: c
+    explanation: >
+      Section 101.021 of the Florida Statutes provides that in a primary
+      election a qualified elector is entitled to vote the official primary
+      ballot of the political party designated in that elector's
+      registration, and no other. This rule is what makes Florida's party
+      primaries closed.
+    citation: https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&URL=0100-0199/0101/Sections/0101.021.html
+    difficulty: 3
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-election-day-statute-001
+    stem: >
+      Federal law sets the date for electing members of the U.S. House of
+      Representatives in even-numbered years. On which day is that election
+      held?
+    options:
+      - key: a
+        text: "The Tuesday after the first Monday in November"
+      - key: b
+        text: "The first Saturday after the first Friday in November"
+      - key: c
+        text: "The third Tuesday after the first Monday in October"
+      - key: d
+        text: "The Monday following the first Tuesday in November"
+    answer: a
+    explanation: >
+      Under 2 U.S.C. 7, the Tuesday next after the first Monday in November,
+      in every even-numbered year, is established as the day for electing
+      Representatives to Congress. Federal law uses the same formula for
+      choosing presidential electors every fourth year.
+    citation: https://www.law.cornell.edu/uscode/text/2/7
+    difficulty: 2
+    objective: SS.912.CG.2.9
+    status: draft
+
+  - id: amdem-nineteenth-amendment-001
+    stem: >
+      The Nineteenth Amendment, ratified in 1920, provides that the right of
+      citizens to vote shall not be denied or abridged on account of what?
+    options:
+      - key: a
+        text: "Their race"
+      - key: b
+        text: "Their faith"
+      - key: c
+        text: "Their age"
+      - key: d
+        text: "Their sex"
+    answer: d
+    explanation: >
+      The National Archives text of the Nineteenth Amendment states that the
+      right of citizens of the United States to vote shall not be denied or
+      abridged by the United States or by any state on account of sex. It
+      was ratified on August 18, 1920.
+    citation: https://www.archives.gov/milestone-documents/19th-amendment
+    difficulty: 1
+    objective: SS.912.CG.2.10
+    status: draft
+
+  - id: amdem-fifteenth-amendment-001
+    stem: >
+      Ratified in 1870, which amendment provides that the right to vote
+      shall not be denied "on account of race, color, or previous condition
+      of servitude"?
+    options:
+      - key: a
+        text: "The Thirteenth Amendment"
+      - key: b
+        text: "The Fifteenth Amendment"
+      - key: c
+        text: "The Nineteenth Amendment"
+      - key: d
+        text: "The Fourteenth Amendment"
+    answer: b
+    explanation: >
+      According to the National Archives, the Fifteenth Amendment, ratified
+      on February 3, 1870, bars the United States and the states from
+      denying or abridging the right to vote on account of race, color, or
+      previous condition of servitude. The Thirteenth abolished slavery, the
+      Fourteenth addressed citizenship and equal protection, and the
+      Nineteenth barred sex discrimination in voting.
+    citation: https://www.archives.gov/milestone-documents/15th-amendment
+    difficulty: 2
+    objective: SS.912.CG.2.10
+    status: draft
+
+  - id: amdem-twentyfourth-poll-tax-001
+    stem: >
+      The Twenty-fourth Amendment, ratified in 1964, bars denying a citizen
+      the right to vote in federal elections because of failure to do what?
+    options:
+      - key: a
+        text: "Pass a state literacy test"
+      - key: b
+        text: "Pay a poll tax or other tax"
+      - key: c
+        text: "Own property in the state"
+      - key: d
+        text: "Live in the state for a year"
+    answer: b
+    explanation: >
+      The Twenty-fourth Amendment, ratified January 23, 1964 according to
+      the National Archives, provides that the right to vote in any primary
+      or other election for federal offices shall not be denied or abridged
+      by reason of failure to pay any poll tax or other tax. It removed a
+      cost barrier that had kept some citizens from voting.
+    citation: https://www.archives.gov/founding-docs/amendments-11-27
+    difficulty: 3
+    objective: SS.912.CG.2.10
+    status: draft
+
+  - id: amdem-voting-rights-act-001
+    stem: >
+      Which of the following did the Voting Rights Act of 1965 do?
+    options:
+      - key: a
+        text: "Lowered the national voting age to eighteen"
+      - key: b
+        text: "Required all states to adopt closed party primaries"
+      - key: c
+        text: "Gave women the right to vote in every state"
+      - key: d
+        text: "Banned literacy tests as a condition of voting"
+    answer: d
+    explanation: >
+      The National Archives explains that the Voting Rights Act, signed on
+      August 6, 1965, outlawed discriminatory voting practices, including
+      literacy tests as a prerequisite to voting. The voting age was lowered
+      by the Twenty-sixth Amendment, and women's suffrage came from the
+      Nineteenth Amendment.
+    citation: https://www.archives.gov/milestone-documents/voting-rights-act
+    difficulty: 3
+    objective: SS.912.CG.2.10
+    status: draft
+
+  - id: amdem-midterm-turnout-001
+    stem: >
+      Census Bureau survey estimates of turnout among citizens 18 and older
+      were 53.4 percent in 2018 (a midterm year), 66.8 percent in 2020 (a
+      presidential year), and 52.2 percent in 2022 (a midterm year). Which
+      conclusion do these figures best support?
+    options:
+      - key: a
+        text: "Turnout peaked in the presidential year, above both midterms"
+      - key: b
+        text: "Turnout rose steadily in each election from 2018 to 2022"
+      - key: c
+        text: "Turnout in the two midterm years exceeded presidential-year turnout"
+      - key: d
+        text: "Turnout changed little between midterm and presidential years"
+    answer: a
+    explanation: >
+      The Census Bureau reports 2022 midterm turnout of 52.2 percent
+      compared with 53.4 percent in 2018, and its 2020 release reports that
+      66.8 percent of citizens 18 and older voted in the presidential
+      election. Turnout was far higher in the presidential year than in
+      either midterm, a common pattern in U.S. elections.
+    citation: https://www.census.gov/library/stories/2023/05/high-registration-and-early-voting-in-2022-midterm-elections.html
+    difficulty: 3
+    objective: SS.912.CG.2.10
+    status: draft
+
+  - id: amdem-unitary-system-001
+    stem: >
+      Which description best fits a unitary system of government, in
+      contrast with the federal system of the United States?
+    options:
+      - key: a
+        text: "Power is divided between national and state governments by a constitution"
+      - key: b
+        text: "Independent states keep sovereignty and delegate limited powers to a weak center"
+      - key: c
+        text: "The central government holds ultimate power and grants authority to local units"
+      - key: d
+        text: "Each region elects its own legislature that the national government cannot alter"
+    answer: c
+    explanation: >
+      In a unitary system the central government is supreme and local units
+      exercise only the authority it delegates. Federalist No. 39 describes
+      this consolidated model, in which all local authorities are
+      subordinate and may be "controlled, directed, or abolished" by the
+      national government, and contrasts it with the Constitution's division
+      of power between the nation and the states.
+    citation: https://avalon.law.yale.edu/18th_century/fed39.asp
+    difficulty: 2
+    objective: SS.912.CG.3.12
+    status: draft
+
+  - id: amdem-conditional-grants-dole-001
+    stem: >
+      In South Dakota v. Dole (1987), the Supreme Court upheld a federal law
+      withholding 5 percent of certain highway funds from states that
+      allowed people under 21 to buy alcohol. Which principle best explains
+      the outcome?
+    options:
+      - key: a
+        text: "The Twenty-first Amendment gives Congress control of alcohol"
+      - key: b
+        text: "States lose their reserved powers when they accept any aid"
+      - key: c
+        text: "Highway policy belongs exclusively to the national government"
+      - key: d
+        text: "Congress may place conditions on money it gives the states"
+    answer: d
+    explanation: >
+      In South Dakota v. Dole, 483 U.S. 203 (1987), the Court held that even
+      if Congress could not directly set a national drinking age,
+      encouraging states to adopt one by conditioning a portion of highway
+      funds was a valid use of the spending power. States remained free to
+      keep a lower age and give up those funds.
+    citation: https://www.law.cornell.edu/supremecourt/text/483/203
+    difficulty: 4
+    objective: SS.912.CG.3.12
+    status: draft
+
+  - id: amdem-dual-cooperative-federalism-001
+    stem: >
+      Which arrangement best illustrates cooperative federalism (the "marble
+      cake" model) rather than dual federalism (the "layer cake" model)?
+    options:
+      - key: a
+        text: "The national and state governments act only in separate spheres"
+      - key: b
+        text: "States alone regulate mining, with no federal role in the field"
+      - key: c
+        text: "States run their own programs within federal minimum standards"
+      - key: d
+        text: "Federal officials alone enforce every federal environmental rule"
+    answer: c
+    explanation: >
+      Cooperative federalism blends national and state roles, while dual
+      federalism keeps each level in its own separate sphere. In Hodel v.
+      Virginia Surface Mining and Reclamation Association (1981), the
+      Supreme Court described the Surface Mining Act as a program of
+      cooperative federalism that lets states enact and administer their own
+      regulatory programs within federal minimum standards.
+    citation: https://www.law.cornell.edu/supremecourt/text/452/264
+    difficulty: 3
+    objective: SS.912.CG.3.12
+    status: draft
+
+  - id: amdem-police-powers-001
+    stem: >
+      A state legislature passes a law requiring anyone who practices
+      medicine in the state to hold a state license showing proper training.
+      The state's authority to pass this law is best described as which of
+      the following?
+    options:
+      - key: a
+        text: "An enumerated power that Article I grants to Congress"
+      - key: b
+        text: "A police power the states keep to protect public health"
+      - key: c
+        text: "An implied power derived from the Necessary and Proper Clause"
+      - key: d
+        text: "A concurrent power to tax shared with the national government"
+    answer: b
+    explanation: >
+      States hold reserved police powers to protect the health, safety, and
+      welfare of their people. In Dent v. West Virginia (1889), the Supreme
+      Court upheld a state physician licensing law, stating that the power
+      of the state to provide for the general welfare of its people
+      authorizes it to prescribe such regulations.
+    citation: https://www.law.cornell.edu/supremecourt/text/129/114
+    difficulty: 3
+    objective: SS.912.CG.3.12
+    status: draft
+
+  - id: amdem-admission-new-states-001
+    stem: >
+      Under Article IV, Section 3 of the Constitution, which body has the
+      power to admit new states into the Union?
+    options:
+      - key: a
+        text: "The Congress of the United States"
+      - key: b
+        text: "The President of the United States"
+      - key: c
+        text: "The Supreme Court of the United States"
+      - key: d
+        text: "A convention of the existing states"
+    answer: a
+    explanation: >
+      Article IV, Section 3 provides that "New States may be admitted by the
+      Congress into this Union," and it bars forming a new state from the
+      territory of existing states without the consent of their legislatures
+      and of Congress. The National Archives transcript of the Constitution
+      contains this text.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.12
+    status: draft
+
+  - id: amdem-full-faith-credit-001
+    stem: >
+      "Full Faith and Credit shall be given in each State to the public
+      Acts, Records, and judicial Proceedings of every other State." (U.S.
+      Constitution, Article IV, Section 1) Under this clause, how must
+      Florida generally treat a valid court judgment issued in Georgia?
+    options:
+      - key: a
+        text: "Recognize it and give it effect"
+      - key: b
+        text: "Rehear the whole case before a jury"
+      - key: c
+        text: "Send it to Congress for approval"
+      - key: d
+        text: "Ignore it unless Florida agrees"
+    answer: a
+    explanation: >
+      The Full Faith and Credit Clause in Article IV, Section 1, shown in
+      the National Archives transcript, requires each state to honor the
+      public acts, records, and judicial proceedings of every other state. A
+      valid judgment from one state is therefore generally enforceable in
+      another without being retried.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.13
+    status: draft
+
+  - id: amdem-extradition-clause-001
+    stem: >
+      A person charged with a felony in Alabama flees to Florida. Alabama's
+      governor demands that the person be returned. Under Article IV,
+      Section 2 of the Constitution, what should happen?
+    options:
+      - key: a
+        text: "Florida tries the person under Florida law instead"
+      - key: b
+        text: "The person is delivered up for removal to Alabama"
+      - key: c
+        text: "A federal court first decides guilt or innocence"
+      - key: d
+        text: "The person stays in Florida until Congress votes"
+    answer: b
+    explanation: >
+      Article IV, Section 2 provides that a person charged in any state with
+      a crime who flees from justice and is found in another state shall, on
+      demand of the executive authority of the state from which he fled, be
+      delivered up to be removed to the state having jurisdiction of the
+      crime. The National Archives transcript contains this Extradition
+      Clause.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.13
+    status: draft
+
+  - id: amdem-privileges-immunities-001
+    stem: >
+      A state passes a law barring residents of other states from working as
+      commercial shrimpers in its waters solely because they live elsewhere.
+      A nonresident shrimper would most directly challenge the law under
+      which provision?
+    options:
+      - key: a
+        text: "The Full Faith and Credit Clause of Article IV"
+      - key: b
+        text: "The Extradition Clause of Article IV, Section 2"
+      - key: c
+        text: "Article IV's Privileges and Immunities Clause"
+      - key: d
+        text: "The Guarantee Clause of Article IV, Section 4"
+    answer: c
+    explanation: >
+      Article IV, Section 2 states that "The Citizens of each State shall be
+      entitled to all Privileges and Immunities of Citizens in the several
+      States," which limits a state's power to discriminate against
+      nonresidents on the basis of state citizenship. The other clauses
+      concern court judgments, fugitives, and a republican form of
+      government, not equal treatment of out-of-state citizens.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 4
+    objective: SS.912.CG.3.13
+    status: draft
+
+  - id: amdem-interstate-compacts-001
+    stem: >
+      Under Article I, Section 10 of the Constitution, a state may not enter
+      into an agreement or compact with another state without what?
+    options:
+      - key: a
+        text: "Supreme Court approval"
+      - key: b
+        text: "A statewide referendum"
+      - key: c
+        text: "The President's signature"
+      - key: d
+        text: "The consent of Congress"
+    answer: d
+    explanation: >
+      Article I, Section 10 provides that no state shall, without the
+      consent of Congress, enter into any agreement or compact with another
+      state or with a foreign power. Interstate compacts are therefore a
+      congressionally approved way for states to settle shared problems, as
+      the National Archives transcript shows.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.3.13
+    status: draft
+
+  - id: amdem-diversity-jurisdiction-001
+    stem: >
+      A citizen of Florida sues a citizen of Georgia over a contract dispute
+      that raises only questions of state law. Which feature of the case
+      gives a federal court a constitutional basis to hear it under Article
+      III?
+    options:
+      - key: a
+        text: "The case arises under the Constitution or federal law"
+      - key: b
+        text: "The parties are citizens of different states"
+      - key: c
+        text: "One of the states is a party to the controversy"
+      - key: d
+        text: "The Supreme Court has original jurisdiction over it"
+    answer: b
+    explanation: >
+      Article III, Section 2 extends the federal judicial power to
+      controversies "between Citizens of different States," known as
+      diversity jurisdiction. The case raises no federal question, no state
+      is itself a party, and original Supreme Court jurisdiction covers
+      cases in which a state is a party, so diversity of citizenship is the
+      basis.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 5
+    objective: SS.912.CG.3.13
+    status: draft
+
+  - id: amdem-contracts-clause-001
+    stem: >
+      Article I, Section 10 of the Constitution forbids any state from
+      passing a law that does what?
+    options:
+      - key: a
+        text: "Impairs the obligation of contracts"
+      - key: b
+        text: "Regulates the sale of private property"
+      - key: c
+        text: "Sets a minimum wage for workers"
+      - key: d
+        text: "Charters new business corporations"
+    answer: a
+    explanation: >
+      Article I, Section 10 provides that no state shall pass any law
+      impairing the obligation of contracts, protecting agreements made
+      between private parties from later state interference. This Contracts
+      Clause appears in the National Archives transcript alongside the bans
+      on bills of attainder and ex post facto laws.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.4.1
+    status: draft
+
+  - id: amdem-patent-copyright-clause-001
+    stem: >
+      "To promote the Progress of Science and useful Arts, by securing for
+      limited Times to Authors and Inventors the exclusive Right to their
+      respective Writings and Discoveries" (U.S. Constitution, Article I,
+      Section 8). This clause gives Congress the constitutional basis for
+      which of the following?
+    options:
+      - key: a
+        text: "Taxing imports to protect domestic industry"
+      - key: b
+        text: "Funding public schools and universities"
+      - key: c
+        text: "Regulating commerce among the several states"
+      - key: d
+        text: "Issuing patents and copyrights to creators"
+    answer: d
+    explanation: >
+      This clause of Article I, Section 8, shown in the National Archives
+      transcript, lets Congress secure exclusive rights to authors and
+      inventors for limited times, which is the basis for federal copyright
+      and patent law. It encourages innovation by letting creators benefit
+      from their work for a set period.
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 3
+    objective: SS.912.CG.4.1
+    status: draft
+
+  - id: amdem-takings-clause-001
+    stem: >
+      The Fifth Amendment provides that private property shall not be taken
+      for public use without what?
+    options:
+      - key: a
+        text: "Approval of the state legislature"
+      - key: b
+        text: "A warrant issued by a judge"
+      - key: c
+        text: "Just compensation to the owner"
+      - key: d
+        text: "Consent of the property owner"
+    answer: c
+    explanation: >
+      The Fifth Amendment, in the National Archives transcript of the Bill
+      of Rights, ends with the clause "nor shall private property be taken
+      for public use, without just compensation." Government may take
+      property for public use, but it must pay the owner fair value.
+    citation: https://www.archives.gov/founding-docs/bill-of-rights-transcript
+    difficulty: 2
+    objective: SS.912.CG.4.1
+    status: draft
+
+  - id: amdem-land-ordinance-1785-001
+    stem: >
+      A family buying land in a newly surveyed township in the Ohio country
+      in the 1780s studies the township plat, which divides the township
+      into 36 numbered lots. They learn that lot number 16 cannot be bought
+      for farming. Applying the Land Ordinance of 1785, which explanation is
+      correct?
+    options:
+      - key: a
+        text: "Congress kept it as the site for a federal military fort"
+      - key: b
+        text: "Congress granted it to the first church built within the township"
+      - key: c
+        text: "Congress held it as common grazing land for all its residents"
+      - key: d
+        text: "Congress reserved it to support the township's public schools"
+    answer: d
+    explanation: >
+      The Land Ordinance of 1785 surveyed western land into townships six
+      miles square divided into 36 lots and reserved lot number 16 of every
+      township for the maintenance of public schools. The Supreme Court in
+      Cooper v. Roberts (1855) noted that the ordinance of 1785 dedicated
+      section 16 to public schools, linking public land policy to
+      educational opportunity.
+    citation: https://www.law.cornell.edu/supremecourt/text/59/173
+    difficulty: 4
+    objective: SS.912.CG.4.1
+    status: draft
+
+  - id: amdem-gi-bill-001
+    stem: >
+      The Servicemen's Readjustment Act of 1944, known as the GI Bill,
+      expanded opportunity for returning World War II veterans mainly by
+      providing what?
+    options:
+      - key: a
+        text: "Guaranteed federal jobs for every returning veteran"
+      - key: b
+        text: "Tuition aid for school and help obtaining home loans"
+      - key: c
+        text: "Free land grants for veterans who settled in the West"
+      - key: d
+        text: "A ten-year exemption from paying federal income tax"
+    answer: b
+    explanation: >
+      According to the National Archives, the GI Bill, signed by President
+      Franklin D. Roosevelt on June 22, 1944, provided veterans with
+      tuition, books, and living expenses for education, along with home
+      loans and unemployment benefits. Millions of veterans used these
+      benefits to attend college and buy homes.
+    citation: https://www.archives.gov/milestone-documents/servicemens-readjustment-act
+    difficulty: 2
+    objective: SS.912.CG.4.1
+    status: draft
