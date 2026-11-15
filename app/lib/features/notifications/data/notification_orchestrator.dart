@@ -14,13 +14,29 @@
 // Entry points:
 //   * run()                   — the periodic sweep (BGAppRefresh, silent push,
 //                               foreground start). Gathers Washington + memory
-//                               + FCLE and dispatches them together.
+//                               + FCLE and dispatches them together. Only one
+//                               sweep runs at a time: see "Exactly once" below.
 //   * submitChapterCandidate  — the event-driven chapter-ready nudge, routed
 //                               through the same brain on round completion.
 //   * recordAppOpen()         — call on foreground so "opened today" and the
 //                               preferred-hour histogram stay current.
+//
+// Exactly once. A sweep can be started from three places (app launch, a
+// silent push, the background refresh task, which has its own isolate and
+// its own database connection), and they used to overlap: each read the
+// same empty log and each sent. Two database-level guards now hold, both
+// single atomic statements (MetaDao.claimStamp), so they hold across
+// isolates too:
+//   1. A sweep first claims a lease ('notif.sweep_lock'). A second sweep
+//      that finds the lease held does nothing. The lease expires on its
+//      own, so a sweep killed mid-run cannot block the next one for long.
+//   2. Each notification is recorded as sent BEFORE it is sent, by claiming
+//      'notif.sent:<dedupeKey>'. For a sweep that claim is conditional on
+//      still holding the lease, in the same statement. Whoever loses the
+//      claim does not send.
 
 import 'dart:convert';
+import 'dart:math';
 
 import '../../../core/database/drift/app_database.dart';
 import '../../fcle/application/objective_readiness.dart';
@@ -29,13 +45,41 @@ import '../../fcle/data/question_bank_loader.dart';
 import '../../fcle/domain/fcle_question.dart';
 import '../../fcle/domain/objective.dart';
 import '../../settings/data/settings_service.dart';
+import '../domain/alert_log.dart';
 import '../domain/notification_brain.dart';
 import 'notification_generators.dart';
 import 'notification_sender.dart';
 import 'washington_watch_service.dart';
 
 // Local AppMeta keys the orchestrator owns.
-const _kLog = 'notif.log';
+
+/// Pre-1.3.3 sent log: one JSON list, rewritten read-modify-write. Read
+/// only, so a notification sent just before the update still counts toward
+/// the cap and the cooldown; removed once every entry in it has aged out.
+const _kLegacyLog = 'notif.log';
+
+/// One row per notification sent: 'notif.sent:<dedupeKey>' -> delivery time
+/// in epoch milliseconds. Claimed atomically before the send.
+const _kSentPrefix = 'notif.sent:';
+
+/// One row per item a digest covered: 'notif.covered:<itemKey>' -> delivery
+/// time. Keeps an item a digest already reported from alerting again on its
+/// own, without counting toward the daily cap (the digest was one
+/// notification, not many).
+const _kCoveredPrefix = 'notif.covered:';
+
+/// The sweep lease: '<expiresAtMillis>|<owner token>'.
+const _kSweepLock = 'notif.sweep_lock';
+
+/// How long a sweep may hold the lease before another may take over. A
+/// sweep is a handful of network calls, each capped at 12 seconds; this is
+/// comfortably longer, and short enough that a sweep killed mid-run only
+/// delays the next by minutes.
+const _kSweepLease = Duration(minutes: 2);
+
+/// How long a sent or covered key suppresses a repeat. Matches
+/// [BrainContext.dedupeCooldown].
+const _kCooldown = Duration(days: 3);
 const _kLastOpenDay = 'notif.last_open_day';
 const _kOpenHours = 'notif.open_hours';
 const _kSolidDomains = 'notif.fcle.solid_domains';
@@ -90,33 +134,74 @@ class NotificationOrchestrator {
   /// and executes the decisions. Fail-soft throughout: a hiccup in any one
   /// generator never blocks the others or crashes a background isolate.
   Future<void> run() async {
+    String? lease;
     try {
       final now = _now();
+      lease = await _claimSweep(now);
+      // Another sweep is running (this isolate or the background one). It
+      // sees the same feeds and the same log, so there is nothing for this
+      // one to add.
+      if (lease == null) return;
+      await _pruneSent(now);
+
       final candidates = <NotifCandidate>[];
       candidates.addAll(await _washingtonCandidates(now));
       final memory = await _memoryRescueCandidate(now);
       if (memory != null) candidates.add(memory);
       candidates.addAll(await _fcleCandidates(now));
       if (candidates.isEmpty) return;
-      final delivered = await _dispatch(candidates, now);
+      final delivered = await _dispatch(candidates, now, lease: lease);
       // Advance Washington baselines only for items that actually delivered,
       // so a capped or unauthorized item is retried next cycle rather than
-      // lost forever.
-      final washingtonDelivered = delivered
-          .where(
-            (k) =>
-                k.startsWith('eo:') ||
-                k.startsWith('law:') ||
-                k.startsWith('bill:'),
-          )
-          .toList();
+      // lost forever. A digest delivers every item it covers: its own key
+      // ('wash:summary:<day>') names no item, so the covered keys are what
+      // must be committed, or the same backlog comes back tomorrow as a
+      // bigger digest.
+      final washingtonDelivered = <String>{
+        for (final c in delivered)
+          if (_isWashington(c))
+            ...(c.items.isEmpty ? [c.dedupeKey] : c.itemKeys),
+      }.where(_isItemKey).toList();
       if (washingtonDelivered.isNotEmpty) {
         await _washington.commitDelivered(washingtonDelivered);
       }
     } catch (_) {
       // Best-effort: never surface as a crash on a BGAppRefresh task.
+    } finally {
+      if (lease != null) {
+        try {
+          await _db.metaDao.removeIfValue(_kSweepLock, lease);
+        } catch (_) {
+          // The lease expires on its own.
+        }
+      }
     }
   }
+
+  /// Claims the sweep lease. Returns the lease value to hold and release,
+  /// or null when another sweep holds a live one.
+  Future<String?> _claimSweep(DateTime now) async {
+    final nowMs = now.millisecondsSinceEpoch;
+    final value = '${nowMs + _kSweepLease.inMilliseconds}|${_ownerToken()}';
+    final won = await _db.metaDao.claimStamp(
+      _kSweepLock,
+      value: value,
+      // A lease whose expiry is in the past is free to take.
+      staleBelow: nowMs,
+    );
+    return won ? value : null;
+  }
+
+  static final _random = Random();
+  static String _ownerToken() => '${_random.nextInt(1 << 32).toRadixString(16)}'
+      '${_random.nextInt(1 << 32).toRadixString(16)}';
+
+  static bool _isWashington(NotifCandidate c) =>
+      c.kind == NotifKind.washingtonPersonal ||
+      c.kind == NotifKind.washingtonGeneral;
+
+  static bool _isItemKey(String k) =>
+      k.startsWith('eo:') || k.startsWith('law:') || k.startsWith('bill:');
 
   /// Routes an already-decided chapter-ready teaser through the brain instead
   /// of scheduling it directly, so it respects the daily cap, quiet hours, and
@@ -154,8 +239,26 @@ class NotificationOrchestrator {
   Future<List<NotifCandidate>> _washingtonCandidates(DateTime now) async {
     // Pref pre-filter lives inside detectNewItems (master + sub-toggles), so a
     // muted category never even produces items to consider.
-    final items = await _washington.detectNewItems();
-    if (items.isEmpty) return const [];
+    final detected = await _washington.detectNewItems();
+    if (detected.isEmpty) return const [];
+    // Belt and braces behind the baselines: never report an item again
+    // that a notification (its own, or a digest) already covered within
+    // the cooldown.
+    final reported = await _recentKeys(now);
+    final items = [
+      for (final i in detected)
+        if (!reported.contains(i.dedupeKey)) i,
+    ];
+    if (items.isEmpty) {
+      // Everything "new" was in fact already reported, so the baselines
+      // are behind: the digest that covered these went out before digests
+      // marked their items delivered (a build older than 1.3.3). Catch the
+      // baselines up now, or the same backlog would be detected on every
+      // sweep and sent again the day its cooldown ran out.
+      await _washington
+          .commitDelivered([for (final i in detected) i.dedupeKey]);
+      return const [];
+    }
 
     // Build the studied/home-state lookup once. Face cards only: a bill or EO
     // ties to a person, never a concept card.
@@ -272,10 +375,14 @@ class NotificationOrchestrator {
 
   // ── Brain wiring ───────────────────────────────────────────────────────
 
-  Future<List<String>> _dispatch(
+  /// Decides and sends. Returns the candidates that were delivered (shown
+  /// or scheduled). [lease] is the sweep lease when called from [run]; the
+  /// event-driven chapter nudge passes none.
+  Future<List<NotifCandidate>> _dispatch(
     List<NotifCandidate> candidates,
-    DateTime now,
-  ) async {
+    DateTime now, {
+    String? lease,
+  }) async {
     final context = await _buildContext(now);
     final decisions = _brain.decide(candidates, context);
     final acting = decisions.where(
@@ -289,7 +396,8 @@ class NotificationOrchestrator {
     // notifications, send nothing and record nothing so a re-grant re-tries.
     if (!await _sender.isAuthorized()) return const [];
 
-    final delivered = <String>[];
+    final cooldownCutoff = now.subtract(_kCooldown).millisecondsSinceEpoch;
+    final delivered = <NotifCandidate>[];
     for (final d in acting) {
       final c = d.candidate;
       // A deferred item is billed to its DELIVERY day, not the dispatch
@@ -297,51 +405,81 @@ class NotificationOrchestrator {
       // day's cap.
       final deliveredAt =
           d.action == NotifAction.fireNow ? now : d.scheduledFor!;
-      if (d.action == NotifAction.fireNow) {
-        await _sender.show(
-          id: c.notificationId,
-          title: c.title,
-          body: c.body,
-          payload: c.route,
-        );
-      } else {
-        await _sender.scheduleAt(
-          id: c.notificationId,
-          title: c.title,
-          body: c.body,
-          when: d.scheduledFor!,
-          payload: c.route,
-        );
+      // Record it as sent FIRST, atomically. Exactly one caller can win
+      // this claim for a given key, and a sweep can only win it while it
+      // still holds the lease, so two overlapping runs can never both
+      // send the same notification. Losing the claim means someone else
+      // has sent it (or is about to): skip.
+      final sentKey = '$_kSentPrefix${c.dedupeKey}';
+      final stamp = deliveredAt.millisecondsSinceEpoch.toString();
+      final claimed = await _db.metaDao.claimStamp(
+        sentKey,
+        value: stamp,
+        staleBelow: cooldownCutoff,
+        requireKey: lease == null ? null : _kSweepLock,
+        requireValue: lease,
+      );
+      if (!claimed) continue;
+      try {
+        if (d.action == NotifAction.fireNow) {
+          await _sender.show(
+            id: c.notificationId,
+            title: c.title,
+            body: c.body,
+            payload: c.route,
+          );
+        } else {
+          await _sender.scheduleAt(
+            id: c.notificationId,
+            title: c.title,
+            body: c.body,
+            when: d.scheduledFor!,
+            payload: c.route,
+          );
+        }
+      } catch (_) {
+        // The send failed, so the user saw nothing: give the claim back
+        // and let a later sweep try again. Items already sent in this
+        // batch stay recorded.
+        await _db.metaDao.removeIfValue(sentKey, stamp);
+        rethrow;
       }
-      // Record immediately after each successful send: a later failure in
-      // the batch can never erase an item the user has already seen.
-      await _appendLog([c.dedupeKey], deliveredAt, now);
-      // Washington alerts additionally land in the alert log that The
-      // Pulse pins at the top: a notification's content must be findable
-      // in the app afterwards, however much the live feed window has
-      // churned in the meantime.
-      if (c.route == '/pulse') {
+      delivered.add(c);
+      if (_isWashington(c)) {
+        // Everything a digest covered is now reported: remember each item
+        // so it cannot come back as its own alert or inside a later
+        // digest.
+        for (final key in c.itemKeys) {
+          if (key != c.dedupeKey) {
+            await _db.metaDao.set('$_kCoveredPrefix$key', stamp);
+          }
+        }
+        // Washington alerts additionally land in the alert log that The
+        // Pulse pins at the top: a notification's content must be findable
+        // in the app afterwards, however much the live feed window has
+        // churned in the meantime.
         await _appendAlertLog(c, deliveredAt);
       }
-      delivered.add(c.dedupeKey);
     }
     return delivered;
   }
 
   Future<BrainContext> _buildContext(DateTime now) async {
-    final log = await _prunedLog(now);
-    final cooldownMs =
-        now.subtract(const Duration(days: 3)).millisecondsSinceEpoch;
+    final sent = await _sentEntries(now);
+    final cooldownMs = now.subtract(_kCooldown).millisecondsSinceEpoch;
 
     var firedTodayCount = 0;
     DateTime? lastFiredAt;
     final recent = <String>{};
-    for (final e in log) {
+    for (final e in sent) {
       final at = DateTime.fromMillisecondsSinceEpoch(e.atMillis);
       if (_dayKey(at) == _dayKey(now)) firedTodayCount++;
       if (lastFiredAt == null || at.isAfter(lastFiredAt)) lastFiredAt = at;
       if (e.atMillis >= cooldownMs) recent.add(e.key);
     }
+    // Items a digest covered suppress their own repeat, but are not
+    // notifications themselves: they never count toward the cap or the gap.
+    recent.addAll(await _coveredKeys(now));
 
     final openedToday = (await _db.metaDao.get(_kLastOpenDay)) == _dayKey(now);
     final fcleEngaged = await _db.fcleAnswersDao.hasAny();
@@ -360,64 +498,99 @@ class NotificationOrchestrator {
     );
   }
 
-  // ── Notification log (AppMeta 'notif.log') ─────────────────────────────
+  // ── Sent record (AppMeta 'notif.sent:*', 'notif.covered:*') ─────────────
 
-  Future<List<_LogEntry>> _prunedLog(DateTime now) async {
-    final cutoff = now.subtract(const Duration(days: 3)).millisecondsSinceEpoch;
-    final raw = await _db.metaDao.get(_kLog);
-    final entries = _parseLog(raw).where((e) => e.atMillis >= cutoff).toList();
-    return entries;
+  /// Every notification sent within the cooldown: the per-key rows, plus
+  /// whatever the pre-1.3.3 JSON log still holds.
+  Future<List<_LogEntry>> _sentEntries(DateTime now) async {
+    final cutoff = now.subtract(_kCooldown).millisecondsSinceEpoch;
+    final byKey = <String, int>{};
+    for (final e in _parseLog(await _db.metaDao.get(_kLegacyLog))) {
+      if (e.atMillis >= cutoff) byKey[e.key] = e.atMillis;
+    }
+    final rows = await _db.metaDao.withPrefix(_kSentPrefix);
+    for (final row in rows.entries) {
+      final at = int.tryParse(row.value);
+      if (at == null || at < cutoff) continue;
+      byKey[row.key.substring(_kSentPrefix.length)] = at;
+    }
+    return [
+      for (final e in byKey.entries) _LogEntry(key: e.key, atMillis: e.value),
+    ];
   }
 
-  static const _kAlertLog = 'watch.alert_log';
+  /// Items a Washington notification covered within the cooldown, whether
+  /// or not they were its own dedupe key: the covered rows a digest writes,
+  /// plus whatever the alert log names. The alert log matters right after
+  /// an update: the previous build recorded which items its digests
+  /// covered there (as keys), and nowhere else.
+  Future<Set<String>> _coveredKeys(DateTime now) async {
+    final cutoff = now.subtract(_kCooldown).millisecondsSinceEpoch;
+    final rows = await _db.metaDao.withPrefix(_kCoveredPrefix);
+    final keys = <String>{
+      for (final row in rows.entries)
+        if ((int.tryParse(row.value) ?? 0) >= cutoff)
+          row.key.substring(_kCoveredPrefix.length),
+    };
+    for (final e in parseAlertLog(await _db.metaDao.get(kAlertLogKey))) {
+      if (e.at.millisecondsSinceEpoch < cutoff) continue;
+      keys.addAll([for (final i in e.items) i.key]);
+      keys.addAll(e.legacyItemKeys);
+      final single = e.legacyItemKey;
+      if (single != null) keys.add(single);
+    }
+    return keys;
+  }
+
+  /// Every key reported within the cooldown, sent or covered.
+  Future<Set<String>> _recentKeys(DateTime now) async => {
+        for (final e in await _sentEntries(now)) e.key,
+        ...await _coveredKeys(now),
+      };
+
+  /// Drops sent and covered rows past the cooldown, and the legacy log once
+  /// nothing in it is still live. Runs under the sweep lease.
+  Future<void> _pruneSent(DateTime now) async {
+    final cutoff = now.subtract(_kCooldown).millisecondsSinceEpoch;
+    for (final prefix in [_kSentPrefix, _kCoveredPrefix]) {
+      final rows = await _db.metaDao.withPrefix(prefix);
+      for (final row in rows.entries) {
+        if ((int.tryParse(row.value) ?? 0) < cutoff) {
+          await _db.metaDao.removeIfValue(row.key, row.value);
+        }
+      }
+    }
+    final legacy = await _db.metaDao.get(_kLegacyLog);
+    if (legacy != null && _parseLog(legacy).every((e) => e.atMillis < cutoff)) {
+      await _db.metaDao.remove(_kLegacyLog);
+    }
+  }
 
   /// Rolling log (newest first, capped) of Washington notifications this
-  /// device actually delivered. The Pulse renders it verbatim; the item
-  /// key ('k', e.g. 'eo:14418' or 'bill:HR 8121:2026-08-06') lets an
-  /// alert row deep-link to its feed item. Digest summaries have no
-  /// single item and carry no key, as do entries written before this
-  /// field existed.
+  /// device actually delivered, each with the full detail of every item it
+  /// covered (see alert_log.dart). The Pulse renders it from that record
+  /// alone, and the notification's tap route names the entry by [id], so a
+  /// digest opens to exactly what it summarized.
   Future<void> _appendAlertLog(
     NotifCandidate c,
     DateTime at,
   ) async {
-    List<dynamic> log;
-    try {
-      log = jsonDecode(await _db.metaDao.get(_kAlertLog) ?? '[]') as List;
-    } catch (_) {
-      log = [];
-    }
-    final key = c.dedupeKey;
-    log.insert(0, {
-      't': c.title,
-      'b': c.body,
-      'at': at.millisecondsSinceEpoch,
-      if (key.startsWith('eo:') ||
-          key.startsWith('law:') ||
-          key.startsWith('bill:'))
-        'k': key,
-      // Digest candidates list the items they cover so the Pulse can
-      // show exactly what "N updates" meant.
-      if (c.itemKeys.isNotEmpty) 'ks': c.itemKeys.take(40).toList(),
-    });
-    if (log.length > 20) log = log.sublist(0, 20);
-    await _db.metaDao.set(_kAlertLog, jsonEncode(log));
-  }
-
-  Future<void> _appendLog(
-    List<String> keys,
-    DateTime entryTime,
-    DateTime pruneNow,
-  ) async {
-    if (keys.isEmpty) return;
-    final entries = await _prunedLog(pruneNow);
-    final at = entryTime.millisecondsSinceEpoch;
-    entries.addAll(keys.map((k) => _LogEntry(key: k, atMillis: at)));
+    final log = [
+      // Newest first. A key delivered again after its cooldown replaces
+      // its old entry rather than sitting beside it.
+      AlertLogEntry(
+        id: c.dedupeKey,
+        title: c.title,
+        body: c.body,
+        at: at,
+        items: c.items.take(kAlertLogMaxItems).toList(),
+      ),
+      for (final e in parseAlertLog(await _db.metaDao.get(kAlertLogKey)))
+        if (e.id != c.dedupeKey) e,
+    ];
     await _db.metaDao.set(
-      _kLog,
-      jsonEncode([
-        for (final e in entries) {'k': e.key, 't': e.atMillis},
-      ]),
+      kAlertLogKey,
+      encodeAlertLog(log.take(kAlertLogMaxEntries).toList()),
     );
   }
 

@@ -161,7 +161,10 @@ void main() {
     await orchestrator().run();
     expect(sender.delivered, hasLength(1));
     expect(sender.delivered.single.id, NotifSlots.memoryRescue);
-    expect(await db.metaDao.get('notif.log'), contains('rescue:2026-07-12'));
+    expect(
+      await db.metaDao.get('notif.sent:rescue:2026-07-12'),
+      now.millisecondsSinceEpoch.toString(),
+    );
 
     // Second sweep the same day: the dedupe key is in the log, so the brain
     // suppresses it and nothing new is delivered.

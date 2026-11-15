@@ -5,8 +5,6 @@
 // merged chronologically, newest first, with the notifications this
 // device delivered pinned on top so an alert is always findable here.
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +14,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../app/editorial_theme.dart';
 import '../../../app/providers.dart';
 import '../../atlas/data/atlas_reference_loader.dart';
+import '../../notifications/domain/alert_log.dart';
 import '../data/pulse_live_service.dart';
 import 'action_detail_screen.dart';
 import 'bill_detail_screen.dart';
@@ -68,62 +67,24 @@ class _PulseItem {
       (kind == _PulseKind.law && (summary != null || congress != null));
 }
 
-final _liveProvider = FutureProvider.autoDispose<LivePulse>(
+/// The live layer of the feed. Public so a test can stand in for the
+/// network.
+final pulseLiveProvider = FutureProvider.autoDispose<LivePulse>(
   (ref) => PulseLiveService().fetch(),
 );
 
-class _Alert {
-  const _Alert({
-    required this.title,
-    required this.body,
-    required this.at,
-    this.itemKey,
-    this.itemKeys = const [],
-  });
-  final String title;
-  final String body;
-  final DateTime at;
-
-  /// Dedupe key of the feed item this notification was about
-  /// ('eo:14418', 'bill:HR 8121:2026-08-06', 'law:...'). Null for digest
-  /// summaries and for entries logged before the key was recorded.
-  final String? itemKey;
-
-  /// For digest notifications ("Washington was busy: N updates"), the
-  /// keys of the items the digest covered. Empty for single-item alerts
-  /// and for digests logged before keys were recorded.
-  final List<String> itemKeys;
-}
-
 /// Washington notifications this device delivered in the last 7 days,
 /// newest first. Pinned so "the notification said X" is always findable
-/// here regardless of live-feed churn.
-final _alertLogProvider = FutureProvider.autoDispose<List<_Alert>>(
+/// here regardless of live-feed churn. Each entry carries the full detail
+/// of every item it covered (see alert_log.dart).
+final _alertLogProvider = FutureProvider.autoDispose<List<AlertLogEntry>>(
   (ref) async {
-    final raw =
-        await ref.watch(databaseProvider).metaDao.get('watch.alert_log');
-    if (raw == null) return const [];
+    final raw = await ref.watch(databaseProvider).metaDao.get(kAlertLogKey);
     final cutoff = DateTime.now().subtract(const Duration(days: 7));
-    try {
-      return [
-        for (final e in jsonDecode(raw) as List)
-          if (e is Map && e['at'] is int)
-            if (DateTime.fromMillisecondsSinceEpoch(e['at'] as int)
-                .isAfter(cutoff))
-              _Alert(
-                title: (e['t'] as String?) ?? '',
-                body: (e['b'] as String?) ?? '',
-                at: DateTime.fromMillisecondsSinceEpoch(e['at'] as int),
-                itemKey: e['k'] as String?,
-                itemKeys: [
-                  for (final k in e['ks'] as List? ?? const [])
-                    if (k is String) k,
-                ],
-              ),
-      ];
-    } catch (_) {
-      return const [];
-    }
+    return [
+      for (final e in parseAlertLog(raw))
+        if (e.at.isAfter(cutoff)) e,
+    ];
   },
 );
 
@@ -144,7 +105,7 @@ class _PulseFeed {
 /// go live once the backend proxy exists. De-duped: live wins.
 final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
   final reference = await ref.watch(atlasReferenceProvider.future);
-  final live = await ref.watch(_liveProvider.future);
+  final live = await ref.watch(pulseLiveProvider.future);
 
   final ordersByNumber = <int, _PulseItem>{
     for (final o in reference.orders)
@@ -299,7 +260,13 @@ final _pulseFeedProvider = FutureProvider.autoDispose<_PulseFeed>((ref) async {
 });
 
 class PulseScreen extends ConsumerStatefulWidget {
-  const PulseScreen({super.key});
+  const PulseScreen({this.alertId, super.key});
+
+  /// Set when the screen is opened from a notification tap
+  /// ('/pulse?alert=<id>'): the id of the alert-log entry to open straight
+  /// away, so a digest lands on the list of what it covered instead of on
+  /// the plain feed.
+  final String? alertId;
 
   @override
   ConsumerState<PulseScreen> createState() => _PulseScreenState();
@@ -307,6 +274,52 @@ class PulseScreen extends ConsumerStatefulWidget {
 
 class _PulseScreenState extends ConsumerState<PulseScreen> {
   _PulseKind? _filter;
+
+  @override
+  void initState() {
+    super.initState();
+    _openAlertFromRoute(widget.alertId);
+  }
+
+  @override
+  void didUpdateWidget(PulseScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The Pulse tab stays alive in the shell, so a notification tapped
+    // while it is already built arrives as a new alertId, not a new State.
+    if (widget.alertId != oldWidget.alertId) {
+      _openAlertFromRoute(widget.alertId);
+    }
+  }
+
+  /// Opens the alert a notification tap named. The log is re-read first:
+  /// the entry was written moments ago (possibly by the background
+  /// refresh isolate), after this screen last loaded it.
+  void _openAlertFromRoute(String? alertId) {
+    if (alertId == null || alertId.isEmpty) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      ref.invalidate(_alertLogProvider);
+      final List<AlertLogEntry> alerts;
+      try {
+        alerts = await ref.read(_alertLogProvider.future);
+      } catch (_) {
+        return; // unreadable log: the plain feed is still a fine landing
+      }
+      if (!mounted) return;
+      AlertLogEntry? alert;
+      for (final a in alerts) {
+        if (a.id == alertId) {
+          alert = a;
+          break;
+        }
+      }
+      if (alert == null) return;
+      // Never wait on the network to show what a notification said: the
+      // entry is self-contained. The feed only enriches, if it is loaded.
+      final feed = ref.read(_pulseFeedProvider).valueOrNull?.items ?? const [];
+      _openAlert(alert, feed, fromNotification: true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -395,7 +408,7 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    ref.invalidate(_liveProvider);
+                    ref.invalidate(pulseLiveProvider);
                     await ref.read(_pulseFeedProvider.future);
                   },
                   child: ListView.builder(
@@ -426,20 +439,98 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
     );
   }
 
-  /// A keyed alert deep-links to its feed item; everything else (digest
-  /// summaries, pre-upgrade entries, items that have churned out of the
-  /// feed) opens a detail sheet listing what the alert covered.
-  void _openAlert(_Alert alert, List<_PulseItem> items) {
-    HapticFeedback.lightImpact();
-    final key = alert.itemKey;
-    final item = key == null ? null : _itemForKey(key, items);
-    if (item != null) {
-      _openPulseItem(context, item);
-      return;
+  /// Opens one delivered alert.
+  ///
+  /// An alert about a single item opens that item; a digest opens a sheet
+  /// listing every item it covered. Both are built from what the log entry
+  /// stored at send time, never from what the live feed happens to hold
+  /// now. Entries from older builds stored only keys and fall back to
+  /// matching the feed.
+  void _openAlert(
+    AlertLogEntry alert,
+    List<_PulseItem> feed, {
+    bool fromNotification = false,
+  }) {
+    if (!fromNotification) HapticFeedback.lightImpact();
+    if (alert.items.length == 1) {
+      final item = alert.items.single;
+      // Arriving from a notification, do not throw the reader straight out
+      // to the browser for an executive order: show what the alert said,
+      // with the order one tap away.
+      final leavesApp = item.kind == AlertItem.kindOrder;
+      if (!(fromNotification && leavesApp)) {
+        _openAlertItem(item, feed);
+        return;
+      }
     }
-    _showAlertDetail(alert, items);
+    if (alert.items.isEmpty) {
+      final key = alert.legacyItemKey;
+      final item = key == null ? null : _itemForKey(key, feed);
+      if (item != null) {
+        _openPulseItem(context, item);
+        return;
+      }
+    }
+    _showAlertDetail(alert, feed);
   }
 
+  /// Opens one stored item: bills and laws on the detail screen (with the
+  /// exact action the alert was about), executive orders on the official
+  /// record.
+  void _openAlertItem(AlertItem item, List<_PulseItem> feed) {
+    if (item.kind == AlertItem.kindOrder) {
+      if (item.url.isEmpty) return;
+      launchUrl(Uri.parse(item.url), mode: LaunchMode.externalApplication);
+      return;
+    }
+    final isLaw = item.kind == AlertItem.kindLaw;
+    final action = item.action ?? '';
+    // A CRS summary the feed already holds for this bill carries over; the
+    // action and date always come from the alert itself.
+    _PulseItem? inFeed;
+    for (final i in feed) {
+      if (i.bill != null && i.bill == item.bill) {
+        inFeed = i;
+        break;
+      }
+    }
+    String? originDetail;
+    if (isLaw) {
+      // Same reading of the action text as the feed's own law rows.
+      final lawNumber = publicLawNumberOf(
+        LiveBillAction(
+          bill: item.bill ?? '',
+          title: item.title,
+          actionDate: item.date,
+          action: action,
+          url: item.url,
+        ),
+      );
+      originDetail = lawNumber == null
+          ? (action.isEmpty ? null : action)
+          : 'Became Public Law $lawNumber';
+    }
+    context.push(
+      '/pulse/bill',
+      extra: BillDetailArgs(
+        bill: item.bill ?? '',
+        congress: item.congress ?? inFeed?.congress,
+        title: item.title,
+        action: isLaw ? '' : action,
+        actionDate: item.date,
+        url: item.url,
+        originDetail: originDetail,
+        summary: inFeed?.summary,
+        summaryVersion: inFeed?.summaryVersion,
+        summaryDate: inFeed?.summaryDate,
+        summaryTruncated: inFeed?.summaryTruncated ?? false,
+      ),
+    );
+  }
+
+  /// Legacy entries only: finds the feed item a stored key points at. A
+  /// bill key carries the action date, which is preferred so two actions
+  /// on one bill do not resolve to the same row when both are in the feed.
   _PulseItem? _itemForKey(String key, List<_PulseItem> items) {
     final parts = key.split(':');
     if (parts.length < 2) return null;
@@ -453,22 +544,27 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
       return null;
     }
     if (parts[0] == 'law' || parts[0] == 'bill') {
+      final date = parts.length >= 3 ? parts.last : null;
+      _PulseItem? sameBill;
       for (final i in items) {
-        if (i.bill == parts[1]) return i;
+        if (i.bill != parts[1]) continue;
+        if (date != null && i.date == date) return i;
+        sameBill ??= i;
       }
+      return sameBill;
     }
     return null;
   }
 
-  /// The items a digest alert covered: exact when the log entry stored
-  /// keys, approximated by delivery-date window for older entries.
-  (List<_PulseItem>, bool) _coveredItems(
-    _Alert alert,
+  /// Legacy entries only: the items a digest covered, exact when the entry
+  /// stored keys, approximated by delivery-date window for the oldest.
+  (List<_PulseItem>, bool) _legacyCoveredItems(
+    AlertLogEntry alert,
     List<_PulseItem> items,
   ) {
-    if (alert.itemKeys.isNotEmpty) {
+    if (alert.legacyItemKeys.isNotEmpty) {
       final covered = <_PulseItem>[];
-      for (final k in alert.itemKeys) {
+      for (final k in alert.legacyItemKeys) {
         final m = _itemForKey(k, items);
         if (m != null && !covered.contains(m)) covered.add(m);
       }
@@ -488,13 +584,20 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
     );
   }
 
-  void _showAlertDetail(_Alert alert, List<_PulseItem> items) {
+  void _showAlertDetail(AlertLogEntry alert, List<_PulseItem> items) {
     final theme = Theme.of(context);
     final at = alert.at;
     String two(int n) => n.toString().padLeft(2, '0');
     final delivered = '${at.year}-${two(at.month)}-${two(at.day)} '
         '${two(at.hour)}:${two(at.minute)}';
-    final (covered, approximate) = _coveredItems(alert, items);
+    // Stored items are the record of what the alert covered: every one is
+    // listed, in the order it was sent. Only an entry from an older build
+    // (keys only) is reconstructed from the feed.
+    final stored = alert.items;
+    final (legacy, approximate) = stored.isNotEmpty
+        ? (const <_PulseItem>[], false)
+        : _legacyCoveredItems(alert, items);
+    final hasRows = stored.isNotEmpty || legacy.isNotEmpty;
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -530,7 +633,7 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                     style: theme.textTheme.bodyMedium?.copyWith(height: 1.45),
                   ),
                 ],
-                if (covered.isNotEmpty) ...[
+                if (hasRows) ...[
                   const SizedBox(height: 14),
                   Text(
                     approximate
@@ -543,9 +646,35 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
                     child: ListView(
                       shrinkWrap: true,
                       children: [
-                        for (final i in covered)
+                        for (final i in stored)
                           _CoveredItemRow(
-                            item: i,
+                            kind: switch (i.kind) {
+                              AlertItem.kindOrder => _PulseKind.order,
+                              AlertItem.kindLaw => _PulseKind.law,
+                              _ => _PulseKind.bill,
+                            },
+                            title: i.title.isEmpty ? (i.bill ?? '') : i.title,
+                            date: i.date,
+                            // What happened, verbatim: tells two actions on
+                            // the same bill apart.
+                            detail: i.kind == AlertItem.kindOrder
+                                ? (i.number == null
+                                    ? null
+                                    : 'Executive Order ${i.number}')
+                                : [
+                                    if (i.bill != null) i.bill!,
+                                    if ((i.action ?? '').isNotEmpty) i.action!,
+                                  ].join(': '),
+                            onTap: () {
+                              Navigator.of(ctx).pop();
+                              _openAlertItem(i, items);
+                            },
+                          ),
+                        for (final i in legacy)
+                          _CoveredItemRow(
+                            kind: i.kind,
+                            title: i.title,
+                            date: i.date,
                             onTap: () {
                               Navigator.of(ctx).pop();
                               _openPulseItem(context, i);
@@ -566,22 +695,32 @@ class _PulseScreenState extends ConsumerState<PulseScreen> {
 }
 
 /// One compact row in the alert-detail sheet: kind badge word, title,
-/// date. Tap opens the item exactly like its feed tile would.
+/// date, and (when given) a line saying what happened. Tap opens the item.
 class _CoveredItemRow extends StatelessWidget {
-  const _CoveredItemRow({required this.item, required this.onTap});
+  const _CoveredItemRow({
+    required this.kind,
+    required this.title,
+    required this.date,
+    required this.onTap,
+    this.detail,
+  });
 
-  final _PulseItem item;
+  final _PulseKind kind;
+  final String title;
+  final String date;
+  final String? detail;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final (label, color) = switch (item.kind) {
+    final (label, color) = switch (kind) {
       _PulseKind.order => ('EO', theme.colorScheme.brandRed),
       _PulseKind.action => ('WH', theme.colorScheme.brandRed),
       _PulseKind.law => ('LAW', theme.colorScheme.brandGreen),
       _PulseKind.bill => ('BILL', theme.colorScheme.brandNavy),
     };
+    final detail = this.detail;
     return InkWell(
       borderRadius: BorderRadius.circular(6),
       onTap: () {
@@ -612,17 +751,32 @@ class _CoveredItemRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: Text(
-                item.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall
-                    ?.copyWith(fontWeight: FontWeight.w600, height: 1.3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(fontWeight: FontWeight.w600, height: 1.3),
+                  ),
+                  if (detail != null && detail.isNotEmpty)
+                    Text(
+                      detail,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.3,
+                      ),
+                    ),
+                ],
               ),
             ),
             const SizedBox(width: 8),
             Text(
-              item.date,
+              date,
               style: theme.textTheme.labelSmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -817,9 +971,9 @@ class _PulseInfoCard extends StatelessWidget {
   });
 
   final _PulseKind? filter;
-  final List<_Alert> alerts;
+  final List<AlertLogEntry> alerts;
   final ThemeData theme;
-  final void Function(_Alert) onAlertTap;
+  final void Function(AlertLogEntry) onAlertTap;
 
   static const _orderExplainer =
       'An executive order is a written directive from the President that '
@@ -896,7 +1050,7 @@ class _PulseInfoCard extends StatelessWidget {
     );
   }
 
-  Widget _alertRow(_Alert alert) => InkWell(
+  Widget _alertRow(AlertLogEntry alert) => InkWell(
         onTap: () => onAlertTap(alert),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -908,7 +1062,9 @@ class _PulseInfoCard extends StatelessWidget {
                   TextSpan(
                     children: [
                       TextSpan(
-                        text: '${alert.title}: ',
+                        text: alert.body.isEmpty
+                            ? alert.title
+                            : '${alert.title}: ',
                         style: theme.textTheme.bodySmall
                             ?.copyWith(fontWeight: FontWeight.w500),
                       ),

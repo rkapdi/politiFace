@@ -1986,6 +1986,180 @@ begin
   end;
 end $$;
 
+-- ── Washington watch: White House seen-list (20261115000100) ───────────────
+-- An action alerts once, the first time it is observed, and never again,
+-- whatever the feed does afterwards. State on entry (from the block
+-- above): wh-guid-1 and wh-guid-2 have both been observed.
+reset role;
+do $$
+declare
+  r jsonb;
+  v_n int;
+begin
+  if (select count(*) from app.wh_seen
+       where guid in ('wh-guid-1', 'wh-guid-2')) <> 2 then
+    raise exception 'FAIL: observed White House entries must be remembered';
+  end if;
+
+  -- REORDER: an already-announced entry is on top of the feed again (the
+  -- newer one moved or was withdrawn). Under the single-watermark design
+  -- this re-alerted. It must stay quiet.
+  r := public.washington_poll(14421, '2026-08-28', 'HR 1:2026-08-27',
+    '[{"guid":"wh-guid-1","title":"First action"},
+      {"guid":"wh-guid-2","title":"Lake America EO"}]'::jsonb);
+  if (r ->> 'changed')::boolean or jsonb_array_length(r -> 'wh_new') <> 0 then
+    raise exception 'FAIL: a reordered feed must not re-alert: %', r;
+  end if;
+
+  -- Same scenario through the entry point the deployed function uses.
+  r := public.washington_advance(
+    14421, '2026-08-28', 'HR 1:2026-08-27', 'wh-guid-1', 'First action');
+  if (r ->> 'changed')::boolean or (r ->> 'wh_new')::boolean then
+    raise exception 'FAIL: washington_advance re-alerted a seen entry: %', r;
+  end if;
+
+  -- EDIT: same entry, new title. Not news.
+  r := public.washington_poll(null, null, null,
+    '[{"guid":"wh-guid-2","title":"Lake America EO (corrected)"},
+      {"guid":"wh-guid-1","title":"First action"}]'::jsonb);
+  if jsonb_array_length(r -> 'wh_new') <> 0 then
+    raise exception 'FAIL: an edited entry must not re-alert: %', r;
+  end if;
+
+  -- A genuinely new entry among old ones: exactly that one, echoed with
+  -- the fields the function needs to build the alert.
+  r := public.washington_poll(null, null, null, jsonb_build_array(
+    jsonb_build_object('guid', 'wh-guid-3', 'title', 'Third action',
+      'url', 'https://example.gov/3', 'kind', 'proclamation',
+      'published_at', to_char(now() at time zone 'utc',
+                              'YYYY-MM-DD"T"HH24:MI:SS"Z"')),
+    jsonb_build_object('guid', 'wh-guid-2', 'title', 'Lake America EO'),
+    jsonb_build_object('guid', 'wh-guid-1', 'title', 'First action')));
+  if not (r ->> 'changed')::boolean
+     or jsonb_array_length(r -> 'wh_new') <> 1
+     or r -> 'wh_new' -> 0 ->> 'guid' <> 'wh-guid-3'
+     or r -> 'wh_new' -> 0 ->> 'title' <> 'Third action'
+     or r -> 'wh_new' -> 0 ->> 'url' <> 'https://example.gov/3'
+     or r -> 'wh_new' -> 0 ->> 'kind' <> 'proclamation' then
+    raise exception 'FAIL: one new entry must be reported exactly: %', r;
+  end if;
+  if (select last_wh from app.push_signal where id) <> 'wh-guid-3' then
+    raise exception 'FAIL: last_wh must track the newest observed entry';
+  end if;
+
+  -- The very next poll sees the same window: nothing.
+  r := public.washington_poll(null, null, null,
+    '[{"guid":"wh-guid-3","title":"Third action"},
+      {"guid":"wh-guid-2","title":"Lake America EO"}]'::jsonb);
+  if (r ->> 'changed')::boolean or jsonb_array_length(r -> 'wh_new') <> 0 then
+    raise exception 'FAIL: a repeated poll must stay quiet: %', r;
+  end if;
+
+  -- Two new entries between polls: both reported, newest first, and a
+  -- guid listed twice in one window counts once.
+  r := public.washington_poll(null, null, null,
+    '[{"guid":"wh-guid-5","title":"Fifth"},
+      {"guid":"wh-guid-4","title":"Fourth"},
+      {"guid":"wh-guid-5","title":"Fifth again"},
+      {"guid":"wh-guid-3","title":"Third action"}]'::jsonb);
+  if jsonb_array_length(r -> 'wh_new') <> 2
+     or r -> 'wh_new' -> 0 ->> 'guid' <> 'wh-guid-5'
+     or r -> 'wh_new' -> 0 ->> 'title' <> 'Fifth'
+     or r -> 'wh_new' -> 1 ->> 'guid' <> 'wh-guid-4' then
+    raise exception 'FAIL: two new entries, newest first: %', r;
+  end if;
+
+  -- STALE: an unseen entry published long ago (the window slid back over
+  -- old history) is recorded, never alerted, now or later.
+  r := public.washington_poll(null, null, null, jsonb_build_array(
+    jsonb_build_object('guid', 'wh-old-1', 'title', 'Old action',
+      'published_at', to_char((now() - interval '30 days') at time zone 'utc',
+                              'YYYY-MM-DD"T"HH24:MI:SS"Z"'))));
+  if (r ->> 'changed')::boolean or jsonb_array_length(r -> 'wh_new') <> 0 then
+    raise exception 'FAIL: a stale unseen entry must not alert: %', r;
+  end if;
+  if not exists (select 1 from app.wh_seen where guid = 'wh-old-1') then
+    raise exception 'FAIL: a stale entry must still be recorded';
+  end if;
+
+  -- A publish time we cannot read is treated as fresh, and never aborts
+  -- the poll. Entries with no guid are ignored.
+  r := public.washington_poll(null, null, null,
+    '[{"guid":"wh-guid-6","title":"Sixth","published_at":"not a date"},
+      {"guid":"","title":"No id"},
+      {"title":"No id at all"}]'::jsonb);
+  if jsonb_array_length(r -> 'wh_new') <> 1
+     or r -> 'wh_new' -> 0 ->> 'guid' <> 'wh-guid-6' then
+    raise exception 'FAIL: unreadable publish time must read as fresh: %', r;
+  end if;
+  if app.safe_timestamptz('not a date') is not null
+     or app.safe_timestamptz('') is not null
+     or app.safe_timestamptz('2026-11-15T14:00:00Z') is null then
+    raise exception 'FAIL: safe_timestamptz contract';
+  end if;
+
+  -- Upstream hiccup: a null or malformed window changes nothing.
+  select count(*) into v_n from app.wh_seen;
+  r := public.washington_poll(null, null, null, null);
+  if (r ->> 'changed')::boolean then
+    raise exception 'FAIL: null window must stay quiet: %', r;
+  end if;
+  r := public.washington_poll(null, null, null, '{"oops": true}'::jsonb);
+  if (r ->> 'changed')::boolean
+     or (select count(*) from app.wh_seen) <> v_n
+     or (select last_wh from app.push_signal where id) <> 'wh-guid-6' then
+    raise exception 'FAIL: malformed window must change nothing: %', r;
+  end if;
+
+  -- A White House entry and a watermark move in one poll: both flagged.
+  r := public.washington_poll(14422, null, null,
+    '[{"guid":"wh-guid-7","title":"Seventh"}]'::jsonb);
+  if not (r ->> 'changed')::boolean or not (r ->> 'eo_new')::boolean
+     or jsonb_array_length(r -> 'wh_new') <> 1 then
+    raise exception 'FAIL: EO bump plus new WH entry: %', r;
+  end if;
+
+  -- BASELINE: with an empty seen-list (a fresh project, or the tier's
+  -- first ever observation) the whole window is recorded silently.
+  delete from app.wh_seen;
+  r := public.washington_poll(null, null, null,
+    '[{"guid":"wh-b-3","title":"B3"},{"guid":"wh-b-2","title":"B2"},
+      {"guid":"wh-b-1","title":"B1"}]'::jsonb);
+  if (r ->> 'changed')::boolean or jsonb_array_length(r -> 'wh_new') <> 0 then
+    raise exception 'FAIL: an empty seen-list must baseline silently: %', r;
+  end if;
+  if (select count(*) from app.wh_seen) <> 3 then
+    raise exception 'FAIL: baseline must record the whole window';
+  end if;
+  -- ...and the next new entry alerts normally.
+  r := public.washington_poll(null, null, null,
+    '[{"guid":"wh-b-4","title":"B4"},{"guid":"wh-b-3","title":"B3"}]'::jsonb);
+  if jsonb_array_length(r -> 'wh_new') <> 1
+     or r -> 'wh_new' -> 0 ->> 'guid' <> 'wh-b-4' then
+    raise exception 'FAIL: first new entry after baseline: %', r;
+  end if;
+end $$;
+
+-- Clients can never call the poll or read the seen-list.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.washington_poll(null, null, null, null);
+    raise exception 'FAIL: client called washington_poll';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform 1 from app.wh_seen;
+    raise exception 'FAIL: client read the seen-list';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+reset role;
+
 -- ── Onboarding phase 1 (20260928000100) ────────────────────────────────────
 -- Note: p1_prof uses the 'd1' suffix (not 'a1') because 'a1' already names
 -- ta_uid earlier in this file; reusing it would collide on auth.users' PK.
