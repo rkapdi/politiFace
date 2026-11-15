@@ -169,6 +169,53 @@ void main() {
     expect(transport.delivered[2].attemptId, 'attempt-1');
   });
 
+  // Regression: hasPendingForAttempt searched the outbox `payload` for the
+  // attempt id, but answers store it in the `attemptId` column and carry
+  // no payload. It always answered false, so finish() finalized the
+  // attempt on the server while its answers were still queued: the mock
+  // was scored short and the late answers were rejected.
+  test('finish never finalizes ahead of an answer still in the outbox',
+      () async {
+    final b = bank();
+    final api = FakeMockApi(assembly: assemblyFor(b))
+      ..submitFails = true // a blip mid-exam: answers go to the outbox
+      ..outcome = const ServerMockOutcome(
+        score: 0, // what the server would say with no answers recorded
+        passed: false,
+        perDomain: {},
+      );
+    // The outbox cannot drain yet, but finalize itself would get through.
+    final transport = _StuckTransport();
+    final engine = SyncEngine(db, transport);
+
+    final session = await ServerMockSession.start(
+      kind: 'baseline',
+      bank: b,
+      api: api,
+      dao: db.fcleAnswersDao,
+      sync: engine,
+      onAnswerRecorded: () {},
+    );
+    await session.submit(session.questions[0], 'b'); // right
+    await session.submit(session.questions[1], 'b'); // right
+    expect(await engine.hasPendingForAttempt('attempt-1'), isTrue);
+
+    final result = await session.finish();
+
+    expect(api.finalizeCalls, 0, reason: 'finalized over queued answers');
+    expect(result.pendingSync, isTrue);
+    expect(result.score, 2, reason: 'the local tally, not a short score');
+
+    // Once the connection is back, the answers land first, then finalize.
+    transport.stuck = false;
+    await engine.flush();
+    expect(
+      transport.delivered.map((e) => e.type).toList(),
+      ['answer', 'answer', 'mock_finalize'],
+    );
+    expect(await engine.hasPendingForAttempt('attempt-1'), isFalse);
+  });
+
   test('server-only questions render from the payload and skip local history',
       () async {
     final b = bank();
@@ -224,6 +271,34 @@ class _RecordingSignedInTransport implements SyncTransport {
   bool get isSignedIn => true;
 
   Future<void> _send(OutboxEvent e) async => delivered.add(e);
+
+  @override
+  Future<void> sendAnswer(OutboxEvent e) => _send(e);
+  @override
+  Future<void> sendReview(OutboxEvent e) => _send(e);
+  @override
+  Future<void> sendSessionEvent(OutboxEvent e) => _send(e);
+  @override
+  Future<void> sendMockFinalize(OutboxEvent e) => _send(e);
+  @override
+  Future<void> upsertCardState(OutboxEvent e) => _send(e);
+  @override
+  Future<void> upsertAppState(OutboxEvent e) => _send(e);
+}
+
+/// Signed in, but nothing gets through until [stuck] is cleared (a
+/// transient failure: the events stay queued and are retried).
+class _StuckTransport implements SyncTransport {
+  bool stuck = true;
+  final delivered = <OutboxEvent>[];
+
+  @override
+  bool get isSignedIn => true;
+
+  Future<void> _send(OutboxEvent e) async {
+    if (stuck) throw Exception('network down');
+    delivered.add(e);
+  }
 
   @override
   Future<void> sendAnswer(OutboxEvent e) => _send(e);

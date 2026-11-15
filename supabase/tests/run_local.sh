@@ -28,4 +28,21 @@ for f in "$REPO"/supabase/migrations/*.sql; do
   "${PSQL[@]}" -f "$f"
 done
 "${PSQL[@]}" -f "$REPO/supabase/tests/smoke.sql"
+
+# Overlapping polls (the cron and a manual trigger at the same moment) must
+# not both report the same White House entry as new. Session A observes a
+# new entry and holds its transaction open; session B observes the same
+# entry meanwhile. B has to wait for A, then find nothing new.
+RACE='[{"guid":"race-1","title":"Race"}]'
+"${PSQL[@]}" -At -c "begin; \
+  select 'A:' || jsonb_array_length(public.washington_poll(null, null, null, '$RACE'::jsonb) -> 'wh_new'); \
+  select pg_sleep(2); commit;" > "$WORK/race_a.out" &
+sleep 0.7
+"${PSQL[@]}" -At -c "select 'B:' || jsonb_array_length(public.washington_poll(null, null, null, '$RACE'::jsonb) -> 'wh_new');" > "$WORK/race_b.out"
+wait
+if ! grep -qx 'A:1' "$WORK/race_a.out" || ! grep -qx 'B:0' "$WORK/race_b.out"; then
+  echo "FAIL: overlapping polls both reported the same entry"
+  cat "$WORK/race_a.out" "$WORK/race_b.out"
+  exit 1
+fi
 echo "OK: migrations + smoke test passed"

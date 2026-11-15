@@ -106,7 +106,8 @@ void main() {
 
       expect(out, hasLength(1));
       expect(out.single.notificationId, NotifSlots.washingtonSummary);
-      expect(out.single.title, 'Washington was busy: 4 updates in The Pulse.');
+      expect(out.single.title, '4 updates from Washington');
+      expect(out.single.body, '4 executive orders. Tap to read each one.');
     });
 
     test('personal items survive individually alongside a general collapse',

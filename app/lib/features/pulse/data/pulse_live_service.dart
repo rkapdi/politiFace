@@ -140,6 +140,39 @@ class LivePulse {
 bool isEnactedLaw(LiveBillAction b) =>
     b.action.toLowerCase().contains('became public law');
 
+/// Routine procedural steps that say nothing about where a bill stands:
+/// being introduced, being sent to a committee or subcommittee, calendar
+/// placement, hearings, and chamber housekeeping. Matched against the
+/// congress.gov action text, lower-cased.
+final _routineBillAction = RegExp(
+  '^introduced in '
+  '|referred to '
+  '|^sponsor introductory remarks'
+  '|^placed on '
+  '|hearings held'
+  '|mark-up session held'
+  '|^forwarded by subcommittee'
+  '|^received in the '
+  '|^held at the desk'
+  '|^message on '
+  '|^star print'
+  '|^cloture motion .* presented'
+  '|^motion to proceed',
+);
+
+/// True when a congress.gov bill action is worth telling someone about:
+/// anything that is not a routine procedural step (see
+/// [_routineBillAction]). Floor votes, committee reports, presidential
+/// action and enactment all pass; a referral to committee does not.
+///
+/// This only decides what a notification counts. The Pulse feed still
+/// lists every action, routine or not.
+bool isMeaningfulBillAction(String action) {
+  final text = action.trim().toLowerCase();
+  if (text.isEmpty) return false;
+  return !_routineBillAction.hasMatch(text);
+}
+
 /// Extracts the public-law number ("119-102") from an enacted bill's
 /// action text, or null when the text carries none.
 String? publicLawNumberOf(LiveBillAction b) =>
