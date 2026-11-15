@@ -181,7 +181,7 @@ function SessionView({ joined }: { joined: LiveJoin }) {
   return (
     <PublicPage>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-ink">{joined.title}</h1>
+        <h1 className="px-2 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">{joined.title}</h1>
         <Badge tone={status === 'ended' ? 'slate' : 'green'}>{status}</Badge>
       </div>
       {error ? <Alert tone="error">{error}</Alert> : null}
@@ -292,7 +292,7 @@ function GuestEnded({ sessionId }: { sessionId: string }) {
         </Card>
       ) : null}
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-ink">
+        <h2 className="mb-3 text-base font-bold text-ink">
           Final standings
         </h2>
         {board.data ? <Scoreboard rows={board.data.slice(0, 10)} /> : <Spinner />}

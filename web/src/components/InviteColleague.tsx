@@ -28,7 +28,7 @@ function InviteForm() {
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold text-ink">{S.staffTools.inviteTitle}</h2>
+      <h2 className="text-base font-bold text-ink">{S.staffTools.inviteTitle}</h2>
       <p className="mt-1 text-sm text-ink-3">{S.staffTools.inviteHint}</p>
       <form onSubmit={submit} className="mt-3 flex flex-col gap-3">
         <label className="text-sm text-ink-2">

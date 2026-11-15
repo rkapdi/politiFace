@@ -48,7 +48,7 @@ export function LiveTab({
     <div className="flex flex-col gap-4">
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-ink">
+          <h2 className="text-base font-bold text-ink">
             Run a live session
           </h2>
           {!draft.composing ? (
@@ -86,7 +86,7 @@ export function LiveTab({
         />
       ) : null}
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-ink">
+        <h2 className="mb-3 text-base font-bold text-ink">
           Past sessions
         </h2>
         {sessions.isPending ? <SkeletonTable rows={3} /> : null}

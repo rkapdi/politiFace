@@ -63,7 +63,7 @@ export function Layout() {
       <div className="flex min-h-screen flex-col gap-3 p-3 sm:flex-row sm:items-start">
         <Rail />
         <main id="main" className="min-w-0 flex-1">
-          <div className="mx-auto max-w-5xl px-1 py-3 sm:px-3">
+          <div className="mx-auto max-w-[1320px] px-1 pb-10 pt-1 sm:px-2">
             <Outlet />
           </div>
         </main>

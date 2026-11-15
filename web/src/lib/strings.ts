@@ -88,6 +88,10 @@ export const S = {
     copied: 'Copied',
   },
   students: {
+    all: 'All',
+    belowPass: 'Below pass',
+    inactive: 'Inactive 7+ days',
+    filterLabel: 'Filter students',
     find: 'Find a student',
     noMatch: 'No student matches that name.',
   },
@@ -114,6 +118,10 @@ export const S = {
     aggregateOnly: 'This class reports aggregate data only.',
   },
   pulse: {
+    label: 'This week',
+    passRate: 'Projected pass rate',
+    passNote: (above: number, students: number) => `${above} of ${students} at or above the pass line`,
+    passFloor: 'Appears once the class reaches 5 students.',
     seeWho: 'See who',
     reteach: 'Run a reteach session',
     message: 'Message the class',
@@ -219,6 +227,7 @@ export const S = {
     getAppPost: ', supplemental practice you choose.',
   },
   live: {
+    start: 'Start live session',
     allowGuests: 'Allow guests without sign-in',
     joinedNoAnswers: 'Joined, no answers',
     filterDomain: 'Domain',

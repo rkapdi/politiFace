@@ -29,6 +29,7 @@ import {
 } from '../components/Skeleton'
 import { DomainBars } from '../components/DomainBars'
 import { PulseBanner } from '../components/PulseBanner'
+import { PassRateCard } from './ClassPage'
 
 function Section({
   title,
@@ -50,7 +51,7 @@ function Section({
 export function StyleguidePage() {
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-xl font-semibold text-ink">Styleguide</h1>
+      <h1 className="text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">Styleguide</h1>
 
       <Section title="Theme">
         <Card>
@@ -59,7 +60,7 @@ export function StyleguidePage() {
       </Section>
 
       <Section title="Tabs">
-        <Tabs defaultValue="overview">
+        <Tabs defaultValue="overview" className="flex flex-col items-start gap-3">
           <TabsList aria-label="Example tabs">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="students">Students</TabsTrigger>
@@ -184,6 +185,23 @@ export function StyleguidePage() {
             ]}
           />
         </Card>
+      </Section>
+
+      <Section title="Overview top row">
+        <div className="grid gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <PassRateCard
+            pulse={{ students: 32, above_line: 18, sentence: '', cards: [] }}
+          />
+          <PulseBanner
+            pulse={{
+              students: 32,
+              sentence:
+                '18 of 32 students project above the pass line. U.S. Constitution is the weakest domain at 46%.',
+              cards: [],
+            }}
+            onAction={() => {}}
+          />
+        </div>
       </Section>
 
       <Section title="Pulse">

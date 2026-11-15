@@ -133,7 +133,7 @@ export const Tabs = RadixTabs.Root
 export function TabsList(props: RadixTabs.TabsListProps) {
   return (
     <RadixTabs.List
-      className="mb-4 inline-flex max-w-full gap-0.5 overflow-x-auto rounded-full bg-panel p-1"
+      className="inline-flex max-w-full gap-0.5 overflow-x-auto rounded-full bg-panel p-1"
       {...props}
     />
   )

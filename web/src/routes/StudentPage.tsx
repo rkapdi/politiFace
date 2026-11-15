@@ -37,7 +37,7 @@ export function StudentView({
 
   if (isPending) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <SkeletonStats />
         <SkeletonChart height="h-40" />
       </div>
@@ -62,22 +62,22 @@ export function StudentView({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-2">
         <div>
-          <a href={`#/class/${cohortId}?tab=students`} className="text-sm text-ink-3 hover:underline">
+          <a href={`#/class/${cohortId}?tab=students`} className="text-[13px] font-semibold text-ink-2 hover:text-ink">
             Back to class
           </a>
-          <h1 className="text-xl font-semibold text-ink">
+          <h1 className="text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">
             {d.identity.display_name}
           </h1>
         </div>
-        <Button variant="ghost" onClick={exportCsv}>
+        <Button variant="ghost" className="bg-panel" onClick={exportCsv}>
           Export CSV
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Last active" value={daysAgo(d.activity.last_active)} />
         <Stat label="Answers, 7d" value={d.activity.answers_7d} />
         <Stat
@@ -98,7 +98,7 @@ export function StudentView({
 
       {d.suggestions.length > 0 ? (
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-ink">Next steps</h2>
+          <h2 className="mb-3 text-base font-bold text-ink">Next steps</h2>
           <ul className="flex flex-col gap-2">
             {d.suggestions.map(s => (
               <li
@@ -121,9 +121,9 @@ export function StudentView({
         </Card>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-ink">
+          <h2 className="mb-3 text-base font-bold text-ink">
             Readiness by domain
           </h2>
           <DomainBars
@@ -166,7 +166,7 @@ export function StudentView({
           ) : null}
         </Card>
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-ink">
+          <h2 className="mb-3 text-base font-bold text-ink">
             Weakest objectives
           </h2>
           {d.weak_objectives.length === 0 ? (
@@ -192,7 +192,7 @@ export function StudentView({
       </div>
 
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-ink">
+        <h2 className="mb-3 text-base font-bold text-ink">
           Live sessions
         </h2>
         {d.live_sessions.length === 0 ? (

@@ -209,7 +209,7 @@ export function OwnQuestions({
     <Card>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-ink">
+          <h2 className="text-base font-bold text-ink">
             {S.ownQuestions.heading}
           </h2>
           <p className="text-sm text-ink-3">{S.ownQuestions.hint}</p>

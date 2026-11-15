@@ -21,6 +21,8 @@ export function daysAgo(iso: string | null): string {
   return `${days} days ago`
 }
 
+const PASS_LINE = 48 // of 80
+
 function readinessTone(r: number): 'red' | 'amber' | 'green' {
   if (r < 0.4) return 'red'
   if (r < 0.6) return 'amber'
@@ -58,6 +60,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
   const progress = useStudentProgress(cohortId)
   const logExport = useLogExport()
   const [filter, setFilter] = useState('')
+  const [group, setGroup] = useState<'all' | 'below' | 'inactive'>('all')
   const students = useMemo(
     () => mergeStudents(atRisk.data ?? [], progress.data ?? []),
     [atRisk.data, progress.data],
@@ -71,10 +74,21 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
   const error = atRisk.error ?? progress.error
   if (error) return <Alert tone="info">{error.message}</Alert>
 
+  const isBelow = (s: StudentRow) => s.risk !== undefined && s.risk.overall_readiness * 80 < PASS_LINE
+  const isInactive = (s: StudentRow) => {
+    const last = s.risk?.last_active ?? s.progress?.last_active ?? null
+    return !last || Date.now() - Date.parse(last) >= 7 * 86400_000
+  }
+  const groups = [
+    { id: 'all' as const, label: S.students.all, rows: students },
+    { id: 'below' as const, label: S.students.belowPass, rows: students.filter(isBelow) },
+    { id: 'inactive' as const, label: S.students.inactive, rows: students.filter(isInactive) },
+  ]
+  const inGroup = groups.find(g => g.id === group)!.rows
   const query = filter.trim().toLowerCase()
   const shown = query
-    ? students.filter(s => s.name.toLowerCase().includes(query))
-    : students
+    ? inGroup.filter(s => s.name.toLowerCase().includes(query))
+    : inGroup
 
   const exportStudents = () => {
     logExport.mutate({ cohortId, kind: 'csv_progress' })
@@ -99,7 +113,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
   return (
     <Card>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-ink">
+        <h2 className="text-base font-bold text-ink">
           Every student, lowest projected first
         </h2>
         <div className="flex items-center gap-2">
@@ -119,6 +133,21 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
           </Button>
         </div>
       </div>
+      {students.length > 0 ? (
+        <div role="group" aria-label={S.students.filterLabel} className="mb-3 flex flex-wrap gap-2">
+          {groups.map(g => (
+            <button
+              key={g.id}
+              type="button"
+              aria-pressed={group === g.id}
+              onClick={() => setGroup(g.id)}
+              className="rounded-full bg-control px-3.5 py-1.5 text-[13px] font-semibold text-ink-2 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus aria-pressed:bg-strong aria-pressed:font-bold aria-pressed:text-on-strong"
+            >
+              {g.label} <span className="tabular-nums">{g.rows.length}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
       {students.length === 0 ? (
         <EmptyState
           icon={Users}
@@ -147,16 +176,16 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
             </thead>
             <tbody>
               {shown.map(({ ref, name, risk, progress: p }) => (
-                <tr key={ref} className="border-b border-line">
-                  <td className="py-2 pr-3">
+                <tr key={ref} className="border-b border-line last:border-b-0 hover:bg-raised">
+                  <td className="py-3 pr-3">
                     <a
                       href={`#/class/${cohortId}/student/${encodeURIComponent(ref)}`}
-                      className="font-medium text-ink hover:underline"
+                      className="font-semibold text-ink hover:underline"
                     >
                       {name}
                     </a>
                   </td>
-                  <td className="py-2 pr-3">
+                  <td className="py-3 pr-3">
                     {risk ? (
                       <Badge tone={readinessTone(risk.overall_readiness)}>
                         {Math.round(risk.overall_readiness * 80)} of 80
@@ -165,22 +194,22 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
                       'n/a'
                     )}
                   </td>
-                  <td className="py-2 pr-3">
+                  <td className="py-3 pr-3">
                     {risk?.weakest_domain_name ?? 'No data yet'}
                     {risk?.weakest_readiness != null
                       ? ` (${Math.round(risk.weakest_readiness * 100)}%)`
                       : ''}
                   </td>
-                  <td className="py-2 pr-3">
+                  <td className="py-3 pr-3">
                     {daysAgo(risk?.last_active ?? p?.last_active ?? null)}
                   </td>
-                  <td className="py-2 pr-3">{risk?.answers_14d ?? 'n/a'}</td>
-                  <td className="py-2 pr-3">
+                  <td className="py-3 pr-3">{risk?.answers_14d ?? 'n/a'}</td>
+                  <td className="py-3 pr-3">
                     {p && p.answers_total > 0
                       ? `${Math.round(p.accuracy * 100)}%`
                       : 'n/a'}
                   </td>
-                  <td className="py-2">
+                  <td className="py-3">
                     {p?.best_mock_score == null ? 'n/a' : `${p.best_mock_score}/80`}
                   </td>
                 </tr>

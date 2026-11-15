@@ -317,28 +317,28 @@ export function AccountPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
-      <h1 className="text-lg font-semibold text-ink">
+      <h1 className="px-2 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">
         {S.account.title}
       </h1>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-ink">
+        <h2 className="mb-3 text-base font-bold text-ink">
           {S.account.profileHeading}
         </h2>
         <ProfileSection userId={userId} />
       </Card>
       <Card>
-        <h2 className="text-sm font-semibold text-ink">{S.theme.heading}</h2>
+        <h2 className="text-base font-bold text-ink">{S.theme.heading}</h2>
         <p className="mb-3 text-xs text-ink-3">{S.theme.hint}</p>
         <ThemePicker />
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-ink">
+        <h2 className="mb-3 text-base font-bold text-ink">
           {S.account.emailHeading}
         </h2>
         <EmailSection email={email} />
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-ink">
+        <h2 className="mb-3 text-base font-bold text-ink">
           {S.account.sessionsHeading}
         </h2>
         <SessionsSection />

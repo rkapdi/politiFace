@@ -29,7 +29,7 @@ export function CreateClassForm({ onCancel }: { onCancel?: () => void }) {
 
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold text-ink">
+      <h2 className="mb-3 text-base font-bold text-ink">
         {S.common.createClass}
       </h2>
       <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
@@ -103,8 +103,8 @@ export function ClassesPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-ink">{S.common.yourClasses}</h1>
+      <div className="mb-3 flex min-h-[52px] items-center justify-between px-2">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">{S.common.yourClasses}</h1>
         {creating ? null : (
           <Button onClick={() => setCreating(true)}>{S.common.createClass}</Button>
         )}
@@ -114,25 +114,25 @@ export function ClassesPage() {
           <CreateClassForm onCancel={() => setCreating(false)} />
         </div>
       ) : null}
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="mb-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {data.map(c => (
-          <Card key={c.cohort_id} className="hover:border-ink-3">
+          <Card key={c.cohort_id} className="relative transition-shadow hover:ring-1 hover:ring-inset hover:ring-line-strong">
             <a
               href={`#/class/${c.cohort_id}`}
-              className="text-base font-semibold text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              className="text-xl font-bold tracking-tight text-ink after:absolute after:inset-0 after:rounded-xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-focus"
             >
               {c.name}
             </a>
-            <div className="mt-1 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-2">
               {c.term ? <Badge>{c.term}</Badge> : null}
               <Badge tone={c.live_sessions > 0 ? 'green' : 'slate'}>
                 {c.live_sessions} live session{c.live_sessions === 1 ? '' : 's'}
               </Badge>
             </div>
-            <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
+            <dl className="mt-5 grid grid-cols-4 gap-2 border-t border-line pt-4">
               <div>
-                <dt className="text-xs text-ink-3">Students</dt>
-                <dd className="text-lg font-semibold">{c.students}</dd>
+                <dt className="text-xs font-semibold text-ink-3">Students</dt>
+                <dd className="text-[22px] font-bold tracking-tight tabular-nums">{c.students}</dd>
               </div>
               {c.active_7d === null ? (
                 <div className="col-span-3 self-center text-xs text-ink-3">
@@ -143,16 +143,16 @@ export function ClassesPage() {
               ) : (
                 <>
                   <div>
-                    <dt className="text-xs text-ink-3">Active 7d</dt>
-                    <dd className="text-lg font-semibold">{c.active_7d}</dd>
+                    <dt className="text-xs font-semibold text-ink-3">Active 7d</dt>
+                    <dd className="text-[22px] font-bold tracking-tight tabular-nums">{c.active_7d}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink-3">Answers</dt>
-                    <dd className="text-lg font-semibold">{c.answers_total}</dd>
+                    <dt className="text-xs font-semibold text-ink-3">Answers</dt>
+                    <dd className="text-[22px] font-bold tracking-tight tabular-nums">{c.answers_total}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-ink-3">Accuracy</dt>
-                    <dd className="text-lg font-semibold">
+                    <dt className="text-xs font-semibold text-ink-3">Accuracy</dt>
+                    <dd className="text-[22px] font-bold tracking-tight tabular-nums">
                       {c.accuracy === null ? '' : `${Math.round(c.accuracy * 100)}%`}
                     </dd>
                   </div>

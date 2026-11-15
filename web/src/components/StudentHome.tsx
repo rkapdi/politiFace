@@ -48,7 +48,7 @@ function CodeCard({ knownName }: { knownName: string }) {
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold text-ink">{S.student.enterCode}</h2>
+      <h2 className="text-base font-bold text-ink">{S.student.enterCode}</h2>
       <p className="mb-2 text-xs text-ink-3">{S.student.enterCodeHint}</p>
       <form onSubmit={e => void onSubmit(e)} className="flex flex-col gap-3">
         <label className="text-sm text-ink-2">
