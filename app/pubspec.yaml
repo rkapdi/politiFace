@@ -99,3 +99,7 @@ flutter:
     - assets/portraits/
     # UI sound effects (see lib/core/audio/sound_service.dart).
     - assets/audio/
+    # The three font files the theme uses (Regular cuts; heavier weights are
+    # drawn from them), with their OFL licenses. Bundled so the app never
+    # downloads fonts from Google at runtime; see main.dart.
+    - assets/google_fonts/

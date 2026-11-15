@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:workmanager/workmanager.dart';
@@ -58,6 +59,10 @@ void washingtonWatchCallbackDispatcher() {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Fonts ship in assets/google_fonts. Without this, any font missing there
+  // is downloaded from Google, which shares the student's IP address with a
+  // third party and fails offline.
+  GoogleFonts.config.allowRuntimeFetching = false;
   final db = AppDatabase();
 
   // Backend config follows the Sentry DSN pattern: builds without the
