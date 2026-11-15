@@ -28,7 +28,7 @@
   items:
     - Each Washington notification now arrives once. Before, the same update could be sent two or three times.
     - A summary notification no longer repeats updates you were already told about the day before.
-    - Tapping a summary notification now opens the list of everything it covered, and each item opens its own page or official record.
+    - Tapping a notification now opens what it is about. A summary opens the list of everything it covered, and each item opens its own page or official record. Before, a tap only brought the app to the front.
     - Summaries now count only updates that change where a bill stands. Routine steps, such as a referral to committee, still appear in The Pulse but no longer notify you.
     - A mock exam finished on a weak connection now waits for all of your answers to be saved before it is scored.
     - Opening a bill, a live session, or a mock exam result from a link no longer closes the app.
