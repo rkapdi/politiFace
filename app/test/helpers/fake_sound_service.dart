@@ -6,6 +6,11 @@ import 'package:politiface/core/audio/sound_service.dart';
 class FakeSoundService extends SoundService {
   final List<SoundEffect> played = [];
 
+  /// The real init subscribes to the plugin's global event channel, which
+  /// has no implementation under flutter test.
+  @override
+  Future<void> init() async {}
+
   @override
   void play(SoundEffect effect) => played.add(effect);
 }
