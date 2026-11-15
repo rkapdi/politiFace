@@ -9,17 +9,38 @@
 //     sends the classic SILENT content-available push; the on-device
 //     brain decides what to surface.
 //
-// Watermarks live in app.push_signal, reached ONLY through the
-// service-role RPCs washington_advance / washington_log_push. Never use
-// PostgREST .schema("app"): the app schema is not exposed through
-// PostgREST, reads return null and writes fail silently, which turned
-// every poll into a silent "first run" for five weeks (2026-08 incident).
+// State lives in the database, reached ONLY through the service-role RPCs
+// washington_poll / washington_log_push. Never use PostgREST
+// .schema("app"): the app schema is not exposed through PostgREST, reads
+// return null and writes fail silently, which turned every poll into a
+// silent "first run" for five weeks (2026-08 incident).
+//   * congress.gov / Federal Register: single watermarks in
+//     app.push_signal (a change means "wake the phones").
+//   * White House: a seen-list (app.wh_seen). An action alerts on the poll
+//     that first observes it and never again, so a reordered, edited or
+//     withdrawn feed entry cannot re-alert (migration 20261115000100).
+//
+// Every push carries an apns-collapse-id, so a resend replaces the earlier
+// notification on the phone instead of stacking beside it; visible alerts
+// also carry a thread id so they group on the lock screen. The pure
+// decisions (who may call, what to send, the APNs requests) live in
+// logic.ts and are tested by logic_test.ts.
 //
 // Secrets (function env): APNS_KEY_P8, APNS_KEY_ID, APNS_TEAM_ID,
 // APNS_TOPIC, APNS_ENV, SB_SECRET_KEY / SUPABASE_SERVICE_ROLE_KEY,
-// SUPABASE_URL, CRON_SECRET (optional gate).
+// SUPABASE_URL, CRON_SECRET (REQUIRED: the function refuses every request
+// when it is unset; callers present it in the X-Cron-Secret header).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  alertRequest,
+  authorize,
+  parseWhNew,
+  planPush,
+  type PushPlan,
+  silentRequest,
+  type WhAction,
+} from "./logic.ts";
 
 const SERVICE_KEY = Deno.env.get("SB_SECRET_KEY") ??
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -83,65 +104,25 @@ async function providerToken(): Promise<string> {
   return token;
 }
 
-// ── push senders ────────────────────────────────────────────────────────────
-async function sendSilent(jwt: string, token: string): Promise<number> {
-  const topic = Deno.env.get("APNS_TOPIC") ?? "io.politiface.politiface";
-  const res = await fetch(`${APNS_HOST}/3/device/${token}`, {
-    method: "POST",
-    headers: {
-      "authorization": `bearer ${jwt}`,
-      "apns-topic": topic,
-      "apns-push-type": "background",
-      "apns-priority": "5",
-    },
-    body: JSON.stringify({
-      aps: { "content-available": 1 },
-      category: "washington",
-      route: "/pulse",
-    }),
-  });
-  return res.status;
-}
-
-async function sendAlert(
+// ── push sender ─────────────────────────────────────────────────────────────
+async function sendPush(
   jwt: string,
   token: string,
-  title: string,
-  body: string,
-  route: string,
+  plan: Exclude<PushPlan, { kind: "none" }>,
 ): Promise<number> {
   const topic = Deno.env.get("APNS_TOPIC") ?? "io.politiface.politiface";
+  const req = plan.kind === "alert"
+    ? alertRequest(topic, jwt, plan)
+    : silentRequest(topic, jwt);
   const res = await fetch(`${APNS_HOST}/3/device/${token}`, {
     method: "POST",
-    headers: {
-      "authorization": `bearer ${jwt}`,
-      "apns-topic": topic,
-      "apns-push-type": "alert",
-      "apns-priority": "10",
-    },
-    body: JSON.stringify({
-      // "payload" is the deep-link route in the dialect the app's
-      // notification-tap handler already speaks (it is what
-      // flutter_local_notifications surfaces as the response payload);
-      // "route" stays for the cold-start stash and older builds.
-      aps: { alert: { title, body }, sound: "default" },
-      category: "washington",
-      route,
-      payload: route,
-    }),
+    headers: req.headers,
+    body: req.body,
   });
   return res.status;
 }
 
 // ── White House presidential actions (RSS, keyless) ─────────────────────────
-type WhAction = {
-  guid: string;
-  title: string;
-  url: string;
-  published_at: string;
-  kind: string;
-};
-
 function decodeEntities(s: string): string {
   return s
     .replace(/<!\[CDATA\[(.*?)\]\]>/gs, "$1")
@@ -159,19 +140,6 @@ function kindOf(categories: string[]): string {
   if (joined.includes("proclamation")) return "proclamation";
   if (joined.includes("memorand")) return "memorandum";
   return "presidential_action";
-}
-
-function kindLabel(kind: string): string {
-  switch (kind) {
-    case "executive_order":
-      return "New executive order";
-    case "proclamation":
-      return "New proclamation";
-    case "memorandum":
-      return "New presidential memorandum";
-    default:
-      return "New presidential action";
-  }
 }
 
 async function fetchWhActions(): Promise<WhAction[] | null> {
@@ -247,11 +215,8 @@ async function latestEoNumber(): Promise<number | null> {
 // ── poll: observe everything, let the database decide what is new ───────────
 type PollResult = {
   changed: boolean;
-  wh_new: boolean;
   first_run: boolean;
-  wh_title: string | null;
-  wh_kind: string | null;
-  wh_route: string | null;
+  wh_new: WhAction[];
   errors: string[];
 };
 
@@ -283,7 +248,6 @@ async function pollForNews(): Promise<PollResult> {
 
   const latestEo = await latestEoNumber();
   const whActions = await fetchWhActions();
-  const newestWh = whActions?.[0] ?? null;
 
   // Keep the feed lane fresh regardless of push outcomes.
   if (whActions && whActions.length) {
@@ -295,47 +259,27 @@ async function pollForNews(): Promise<PollResult> {
     if (error) errors.push(`cache: ${error.message}`);
   }
 
-  const { data, error } = await admin.rpc("washington_advance", {
+  // The whole White House window goes to the database, which answers with
+  // the entries it has never seen before. Null (feed unreachable or empty)
+  // means "no observation": nothing is recorded and nothing fires.
+  const { data, error } = await admin.rpc("washington_poll", {
     p_eo: latestEo,
     p_bill: latestBillDate,
     p_law: latestLaw,
-    p_wh: newestWh?.guid ?? null,
-    p_wh_title: newestWh?.title ?? null,
+    p_wh: whActions && whActions.length ? whActions : null,
   });
   if (error) {
     // The one mistake this function is never allowed to repeat: failing
-    // to persist watermarks QUIETLY. Loud, and visible in the response.
-    console.error("washington_advance failed", error.message);
-    errors.push(`advance: ${error.message}`);
-    return {
-      changed: false,
-      wh_new: false,
-      first_run: false,
-      wh_title: null,
-      wh_kind: null,
-      wh_route: null,
-      errors,
-    };
+    // to persist its state QUIETLY. Loud, and visible in the response.
+    console.error("washington_poll failed", error.message);
+    errors.push(`poll: ${error.message}`);
+    return { changed: false, first_run: false, wh_new: [], errors };
   }
-
-  // Deep link the app opens on tap: the action detail screen, with
-  // everything it needs to render without a network round trip.
-  const whRoute = newestWh
-    ? "/pulse/action?" + new URLSearchParams({
-      t: newestWh.title,
-      u: newestWh.url,
-      k: newestWh.kind,
-      d: newestWh.published_at,
-    }).toString()
-    : null;
 
   return {
     changed: Boolean(data?.changed),
-    wh_new: Boolean(data?.wh_new),
     first_run: Boolean(data?.first_run),
-    wh_title: (data?.wh_title as string) ?? null,
-    wh_kind: newestWh?.kind ?? null,
-    wh_route: whRoute,
+    wh_new: parseWhNew(data?.wh_new),
     errors,
   };
 }
@@ -354,15 +298,21 @@ async function allTokens(): Promise<{ token: string }[]> {
 }
 
 Deno.serve(async (req) => {
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  if (cronSecret && req.headers.get("X-Cron-Secret") !== cronSecret) {
-    return new Response("forbidden", { status: 403 });
+  // Refuses when CRON_SECRET is unset, rather than running for anyone.
+  const denied = authorize(
+    Deno.env.get("CRON_SECRET"),
+    req.headers.get("X-Cron-Secret"),
+  );
+  if (denied) {
+    if (denied.status === 503) console.error(denied.message);
+    return new Response(denied.message, { status: denied.status });
   }
   const force = req.method === "POST" &&
     new URL(req.url).searchParams.get("force") === "1";
 
   const poll = await pollForNews();
-  if (!poll.changed && !force) {
+  const plan = await planPush(poll.wh_new, poll.changed, force);
+  if (plan.kind === "none") {
     return Response.json({
       sent: 0,
       reason: poll.first_run ? "baselined" : "no new activity",
@@ -378,20 +328,9 @@ Deno.serve(async (req) => {
   const jwt = await providerToken();
   let sent = 0;
   const dead: string[] = [];
-  const alertTitle = poll.wh_new && poll.wh_title
-    ? kindLabel(poll.wh_kind ?? "")
-    : null;
   for (const row of tokens) {
     try {
-      const status = alertTitle
-        ? await sendAlert(
-          jwt,
-          row.token,
-          alertTitle,
-          poll.wh_title!,
-          poll.wh_route ?? "/pulse",
-        )
-        : await sendSilent(jwt, row.token);
+      const status = await sendPush(jwt, row.token, plan);
       if (status === 200) sent++;
       else if (status === 410) dead.push(row.token);
       else console.error(`apns ${status}`);
@@ -403,8 +342,8 @@ Deno.serve(async (req) => {
     await admin.from("push_tokens").delete().in("token", dead);
   }
   const { error: logErr } = await admin.rpc("washington_log_push", {
-    p_category: alertTitle ? "washington_alert" : "washington_silent",
-    p_title: poll.wh_title,
+    p_category: plan.kind === "alert" ? "washington_alert" : "washington_silent",
+    p_title: plan.kind === "alert" ? plan.logTitle : null,
     p_sent: sent,
   });
   if (logErr) console.error("washington_log_push failed", logErr.message);
@@ -412,7 +351,7 @@ Deno.serve(async (req) => {
   return Response.json({
     sent,
     pruned: dead.length,
-    kind: alertTitle ? "alert" : "silent",
+    kind: plan.kind,
     errors: poll.errors,
   });
 });
