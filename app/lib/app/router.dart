@@ -87,7 +87,11 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
               routes: [
                 GoRoute(
                   path: '/pulse',
-                  builder: (context, state) => const PulseScreen(),
+                  // A Washington notification opens '/pulse?alert=<id>'
+                  // so the screen can go straight to that alert.
+                  builder: (context, state) => PulseScreen(
+                    alertId: state.uri.queryParameters['alert'],
+                  ),
                 ),
               ],
             ),

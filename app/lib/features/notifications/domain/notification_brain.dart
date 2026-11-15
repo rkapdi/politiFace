@@ -26,6 +26,8 @@
 
 import 'package:flutter/foundation.dart';
 
+import 'alert_log.dart';
+
 /// What kind of moment a candidate represents. Order encodes base
 /// priority: earlier is more important.
 enum NotifKind {
@@ -70,7 +72,7 @@ class NotifCandidate {
     this.relevance = 0.0,
     this.route = '/',
     this.urgent = false,
-    this.itemKeys = const [],
+    this.items = const [],
   });
 
   final NotifKind kind;
@@ -99,11 +101,15 @@ class NotifCandidate {
   /// (never the daily cap or quiet hours). Reserved for real deadlines.
   final bool urgent;
 
-  /// For digest candidates ("Washington was busy: N updates"), the
-  /// dedupe keys of the individual items the digest covers. Carried into
-  /// the Pulse alert log so a digest row can list exactly what it
-  /// summarized. Empty for single-item candidates.
-  final List<String> itemKeys;
+  /// Washington candidates: what this notification covers, captured in
+  /// full (title, date, kind, link). One item for a single alert, every
+  /// covered item for a digest. Written into the Pulse alert log so the
+  /// alert can be read back exactly, and used to mark each covered item
+  /// delivered. Empty for every other kind.
+  final List<AlertItem> items;
+
+  /// The dedupe keys of [items].
+  List<String> get itemKeys => [for (final i in items) i.key];
 
   int get score =>
       _baseWeight(kind) + (relevance.clamp(0.0, 1.0) * 100).round();
