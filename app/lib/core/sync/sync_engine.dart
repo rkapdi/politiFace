@@ -223,12 +223,15 @@ class SyncEngine {
   Future<void> enqueueMockFinalize({required String attemptId}) =>
       _enqueue(type: 'mock_finalize', attemptId: attemptId);
 
-  /// Whether any undelivered outbox row still references [attemptId].
+  /// Whether any undelivered outbox row still belongs to [attemptId].
   /// finish() checks this so finalize never overtakes a stuck answer.
-  Future<bool> hasPendingForAttempt(String attemptId) async {
-    final rows = await _outbox.pending();
-    return rows.any((r) => r.payload.contains(attemptId));
-  }
+  ///
+  /// The attempt id lives in the row's `attemptId` column (see
+  /// [enqueueAnswer]); answers carry no payload. This used to search
+  /// `payload` for it, which never matched, so it always answered false
+  /// and a mock exam could be finalized ahead of its own queued answers.
+  Future<bool> hasPendingForAttempt(String attemptId) =>
+      _outbox.hasPendingForAttempt(attemptId);
 
   /// Cross-device sync: snapshot of one card's FSRS state, applied as an
   /// upsert keyed by (user, card external id). Enqueued after every grade;
