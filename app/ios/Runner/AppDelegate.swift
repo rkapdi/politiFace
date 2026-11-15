@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import UserNotifications
 import workmanager
 
 @UIApplicationMain
@@ -28,6 +29,18 @@ import workmanager
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
+
+    // Notification taps (and showing a notification while the app is
+    // open) reach flutter_local_notifications only through the
+    // notification centre's delegate. FlutterAppDelegate forwards those
+    // callbacks to plugins, but nothing makes it the delegate unless the
+    // app does; the plugin's setup guide requires this line. Without it a
+    // tap only brought the app forward: the route carried by the
+    // notification ('/pulse?alert=...', '/round', ...) never reached
+    // Dart, on a warm tap or a cold start. It must be set before launch
+    // finishes, or a tap that launches the app is lost.
+    UNUserNotificationCenter.current().delegate =
+      self as? UNUserNotificationCenterDelegate
 
     if let remote =
       launchOptions?[UIApplication.LaunchOptionsKey.remoteNotification]

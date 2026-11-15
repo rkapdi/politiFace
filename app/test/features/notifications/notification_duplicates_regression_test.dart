@@ -196,6 +196,39 @@ void main() {
 
       await orchestrator(fetcher, now.add(const Duration(days: 1))).run();
       expect(sender.sent, hasLength(1));
+      // ...and the baseline is healed rather than left behind.
+      expect(await db.metaDao.get('watch.last_eo_number'), '10');
+    });
+
+    test('after updating, a digest the previous build sent is not sent again',
+        () async {
+      await seedBaselines(db);
+      // What a build before 1.3.3 left behind: yesterday's digest in the
+      // alert log with only the keys it covered, its own key in the old
+      // sent log, and baselines that never moved.
+      final yesterday = now.subtract(const Duration(days: 1));
+      await db.metaDao.set(
+        kAlertLogKey,
+        '[{"t":"Washington was busy: 5 updates in The Pulse.","b":"",'
+        '"at":${yesterday.millisecondsSinceEpoch},'
+        '"ks":["eo:6","eo:7","eo:8","eo:9","eo:10"]}]',
+      );
+      await db.metaDao.set(
+        'notif.log',
+        '[{"k":"wash:summary:2026-07-11",'
+            '"t":${yesterday.millisecondsSinceEpoch}}]',
+      );
+      final fetcher =
+          FakeFetcher(orders: [for (var n = 6; n <= 10; n++) order(n)]);
+
+      await orchestrator(fetcher, now).run();
+
+      expect(sender.sent, isEmpty, reason: 'the old backlog was sent again');
+      // And the baseline is caught up, so it stays quiet after the
+      // cooldown too.
+      expect(await db.metaDao.get('watch.last_eo_number'), '10');
+      await orchestrator(fetcher, now.add(const Duration(days: 5))).run();
+      expect(sender.sent, isEmpty);
     });
 
     // ── (b) ──────────────────────────────────────────────────────────────

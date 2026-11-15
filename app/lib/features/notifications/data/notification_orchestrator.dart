@@ -249,7 +249,16 @@ class NotificationOrchestrator {
       for (final i in detected)
         if (!reported.contains(i.dedupeKey)) i,
     ];
-    if (items.isEmpty) return const [];
+    if (items.isEmpty) {
+      // Everything "new" was in fact already reported, so the baselines
+      // are behind: the digest that covered these went out before digests
+      // marked their items delivered (a build older than 1.3.3). Catch the
+      // baselines up now, or the same backlog would be detected on every
+      // sweep and sent again the day its cooldown ran out.
+      await _washington
+          .commitDelivered([for (final i in detected) i.dedupeKey]);
+      return const [];
+    }
 
     // Build the studied/home-state lookup once. Face cards only: a bill or EO
     // ties to a person, never a concept card.
@@ -510,14 +519,27 @@ class NotificationOrchestrator {
     ];
   }
 
+  /// Items a Washington notification covered within the cooldown, whether
+  /// or not they were its own dedupe key: the covered rows a digest writes,
+  /// plus whatever the alert log names. The alert log matters right after
+  /// an update: the previous build recorded which items its digests
+  /// covered there (as keys), and nowhere else.
   Future<Set<String>> _coveredKeys(DateTime now) async {
     final cutoff = now.subtract(_kCooldown).millisecondsSinceEpoch;
     final rows = await _db.metaDao.withPrefix(_kCoveredPrefix);
-    return {
+    final keys = <String>{
       for (final row in rows.entries)
         if ((int.tryParse(row.value) ?? 0) >= cutoff)
           row.key.substring(_kCoveredPrefix.length),
     };
+    for (final e in parseAlertLog(await _db.metaDao.get(kAlertLogKey))) {
+      if (e.at.millisecondsSinceEpoch < cutoff) continue;
+      keys.addAll([for (final i in e.items) i.key]);
+      keys.addAll(e.legacyItemKeys);
+      final single = e.legacyItemKey;
+      if (single != null) keys.add(single);
+    }
+    return keys;
   }
 
   /// Every key reported within the cooldown, sent or covered.
