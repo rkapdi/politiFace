@@ -2961,5 +2961,118 @@ begin
   end if;
 end $$;
 
+-- ── admin operating picture ────────────────────────────────────────────────
+-- Refused for a student, allowed for an admin, never reachable by anon.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+begin
+  begin
+    perform public.admin_picture();
+    raise exception 'FAIL: student read admin_picture';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%admin only%' then
+      raise exception 'FAIL: admin_picture raised the wrong error: %', sqlerrm;
+    end if;
+  end;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  p jsonb;
+  c jsonb;
+begin
+  p := public.admin_picture('America/Chicago');
+  if p ->> 'tz' <> 'America/Chicago' then
+    raise exception 'FAIL: admin_picture ignored a valid time zone: %', p ->> 'tz';
+  end if;
+  if jsonb_array_length(p -> 'days') <> 14 then
+    raise exception 'FAIL: admin_picture should return 14 days, got %',
+      jsonb_array_length(p -> 'days');
+  end if;
+  if (p -> 'now' ->> 'students')::int < 1 then
+    raise exception 'FAIL: admin_picture counts no students: %', p -> 'now';
+  end if;
+  if (p -> 'now' ->> 'on_track')::int > (p -> 'now' ->> 'students')::int
+     or (p -> 'now' ->> 'practised_7d')::int > (p -> 'now' ->> 'students')::int
+     or (p -> 'now' ->> 'live_7d')::int > (p -> 'now' ->> 'students')::int then
+    raise exception 'FAIL: admin_picture shares exceed the student count: %', p -> 'now';
+  end if;
+  if (select sum((d ->> 'answers')::int) from jsonb_array_elements(p -> 'days') d) < 1 then
+    raise exception 'FAIL: admin_picture days carry no answers';
+  end if;
+  select k into c from jsonb_array_elements(p -> 'classes') k
+   where k ->> 'name' = 'Civics Section A';
+  if c is null then
+    raise exception 'FAIL: admin_picture classes missing the smoke class';
+  end if;
+  if (c ->> 'on_track')::int > (c ->> 'students')::int then
+    raise exception 'FAIL: class on_track exceeds its students: %', c;
+  end if;
+  if jsonb_typeof(p -> 'questions') <> 'array' then
+    raise exception 'FAIL: admin_picture questions is not an array';
+  end if;
+  -- Demo classes are listed, flagged, and kept out of the system numbers.
+  if exists (select 1 from public.cohorts where is_demo)
+     and not exists (select 1 from jsonb_array_elements(p -> 'classes') k
+                      where (k ->> 'is_demo')::boolean) then
+    raise exception 'FAIL: admin_picture dropped demo classes from the list';
+  end if;
+  -- An unknown zone falls back to UTC instead of failing.
+  p := public.admin_picture('Not/AZone');
+  if p ->> 'tz' <> 'UTC' then
+    raise exception 'FAIL: admin_picture did not fall back to UTC: %', p ->> 'tz';
+  end if;
+  -- No snapshot yet: the day rows carry no on-track history.
+  if exists (select 1 from jsonb_array_elements(p -> 'days') d
+              where d ->> 'on_track' is not null) then
+    raise exception 'FAIL: on-track history present before any snapshot';
+  end if;
+end $$;
+
+-- The snapshot is one row per day however often it runs, and matches the
+-- live number.
+reset role;
+do $$
+declare n record;
+begin
+  perform app.snapshot_on_track();
+  perform app.snapshot_on_track();
+  if (select count(*) from app.on_track_daily) <> 1 then
+    raise exception 'FAIL: on-track snapshot is not one row per day';
+  end if;
+  select * into n from app.on_track_now();
+  if not exists (select 1 from app.on_track_daily o
+                  where o.students = n.students and o.on_track = n.on_track) then
+    raise exception 'FAIL: on-track snapshot differs from the live number';
+  end if;
+end $$;
+set role authenticated;
+set app.test_uid = :f_uid;
+do $$
+declare p jsonb;
+begin
+  p := public.admin_picture('UTC');
+  if not exists (select 1 from jsonb_array_elements(p -> 'days') d
+                  where d ->> 'on_track' is not null) then
+    raise exception 'FAIL: snapshot row missing from admin_picture days';
+  end if;
+  if not exists (select 1 from jsonb_array_elements(p -> 'days') d
+                  where d ->> 'students' = p -> 'now' ->> 'students'
+                    and d ->> 'on_track' = p -> 'now' ->> 'on_track') then
+    raise exception 'FAIL: admin_picture and the snapshot disagree: % vs %',
+      p -> 'now', p -> 'days';
+  end if;
+end $$;
+reset role;
+do $$
+begin
+  if has_function_privilege('anon', 'public.admin_picture(text)', 'execute') then
+    raise exception 'FAIL: anon can execute public.admin_picture(text)';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

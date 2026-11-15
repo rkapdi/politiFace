@@ -1,13 +1,22 @@
 // Console copy. House rule: no em-dashes.
+const n = (v: number) => v.toLocaleString('en-US')
+
 export const A = {
-  brand: 'POLITIFACE // CONSOLE',
+  brand: 'Politiface console',
   notAvailable: 'The console is not available for this account.',
-  live: (n: number) => `LIVE ${n}`,
-  online: (total: number, ios: number, web: number) => `ONLINE ${total} (iOS ${ios} · web ${web})`,
+  live: (n: number) => `${n} live now`,
+  online: (total: number, ios: number, web: number) => `${total} online (iOS ${ios}, web ${web})`,
   searchPlaceholder: 'Search people, classes, sessions, codes',
   searchHint: 'Cmd-K',
   noHits: 'No matches.',
-  nav: { home: 'Home', search: 'Search', invites: 'Invites', audit: 'Audit', rail: 'Console' },
+  nav: {
+    home: 'Home',
+    search: 'Search',
+    invites: 'Invites',
+    audit: 'Audit',
+    rail: 'Console',
+    backToClasses: 'Back to your classes',
+  },
   titles: {
     home: 'Overview',
     search: 'Search',
@@ -39,9 +48,9 @@ export const A = {
     statAnsweredLive7d: 'Answered live (7d)',
     statPendingRequests: 'Pending requests',
     statSystem: 'System',
-    healthNominal: 'NOMINAL',
-    healthCheck: 'CHECK',
-    healthUnknown: 'UNKNOWN',
+    healthNominal: 'System nominal',
+    healthCheck: 'System check failed',
+    healthUnknown: 'System not checked yet',
     liveNow: 'Live now',
     noLiveSessions: 'No live sessions.',
     inRoom: 'in room',
@@ -60,6 +69,79 @@ export const A = {
     guestsOnline: (n: number) => (n === 1 ? '+ 1 guest in a live session' : `+ ${n} guests in live sessions`),
     clientIos: 'iOS',
     clientWeb: 'web',
+
+    outcomeLabel: 'On track to pass',
+    outcomeSentence: (onTrack: number, students: number) =>
+      `${n(onTrack)} of ${n(students)} students project above the pass line.`,
+    outcomeNoStudents: 'No students have joined a class yet.',
+    outcomeUnavailable: 'The on-track number is not available yet.',
+    delta: (pts: number) => `${pts > 0 ? '+' : ''}${pts} pts in 7 days`,
+    howWeKnow: 'How we know',
+    proofPractised: 'Practised this week',
+    proofLive: 'Answered live this week',
+    proofAbove: 'Above the pass line',
+    totals: (people: number, classes: number, faculty: number) =>
+      `${n(people)} people, ${n(classes)} classes, ${n(faculty)} instructors`,
+
+    classes: 'Classes',
+    classSub: (students: number, practised: number) =>
+      `${students} students, ${practised} practised this week`,
+    underHalf: 'under half on track',
+    demo: 'demo',
+    noClasses: 'No classes yet.',
+
+    picture: 'Operating picture',
+    pictureSub: 'The last 14 days',
+    pictureUnavailable: 'The 14-day picture is not available yet.',
+    laneAnswers: 'Answers',
+    laneAnswersSub: 'a day',
+    laneLive: 'Live sessions',
+    laneLiveSub: 'started',
+    laneOnTrack: 'On track',
+    laneOnTrackSub: 'share of students',
+    laneActions: 'Actions',
+    laneActionsSub: 'taken by staff',
+    today: 'Today',
+    dayValue: (day: string, count: number, unit: string) => `${day}: ${n(count)} ${unit}`,
+    laneSummary: (label: string, total: number, peak: number, peakDay: string) =>
+      total === 0
+        ? `${label}: none in the last 14 days.`
+        : `${label}: ${n(total)} in the last 14 days, most on ${peakDay} (${n(peak)}).`,
+    onTrackSummary: (first: number, last: number, days: number) =>
+      `On track: ${first}% to ${last}% over ${days} days.`,
+    onTrackNoHistory: (pct: number) =>
+      `${pct}% today. The trend starts with the first daily snapshot.`,
+    unitAnswers: 'answers',
+    unitSessions: 'live sessions',
+    unitActions: 'actions',
+
+    rightNow: 'Right now',
+
+    decisions: 'Decisions',
+    decisionsSub: 'The evidence, then the action.',
+    openCount: (n: number) => `${n} open`,
+    nothingToDecide: 'Nothing needs a decision.',
+    tagAccess: 'Access',
+    tagQuiet: 'Class going quiet',
+    tagBelow: 'Below the pass line',
+    tagQuestion: 'Question misleads',
+    tagRoster: 'Roster',
+    tagSignin: 'Sign-in',
+    tagNotice: 'Notice',
+    requestTitle: (handle: string) => `${handle} asks for instructor access`,
+    openClass: 'Open class',
+    reviewRequests: 'Review requests',
+    evPractised: (practised: number, students: number) =>
+      `${practised} of ${students} students practised this week.`,
+    evNoLive: 'No live session yet.',
+    evLiveToday: 'A live session ran today.',
+    evLiveAgo: (days: number) =>
+      days === 1 ? 'Last live session 1 day ago.' : `Last live session ${days} days ago.`,
+    evOnTrack: (onTrack: number, students: number) =>
+      `${onTrack} of ${students} students project above the pass line.`,
+    evQuestion: (pct: number, answers: number) =>
+      `${pct}% correct from ${n(answers)} answers in 60 days.`,
+    evTopWrong: (pct: number, key: string) => `${pct}% chose ${key}.`,
   },
 
   person: {

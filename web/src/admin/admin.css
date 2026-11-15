@@ -1,29 +1,78 @@
-/* Gotham palette, scoped to the console only. */
-.admin-root {
-  --a-bg: #0b0e13;
-  --a-panel: #0f141b;
-  --a-line: #1e2632;
-  --a-text: #c7d0dc;
-  --a-muted: #8a96a8;
-  --a-strong: #e6edf5;
-  --a-ok: #22c55e;
-  --a-warn: #f59e0b;
-  --a-fail: #ef4444;
-  --a-info: #60a5fa;
-  background: var(--a-bg);
-  color: var(--a-text);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12px;
-  line-height: 1.45;
-  min-height: 100vh;
+/* The staff console uses the same role tokens as the rest of the app
+   (see styles.css), so it follows both themes. The --a-* names stay as
+   aliases for the record pages that were written against them.
+
+   Everything sits in the components layer so utility classes can override
+   it, apart from the two accessibility rules at the end. */
+@layer components {
+  .admin-root {
+    --a-bg: var(--color-canvas);
+    --a-panel: var(--color-panel);
+    --a-line: var(--color-line-strong);
+    --a-text: var(--color-ink-2);
+    --a-muted: var(--color-ink-3);
+    --a-strong: var(--color-ink);
+    --a-ok: var(--color-pass);
+    --a-warn: var(--color-borderline);
+    --a-fail: var(--color-risk);
+    --a-info: var(--color-ink);
+    background: var(--a-bg);
+    color: var(--a-text);
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+  .admin-root a {
+    color: var(--a-strong);
+    font-weight: 600;
+  }
+  .admin-root a:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .admin-root button {
+    border-radius: 9999px;
+  }
+  .admin-panel {
+    background: var(--a-panel);
+    border-radius: var(--radius-md);
+  }
+  .admin-label {
+    color: var(--a-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .admin-strong {
+    color: var(--a-strong);
+  }
+  .sev-ok {
+    color: var(--a-ok);
+  }
+  .sev-warn {
+    color: var(--a-warn);
+  }
+  /* Failures are bold as well as tinted: in the light theme every state
+     is ink, so weight is what sets them apart. */
+  .sev-fail {
+    color: var(--a-fail);
+    font-weight: 700;
+  }
+  .sev-info {
+    color: var(--a-info);
+  }
 }
-.admin-root a { color: var(--a-info); }
-.admin-root a:hover { text-decoration: underline; }
-.admin-panel { border: 1px solid var(--a-line); background: var(--a-panel); }
-.admin-label { color: var(--a-muted); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; }
-.admin-strong { color: var(--a-strong); }
-.sev-ok { color: var(--a-ok); }
-.sev-warn { color: var(--a-warn); }
-.sev-fail { color: var(--a-fail); }
-.sev-info { color: var(--a-info); }
-.admin-root :focus-visible { outline: 2px solid var(--a-info); outline-offset: 2px; }
+
+/* Input boundaries need 3:1 against the panel, which the divider colour
+   does not reach. */
+.admin-root input,
+.admin-root select,
+.admin-root textarea {
+  border-color: var(--color-field-line);
+  border-radius: var(--radius-sm);
+}
+.admin-root :focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}

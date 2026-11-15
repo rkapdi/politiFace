@@ -19,6 +19,17 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-11-15-admin-home
+  date: 2026-11-15
+  platform: Web
+  title: Admin console home
+  items:
+    - The internal admin console now opens on one number, the share of students projected to pass, with the facts behind it.
+    - The last 14 days of answers, live sessions and staff actions sit on one timeline.
+    - Classes that have gone quiet or sit below the pass line, questions most students get wrong, and instructor requests appear as a list of decisions, each with its evidence.
+    - Instructor requests can be approved or denied from that list.
+    - The admin console now follows the dark and light themes.
+
 - id: web-2026-11-14-themes
   date: 2026-11-14
   platform: Web

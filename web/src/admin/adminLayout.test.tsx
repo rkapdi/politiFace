@@ -2,7 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-const s = vi.hoisted(() => ({ admin: true as boolean | undefined, navigate: vi.fn() }))
+const s = vi.hoisted(() => ({
+  admin: true as boolean | undefined,
+  healthy: true,
+  navigate: vi.fn(),
+}))
 vi.mock('../lib/api', () => ({
   useAmAdmin: () => ({ data: s.admin, isPending: s.admin === undefined }),
 }))
@@ -11,7 +15,9 @@ vi.mock('../auth/RequireAuth', () => ({
 }))
 vi.mock('./adminApi', () => ({
   consoleOpen: vi.fn(async () => undefined),
-  useAdminHome: () => ({ data: { live_now: [{ session_id: 's1' }] } }),
+  useAdminHome: () => ({
+    data: { live_now: [{ session_id: 's1' }], health: { run_at: '2026-10-04T06:07:00Z', ok: s.healthy, failures: [] } },
+  }),
   useAdminOnline: () => ({ data: { total: 14, ios: 11, web: 3, guests: 2, people: [] } }),
   hitPath: (h: { kind: string; id: string }) =>
     h.kind === 'person'
@@ -27,7 +33,16 @@ vi.mock('./adminApi', () => ({
 }))
 vi.mock('@tanstack/react-router', () => ({
   Outlet: () => <p>page body</p>,
-  Link: ({ to, children, ...rest }: { to: string; children: React.ReactNode }) => (
+  Link: ({
+    to,
+    children,
+    activeOptions: _activeOptions,
+    ...rest
+  }: {
+    to: string
+    children: React.ReactNode
+    activeOptions?: unknown
+  }) => (
     <a href={`#${to}`} {...rest}>{children}</a>
   ),
   useNavigate: () => s.navigate,
@@ -39,10 +54,21 @@ describe('AdminLayout', () => {
   it('admins get the console shell and the page', () => {
     s.admin = true
     render(<AdminLayout />)
-    expect(screen.getByText('POLITIFACE // CONSOLE')).toBeInTheDocument()
+    expect(screen.getByText('Politiface console')).toBeInTheDocument()
     expect(screen.getByText('page body')).toBeInTheDocument()
-    expect(screen.getByText(/LIVE 1/)).toBeInTheDocument()
-    expect(screen.getByText(/ONLINE 14 \(iOS 11 · web 3\)/)).toBeInTheDocument()
+    expect(screen.getByText(/1 live now/)).toBeInTheDocument()
+    expect(screen.getByText(/14 online \(iOS 11, web 3\)/)).toBeInTheDocument()
+    expect(screen.getByText('System nominal')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Back to your classes' })).toHaveAttribute('href', '#/')
+  })
+
+  it('says so in words when the last system check failed', () => {
+    s.admin = true
+    s.healthy = false
+    render(<AdminLayout />)
+    expect(screen.getByText('System check failed')).toBeInTheDocument()
+    expect(screen.queryByText('System nominal')).toBeNull()
+    s.healthy = true
   })
 
   it('everyone else gets a notice, not the console', () => {
