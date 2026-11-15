@@ -488,3 +488,538 @@ questions:
     difficulty: 3
     objective: SS.912.CG.1.1
     status: published
+
+  - id: founddocs-shays-rebellion-001
+    stem: >
+      Shays' Rebellion (1786 to 1787), an armed uprising of indebted farmers
+      in Massachusetts, alarmed many national leaders. What did it suggest
+      about the government under the Articles of Confederation?
+    options:
+      - key: a
+        text: "It had imposed heavy national taxes directly on farmers"
+      - key: b
+        text: "It had given the states too little voice in Congress"
+      - key: c
+        text: "It was too weak to respond to unrest within a state"
+      - key: d
+        text: "It kept a large standing army that threatened liberty"
+    answer: c
+    explanation: >
+      The National Archives notes that the Confederation government could
+      not tax and was saddled with weak powers, and that the uprising, which
+      closed a court at Northampton and threatened the Springfield arsenal,
+      was put down by state troops. The episode deepened fears of disorder
+      and strengthened the case Madison and others made for a stronger
+      central government.
+    citation: https://www.archives.gov/founding-docs/more-perfect-union
+    difficulty: 2
+    objective: SS.7.CG.1.7
+    status: draft
+
+  - id: founddocs-annapolis-convention-001
+    stem: >
+      In September 1786, commissioners from several states met at Annapolis,
+      Maryland, to discuss problems of trade. What did their report
+      recommend?
+    options:
+      - key: a
+        text: "A meeting of commissioners in Philadelphia the following May"
+      - key: b
+        text: "A new national tax on imports to repay the war debt"
+      - key: c
+        text: "An immediate end to the Articles of Confederation"
+      - key: d
+        text: "A binding trade agreement among the states that attended"
+    answer: a
+    explanation: >
+      The Annapolis commissioners urged the states to appoint commissioners
+      "to meet at Philadelphia on the second Monday in May next" to make the
+      federal government adequate to the needs of the Union. Congress later
+      issued a call for that meeting, which became the Constitutional
+      Convention of 1787.
+    citation: https://avalon.law.yale.edu/18th_century/annapoli.asp
+    difficulty: 3
+    objective: SS.7.CG.1.7
+    status: draft
+
+  - id: founddocs-articles-no-executive-001
+    stem: >
+      How was the national government organized under the Articles of
+      Confederation?
+    options:
+      - key: a
+        text: "A Congress, a President with a veto, and a Supreme Court"
+      - key: b
+        text: "A two-house Congress and a full system of national trial courts"
+      - key: c
+        text: "A one-house Congress and a President chosen by the people"
+      - key: d
+        text: "A Congress alone, with no national executive or court system"
+    answer: d
+    explanation: >
+      The Library of Congress explains that under the Articles all national
+      power was centered in a one-house Congress. No national executive was
+      created, and the Articles provided for no permanent national
+      judiciary, apart from limited courts for cases such as captures at
+      sea.
+    citation: https://blogs.loc.gov/law/2011/09/the-articles-of-confederation-the-first-constitution-of-the-united-states/
+    difficulty: 2
+    objective: SS.7.CG.1.7
+    status: draft
+
+  - id: founddocs-articles-one-vote-nine-states-001
+    stem: >
+      Article V of the Articles of Confederation states: "In determining
+      questions in the United States in Congress assembled, each State shall
+      have one vote." Article IX adds that Congress could not engage in a
+      war, coin money, or borrow money "unless nine States assent to the
+      same". Which problem did these rules create?
+    options:
+      - key: a
+        text: "Large states could outvote the small states on any major measure"
+      - key: b
+        text: "Five states could block a measure that eight states supported"
+      - key: c
+        text: "Congress could act on war and money by a simple majority"
+      - key: d
+        text: "States with more people cast more votes on war and money"
+    answer: b
+    explanation: >
+      Because each state had one vote and major measures needed the assent
+      of nine of the thirteen states, any five states could stop a measure
+      that the other eight favored, regardless of population. The text of
+      Articles V and IX is reproduced by the Avalon Project at Yale Law
+      School.
+    citation: https://avalon.law.yale.edu/18th_century/artconf.asp
+    difficulty: 4
+    objective: SS.7.CG.1.7
+    status: draft
+
+  - id: founddocs-massachusetts-constitution-001
+    stem: >
+      The Massachusetts Constitution of 1780, which influenced the framers
+      in 1787, was written by a convention chosen for that purpose rather
+      than by the regular legislature. Which statement about it is accurate?
+    options:
+      - key: a
+        text: "Drafted mainly by Thomas Jefferson, it was adopted by the legislature alone"
+      - key: b
+        text: "Drafted mainly by John Adams, it was approved by the people and is still in effect"
+      - key: c
+        text: "Drafted mainly by John Adams, it was adopted by the legislature and replaced in 1789"
+      - key: d
+        text: "Drafted mainly by James Madison, it was approved by the people and replaced in 1820"
+    answer: b
+    explanation: >
+      The editorial note in the Papers of John Adams (Massachusetts
+      Historical Society) explains that Adams wrote the substance of the
+      draft, that the document was submitted for the approval of the people,
+      and that it is the oldest functioning written constitution in the
+      English-speaking world.
+    citation: https://www.masshist.org/publications/adams-papers/index.php/view/ADMS-06-08-02-0161-0001
+    difficulty: 4
+    objective: SS.912.CG.1.1
+    status: draft
+
+  - id: founddocs-common-sense-001
+    stem: >
+      Thomas Paine's pamphlet Common Sense, published in early 1776, urged
+      American colonists to do what?
+    options:
+      - key: a
+        text: "Seek a compromise that kept the colonies within the empire"
+      - key: b
+        text: "Petition Parliament for seats representing the colonies"
+      - key: c
+        text: "Restore the trade ties that had existed before the war"
+      - key: d
+        text: "Break away from Great Britain and declare independence"
+    answer: d
+    explanation: >
+      The National Archives explains that Paine's Common Sense, published in
+      early 1776, "lit a fire under" the once unthinkable idea of cutting
+      ties with Britain, helping put the movement for independence in full
+      swing months before the Declaration of Independence.
+    citation: https://www.archives.gov/founding-docs/declaration/how-did-it-happen
+    difficulty: 2
+    objective: SS.912.CG.1.1
+    status: draft
+
+  - id: founddocs-english-bill-rights-petition-001
+    stem: >
+      The English Bill of Rights (1689) declares "That it is the right of
+      the subjects to petition the king, and all commitments and
+      prosecutions for such petitioning are illegal". Which part of the U.S.
+      Bill of Rights reflects this idea most directly?
+    options:
+      - key: a
+        text: "The First Amendment right to petition the government"
+      - key: b
+        text: "The Sixth Amendment right to a speedy public trial"
+      - key: c
+        text: "The Fourth Amendment protection against unreasonable searches"
+      - key: d
+        text: "The Ninth Amendment protection of unlisted rights"
+    answer: a
+    explanation: >
+      The English Bill of Rights, reproduced by the Avalon Project,
+      protected the right of subjects to petition the king without being
+      punished for it. The First Amendment carries this idea forward by
+      protecting the right of the people to petition the government for a
+      redress of grievances.
+    citation: https://avalon.law.yale.edu/17th_century/england.asp
+    difficulty: 3
+    objective: SS.912.CG.1.1
+    status: draft
+
+  - id: founddocs-fed10-faction-definition-001
+    stem: >
+      In Federalist No. 10, Madison writes: "By a faction, I understand a
+      number of citizens, whether amounting to a majority or a minority of
+      the whole, who are united and actuated by some common impulse of
+      passion, or of interest, adversed to the rights of other citizens, or
+      to the permanent and aggregate interests of the community." Under this
+      definition, which group is most clearly a faction?
+    options:
+      - key: a
+        text: "A minority party that loses an election and then accepts the result"
+      - key: b
+        text: "Citizens who vote together because they share a home region"
+      - key: c
+        text: "A majority that unites to take away the property of a minority"
+      - key: d
+        text: "A town meeting that debates a local road project openly"
+    answer: c
+    explanation: >
+      Madison defines a faction by its aim, not its size: a majority or a
+      minority united by a passion or interest adverse to the rights of
+      other citizens or to the community's lasting interests. A majority
+      seeking to strip a minority of its property fits that definition
+      exactly (Federalist No. 10, Avalon Project).
+    citation: https://avalon.law.yale.edu/18th_century/fed10.asp
+    difficulty: 3
+    objective: SS.912.CG.1.3
+    status: draft
+
+  - id: founddocs-fed31-first-principles-001
+    stem: >
+      Federalist No. 31 opens by comparing certain "primary truths, or first
+      principles" of politics to the maxims of geometry, such as the rule
+      that the whole is greater than its part. What is Hamilton's purpose in
+      making this comparison?
+    options:
+      - key: a
+        text: "To show that politics, unlike geometry, can never reach firm conclusions"
+      - key: b
+        text: "To argue that only people trained in mathematics should hold public office"
+      - key: c
+        text: "To prove that the states should keep every power of taxation for themselves"
+      - key: d
+        text: "To present the rule that a power should match its object as self-evident"
+    answer: d
+    explanation: >
+      Hamilton lists political maxims, such as that "the means ought to be
+      proportioned to the end" and that "every power ought to be
+      commensurate with its object," as truths nearly as obvious as
+      geometric axioms. He then builds on them to argue that the national
+      government needs powers adequate to its duties (Federalist No. 31,
+      Avalon Project).
+    citation: https://avalon.law.yale.edu/18th_century/fed31.asp
+    difficulty: 5
+    objective: SS.912.CG.1.3
+    status: draft
+
+  - id: founddocs-fed51-angels-001
+    stem: >
+      Federalist No. 51 states: "If men were angels, no government would be
+      necessary. If angels were to govern men, neither external nor internal
+      controls on government would be necessary. In framing a government
+      which is to be administered by men over men, the great difficulty lies
+      in this: you must first enable the government to control the governed;
+      and in the next place oblige it to control itself." What conclusion
+      does Madison draw here?
+    options:
+      - key: a
+        text: "Government is unnecessary if citizens are educated in virtue"
+      - key: b
+        text: "Government should be given unlimited power to keep order"
+      - key: c
+        text: "Government must be able to govern and also be limited itself"
+      - key: d
+        text: "Government should be run only by the wisest and most virtuous"
+    answer: c
+    explanation: >
+      Because people are not angels, Madison argues, government is needed,
+      but because the rulers are also people, government must be checked. A
+      sound constitution must therefore both enable government to control
+      the governed and oblige it to control itself (Federalist No. 51,
+      Avalon Project).
+    citation: https://avalon.law.yale.edu/18th_century/fed51.asp
+    difficulty: 3
+    objective: SS.912.CG.1.4
+    status: draft
+
+  - id: founddocs-fed39-national-federal-001
+    stem: >
+      In Federalist No. 39, Madison concludes that the proposed Constitution
+      is, in strictness, neither a national nor a federal Constitution. How
+      does he describe it instead?
+    options:
+      - key: a
+        text: "As a league of independent states much like the Articles"
+      - key: b
+        text: "As a composition of both national and federal features"
+      - key: c
+        text: "As a fully national system that would replace the states"
+      - key: d
+        text: "As a temporary plan to be revised after ten years"
+    answer: b
+    explanation: >
+      After examining how the plan is founded, how its powers operate, and
+      how it can be amended, Madison concludes that the Constitution is
+      "neither a national nor a federal Constitution, but a composition of
+      both" (Federalist No. 39, Avalon Project). This blend is the basis of
+      American federalism.
+    citation: https://avalon.law.yale.edu/18th_century/fed39.asp
+    difficulty: 3
+    objective: SS.912.CG.1.4
+    status: draft
+
+  - id: founddocs-fed14-novelty-001
+    stem: >
+      Federalist No. 14 asks: "Is it not the glory of the people of America,
+      that, whilst they have paid a decent regard to the opinions of former
+      times and other nations, they have not suffered a blind veneration for
+      antiquity, for custom, or for names, to overrule the suggestions of
+      their own good sense, the knowledge of their own situation, and the
+      lessons of their own experience?" Madison is answering critics who
+      opposed the plan on which ground?
+    options:
+      - key: a
+        text: "That an extended republic was a new and untested idea"
+      - key: b
+        text: "That the plan copied the British monarchy too closely"
+      - key: c
+        text: "That it gave small states too much power in the Senate"
+      - key: d
+        text: "That it lacked a bill of rights protecting the people"
+    answer: a
+    explanation: >
+      Just before this passage Madison asks why "the experiment of an
+      extended republic" should be rejected "merely because it may comprise
+      what is new." He answers that Americans should trust their own good
+      sense and experience rather than reject a plan simply because it lacks
+      precedent (Federalist No. 14, Avalon Project).
+    citation: https://avalon.law.yale.edu/18th_century/fed14.asp
+    difficulty: 5
+    objective: SS.912.CG.1.4
+    status: draft
+
+  - id: founddocs-brutus1-large-republic-001
+    stem: >
+      In Federalist No. 10, Madison argued that a large republic would help
+      control the effects of faction. In his first essay of 1787, the
+      Anti-Federalist writer Brutus took which opposing view?
+    options:
+      - key: a
+        text: "A free republic could not last over so large a territory"
+      - key: b
+        text: "A large republic needed a king to hold its regions together"
+      - key: c
+        text: "A small republic would be too weak to defend itself from attack"
+      - key: d
+        text: "A large republic should be governed by direct votes of the people"
+    answer: a
+    explanation: >
+      Brutus No. 1 concludes that "a free republic cannot long subsist over
+      a country of the great extent of these states," and that because the
+      new Constitution was designed to consolidate the thirteen states into
+      one, it ought not to be adopted (The Founders' Constitution,
+      University of Chicago Press).
+    citation: https://press-pubs.uchicago.edu/founders/documents/v1ch4s14.html
+    difficulty: 4
+    objective: SS.912.CG.1.4
+    status: draft
+
+  - id: founddocs-preamble-purposes-001
+    stem: >
+      The Preamble reads: "We the People of the United States, in Order to
+      form a more perfect Union, establish Justice, insure domestic
+      Tranquility, provide for the common defence, promote the general
+      Welfare, and secure the Blessings of Liberty to ourselves and our
+      Posterity, do ordain and establish this Constitution for the United
+      States of America." A law funding the armed forces to guard against
+      foreign attack most directly serves which purpose?
+    options:
+      - key: a
+        text: "Insure domestic Tranquility"
+      - key: b
+        text: "Provide for the common defence"
+      - key: c
+        text: "Secure the Blessings of Liberty"
+      - key: d
+        text: "Promote the general Welfare"
+    answer: b
+    explanation: >
+      The Preamble lists the purposes of the Constitution, and providing
+      "for the common defence" refers to protecting the nation from outside
+      threats. Domestic tranquility concerns peace and order at home
+      (Constitution transcript, National Archives).
+    citation: https://www.archives.gov/founding-docs/constitution-transcript
+    difficulty: 2
+    objective: SS.912.CG.1.4
+    status: draft
+
+  - id: founddocs-northwest-ordinance-slavery-001
+    stem: >
+      Article 6 of the Northwest Ordinance of 1787 set a lasting rule for
+      the territory north of the Ohio River. What did it provide?
+    options:
+      - key: a
+        text: "That each new state would decide the question of slavery itself"
+      - key: b
+        text: "That only property owners could vote for territorial officials"
+      - key: c
+        text: "That slavery and involuntary servitude were banned there"
+      - key: d
+        text: "That settlers would pay no federal taxes until statehood"
+    answer: c
+    explanation: >
+      Article 6 states: "There shall be neither slavery nor involuntary
+      servitude in the said territory, otherwise than in the punishment of
+      crimes." This made the Northwest Territory an early federal limit on
+      the spread of slavery (Northwest Ordinance, Avalon Project).
+    citation: https://avalon.law.yale.edu/18th_century/nworder.asp
+    difficulty: 3
+    objective: SS.912.CG.2.6
+    status: draft
+
+  - id: founddocs-seneca-falls-001
+    stem: >
+      The Declaration of Sentiments, signed at the Seneca Falls Convention
+      in 1848, states: "We hold these truths to be self-evident; that all
+      men and women are created equal; that they are endowed by their
+      Creator with certain inalienable rights". By adapting this language
+      from the Declaration of Independence, the authors sought to do what?
+    options:
+      - key: a
+        text: "Argue that the Declaration of Independence should be repealed"
+      - key: b
+        text: "Show that women's rights were already fully protected by law"
+      - key: c
+        text: "Propose that only women should hold rights to life and liberty"
+      - key: d
+        text: "Claim the Declaration's promise of equal rights for women too"
+    answer: d
+    explanation: >
+      By adding "and women" to the Declaration of Independence's statement
+      of equality, the authors argued that its founding principles of
+      natural rights and consent of the governed applied to women as well.
+      The text is published by the National Park Service at Women's Rights
+      National Historical Park.
+    citation: https://www.nps.gov/wori/learn/historyculture/declaration-of-sentiments.htm
+    difficulty: 3
+    objective: SS.912.CG.2.6
+    status: draft
+
+  - id: founddocs-gettysburg-address-001
+    stem: >
+      Abraham Lincoln began the Gettysburg Address (November 19, 1863):
+      "Four score and seven years ago our fathers brought forth upon this
+      continent, a new nation, conceived in liberty, and dedicated to the
+      proposition that all men are created equal." Counting back to 1776,
+      Lincoln ties the nation's purpose to which idea?
+    options:
+      - key: a
+        text: "The supremacy of federal law over the states"
+      - key: b
+        text: "The Declaration's principle of human equality"
+      - key: c
+        text: "The Constitution's separation of governing powers"
+      - key: d
+        text: "The right of each state to leave the Union"
+    answer: b
+    explanation: >
+      Eighty-seven years before 1863 is 1776, the year of the Declaration of
+      Independence, and Lincoln quotes its claim that all men are created
+      equal. He presents that principle as the nation's founding purpose
+      (Gettysburg Address text, National Park Service).
+    citation: https://www.nps.gov/liho/learn/historyculture/gettysburgaddress.htm
+    difficulty: 3
+    objective: SS.912.CG.2.6
+    status: draft
+
+  - id: founddocs-douglass-fourth-july-001
+    stem: >
+      In his 1852 speech in Rochester, New York, now known as "What to the
+      Slave Is the Fourth of July?", Frederick Douglass argued against
+      slavery chiefly by doing what?
+    options:
+      - key: a
+        text: "Holding the nation to the ideals of the Declaration of Independence"
+      - key: b
+        text: "Praising the holiday as proof that the nation had kept its promises"
+      - key: c
+        text: "Arguing that each state alone should settle the question of slavery"
+      - key: d
+        text: "Urging free Black Americans to resettle in colonies outside the nation"
+    answer: a
+    explanation: >
+      The National Park Service notes that in this July 5, 1852, speech
+      Douglass challenged America to keep true to its own ideals set forth
+      in the Declaration of Independence, using the nation's founding
+      principles to condemn the continued existence of slavery.
+    citation: https://www.nps.gov/frdo/learn/news/celebrate-july-4th-at-frederick-douglass-national-historic-site.htm
+    difficulty: 3
+    objective: SS.912.CG.2.6
+    status: draft
+
+  - id: founddocs-equal-protection-clause-001
+    stem: >
+      Which amendment, ratified in 1868, provides that no state shall "deny
+      to any person within its jurisdiction the equal protection of the
+      laws"?
+    options:
+      - key: a
+        text: "The Thirteenth Amendment"
+      - key: b
+        text: "The Fifteenth Amendment"
+      - key: c
+        text: "The Twenty-fourth Amendment"
+      - key: d
+        text: "The Fourteenth Amendment"
+    answer: d
+    explanation: >
+      The Fourteenth Amendment, declared ratified on July 28, 1868, bars
+      states from denying any person the equal protection of the laws. The
+      National Archives notes that this extended guarantees of due process
+      and equal protection to actions by state governments.
+    citation: https://www.archives.gov/milestone-documents/14th-amendment
+    difficulty: 2
+    objective: SS.912.CG.2.6
+    status: draft
+
+  - id: founddocs-civil-rights-act-1964-001
+    stem: >
+      The Civil Rights Act of 1964, signed by President Lyndon Johnson, is
+      best known for doing what?
+    options:
+      - key: a
+        text: "Lowering the national voting age to eighteen for all elections"
+      - key: b
+        text: "Ending the poll tax in elections for federal offices"
+      - key: c
+        text: "Banning discrimination in public places and in employment"
+      - key: d
+        text: "Creating a national system of public school funding"
+    answer: c
+    explanation: >
+      The National Archives explains that the act, signed on July 2, 1964,
+      prohibited discrimination in public places, provided for the
+      integration of schools and other public facilities, and made
+      employment discrimination illegal. Title VII barred job discrimination
+      based on race, color, religion, sex, or national origin.
+    citation: https://www.archives.gov/milestone-documents/civil-rights-act
+    difficulty: 2
+    objective: SS.912.CG.2.6
+    status: draft

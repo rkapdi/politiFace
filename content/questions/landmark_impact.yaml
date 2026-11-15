@@ -484,3 +484,569 @@ questions:
     difficulty: 3
     objective: SS.912.CG.3.11
     status: published
+
+  - id: landmark-statutory-law-001
+    stem: >
+      The Florida Legislature passes a bill that sets new boating safety
+      rules, and the governor signs it into law. What type of law has been
+      created?
+    options:
+      - key: a
+        text: "Common law"
+      - key: b
+        text: "Case law"
+      - key: c
+        text: "Statutory law"
+      - key: d
+        text: "Constitutional law"
+    answer: c
+    explanation: >
+      A statute is a law enacted by a legislature, as the Legal Information
+      Institute at Cornell Law School explains, so a bill passed by the
+      Legislature and signed by the governor is statutory law. Case law and
+      common law come from court decisions, and constitutional law comes
+      from a constitution.
+    citation: https://www.law.cornell.edu/wex/statute
+    difficulty: 1
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-case-law-precedent-001
+    stem: >
+      When a court decides a new case by following an earlier court ruling
+      on a similar legal question, it is applying which doctrine?
+    options:
+      - key: a
+        text: "Stare decisis"
+      - key: b
+        text: "Judicial restraint"
+      - key: c
+        text: "Habeas corpus"
+      - key: d
+        text: "Due process"
+    answer: a
+    explanation: >
+      Stare decisis, Latin for "to stand by things decided," is the doctrine
+      that courts adhere to precedent, as the Legal Information Institute at
+      Cornell Law School explains. Earlier rulings from a court with binding
+      authority guide later decisions on the same or closely related issues.
+    citation: https://www.law.cornell.edu/wex/stare_decisis
+    difficulty: 2
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-common-law-001
+    stem: >
+      Early American courts relied heavily on a body of law inherited from
+      England that was developed through judges' decisions in earlier cases
+      rather than through statutes. What is this body of law called?
+    options:
+      - key: a
+        text: "Canon law"
+      - key: b
+        text: "Statutory law"
+      - key: c
+        text: "Civil code law"
+      - key: d
+        text: "Common law"
+    answer: d
+    explanation: >
+      Common law is law developed through judicial decisions rather than
+      enacted statutes, and early American courts relied heavily on English
+      common law, according to the Legal Information Institute at Cornell
+      Law School. It grows through precedent and analogy to decided cases.
+    citation: https://www.law.cornell.edu/wex/common_law
+    difficulty: 3
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-administrative-law-001
+    stem: >
+      Rules issued by executive branch agencies, using power that Congress
+      has delegated to them by statute, belong to which type of law?
+    options:
+      - key: a
+        text: "Judge-made case law"
+      - key: b
+        text: "Administrative law"
+      - key: c
+        text: "Statutory law"
+      - key: d
+        text: "Common law"
+    answer: b
+    explanation: >
+      Administrative law governs the creation and operation of government
+      agencies, which are delegated power by Congress to write and enforce
+      rules interpreting the statutes they administer, as the Legal
+      Information Institute at Cornell Law School explains. Federal agency
+      regulations are compiled in the Code of Federal Regulations.
+    citation: https://www.law.cornell.edu/wex/administrative_law
+    difficulty: 3
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-criminal-vs-civil-001
+    stem: >
+      Consider two cases. In the first, Maria sues her neighbor for money to
+      repair a fence the neighbor damaged. In the second, the state
+      prosecutes a man accused of stealing a car. How are these cases
+      classified?
+    options:
+      - key: a
+        text: "Both are criminal cases heard in a state court"
+      - key: b
+        text: "The first is civil and the second is criminal"
+      - key: c
+        text: "The first is criminal and the second is civil"
+      - key: d
+        text: "Both are civil cases decided by a jury"
+    answer: b
+    explanation: >
+      The federal judiciary describes a civil case as a legal dispute
+      between parties in which a plaintiff seeks relief, usually money, for
+      damages or injury. A criminal case is brought only by the government,
+      which must prove guilt beyond a reasonable doubt, so the theft
+      prosecution is criminal.
+    citation: https://www.uscourts.gov/about-federal-courts/types-cases/civil-cases
+    difficulty: 2
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-military-law-ucmj-001
+    stem: >
+      Members of the regular components of the U.S. armed forces are subject
+      to a separate body of federal military law. What is this body of law
+      called?
+    options:
+      - key: a
+        text: "The War Powers Resolution of 1973"
+      - key: b
+        text: "The Selective Training and Service Act"
+      - key: c
+        text: "The Posse Comitatus Act of 1878"
+      - key: d
+        text: "The Uniform Code of Military Justice"
+    answer: d
+    explanation: >
+      Chapter 47 of Title 10 of the U.S. Code is the Uniform Code of
+      Military Justice, and its Article 2 (10 U.S.C. 802) lists members of a
+      regular component of the armed forces among the persons subject to it.
+      The other laws deal with war powers, the draft, and the domestic use
+      of troops.
+    citation: https://www.law.cornell.edu/uscode/text/10/802
+    difficulty: 3
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-juvenile-law-001
+    stem: >
+      How do juvenile courts generally differ from adult criminal courts?
+    options:
+      - key: a
+        text: "They emphasize rehabilitation and use less formal proceedings"
+      - key: b
+        text: "They impose harsher sentences so young offenders are deterred early"
+      - key: c
+        text: "They are federal courts that hear only cases under national law"
+      - key: d
+        text: "They apply the same procedures but hold all trials in closed rooms"
+    answer: a
+    explanation: >
+      A juvenile court handles cases involving crimes committed by children
+      or the welfare of children, and its proceedings are less formal than
+      those of adult courts because juvenile defendants are commonly
+      expected to be rehabilitated, according to the Legal Information
+      Institute at Cornell Law School. Juvenile courts are created by state
+      law.
+    citation: https://www.law.cornell.edu/wex/juvenile_court
+    difficulty: 3
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-hammurabi-code-001
+    stem: >
+      The Code of Hammurabi, carved on a stone monument for public display,
+      is one of the earliest known written collections of laws. In which
+      ancient civilization did it originate?
+    options:
+      - key: a
+        text: "Classical Athens in Greece"
+      - key: b
+        text: "The Roman Republic in Italy"
+      - key: c
+        text: "Babylon in Mesopotamia"
+      - key: d
+        text: "The Kingdom of Egypt"
+    answer: c
+    explanation: >
+      Hammurabi was the ruler who established the greatness of Babylon,
+      reigning about 1795 to 1750 BCE, and his code is among the earliest
+      known examples of a ruler publicly proclaiming an entire body of laws,
+      according to the introduction published by the Avalon Project at Yale
+      Law School.
+    citation: https://avalon.law.yale.edu/ancient/hammint.asp
+    difficulty: 2
+    objective: SS.7.CG.3.10
+    status: draft
+
+  - id: landmark-hazelwood-001
+    stem: >
+      In Hazelwood School District v. Kuhlmeier (1988), a principal removed
+      two articles from a newspaper produced by a high school journalism
+      class. What did the Supreme Court decide?
+    options:
+      - key: a
+        text: "Students have the same press freedom in school as professional journalists"
+      - key: b
+        text: "Schools may never review student writing before it is published"
+      - key: c
+        text: "The principal violated the First Amendment by deleting the articles"
+      - key: d
+        text: "Educators may edit school-sponsored papers for legitimate teaching reasons"
+    answer: d
+    explanation: >
+      The Court held 5 to 3 that educators do not violate the First
+      Amendment by exercising editorial control over school-sponsored
+      student speech, so long as their actions are reasonably related to
+      legitimate pedagogical concerns, as summarized by Oyez. The
+      principal's deletions met that test.
+    citation: https://www.oyez.org/cases/1987/86-836
+    difficulty: 3
+    objective: SS.7.CG.3.11
+    status: draft
+
+  - id: landmark-heller-001
+    stem: >
+      In District of Columbia v. Heller (2008), the Supreme Court held that
+      the Second Amendment protects what?
+    options:
+      - key: a
+        text: "Only the right of state militias to maintain weapons"
+      - key: b
+        text: "A right that belongs only to members of the organized armed forces"
+      - key: c
+        text: "An individual right to keep a handgun at home for self-defense"
+      - key: d
+        text: "The right to own any type of weapon free of all government regulation"
+    answer: c
+    explanation: >
+      In 2008 the Court held that the Second Amendment protects an
+      individual right to possess a firearm, and that the District of
+      Columbia's handgun ban and its requirement that guns in the home be
+      kept nonfunctional violated that right, as summarized by Oyez.
+    citation: https://www.oyez.org/cases/2007/07-290
+    difficulty: 3
+    objective: SS.7.CG.3.11
+    status: draft
+
+  - id: landmark-mcdonald-001
+    stem: >
+      District of Columbia v. Heller (2008) involved a law of the District
+      of Columbia, a federal district rather than a state. In McDonald v.
+      City of Chicago (2010), what did the Court decide about the Second
+      Amendment right recognized in Heller?
+    options:
+      - key: a
+        text: "It applies only within federal territory such as Washington, D.C."
+      - key: b
+        text: "It applies to state and local governments through the Fourteenth Amendment"
+      - key: c
+        text: "It was set aside because cities may adopt their own firearm policies"
+      - key: d
+        text: "It binds the states through the Tenth Amendment's reserved powers clause"
+    answer: b
+    explanation: >
+      In 2010 the Court held that the Fourteenth Amendment makes the Second
+      Amendment right to keep and bear arms for self-defense applicable to
+      the states, a process known as incorporation, as summarized by Oyez.
+      Because Chicago is a city within a state, Heller alone had not settled
+      the question.
+    citation: https://www.oyez.org/cases/2009/08-1521
+    difficulty: 4
+    objective: SS.7.CG.3.11
+    status: draft
+
+  - id: landmark-citizens-united-001
+    stem: >
+      In Citizens United v. Federal Election Commission (2010), the Supreme
+      Court held that, under the First Amendment, the government may not do
+      what?
+    options:
+      - key: a
+        text: "Limit independent political spending by corporations"
+      - key: b
+        text: "Require disclosure of who paid for political advertisements"
+      - key: c
+        text: "Ban corporations from giving money directly to candidates"
+      - key: d
+        text: "Set any limit on donations that individuals give to campaigns"
+    answer: a
+    explanation: >
+      In 2010 the Court held that the First Amendment bars limits on
+      corporate funding of independent political broadcasts in candidate
+      elections, as summarized by Oyez. The Court upheld the disclosure
+      requirements and left the ban on direct corporate contributions to
+      candidates in place.
+    citation: https://www.oyez.org/cases/2008/08-205
+    difficulty: 3
+    objective: SS.7.CG.3.11
+    status: draft
+
+  - id: landmark-lopez-001
+    stem: >
+      In United States v. Lopez (1995), the Supreme Court struck down the
+      Gun-Free School Zones Act of 1990. What was the Court's reasoning?
+    options:
+      - key: a
+        text: "It exceeded Congress's power under the Commerce Clause"
+      - key: b
+        text: "It violated the individual Second Amendment right to bear arms"
+      - key: c
+        text: "It was passed without the approval of the state legislatures"
+      - key: d
+        text: "It denied students due process under the Fifth Amendment"
+    answer: a
+    explanation: >
+      The Court held that possessing a gun in a local school zone is not an
+      economic activity that substantially affects interstate commerce, so
+      the law exceeded Congress's Commerce Clause power, as summarized by
+      Oyez. The ruling did not rest on the Second Amendment.
+    citation: https://www.oyez.org/cases/1994/93-1260
+    difficulty: 3
+    objective: SS.7.CG.3.11
+    status: draft
+
+  - id: landmark-gideon-overrules-betts-001
+    stem: >
+      Under Betts v. Brady (1942), whether a state court had to appoint a
+      lawyer for a poor defendant charged with a noncapital felony depended
+      on the circumstances of each case. How did Gideon v. Wainwright (1963)
+      change this rule?
+    options:
+      - key: a
+        text: "It kept the Betts rule but greatly expanded the list of special circumstances"
+      - key: b
+        text: "It overruled Betts, making counsel a fundamental right the states must honor"
+      - key: c
+        text: "It applied the Betts rule only to federal courts, freeing the states"
+      - key: d
+        text: "It required appointed counsel only for defendants facing the death penalty"
+    answer: b
+    explanation: >
+      Gideon states that "Betts v. Brady should be overruled," rejecting the
+      earlier view that appointed counsel was not a fundamental right
+      essential to a fair trial, according to the opinion text published by
+      the Legal Information Institute. The Court held that the Sixth
+      Amendment right to counsel binds the states through the Fourteenth
+      Amendment.
+    citation: https://www.law.cornell.edu/supremecourt/text/372/335
+    difficulty: 5
+    objective: SS.7.CG.3.11
+    status: draft
+
+  - id: landmark-shaw-reno-001
+    stem: >
+      A state draws a congressional district with a shape so irregular that
+      it can be understood only as an effort to separate voters by race.
+      Under Shaw v. Reno (1993), what may voters in the state do?
+    options:
+      - key: a
+        text: "Nothing, because district lines are political questions that no court may hear"
+      - key: b
+        text: "Challenge it only if the district reduces minority voting strength"
+      - key: c
+        text: "Challenge it under the Equal Protection Clause of the Fourteenth Amendment"
+      - key: d
+        text: "Demand a statewide vote, since only voters may approve district maps"
+    answer: c
+    explanation: >
+      In Shaw v. Reno the Court held that North Carolina residents stated a
+      valid claim under the Equal Protection Clause when a district's
+      bizarre shape suggested an effort to separate voters based on race, as
+      summarized by Oyez. The Court sent the case back to decide whether a
+      compelling governmental interest justified the plan.
+    citation: https://www.oyez.org/cases/1992/92-357
+    difficulty: 4
+    objective: SS.912.CG.3.11
+    status: draft
+
+  - id: landmark-bush-gore-001
+    stem: >
+      In Bush v. Gore (2000), the Supreme Court reviewed the manual recount
+      of presidential ballots ordered in Florida. What did the Court hold?
+    options:
+      - key: a
+        text: "Florida had to recount every ballot by hand under one statewide rule"
+      - key: b
+        text: "Federal courts have no power to review a state's election disputes"
+      - key: c
+        text: "Florida's legislature alone had to choose the state's electors"
+      - key: d
+        text: "Varying recount standards across counties violated equal protection"
+    answer: d
+    explanation: >
+      The Court's per curiam opinion held 7 to 2 that the recount scheme was
+      unconstitutional under the Equal Protection Clause because different
+      standards were applied from county to county, and held 5 to 4 that no
+      constitutional recount could be completed in the time remaining, as
+      summarized by Oyez.
+    citation: https://www.oyez.org/cases/2000/00-949
+    difficulty: 3
+    objective: SS.912.CG.3.11
+    status: draft
+
+  - id: landmark-gibbons-ogden-001
+    stem: >
+      In Gibbons v. Ogden (1824), the Supreme Court considered a steamboat
+      monopoly granted by the state of New York. What did the Court decide?
+    options:
+      - key: a
+        text: "States hold exclusive power over all waterways inside their borders"
+      - key: b
+        text: "Congress's commerce power covers navigation between states"
+      - key: c
+        text: "New York's monopoly was valid because Congress had never acted"
+      - key: d
+        text: "Steamboat travel was a local matter outside federal authority"
+    answer: b
+    explanation: >
+      Chief Justice John Marshall concluded that regulating steamboat
+      navigation for interstate commerce is a power held by Congress under
+      the Commerce Clause, so New York could not interfere with it, as
+      summarized by Oyez.
+    citation: https://www.oyez.org/cases/1789-1850/22us1
+    difficulty: 3
+    objective: SS.8.A.4.13
+    status: draft
+
+  - id: landmark-cherokee-nation-001
+    stem: >
+      Chief Justice John Marshall wrote in Cherokee Nation v. Georgia
+      (1831): "it may well be doubted whether those tribes which reside
+      within the acknowledged boundaries of the United States can, with
+      strict accuracy, be denominated foreign nations. They may, more
+      correctly, perhaps, be denominated domestic dependent nations." Based
+      on this reasoning, what happened to the Cherokee Nation's lawsuit
+      against Georgia?
+    options:
+      - key: a
+        text: "It was dismissed because the Cherokee Nation was not a foreign state"
+      - key: b
+        text: "Georgia was ordered to stop enforcing its state laws within Cherokee land"
+      - key: c
+        text: "It was sent to Georgia courts because the Cherokee were state citizens"
+      - key: d
+        text: "It was heard as a dispute between the United States and a foreign nation"
+    answer: a
+    explanation: >
+      The majority concluded that an Indian tribe within the United States
+      "is not a foreign state in the sense of the constitution, and cannot
+      maintain an action in the courts of the United States," so the motion
+      for an injunction was denied, according to the opinion text published
+      by the Legal Information Institute.
+    citation: https://www.law.cornell.edu/supremecourt/text/30/1
+    difficulty: 4
+    objective: SS.8.A.4.13
+    status: draft
+
+  - id: landmark-worcester-georgia-001
+    stem: >
+      In Worcester v. Georgia (1832), a missionary living in Cherokee
+      territory was prosecuted under a Georgia law. What did the Supreme
+      Court rule?
+    options:
+      - key: a
+        text: "Georgia could govern Cherokee land because it lay within state borders"
+      - key: b
+        text: "The Cherokee Nation had to accept removal under federal treaty terms"
+      - key: c
+        text: "The conviction stood because Indian affairs belong to the states"
+      - key: d
+        text: "Georgia's laws had no force within the Cherokee Nation's territory"
+    answer: d
+    explanation: >
+      Chief Justice John Marshall wrote that the Cherokee Nation was a
+      distinct community occupying its own territory in which the laws of
+      Georgia could have no force, and that relations with it were vested in
+      the federal government, as summarized by Oyez.
+    citation: https://www.oyez.org/cases/1789-1850/31us515
+    difficulty: 3
+    objective: SS.8.A.4.13
+    status: draft
+
+  - id: landmark-mcculloch-implied-powers-001
+    stem: >
+      In McCulloch v. Maryland (1819), the Supreme Court upheld Congress's
+      power to charter a national bank, even though the Constitution does
+      not list that power. On what basis?
+    options:
+      - key: a
+        text: "The Tenth Amendment reserved banking powers to Congress"
+      - key: b
+        text: "The Articles of Confederation had already created the bank"
+      - key: c
+        text: "The Necessary and Proper Clause implies such powers"
+      - key: d
+        text: "The president's executive power covers national finance"
+    answer: c
+    explanation: >
+      Chief Justice John Marshall reasoned that under the Necessary and
+      Proper Clause of Article I, Section 8, Congress possesses powers not
+      explicitly listed, covering appropriate means of carrying out its
+      enumerated powers, as summarized by Oyez.
+    citation: https://www.oyez.org/cases/1789-1850/17us316
+    difficulty: 3
+    objective: SS.8.A.4.13
+    status: draft
+
+  - id: landmark-cherokee-removal-aftermath-001
+    stem: >
+      Despite the Supreme Court's 1832 ruling in Worcester v. Georgia, the
+      Cherokee were forcibly removed from their eastern lands beginning in
+      1838. Which two federal measures set the stage for that removal?
+    options:
+      - key: a
+        text: "The Homestead Act and the Dawes Severalty Act"
+      - key: b
+        text: "The Northwest Ordinance and the Louisiana Purchase"
+      - key: c
+        text: "The Missouri Compromise and the Kansas-Nebraska Act"
+      - key: d
+        text: "The Indian Removal Act and Treaty of New Echota"
+    answer: d
+    explanation: >
+      The National Park Service explains that the Indian Removal Act of 1830
+      set the stage for removing the southeastern tribes, that the Treaty of
+      New Echota, signed December 29, 1835, ensured the complete removal of
+      the Cherokee, and that efforts to enforce removal began in May 1838.
+    citation: https://www.nps.gov/ruca/learn/historyculture/trail-of-tears.htm
+    difficulty: 3
+    objective: SS.8.A.4.13
+    status: draft
+
+  - id: landmark-dartmouth-college-001
+    stem: >
+      A state legislature passes a law rewriting the charter of a private
+      college to place the school under state-appointed control. Under the
+      reasoning of Trustees of Dartmouth College v. Woodward (1819), which
+      constitutional provision would the college most directly invoke?
+    options:
+      - key: a
+        text: "The Necessary and Proper Clause of Article I"
+      - key: b
+        text: "The Contracts Clause of Article I, Section 10"
+      - key: c
+        text: "The Full Faith and Credit Clause of Article IV"
+      - key: d
+        text: "The Establishment Clause of the First Amendment"
+    answer: b
+    explanation: >
+      The Court held that Dartmouth's corporate charter was a contract
+      protected by the Contract Clause of Article I, Section 10, so the New
+      Hampshire legislature could not interfere with it, as summarized by
+      Oyez. The clause bars states from impairing the obligation of
+      contracts.
+    citation: https://www.oyez.org/cases/1789-1850/17us518
+    difficulty: 5
+    objective: SS.8.A.4.13
+    status: draft

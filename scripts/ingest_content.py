@@ -51,6 +51,101 @@ STATUSES = ("draft", "reviewed", "published")
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]{2,60}$")
 KEY_RE = re.compile(r"^[a-z]$")
 
+# Answer-key hygiene (see check_answer_balance / check_longest_option).
+# No single answer letter may key more than this share of a domain's items,
+# and the correct option should not be the longest one this often either.
+ANSWER_SHARE_MAX = 0.35
+ANSWER_BALANCE_MIN_ITEMS = 8
+LONGEST_OPTION_SHARE_MAX = 0.35
+
+# The original 80 published items are known to be answer-key unbalanced
+# (54 of 80 keyed "a"). They are frozen here so the balance check is an
+# ERROR for every newer item but only a WARNING for these. The separate,
+# founder-approved answer-key rebalance PR fixes the keys and deletes this
+# set; do not add new ids to it.
+LEGACY_UNBALANCED_IDS = frozenset({
+    "amdem-checks-balances-07",
+    "amdem-consent-governed-001",
+    "amdem-declaration-govt-purpose-10",
+    "amdem-declaration-natural-rights-09",
+    "amdem-due-process-06",
+    "amdem-electoral-college-electors-06",
+    "amdem-federalism-11",
+    "amdem-homestead-economic-freedom-12",
+    "amdem-judicial-review-origin-01",
+    "amdem-limited-government-02",
+    "amdem-locke-social-contract-04",
+    "amdem-natural-law-locke-05",
+    "amdem-original-jurisdiction-states-05",
+    "amdem-plessy-brown-segregation-10",
+    "amdem-republic-advantage-08",
+    "amdem-roman-senate-03",
+    "amdem-rule-of-law-01",
+    "amdem-separation-powers-001",
+    "amdem-supremacy-clause-03",
+    "amdem-voting-age-turnout-08",
+    "founddocs-articles-amend-01",
+    "founddocs-articles-confederation-001",
+    "founddocs-articles-league-01",
+    "founddocs-articles-notax-01",
+    "founddocs-articles-weakness-tax-08",
+    "founddocs-billofrights-expand-01",
+    "founddocs-consent-governed-ideal-12",
+    "founddocs-decl-equality-expand-01",
+    "founddocs-decl-unalienable-01",
+    "founddocs-english-bill-of-rights-03",
+    "founddocs-fed10-faction-01",
+    "founddocs-fed14-repvsdem-01",
+    "founddocs-fed31-taxation-01",
+    "founddocs-fed39-republic-01",
+    "founddocs-fed51-ambition-01",
+    "founddocs-federalist-purpose-001",
+    "founddocs-magna-carta-01",
+    "founddocs-mayflower-compact-02",
+    "founddocs-northwest-ordinance-07",
+    "founddocs-preamble-sovereignty-01",
+    "landmark-baker-districting-09",
+    "landmark-brown-board-001",
+    "landmark-brown-overturns-plessy-07",
+    "landmark-dred-scott-citizenship-03",
+    "landmark-engel-school-prayer-10",
+    "landmark-gideon-counsel-11",
+    "landmark-korematsu-exclusion-06",
+    "landmark-mapp-exclusionary-08",
+    "landmark-marbury-001",
+    "landmark-marbury-strike-01",
+    "landmark-mcculloch-tax-02",
+    "landmark-miranda-rights-12",
+    "landmark-nyt-pentagon-papers-01",
+    "landmark-plessy-separate-equal-04",
+    "landmark-roe-privacy-03",
+    "landmark-schenck-speech-05",
+    "landmark-texas-johnson-flag-07",
+    "landmark-tinker-armbands-13",
+    "landmark-us-nixon-privilege-04",
+    "landmark-yoder-religion-02",
+    "usconst-14th-citizenship-clause-04",
+    "usconst-14th-superseded-dredscott-06",
+    "usconst-5th-due-process-09",
+    "usconst-article1-congress-001",
+    "usconst-article5-propose-congress-01",
+    "usconst-article5-ratify-states-02",
+    "usconst-article5-senate-suffrage-03",
+    "usconst-bill-of-rights-count-001",
+    "usconst-commander-in-chief-02",
+    "usconst-expostfacto-attainder-08",
+    "usconst-expressed-powers-07",
+    "usconst-federal-court-tiers-10",
+    "usconst-good-behavior-tenure-05",
+    "usconst-habeas-corpus-07",
+    "usconst-house-terms-10",
+    "usconst-impeachment-house-senate-12",
+    "usconst-judicial-vesting-04",
+    "usconst-naturalization-power-05",
+    "usconst-origination-clause-11",
+    "usconst-president-qualifications-01",
+})
+
 # Deterministic ids: the same YAML id always lands on the same row.
 NS = uuid.uuid5(uuid.NAMESPACE_URL, "politiface.app/content")
 
@@ -79,6 +174,20 @@ class Errors:
             for e in self.items:
                 print(f"ERROR {e}", file=sys.stderr)
             sys.exit(1)
+
+
+class Warnings:
+    """Non-fatal findings: printed, never fail the run."""
+
+    def __init__(self) -> None:
+        self.items: list[str] = []
+
+    def add(self, where: str, msg: str) -> None:
+        self.items.append(f"{where}: {msg}")
+
+    def print_all(self) -> None:
+        for w in self.items:
+            print(f"WARNING {w}", file=sys.stderr)
 
 
 def load_objectives(errors: Errors) -> list[dict]:
@@ -187,6 +296,80 @@ def load_questions(errors: Errors, objective_codes: set[str]) -> list[dict]:
             )
     return questions
 
+
+def _by_domain(questions: list[dict]) -> dict[str, list[dict]]:
+    names = {v: k for k, v in DOMAINS.items()}
+    grouped: dict[str, list[dict]] = {}
+    for q in questions:
+        grouped.setdefault(names[q["domain_id"]], []).append(q)
+    return grouped
+
+
+def answer_share_violations(
+    questions: list[dict], max_share: float = ANSWER_SHARE_MAX
+) -> list[tuple[str, int, int]]:
+    """(letter, count, total) for every answer letter above max_share."""
+    total = len(questions)
+    if not total:
+        return []
+    counts: dict[str, int] = {}
+    for q in questions:
+        counts[q["answer"]] = counts.get(q["answer"], 0) + 1
+    return [
+        (letter, n, total)
+        for letter, n in sorted(counts.items())
+        if n / total > max_share
+    ]
+
+
+def check_answer_balance(
+    questions: list[dict], errors: Errors, warnings: Warnings,
+    legacy_ids: frozenset[str] = LEGACY_UNBALANCED_IDS,
+) -> None:
+    """Per domain, no answer letter may key more than ANSWER_SHARE_MAX.
+
+    ERROR for items outside legacy_ids (once a domain has at least
+    ANSWER_BALANCE_MIN_ITEMS of them); WARNING for the frozen legacy items.
+    """
+    for domain, qs in sorted(_by_domain(questions).items()):
+        current = [q for q in qs if q["id"] not in legacy_ids]
+        legacy = [q for q in qs if q["id"] in legacy_ids]
+        for sink, label, group in (
+            (errors, "", current),
+            (warnings, "legacy ", legacy),
+        ):
+            if len(group) < ANSWER_BALANCE_MIN_ITEMS:
+                continue
+            for letter, n, total in answer_share_violations(group):
+                sink.add(
+                    domain,
+                    f"answer {letter!r} keys {n}/{total} {label}items "
+                    f"({n / total:.0%}); max {ANSWER_SHARE_MAX:.0%} per letter",
+                )
+
+
+def correct_is_longest(q: dict) -> bool:
+    """True when the keyed option is the longest (ties count)."""
+    lengths = {
+        o.get("key"): len((o.get("text") or "").strip())
+        for o in q["options"] if isinstance(o, dict)
+    }
+    if q["answer"] not in lengths:
+        return False
+    return lengths[q["answer"]] == max(lengths.values())
+
+
+def check_longest_option(questions: list[dict], warnings: Warnings) -> None:
+    """Warn when the correct option is the longest in too many items."""
+    for domain, qs in sorted(_by_domain(questions).items()):
+        n = sum(1 for q in qs if correct_is_longest(q))
+        if qs and n / len(qs) > LONGEST_OPTION_SHARE_MAX:
+            warnings.add(
+                domain,
+                f"correct option is the longest (ties count) in "
+                f"{n}/{len(qs)} items ({n / len(qs):.0%}); "
+                f"max {LONGEST_OPTION_SHARE_MAX:.0%}",
+            )
 
 def load_entities(errors: Errors) -> list[dict]:
     entities: list[dict] = []
@@ -448,7 +631,11 @@ def main() -> None:
     objectives = load_objectives(errors)
     objective_codes = {o.get("code") for o in objectives}
     questions = load_questions(errors, objective_codes)
+    warnings = Warnings()
+    check_answer_balance(questions, errors, warnings)
+    check_longest_option(questions, warnings)
     entities = load_entities(errors)
+    warnings.print_all()
     errors.bail_if_any()
 
     by_status: dict[str, int] = {}
