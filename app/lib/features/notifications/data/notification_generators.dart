@@ -16,6 +16,7 @@
 //     general, non-personal copy. A name is never synthesized.
 
 import '../../fcle/domain/fcle_question.dart';
+import '../domain/alert_log.dart';
 import '../domain/notification_brain.dart';
 import 'washington_watch_service.dart';
 
@@ -69,8 +70,9 @@ class WashingtonInput {
 /// the user studied, or their home-state delegation) surface individually
 /// with high relevance and a relationship hook; general items carry the
 /// official title verbatim at low relevance. When there are more than three
-/// GENERAL items, they collapse into a single summary candidate so a busy
+/// GENERAL items, they collapse into a single digest candidate so a busy
 /// news day cannot flood the queue (the brain's daily cap then trims further).
+/// The digest carries every item it covers, so The Pulse can list them all.
 List<NotifCandidate> buildWashingtonCandidates(
   List<WashingtonInput> inputs, {
   required DateTime now,
@@ -94,16 +96,18 @@ List<NotifCandidate> buildWashingtonCandidates(
   }
 
   if (general.length > 3) {
+    final dedupeKey = 'wash:summary:${_dayKey(now)}';
     out.add(
       NotifCandidate(
         kind: NotifKind.washingtonGeneral,
         notificationId: NotifSlots.washingtonSummary,
-        title: 'Washington was busy: ${general.length} updates in The Pulse.',
-        body: '',
-        dedupeKey: 'wash:summary:${_dayKey(now)}',
+        title: '${general.length} updates from Washington',
+        body: washingtonDigestBody([for (final g in general) g.item]),
+        dedupeKey: dedupeKey,
         relevance: 0.1,
-        route: '/pulse',
-        itemKeys: [for (final g in general) g.item.dedupeKey],
+        // Opens this digest in The Pulse, listing every item below.
+        route: pulseAlertRoute(dedupeKey),
+        items: [for (final g in general) g.item.toAlertItem()],
       ),
     );
   } else {
@@ -132,7 +136,8 @@ NotifCandidate _washingtonPersonal(WatchItem item, WashingtonPersonLink link) {
     body: '${link.name}, $connection, just ${_actionPhrase(item.category)}.',
     dedupeKey: item.dedupeKey,
     relevance: relevance,
-    route: '/pulse',
+    route: pulseAlertRoute(item.dedupeKey),
+    items: [item.toAlertItem()],
   );
 }
 
@@ -143,8 +148,44 @@ NotifCandidate _washingtonGeneral(WatchItem item) => NotifCandidate(
       body: item.notificationBody, // official title (+ CRS), verbatim
       dedupeKey: item.dedupeKey,
       relevance: 0.1,
-      route: '/pulse',
+      route: pulseAlertRoute(item.dedupeKey),
+      items: [item.toAlertItem()],
     );
+
+/// The digest body: a plain count of what the digest covers, by kind, in
+/// a fixed order. States what happened and nothing about what it means.
+/// For example: "2 executive orders, 1 new law and 3 bill actions. Tap to
+/// read each one."
+String washingtonDigestBody(List<WatchItem> items) {
+  var orders = 0;
+  var laws = 0;
+  var bills = 0;
+  for (final i in items) {
+    switch (i.category) {
+      case WatchCategory.executiveOrder:
+        orders++;
+      case WatchCategory.law:
+        laws++;
+      case WatchCategory.bill:
+        bills++;
+    }
+  }
+  String count(int n, String one, String many) => '$n ${n == 1 ? one : many}';
+  final parts = [
+    if (orders > 0) count(orders, 'executive order', 'executive orders'),
+    if (laws > 0) count(laws, 'new law', 'new laws'),
+    if (bills > 0) count(bills, 'bill action', 'bill actions'),
+  ];
+  final list = switch (parts.length) {
+    0 => '',
+    1 => parts.single,
+    _ => '${parts.sublist(0, parts.length - 1).join(', ')} '
+        'and ${parts.last}',
+  };
+  return list.isEmpty
+      ? 'Tap to read each one.'
+      : '$list. Tap to read each one.';
+}
 
 /// Factual, verdict-free phrasing for what the newsmaker did.
 String _actionPhrase(WatchCategory category) => switch (category) {
@@ -291,7 +332,7 @@ NotifCandidate _withId(NotifCandidate c, int id) => NotifCandidate(
       relevance: c.relevance,
       route: c.route,
       urgent: c.urgent,
-      itemKeys: c.itemKeys,
+      items: c.items,
     );
 
 /// Local calendar day, for once-per-day dedupe keys.

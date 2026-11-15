@@ -19,6 +19,22 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: ios-36
+  date: 2026-11-15
+  platform: iOS
+  version: 1.3.3
+  build: 36
+  title: Notifications that arrive once and can be read
+  items:
+    - Each Washington notification now arrives once. Before, the same update could be sent two or three times.
+    - A summary notification no longer repeats updates you were already told about the day before.
+    - Tapping a notification now opens what it is about. A summary opens the list of everything it covered, and each item opens its own page or official record. Before, a tap only brought the app to the front.
+    - Summaries now count only updates that change where a bill stands. Routine steps, such as a referral to committee, still appear in The Pulse but no longer notify you.
+    - A mock exam finished on a weak connection now waits for all of your answers to be saved before it is scored.
+    - Opening a bill, a live session, or a mock exam result from a link no longer closes the app.
+    - White House alerts are sending again. They had silently stopped on 3 November.
+    - A White House action now alerts once, even if the official feed reorders or withdraws an entry.
+
 - id: web-2026-10-31-console
   date: 2026-10-31
   platform: Web

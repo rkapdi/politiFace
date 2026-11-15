@@ -30,6 +30,25 @@ class OutboxDao extends DatabaseAccessor<AppDatabase> with _$OutboxDaoMixin {
         ..limit(limit))
       .get();
 
+  /// Whether any undelivered event still belongs to [attemptId].
+  ///
+  /// Reads the `attempt_id` column, across the WHOLE queue: [pending] is a
+  /// page of the oldest 50, so an attempt's answers queued behind a long
+  /// backlog would be invisible to it. Dead-lettered rows (see [maxTries])
+  /// are not pending: they will never be delivered, so waiting on them
+  /// would only hold the attempt open forever.
+  Future<bool> hasPendingForAttempt(String attemptId) async {
+    final c = countAll();
+    final row = await (selectOnly(outboxEvents)
+          ..addColumns([c])
+          ..where(
+            outboxEvents.attemptId.equals(attemptId) &
+                outboxEvents.tries.isSmallerThanValue(maxTries),
+          ))
+        .getSingle();
+    return (row.read(c) ?? 0) > 0;
+  }
+
   Future<void> markDelivered(String eventId) =>
       (delete(outboxEvents)..where((t) => t.eventId.equals(eventId))).go();
 

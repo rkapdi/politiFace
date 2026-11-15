@@ -21,6 +21,7 @@ import 'dart:math' as math;
 import '../../../core/database/drift/app_database.dart';
 import '../../pulse/data/pulse_live_service.dart';
 import '../../settings/data/settings_service.dart';
+import '../domain/alert_log.dart';
 import 'notification_orchestrator.dart';
 import 'notification_sender.dart';
 
@@ -79,6 +80,12 @@ class WatchItem {
     required this.dedupeKey,
     this.extra,
     this.personName,
+    this.date = '',
+    this.url = '',
+    this.bill,
+    this.action,
+    this.congress,
+    this.number,
   });
 
   final WatchCategory category;
@@ -102,6 +109,52 @@ class WatchItem {
   /// person (congress.gov bill/law actions carry no sponsor field today).
   /// Only ever a name that came straight from the feed; never synthesized.
   final String? personName;
+
+  /// ISO date of the update: signing date, or action date.
+  final String date;
+
+  /// The official record (Federal Register or congress.gov).
+  final String url;
+
+  /// Bill and law items: bill number, action text (verbatim), congress.
+  final String? bill;
+  final String? action;
+  final int? congress;
+
+  /// Executive orders: the order number.
+  final int? number;
+
+  /// This item as it is stored in the Pulse alert log: enough to show it
+  /// and open its official record later without the live feed.
+  AlertItem toAlertItem() => AlertItem(
+        key: dedupeKey,
+        kind: switch (category) {
+          WatchCategory.executiveOrder => AlertItem.kindOrder,
+          WatchCategory.law => AlertItem.kindLaw,
+          WatchCategory.bill => AlertItem.kindBill,
+        },
+        title: title,
+        date: date,
+        url: url,
+        bill: bill,
+        action: action,
+        congress: congress,
+        number: number,
+      );
+
+  WatchItem withExtra(String? extra) => WatchItem(
+        category: category,
+        title: title,
+        dedupeKey: dedupeKey,
+        extra: extra,
+        personName: personName,
+        date: date,
+        url: url,
+        bill: bill,
+        action: action,
+        congress: congress,
+        number: number,
+      );
 
   String get notificationTitle {
     switch (category) {
@@ -260,20 +313,37 @@ class WashingtonWatchService {
               // The signing president is a real face; the orchestrator checks
               // whether the user has actually studied their card.
               personName: o.president.isEmpty ? null : o.president,
+              date: o.signingDate,
+              url: o.url,
+              number: o.number,
             ),
         if (billsOn)
           for (final b in newBills)
-            WatchItem(
-              category: WatchCategory.bill,
-              title: b.title,
-              dedupeKey: 'bill:${b.bill}:${b.actionDate}',
-            ),
+            // Only actions that say where a bill stands. A referral to
+            // committee is in the Pulse feed but is not worth an alert,
+            // and must not pad a digest's count.
+            if (isMeaningfulBillAction(b.action))
+              WatchItem(
+                category: WatchCategory.bill,
+                title: b.title,
+                dedupeKey: 'bill:${b.bill}:${b.actionDate}',
+                date: b.actionDate,
+                url: b.url,
+                bill: b.bill,
+                action: b.action,
+                congress: b.congress,
+              ),
         if (lawsOn)
           for (final l in newLaws)
             WatchItem(
               category: WatchCategory.law,
               title: l.title,
               dedupeKey: 'law:${l.bill}:${l.actionDate}',
+              date: l.actionDate,
+              url: l.url,
+              bill: l.bill,
+              action: l.action,
+              congress: l.congress,
             ),
       ];
 
@@ -290,16 +360,10 @@ class WashingtonWatchService {
           enriched.add(item);
           continue;
         }
-        final law = newLaws.firstWhere((l) => l.title == item.title);
-        enriched.add(
-          WatchItem(
-            category: item.category,
-            title: item.title,
-            dedupeKey: item.dedupeKey,
-            personName: item.personName,
-            extra: await _firstSentenceOf(law),
-          ),
+        final law = newLaws.firstWhere(
+          (l) => 'law:${l.bill}:${l.actionDate}' == item.dedupeKey,
         );
+        enriched.add(item.withExtra(await _firstSentenceOf(law)));
       }
       return enriched;
     } catch (_) {
@@ -380,8 +444,7 @@ class WashingtonWatchService {
     final raw = await _db.metaDao.get(key);
     if (raw == null) return null;
     if (_isIsoDate(raw)) return raw;
-    final healed =
-        fallback ?? _now().toIso8601String().substring(0, 10);
+    final healed = fallback ?? _now().toIso8601String().substring(0, 10);
     await _db.metaDao.set(key, healed);
     return null;
   }

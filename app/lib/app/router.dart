@@ -47,6 +47,30 @@ import 'shell_scaffold.dart';
 /// and its wiring in main.dart.
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
+/// A route whose screen is built from an in-memory argument ([T], passed as
+/// `extra` by the screen that navigates there) rather than from its URL.
+///
+/// The argument exists only on an in-app push. A deep link, a notification
+/// payload, an initial route, or a route restored by the system arrives
+/// with no `extra` (or with whatever another route left there), and the
+/// old `state.extra! as T` crashed on that. Such an arrival is redirected
+/// to [fallback], a screen that needs nothing, instead. The builder also
+/// refuses to cast blindly, so a wrong `extra` can never throw even if a
+/// redirect is bypassed.
+GoRoute argsRoute<T extends Object>({
+  required String path,
+  required String fallback,
+  required Widget Function(T args) builder,
+}) =>
+    GoRoute(
+      path: path,
+      redirect: (context, state) => state.extra is T ? null : fallback,
+      builder: (context, state) {
+        final extra = state.extra;
+        return extra is T ? builder(extra) : const SizedBox.shrink();
+      },
+    );
+
 GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
       navigatorKey: rootNavigatorKey,
       initialLocation: initialLocation,
@@ -87,7 +111,11 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
               routes: [
                 GoRoute(
                   path: '/pulse',
-                  builder: (context, state) => const PulseScreen(),
+                  // A Washington notification opens '/pulse?alert=<id>'
+                  // so the screen can go straight to that alert.
+                  builder: (context, state) => PulseScreen(
+                    alertId: state.uri.queryParameters['alert'],
+                  ),
                 ),
               ],
             ),
@@ -187,10 +215,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           path: '/atlas/vocabulary',
           builder: (context, state) => const VocabularyScreen(),
         ),
-        GoRoute(
+        argsRoute<BillDetailArgs>(
           path: '/pulse/bill',
-          builder: (context, state) =>
-              BillDetailScreen(args: state.extra! as BillDetailArgs),
+          fallback: '/pulse',
+          builder: (args) => BillDetailScreen(args: args),
         ),
         // In-app taps pass extra; notification deep links carry query
         // parameters, so both shapes must build the screen.
@@ -205,10 +233,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           path: '/leaderboard',
           builder: (context, state) => const LeaderboardScreen(),
         ),
-        GoRoute(
+        argsRoute<LiveSessionArgs>(
           path: '/live',
-          builder: (context, state) =>
-              LiveSessionScreen(args: state.extra! as LiveSessionArgs),
+          fallback: '/',
+          builder: (args) => LiveSessionScreen(args: args),
         ),
         GoRoute(
           path: '/class',
@@ -222,10 +250,10 @@ GoRouter buildRouter({String initialLocation = '/'}) => GoRouter(
           path: '/fcle/mock',
           builder: (context, state) => const MockExamScreen(),
         ),
-        GoRoute(
+        argsRoute<MockResult>(
           path: '/fcle/result',
-          builder: (context, state) =>
-              MockResultScreen(result: state.extra! as MockResult),
+          fallback: '/fcle',
+          builder: (result) => MockResultScreen(result: result),
         ),
         GoRoute(
           path: '/fcle/blueprint',

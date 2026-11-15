@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:politiface/core/database/daos/outbox_dao.dart';
@@ -11,6 +12,9 @@ class FakeTransport implements SyncTransport {
   FakeTransport({this.signedIn = true});
 
   bool signedIn;
+
+  /// When true every send fails transiently, so events stay queued.
+  bool offline = false;
   final deliveredEvents = <OutboxEvent>[];
   List<String> get delivered => [for (final e in deliveredEvents) e.eventId];
 
@@ -22,6 +26,7 @@ class FakeTransport implements SyncTransport {
   bool get isSignedIn => signedIn;
 
   Future<void> _send(OutboxEvent e) async {
+    if (offline) throw Exception('network down');
     final err = failWith[e.eventId];
     if (err != null) throw err;
     deliveredEvents.add(e);
@@ -197,6 +202,91 @@ void main() {
     expect(transport.deliveredEvents.last.type, 'mock_finalize');
     expect(transport.deliveredEvents.last.attemptId, 'attempt-1');
     expect(await db.outboxDao.pendingCount(), 0);
+  });
+
+  // Regression: this used to search `payload` for the attempt id. Answers
+  // keep it in the `attemptId` column and have no payload, so it always
+  // answered false.
+  group('hasPendingForAttempt', () {
+    test('finds a queued answer by its attempt column', () async {
+      final transport = FakeTransport()..offline = true;
+      final engine = SyncEngine(db, transport);
+      await engine.enqueueAnswer(
+        questionId: 'q-uuid',
+        chosenKey: 'b',
+        attemptId: 'attempt-1',
+      );
+      await engine.flush();
+
+      expect(await engine.hasPendingForAttempt('attempt-1'), isTrue);
+      expect(await engine.hasPendingForAttempt('attempt-2'), isFalse);
+      // The id is matched exactly, not as a substring.
+      expect(await engine.hasPendingForAttempt('attempt'), isFalse);
+    });
+
+    test('is false once the answer is delivered', () async {
+      final transport = FakeTransport()..offline = true;
+      final engine = SyncEngine(db, transport);
+      await engine.enqueueAnswer(
+        questionId: 'q-uuid',
+        chosenKey: 'b',
+        attemptId: 'attempt-1',
+      );
+      await engine.flush();
+      transport.offline = false;
+      await engine.flush();
+
+      expect(await engine.hasPendingForAttempt('attempt-1'), isFalse);
+    });
+
+    test('sees an answer queued behind more than one page of older events',
+        () async {
+      final transport = FakeTransport()..offline = true;
+      final engine = SyncEngine(db, transport);
+      // pending() returns the oldest 50; put 60 unrelated events ahead.
+      for (var i = 0; i < 60; i++) {
+        await db.outboxDao.enqueue(
+          OutboxEventsCompanion.insert(
+            eventId: 'old-$i',
+            type: 'session_start',
+            clientTs: i,
+            createdAt: i,
+          ),
+        );
+      }
+      await engine.enqueueAnswer(
+        questionId: 'q-uuid',
+        chosenKey: 'b',
+        attemptId: 'attempt-1',
+      );
+      await engine.flush();
+      expect(
+        (await db.outboxDao.pending()).any((e) => e.attemptId == 'attempt-1'),
+        isFalse,
+        reason: 'the answer is beyond the first page',
+      );
+
+      expect(await engine.hasPendingForAttempt('attempt-1'), isTrue);
+    });
+
+    test('ignores a dead-lettered event, which will never be delivered',
+        () async {
+      await db.outboxDao.enqueue(
+        OutboxEventsCompanion.insert(
+          eventId: 'dead-1',
+          type: 'answer',
+          attemptId: const Value('attempt-1'),
+          clientTs: 1,
+          createdAt: 1,
+        ),
+      );
+      for (var i = 0; i < OutboxDao.maxTries; i++) {
+        await db.outboxDao.recordFailure('dead-1', 'rejected');
+      }
+      final engine = SyncEngine(db, FakeTransport());
+
+      expect(await engine.hasPendingForAttempt('attempt-1'), isFalse);
+    });
   });
 
   test('card_state event carries the FSRS snapshot payload', () async {
