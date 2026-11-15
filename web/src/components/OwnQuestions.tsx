@@ -8,13 +8,13 @@ import {
   type OwnQuestion,
 } from '../lib/api'
 import { S } from '../lib/strings'
-import { Alert, Button, Card } from './ui'
+import { Alert, Badge, Button, Card, fieldClass } from './ui'
 import { EmptyState } from './EmptyState'
 import { SkeletonTable } from './Skeleton'
 
 const KEYS = ['A', 'B', 'C', 'D'] as const
-const input =
-  'mt-1 w-full rounded-md border border-field-line bg-field text-ink px-2 py-1.5 text-sm text-ink'
+const input = `${fieldClass} w-full`
+const label = 'flex flex-col gap-1.5 text-[13px] font-semibold text-ink-2'
 
 type Form = {
   stem: string
@@ -98,20 +98,21 @@ function QuestionForm({
   }
 
   return (
-    <form onSubmit={submit} noValidate className="flex flex-col gap-3">
+    <form onSubmit={submit} noValidate className="mb-4 flex flex-col gap-4 rounded-lg bg-raised p-4">
       {editing ? <Alert tone="info">{S.ownQuestions.editNote}</Alert> : null}
-      <label className="text-sm text-ink-2">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <label className={label}>
         {S.ownQuestions.stem}
         <textarea
           required
-          rows={2}
+          rows={3}
           maxLength={500}
           value={form.stem}
           onChange={e => setForm({ ...form, stem: e.target.value })}
           className={input}
         />
       </label>
-      <label className="text-sm text-ink-2">
+      <label className={`${label} self-start`}>
         {S.ownQuestions.domain}
         <select
           value={domainId ?? ''}
@@ -125,19 +126,27 @@ function QuestionForm({
           ))}
         </select>
       </label>
+      </div>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm text-ink-2">
+        <legend className="mb-2 text-[13px] font-semibold text-ink-2">
           {S.ownQuestions.correct}
         </legend>
         {KEYS.map(k => (
-          <div key={k} className="flex items-center gap-2">
+          <div
+            key={k}
+            className="flex items-center gap-3 rounded-lg border-[1.5px] border-transparent bg-panel py-2 pl-3.5 pr-2 has-[:checked]:border-ink"
+          >
             <input
               type="radio"
               name={`${id}-correct`}
               aria-label={`${S.ownQuestions.option} ${k} is correct`}
               checked={form.answerKey === k}
               onChange={() => setForm({ ...form, answerKey: k })}
+              className="size-4 shrink-0 accent-cta"
             />
+            <span aria-hidden="true" className="flex size-7 shrink-0 items-center justify-center rounded-md bg-control text-xs font-extrabold text-ink">
+              {k}
+            </span>
             <input
               aria-label={`${S.ownQuestions.option} ${k}`}
               placeholder={`${S.ownQuestions.option} ${k}`}
@@ -149,12 +158,14 @@ function QuestionForm({
                   options: { ...form.options, [k]: e.target.value },
                 })
               }
-              className={`${input} mt-0`}
+              className={`${input} min-w-0 flex-1`}
             />
+            {form.answerKey === k ? <Badge tone="green">Correct</Badge> : null}
           </div>
         ))}
       </fieldset>
-      <label className="text-sm text-ink-2">
+      <div className="grid gap-4 lg:grid-cols-2">
+      <label className={label}>
         {S.ownQuestions.explanation}
         <textarea
           rows={2}
@@ -164,7 +175,7 @@ function QuestionForm({
           className={input}
         />
       </label>
-      <label className="text-sm text-ink-2">
+      <label className={`${label} self-start`}>
         {S.ownQuestions.citation}
         <input
           maxLength={300}
@@ -173,6 +184,7 @@ function QuestionForm({
           className={input}
         />
       </label>
+      </div>
       {problem ? <Alert tone="error">{problem}</Alert> : null}
       {save.error ? <Alert tone="error">{save.error.message}</Alert> : null}
       <div className="flex gap-2">
@@ -207,12 +219,12 @@ export function OwnQuestions({
 
   return (
     <Card>
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 className="text-base font-bold text-ink">
             {S.ownQuestions.heading}
           </h2>
-          <p className="text-sm text-ink-3">{S.ownQuestions.hint}</p>
+          <p className="mt-1 max-w-xl text-sm text-ink-2">{S.ownQuestions.hint}</p>
         </div>
         {open === null ? (
           <Button variant="ghost" onClick={() => setOpen('new')}>
@@ -244,14 +256,14 @@ export function OwnQuestions({
         />
       ) : null}
       {open === null && questions.data && questions.data.length > 0 ? (
-        <ul className="flex flex-col divide-y divide-line">
+        <ul className="flex flex-col gap-2">
           {questions.data.map(q => (
             <li
               key={q.id}
-              className="flex flex-wrap items-start justify-between gap-3 py-2"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-raised py-3 pl-4 pr-3"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-ink">{q.stem}</p>
+                <p className="text-sm font-semibold text-ink">{q.stem}</p>
                 <p className="text-xs text-ink-3">
                   {domains.data?.find(d => d.id === q.domain_id)?.name ??
                     `Domain ${q.domain_id}`}
@@ -289,6 +301,7 @@ export function OwnQuestions({
                 <div className="flex gap-2">
                   <Button
                     variant="ghost"
+                    className="px-3 py-1.5 text-xs"
                     aria-label={`${S.ownQuestions.edit}: ${q.stem}`}
                     onClick={() => setOpen(q.id)}
                   >
@@ -296,6 +309,7 @@ export function OwnQuestions({
                   </Button>
                   <Button
                     variant="ghost"
+                    className="px-3 py-1.5 text-xs"
                     aria-label={`${S.ownQuestions.remove}: ${q.stem}`}
                     onClick={() => setConfirming(q.id)}
                   >

@@ -4,7 +4,7 @@ import {
   useDomains,
   usePickableQuestions,
 } from '../lib/api'
-import { Alert, Badge, Button, Spinner } from './ui'
+import { Alert, Badge, Button, Spinner, fieldClass } from './ui'
 import type { LiveDraft } from './LiveTab'
 import { S } from '../lib/strings'
 
@@ -67,10 +67,15 @@ export function QuestionPicker({
     )
   }
 
+  const label = 'flex flex-col gap-1.5 text-[13px] font-semibold text-ink-2'
+  const check = 'flex cursor-pointer items-center gap-2.5 text-sm font-medium text-ink'
+
+  // Two columns: the question bank on the left, the session being built on
+  // the right. On a phone the session panel comes first.
   return (
-    <form onSubmit={submit} className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-end gap-3">
-        <label className="text-sm text-ink-2">
+    <form onSubmit={submit} className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="flex flex-col gap-3.5 rounded-lg bg-raised p-4 lg:sticky lg:top-3 lg:col-start-2 lg:row-start-1">
+        <label className={label}>
           Session title
           <input
             required
@@ -78,17 +83,17 @@ export function QuestionPicker({
             maxLength={80}
             value={title}
             onChange={e => onDraftChange({ ...draft, title: e.target.value })}
-            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
+            className={fieldClass}
           />
         </label>
-        <label className="text-sm text-ink-2">
+        <label className={label}>
           Seconds per question
           <select
             value={seconds}
             onChange={e =>
               onDraftChange({ ...draft, seconds: Number(e.target.value) })
             }
-            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
+            className={fieldClass}
           >
             {[10, 15, 20, 30, 45, 60].map(s => (
               <option key={s} value={s}>
@@ -97,92 +102,99 @@ export function QuestionPicker({
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2 text-sm text-ink-2">
+        <label className={check}>
           <input
             type="checkbox"
             checked={allowGuests}
             onChange={e => onDraftChange({ ...draft, allowGuests: e.target.checked })}
+            className="size-4 accent-cta"
           />
           {S.live.allowGuests}
         </label>
-        <Badge tone={selected.size > 0 ? 'green' : 'slate'}>
-          {selected.size} selected
-        </Badge>
-        <Button
-          type="submit"
-          disabled={selected.size === 0 || selected.size > MAX_QUESTIONS || create.isPending}
-        >
-          Start session
-        </Button>
-      </div>
-      {selected.size > MAX_QUESTIONS ? (
-        <Alert tone="info">{S.live.tooMany}</Alert>
-      ) : null}
-      {create.error ? <Alert tone="error">{create.error.message}</Alert> : null}
-      <div className="flex flex-wrap items-center gap-3">
-        <label className="text-sm text-ink-2">
-          {S.live.filterDomain}
-          <select
-            value={domainId ?? ''}
-            onChange={e =>
-              onDraftChange({
-                ...draft,
-                domainId: e.target.value === '' ? null : Number(e.target.value),
-              })
-            }
-            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
+        <div className="flex items-center justify-between gap-3 border-t border-line-strong pt-3.5">
+          <Badge tone={selected.size > 0 ? 'green' : 'slate'}>
+            {selected.size} selected
+          </Badge>
+          <Button
+            type="submit"
+            disabled={selected.size === 0 || selected.size > MAX_QUESTIONS || create.isPending}
           >
-            <option value="">{S.live.allDomains}</option>
-            {(domains.data ?? []).map(d => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center gap-2 text-sm text-ink-2">
-          <input
-            type="checkbox"
-            checked={mineOnly}
-            onChange={e => onDraftChange({ ...draft, mineOnly: e.target.checked })}
-          />
-          {S.live.mineOnly}
-        </label>
-      </div>
-      <div className="max-h-96 overflow-y-auto rounded-md border border-line">
-        {byDomain.size === 0 ? (
-          <p className="p-3 text-sm text-ink-3">{S.live.noMatches}</p>
+            Start session
+          </Button>
+        </div>
+        {selected.size > MAX_QUESTIONS ? (
+          <Alert tone="info">{S.live.tooMany}</Alert>
         ) : null}
-        {[...byDomain.entries()].map(([groupId, qs]) => (
-          <fieldset key={groupId} className="border-b border-line p-3">
-            <legend className="px-1 text-xs font-semibold text-ink-3">
-              {domains.data?.find(d => d.id === groupId)?.name ??
-                `Domain ${groupId}`}
-            </legend>
-            <ul className="flex flex-col gap-1">
-              {(qs ?? []).map(q => (
-                <li key={q.id}>
-                  <label className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 text-sm hover:bg-raised">
-                    <input
-                      type="checkbox"
-                      checked={selected.has(q.id)}
-                      onChange={() => toggle(q.id)}
-                      className="mt-1"
-                    />
-                    <span>
-                      {q.stem}
-                      {q.cohort_id ? (
-                        <span className="ml-2 text-xs text-ink-3">
-                          yours
-                        </span>
-                      ) : null}
-                    </span>
-                  </label>
-                </li>
+        {create.error ? <Alert tone="error">{create.error.message}</Alert> : null}
+      </div>
+
+      <div className="flex min-w-0 flex-col gap-3 lg:col-start-1 lg:row-start-1">
+        <div className="flex flex-wrap items-end gap-x-5 gap-y-3">
+          <label className={label}>
+            {S.live.filterDomain}
+            <select
+              value={domainId ?? ''}
+              onChange={e =>
+                onDraftChange({
+                  ...draft,
+                  domainId: e.target.value === '' ? null : Number(e.target.value),
+                })
+              }
+              className={fieldClass}
+            >
+              <option value="">{S.live.allDomains}</option>
+              {(domains.data ?? []).map(d => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
               ))}
-            </ul>
-          </fieldset>
-        ))}
+            </select>
+          </label>
+          <label className={`${check} pb-2.5`}>
+            <input
+              type="checkbox"
+              checked={mineOnly}
+              onChange={e => onDraftChange({ ...draft, mineOnly: e.target.checked })}
+              className="size-4 accent-cta"
+            />
+            {S.live.mineOnly}
+          </label>
+        </div>
+        <div className="max-h-[32rem] overflow-y-auto rounded-lg bg-raised">
+          {byDomain.size === 0 ? (
+            <p className="p-4 text-sm text-ink-3">{S.live.noMatches}</p>
+          ) : null}
+          {[...byDomain.entries()].map(([groupId, qs]) => (
+            <fieldset key={groupId} className="border-b border-line-strong p-3 last:border-b-0">
+              <legend className="px-2 text-xs font-bold text-ink-2">
+                {domains.data?.find(d => d.id === groupId)?.name ??
+                  `Domain ${groupId}`}
+              </legend>
+              <ul className="flex flex-col gap-0.5">
+                {(qs ?? []).map(q => (
+                  <li key={q.id}>
+                    <label className="flex cursor-pointer items-start gap-3 rounded-md px-2 py-2 text-sm text-ink hover:bg-control has-[:checked]:bg-control has-[:checked]:font-semibold">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(q.id)}
+                        onChange={() => toggle(q.id)}
+                        className="mt-0.5 size-4 shrink-0 accent-cta"
+                      />
+                      <span>
+                        {q.stem}
+                        {q.cohort_id ? (
+                          <span className="ml-2 text-xs font-medium text-ink-3">
+                            yours
+                          </span>
+                        ) : null}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            </fieldset>
+          ))}
+        </div>
       </div>
     </form>
   )
