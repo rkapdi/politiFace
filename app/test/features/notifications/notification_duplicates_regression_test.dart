@@ -300,7 +300,7 @@ void main() {
         bills: [
           // Two actions on ONE bill, on different days: two items, not one.
           bill('HR 8121', 'Passed House', date: '2026-07-08', title: 'A Act'),
-          bill('HR 8121', 'Passed Senate', date: '2026-07-10', title: 'A Act'),
+          bill('HR 8121', 'Passed Senate', title: 'A Act'),
           bill('S 44', 'Became Public Law 119-12', title: 'B Act'),
         ],
       );
@@ -427,8 +427,7 @@ void main() {
   test('isMeaningfulBillAction: routine steps out, real movement in', () {
     for (final routine in [
       'Referred to the House Committee on Energy and Commerce.',
-      'Referred to the Committee on Ways and Means, and in addition to the '
-          'Committee on Rules',
+      'Referred to the Committee on Ways and Means, and in addition to Rules',
       'Read twice and referred to the Committee on Finance.',
       'Referred to the Subcommittee on Aviation.',
       'Introduced in Senate',
