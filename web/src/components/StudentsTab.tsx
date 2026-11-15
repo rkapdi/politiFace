@@ -99,18 +99,18 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
   return (
     <Card>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-sm font-semibold text-slate-900">
+        <h2 className="text-sm font-semibold text-ink">
           Every student, lowest projected first
         </h2>
         <div className="flex items-center gap-2">
-          <label className="text-sm text-slate-700">
+          <label className="text-sm text-ink-2">
             <span className="sr-only">{S.students.find}</span>
             <input
               type="search"
               value={filter}
               placeholder={S.students.find}
               onChange={e => setFilter(e.target.value)}
-              className="rounded-md border border-slate-300 px-2 py-1.5 text-sm"
+              className="rounded-md border border-field-line bg-field text-ink px-2 py-1.5 text-sm"
             />
           </label>
           <Button variant="ghost" onClick={exportStudents}>
@@ -126,7 +126,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
           hint={S.empty.studentsHint}
         />
       ) : shown.length === 0 ? (
-        <p className="py-4 text-sm text-slate-500">{S.students.noMatch}</p>
+        <p className="py-4 text-sm text-ink-3">{S.students.noMatch}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -135,7 +135,7 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
               48 of 80
             </caption>
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
+              <tr className="border-b border-line text-left text-xs text-ink-3">
                 <th scope="col" className="py-2 pr-3 font-medium">Student</th>
                 <th scope="col" className="py-2 pr-3 font-medium">Projected</th>
                 <th scope="col" className="py-2 pr-3 font-medium">Weakest domain</th>
@@ -147,11 +147,11 @@ export function StudentsTab({ cohortId }: { cohortId: string }) {
             </thead>
             <tbody>
               {shown.map(({ ref, name, risk, progress: p }) => (
-                <tr key={ref} className="border-b border-slate-100">
+                <tr key={ref} className="border-b border-line">
                   <td className="py-2 pr-3">
                     <a
                       href={`#/class/${cohortId}/student/${encodeURIComponent(ref)}`}
-                      className="font-medium text-slate-900 hover:underline"
+                      className="font-medium text-ink hover:underline"
                     >
                       {name}
                     </a>

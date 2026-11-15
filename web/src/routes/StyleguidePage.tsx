@@ -9,7 +9,18 @@ import {
   Card,
   Spinner,
   Stat,
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  fieldClass,
 } from '../components/ui'
+import { ThemePicker } from '../components/ThemePicker'
+import { DistributionChart } from '../components/DistributionChart'
+import { TrendChart } from '../components/TrendChart'
+import { StudentTrendChart } from '../components/StudentTrendChart'
+import { Scoreboard } from '../components/Scoreboard'
+import { TopMisses } from '../components/TopMisses'
 import { EmptyState } from '../components/EmptyState'
 import {
   SkeletonChart,
@@ -41,6 +52,25 @@ export function StyleguidePage() {
     <div className="flex flex-col gap-8">
       <h1 className="text-xl font-semibold text-ink">Styleguide</h1>
 
+      <Section title="Theme">
+        <Card>
+          <ThemePicker />
+        </Card>
+      </Section>
+
+      <Section title="Tabs">
+        <Tabs defaultValue="overview">
+          <TabsList aria-label="Example tabs">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="live">Live</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview" className="text-sm text-ink-2">Overview panel</TabsContent>
+          <TabsContent value="students" className="text-sm text-ink-2">Students panel</TabsContent>
+          <TabsContent value="live" className="text-sm text-ink-2">Live panel</TabsContent>
+        </Tabs>
+      </Section>
+
       <Section title="Buttons">
         <div className="flex flex-wrap items-center gap-3">
           <Button>Primary</Button>
@@ -71,13 +101,13 @@ export function StyleguidePage() {
 
       <Section title="Form fields">
         <div className="flex max-w-xs flex-col gap-2">
-          <label className="text-sm font-medium text-slate-700" htmlFor="sg-input">
+          <label className="text-sm font-medium text-ink-2" htmlFor="sg-input">
             Email
           </label>
           <input
             id="sg-input"
             type="email"
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-ink"
+            className={fieldClass}
           />
         </div>
       </Section>
@@ -96,6 +126,61 @@ export function StyleguidePage() {
               { label: 'American Democracy', value: 0.72 },
               { label: 'U.S. Constitution', value: 0.46 },
               { label: 'No data domain', value: null },
+            ]}
+          />
+        </Card>
+      </Section>
+
+      <Section title="Charts">
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card>
+            <DistributionChart
+              distribution={{
+                students: 32,
+                pass_line: 48,
+                avg: 51,
+                bins: { '20-29': 2, '30-39': 4, '40-49': 6, '50-59': 9, '60-69': 8, '70-80': 3 },
+              }}
+            />
+          </Card>
+          <Card>
+            <TrendChart
+              rows={[
+                { day: '2026-11-08', answers: 110, active_students: 14 },
+                { day: '2026-11-09', answers: 143, active_students: 17 },
+                { day: '2026-11-10', answers: 162, active_students: 21 },
+                { day: '2026-11-11', answers: 134, active_students: 18 },
+                { day: '2026-11-12', answers: 190, active_students: 24 },
+              ]}
+            />
+          </Card>
+          <Card>
+            <StudentTrendChart
+              trend={{
+                pass_line: 48,
+                weeks: [
+                  { week_start: '2026-10-12', projected: 38, answers: 40, accuracy: 0.6 },
+                  { week_start: '2026-10-19', projected: 42, answers: 61, accuracy: 0.6 },
+                  { week_start: '2026-10-26', projected: 45, answers: 58, accuracy: 0.6 },
+                  { week_start: '2026-11-02', projected: 51, answers: 77, accuracy: 0.6 },
+                ],
+              }}
+            />
+          </Card>
+          <Card>
+            <Scoreboard
+              rows={[
+                { rank: 1, handle: 'Hana S.', score: 3920, correct_count: 4, is_me: false },
+                { rank: 2, handle: 'You', score: 3640, correct_count: 4, is_me: true },
+                { rank: 3, handle: 'Zoe P.', score: 3400, correct_count: 3, is_me: false },
+              ]}
+            />
+          </Card>
+        </div>
+        <Card>
+          <TopMisses
+            rows={[
+              { question_id: 'q1', stem: 'Which Federalist paper addresses the danger of factions?', domain_code: 'FD', students: 29, attempts: 58, miss_rate: 0.62 },
             ]}
           />
         </Card>

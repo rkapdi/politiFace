@@ -2,7 +2,7 @@
 // without layout shift. Every variant reserves the final height.
 
 function Block({ className }: { className: string }) {
-  return <div aria-hidden="true" className={`animate-pulse rounded bg-line ${className}`} />
+  return <div aria-hidden="true" className={`animate-pulse rounded bg-control ${className}`} />
 }
 
 function Busy({ children }: { children: React.ReactNode }) {
@@ -21,7 +21,7 @@ export function SkeletonStats({ count = 4 }: { count?: number }) {
         style={{ gridTemplateColumns: undefined }}
       >
         {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="rounded-lg border border-line bg-white p-4">
+          <div key={i} className="rounded-xl bg-panel p-5">
             <Block className="h-3 w-20" />
             <Block className="mt-3 h-7 w-14" />
           </div>
@@ -34,7 +34,7 @@ export function SkeletonStats({ count = 4 }: { count?: number }) {
 export function SkeletonTable({ rows = 6 }: { rows?: number }) {
   return (
     <Busy>
-      <div className="rounded-lg border border-line bg-white p-4">
+      <div className="rounded-xl bg-panel p-5">
         <Block className="mb-4 h-4 w-48" />
         {Array.from({ length: rows }, (_, i) => (
           <div key={i} className="flex items-center gap-4 border-b border-line/60 py-2.5">
@@ -52,7 +52,7 @@ export function SkeletonTable({ rows = 6 }: { rows?: number }) {
 export function SkeletonChart({ height = 'h-44' }: { height?: string }) {
   return (
     <Busy>
-      <div className="rounded-lg border border-line bg-white p-4">
+      <div className="rounded-xl bg-panel p-5">
         <Block className="mb-3 h-4 w-40" />
         <Block className={`w-full ${height}`} />
       </div>

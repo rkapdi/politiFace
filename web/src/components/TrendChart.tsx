@@ -7,25 +7,26 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { axisLine, axisTick, tooltipStyle } from './chartTheme'
 import type { TrendRow } from '../lib/api'
 
 export function TrendChart({ rows }: { rows: TrendRow[] }) {
   return (
     <figure>
-      <figcaption className="mb-2 text-sm font-medium text-slate-700">
+      <figcaption className="mb-2 text-sm font-medium text-ink-2">
         Practice over the last {rows.length} days
       </figcaption>
       <div className="h-48" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: -18 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line-strong)" />
             <XAxis
               dataKey="day"
-              tick={{ fontSize: 11 }}
+              tick={axisTick(11)} {...axisLine}
               tickFormatter={(d: string) => d.slice(5)}
             />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-            <Tooltip />
+            <YAxis tick={axisTick(11)} {...axisLine} allowDecimals={false} />
+            <Tooltip {...tooltipStyle} />
             <Area
               type="monotone"
               dataKey="answers"

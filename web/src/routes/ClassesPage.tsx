@@ -29,11 +29,11 @@ export function CreateClassForm({ onCancel }: { onCancel?: () => void }) {
 
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">
+      <h2 className="mb-3 text-sm font-semibold text-ink">
         {S.common.createClass}
       </h2>
       <form onSubmit={submit} className="flex flex-wrap items-end gap-2">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           Class name
           <input
             required
@@ -42,16 +42,16 @@ export function CreateClassForm({ onCancel }: { onCancel?: () => void }) {
             placeholder={S.welcome.classNamePlaceholder}
             aria-describedby="class-name-hint"
             onChange={e => setName(e.target.value)}
-            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           />
         </label>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           Term, optional
           <input
             value={term}
             placeholder="2026F"
             onChange={e => setTerm(e.target.value)}
-            className="ml-2 w-24 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 w-24 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           />
         </label>
         <Button type="submit" disabled={create.isPending}>
@@ -63,7 +63,7 @@ export function CreateClassForm({ onCancel }: { onCancel?: () => void }) {
           </Button>
         ) : null}
       </form>
-      <p id="class-name-hint" className="mt-2 text-xs text-slate-500">
+      <p id="class-name-hint" className="mt-2 text-xs text-ink-3">
         {S.classNames.hint}
       </p>
       {create.error ? (
@@ -104,7 +104,7 @@ export function ClassesPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-xl font-semibold text-slate-900">{S.common.yourClasses}</h1>
+        <h1 className="text-xl font-semibold text-ink">{S.common.yourClasses}</h1>
         {creating ? null : (
           <Button onClick={() => setCreating(true)}>{S.common.createClass}</Button>
         )}
@@ -116,10 +116,10 @@ export function ClassesPage() {
       ) : null}
       <div className="grid gap-4 sm:grid-cols-2">
         {data.map(c => (
-          <Card key={c.cohort_id} className="hover:border-slate-400">
+          <Card key={c.cohort_id} className="hover:border-ink-3">
             <a
               href={`#/class/${c.cohort_id}`}
-              className="text-base font-semibold text-slate-900 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+              className="text-base font-semibold text-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >
               {c.name}
             </a>
@@ -131,11 +131,11 @@ export function ClassesPage() {
             </div>
             <dl className="mt-3 grid grid-cols-4 gap-2 text-center">
               <div>
-                <dt className="text-xs text-slate-500">Students</dt>
+                <dt className="text-xs text-ink-3">Students</dt>
                 <dd className="text-lg font-semibold">{c.students}</dd>
               </div>
               {c.active_7d === null ? (
-                <div className="col-span-3 self-center text-xs text-slate-400">
+                <div className="col-span-3 self-center text-xs text-ink-3">
                   {c.students === 0
                     ? 'No students yet, share the class code'
                     : 'Stats withheld for privacy (aggregate-only class under 5 students)'}
@@ -143,15 +143,15 @@ export function ClassesPage() {
               ) : (
                 <>
                   <div>
-                    <dt className="text-xs text-slate-500">Active 7d</dt>
+                    <dt className="text-xs text-ink-3">Active 7d</dt>
                     <dd className="text-lg font-semibold">{c.active_7d}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-slate-500">Answers</dt>
+                    <dt className="text-xs text-ink-3">Answers</dt>
                     <dd className="text-lg font-semibold">{c.answers_total}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-slate-500">Accuracy</dt>
+                    <dt className="text-xs text-ink-3">Accuracy</dt>
                     <dd className="text-lg font-semibold">
                       {c.accuracy === null ? '' : `${Math.round(c.accuracy * 100)}%`}
                     </dd>

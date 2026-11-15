@@ -70,7 +70,7 @@ export function QuestionPicker({
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-3">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           Session title
           <input
             required
@@ -78,17 +78,17 @@ export function QuestionPicker({
             maxLength={80}
             value={title}
             onChange={e => onDraftChange({ ...draft, title: e.target.value })}
-            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           />
         </label>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           Seconds per question
           <select
             value={seconds}
             onChange={e =>
               onDraftChange({ ...draft, seconds: Number(e.target.value) })
             }
-            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           >
             {[10, 15, 20, 30, 45, 60].map(s => (
               <option key={s} value={s}>
@@ -97,7 +97,7 @@ export function QuestionPicker({
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-ink-2">
           <input
             type="checkbox"
             checked={allowGuests}
@@ -120,7 +120,7 @@ export function QuestionPicker({
       ) : null}
       {create.error ? <Alert tone="error">{create.error.message}</Alert> : null}
       <div className="flex flex-wrap items-center gap-3">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.live.filterDomain}
           <select
             value={domainId ?? ''}
@@ -130,7 +130,7 @@ export function QuestionPicker({
                 domainId: e.target.value === '' ? null : Number(e.target.value),
               })
             }
-            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           >
             <option value="">{S.live.allDomains}</option>
             {(domains.data ?? []).map(d => (
@@ -140,7 +140,7 @@ export function QuestionPicker({
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2 text-sm text-slate-700">
+        <label className="flex items-center gap-2 text-sm text-ink-2">
           <input
             type="checkbox"
             checked={mineOnly}
@@ -149,20 +149,20 @@ export function QuestionPicker({
           {S.live.mineOnly}
         </label>
       </div>
-      <div className="max-h-96 overflow-y-auto rounded-md border border-slate-200">
+      <div className="max-h-96 overflow-y-auto rounded-md border border-line">
         {byDomain.size === 0 ? (
-          <p className="p-3 text-sm text-slate-500">{S.live.noMatches}</p>
+          <p className="p-3 text-sm text-ink-3">{S.live.noMatches}</p>
         ) : null}
         {[...byDomain.entries()].map(([groupId, qs]) => (
-          <fieldset key={groupId} className="border-b border-slate-100 p-3">
-            <legend className="px-1 text-xs font-semibold text-slate-500">
+          <fieldset key={groupId} className="border-b border-line p-3">
+            <legend className="px-1 text-xs font-semibold text-ink-3">
               {domains.data?.find(d => d.id === groupId)?.name ??
                 `Domain ${groupId}`}
             </legend>
             <ul className="flex flex-col gap-1">
               {(qs ?? []).map(q => (
                 <li key={q.id}>
-                  <label className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 text-sm hover:bg-slate-50">
+                  <label className="flex cursor-pointer items-start gap-2 rounded px-1 py-0.5 text-sm hover:bg-raised">
                     <input
                       type="checkbox"
                       checked={selected.has(q.id)}
@@ -172,7 +172,7 @@ export function QuestionPicker({
                     <span>
                       {q.stem}
                       {q.cohort_id ? (
-                        <span className="ml-2 text-xs text-slate-400">
+                        <span className="ml-2 text-xs text-ink-3">
                           yours
                         </span>
                       ) : null}

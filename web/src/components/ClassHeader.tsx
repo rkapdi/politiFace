@@ -27,7 +27,7 @@ export function ClassHeader({
   return (
     <Card className="flex flex-wrap items-center justify-between gap-4">
       <div>
-        <h1 className="text-xl font-semibold text-slate-900">{name}</h1>
+        <h1 className="text-xl font-semibold text-ink">{name}</h1>
         {term ? (
           <div className="mt-1">
             <Badge>{term}</Badge>
@@ -43,18 +43,18 @@ export function ClassHeader({
         ) : null}
       </div>
       <div className="text-right">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        <p className="text-xs font-medium uppercase tracking-wide text-ink-3">
           {S.classCode.label}
         </p>
         <div className="flex items-center justify-end gap-2">
-          <p className="text-3xl font-bold tracking-[0.3em] text-slate-900">
+          <p className="text-3xl font-bold tracking-[0.3em] text-ink">
             {code}
           </p>
           <Button variant="ghost" onClick={copy}>
             {copied ? S.classCode.copied : S.classCode.copy}
           </Button>
         </div>
-        <p className="mt-1 max-w-xs text-xs text-slate-500">{S.classCode.hint}</p>
+        <p className="mt-1 max-w-xs text-xs text-ink-3">{S.classCode.hint}</p>
       </div>
     </Card>
   )

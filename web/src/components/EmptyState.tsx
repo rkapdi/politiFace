@@ -16,7 +16,7 @@ export function EmptyState({
   onAction?: () => void
 }) {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-line bg-white px-6 py-10 text-center">
+    <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-line-strong bg-panel px-6 py-10 text-center">
       <Icon aria-hidden="true" className="size-8 text-muted" strokeWidth={1.5} />
       <p className="text-sm font-semibold text-ink">{title}</p>
       <p className="max-w-sm text-sm text-muted">{hint}</p>

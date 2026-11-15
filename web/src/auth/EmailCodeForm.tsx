@@ -5,7 +5,7 @@ import { S } from '../lib/strings'
 import { Alert, Button } from '../components/ui'
 
 const field =
-  'rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900'
+  'rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-focus'
 
 // Supabase auth errors carry a numeric status and, on rate limits, a code
 // like "over_email_send_rate_limit" or "over_request_rate_limit". Those are
@@ -78,8 +78,8 @@ export function EmailCodeForm({ hint }: { hint?: string }) {
     <div>
       {step === 'email' ? (
         <form onSubmit={sendCode} className="flex flex-col gap-3">
-          {hint ? <p className="text-sm text-slate-600">{hint}</p> : null}
-          <label className="text-sm font-medium text-slate-700" htmlFor="email">
+          {hint ? <p className="text-sm text-ink-2">{hint}</p> : null}
+          <label className="text-sm font-medium text-ink-2" htmlFor="email">
             {S.signIn.email}
           </label>
           <input
@@ -97,10 +97,10 @@ export function EmailCodeForm({ hint }: { hint?: string }) {
         </form>
       ) : (
         <form onSubmit={verify} className="flex flex-col gap-3">
-          <p className="text-sm text-slate-600">
+          <p className="text-sm text-ink-2">
             {S.signIn.sentTo} <b>{email.trim()}</b>.
           </p>
-          <label className="text-sm font-medium text-slate-700" htmlFor="code">
+          <label className="text-sm font-medium text-ink-2" htmlFor="code">
             {S.signIn.code}
           </label>
           <input

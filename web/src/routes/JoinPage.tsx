@@ -18,13 +18,14 @@ import { useSession } from '../auth/SessionProvider'
 import { EmailCodeForm } from '../auth/EmailCodeForm'
 import { useLiveSession } from '../lib/live'
 import { logOpsEvent } from '../lib/opsLog'
+import { PublicPage } from '../components/Brand'
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card, Spinner } from '../components/ui'
 import { Countdown } from '../components/Countdown'
 import { Scoreboard } from '../components/Scoreboard'
 
 const field =
-  'rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900'
+  'rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-focus'
 
 function CodeEntry({ onCode }: { onCode: (c: string) => void }) {
   const [code, setCode] = useState('')
@@ -37,7 +38,7 @@ function CodeEntry({ onCode }: { onCode: (c: string) => void }) {
         }}
         className="flex flex-col gap-3"
       >
-        <label className="text-sm font-medium text-slate-700" htmlFor="join-code">
+        <label className="text-sm font-medium text-ink-2" htmlFor="join-code">
           {S.student.sessionCode}
         </label>
         <input id="join-code" required autoComplete="off" value={code}
@@ -72,9 +73,9 @@ function GuestJoin({ code, onJoined }: { code: string; onJoined: (s: LiveJoin) =
   }
   return (
     <Card>
-      <p className="mb-3 text-sm text-slate-500">{S.join.guestNote}</p>
+      <p className="mb-3 text-sm text-ink-3">{S.join.guestNote}</p>
       <form onSubmit={e => void submit(e)} className="flex flex-col gap-3">
-        <label className="text-sm font-medium text-slate-700" htmlFor="guest-name">
+        <label className="text-sm font-medium text-ink-2" htmlFor="guest-name">
           {S.join.guestName}
         </label>
         <input id="guest-name" required minLength={2} maxLength={40} value={name}
@@ -115,7 +116,7 @@ function StudentJoin({
   return (
     <Card>
       {teaching ? (
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-ink-2">
           {S.errors.youTeach}{' '}
           <a href="#/" className="font-medium underline">{S.join.openConsole}</a>
         </p>
@@ -132,7 +133,7 @@ function StudentJoin({
           }}
           className="flex flex-col gap-3"
         >
-          <label className="text-sm font-medium text-slate-700" htmlFor="roster-name">
+          <label className="text-sm font-medium text-ink-2" htmlFor="roster-name">
             {S.join.firstTimeName}
           </label>
           <input id="roster-name" required minLength={2} maxLength={60} value={name}
@@ -147,7 +148,7 @@ function StudentJoin({
         {/* Shared lab computers: make it obvious which account is signed in
             before someone taps a wrong-account "Join". */}
         {session?.user.email ? (
-          <p className="mb-1 text-xs text-slate-500">
+          <p className="mb-1 text-xs text-ink-3">
             {S.join.signedInAs} {session.user.email}.
           </p>
         ) : null}
@@ -178,17 +179,17 @@ function SessionView({ joined }: { joined: LiveJoin }) {
   }
 
   return (
-    <main className="mx-auto mt-8 max-w-md px-4">
+    <PublicPage>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-slate-900">{joined.title}</h1>
+        <h1 className="text-lg font-semibold text-ink">{joined.title}</h1>
         <Badge tone={status === 'ended' ? 'slate' : 'green'}>{status}</Badge>
       </div>
       {error ? <Alert tone="error">{error}</Alert> : null}
 
       {status === 'lobby' ? (
         <Card className="py-10 text-center">
-          <p className="text-base font-medium text-slate-900">You are in.</p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="text-base font-medium text-ink">You are in.</p>
+          <p className="mt-1 text-sm text-ink-3">
             Waiting for your instructor to start.
           </p>
         </Card>
@@ -197,7 +198,7 @@ function SessionView({ joined }: { joined: LiveJoin }) {
       {status === 'question' && state?.question ? (
         <Card>
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-ink-3">
               Question {(state.index ?? 0) + 1} of {state.total}
             </span>
             <Countdown
@@ -205,25 +206,28 @@ function SessionView({ joined }: { joined: LiveJoin }) {
               questionSeconds={state.question_seconds ?? joined.question_seconds}
             />
           </div>
-          <p className="text-base font-medium text-slate-900">
+          <p className="text-base font-medium text-ink">
             {state.question.stem}
           </p>
           <div className="mt-3 flex flex-col gap-2">
             {state.question.options.map(o => (
-              <Button
+              <button
                 key={o.key}
-                variant={myAnswer === o.key ? 'primary' : 'ghost'}
+                type="button"
+                aria-pressed={myAnswer === o.key}
                 disabled={myAnswer !== undefined}
                 onClick={() => void answer(o.key)}
-                className="justify-start text-left"
+                className="flex min-h-[60px] w-full items-center gap-3.5 rounded-lg border-2 border-transparent bg-raised px-4 py-3 text-left text-base font-semibold text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus enabled:hover:border-line-strong disabled:cursor-default aria-pressed:border-ink disabled:aria-[pressed=false]:opacity-55"
               >
-                <span className="font-semibold">{o.key.toUpperCase()}</span>
-                <span>{o.text}</span>
-              </Button>
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-control text-sm font-extrabold">
+                  {o.key.toUpperCase()}
+                </span>
+                <span className="min-w-0 flex-1">{o.text}</span>
+              </button>
             ))}
           </div>
           {myAnswer !== undefined ? (
-            <p role="status" className="mt-3 text-sm text-green-700">
+            <p role="status" className="mt-3 text-sm font-semibold text-ink">
               Answer is in. Results at the reveal.
             </p>
           ) : null}
@@ -240,7 +244,7 @@ function SessionView({ joined }: { joined: LiveJoin }) {
       ) : null}
 
       {status === 'ended' ? <GuestEnded sessionId={joined.id} /> : null}
-    </main>
+    </PublicPage>
   )
 }
 
@@ -255,14 +259,14 @@ function GuestReveal({ sessionId, index }: { sessionId: string; index: number })
   if (!r) return null
   return (
     <Card>
-      <p className="text-sm text-slate-500">Correct answer</p>
-      <p className="mt-1 text-lg font-semibold text-green-700">
+      <p className="text-sm text-ink-3">Correct answer</p>
+      <p className="mt-1 text-lg font-semibold text-pass">
         {r.correct_key.toUpperCase()}
       </p>
       {r.explanation ? (
-        <p className="mt-2 text-sm text-slate-600">{r.explanation}</p>
+        <p className="mt-2 text-sm text-ink-2">{r.explanation}</p>
       ) : null}
-      <p className="mt-3 text-sm text-slate-500">
+      <p className="mt-3 text-sm text-ink-3">
         Next question starts when your instructor advances.
       </p>
     </Card>
@@ -281,33 +285,33 @@ function GuestEnded({ sessionId }: { sessionId: string }) {
     <div className="flex flex-col gap-4">
       {me ? (
         <Card className="text-center">
-          <p className="text-sm text-slate-500">Your result</p>
-          <p className="mt-1 text-2xl font-bold text-slate-900">
+          <p className="text-sm text-ink-3">Your result</p>
+          <p className="mt-1 text-2xl font-bold text-ink">
             #{me.rank} · {me.score} pts
           </p>
         </Card>
       ) : null}
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-sm font-semibold text-ink">
           Final standings
         </h2>
         {board.data ? <Scoreboard rows={board.data.slice(0, 10)} /> : <Spinner />}
       </Card>
       <Card className="text-center">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-ink-2">
           Keep practicing for the FCLE with the Politiface app, supplemental
           practice you choose.
         </p>
         <a
           href="https://politiface.app/"
-          className="mt-2 inline-block text-sm font-medium text-slate-900 underline"
+          className="mt-2 inline-block text-sm font-medium text-ink underline"
         >
           Get Politiface
         </a>
         {hasHome ? (
           <a
             href="#/"
-            className="mt-2 block text-sm font-medium text-slate-900 underline"
+            className="mt-2 block text-sm font-medium text-ink underline"
           >
             {S.join.backHome}
           </a>
@@ -349,18 +353,18 @@ export function JoinPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto mt-12 flex max-w-sm flex-col gap-4 px-4">
-        <h1 className="text-xl font-semibold text-slate-900">{S.join.title}</h1>
+      <PublicPage>
+        <h1 className="px-1.5 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">{S.join.title}</h1>
         <Spinner label={S.common.checkingSession} />
-      </main>
+      </PublicPage>
     )
   }
 
   const badCode = preview.error?.message === S.errors.badSessionCode
 
   return (
-    <main className="mx-auto mt-12 flex max-w-sm flex-col gap-4 px-4">
-      <h1 className="text-xl font-semibold text-slate-900">{S.join.title}</h1>
+    <PublicPage>
+      <h1 className="px-1.5 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">{S.join.title}</h1>
       {code === '' ? (
         <CodeEntry onCode={setCode} />
       ) : preview.isPending ? (
@@ -377,8 +381,8 @@ export function JoinPage() {
       ) : (
         <>
           <Card>
-            <p className="text-base font-semibold text-slate-900">{preview.data.title}</p>
-            <p className="text-sm text-slate-600">
+            <p className="text-base font-semibold text-ink">{preview.data.title}</p>
+            <p className="text-sm text-ink-2">
               {preview.data.class_name}
               {preview.data.professor ? ` ${S.join.with} ${preview.data.professor}` : ''}
             </p>
@@ -401,6 +405,6 @@ export function JoinPage() {
           )}
         </>
       )}
-    </main>
+    </PublicPage>
   )
 }

@@ -273,6 +273,16 @@ export const S = {
   provenance: {
     verified: 'Server-verified',
   },
+  theme: {
+    heading: 'Appearance',
+    hint: 'Applies to this browser only.',
+    dark: 'Charcoal',
+    darkHint: 'Dark. The default.',
+    light: 'Studio',
+    lightHint: 'Light. Best for projectors and print.',
+    toLight: 'Switch to light theme',
+    toDark: 'Switch to dark theme',
+  },
   account: {
     title: 'Account',
     profileHeading: 'Profile',

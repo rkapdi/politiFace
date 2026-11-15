@@ -14,6 +14,7 @@ import {
 import { S } from '../lib/strings'
 import { Alert, Button, Card } from '../components/ui'
 import { SkeletonTable } from '../components/Skeleton'
+import { ThemePicker } from '../components/ThemePicker'
 
 function ProfileSection({ userId }: { userId: string }) {
   const profile = useMyProfile(userId)
@@ -41,11 +42,11 @@ function ProfileSection({ userId }: { userId: string }) {
       <div>
         <label
           htmlFor="account-handle"
-          className="block text-sm font-medium text-slate-700"
+          className="block text-sm font-medium text-ink-2"
         >
           {S.account.displayName}
         </label>
-        <p className="text-xs text-slate-500">{S.account.displayNameHint}</p>
+        <p className="text-xs text-ink-3">{S.account.displayNameHint}</p>
         <input
           id="account-handle"
           name="handle"
@@ -53,13 +54,13 @@ function ProfileSection({ userId }: { userId: string }) {
           minLength={3}
           maxLength={30}
           defaultValue={profile.data.handle}
-          className="mt-1 w-full max-w-xs rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="mt-1 w-full max-w-xs rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm"
         />
       </div>
       <div>
         <label
           htmlFor="account-school"
-          className="block text-sm font-medium text-slate-700"
+          className="block text-sm font-medium text-ink-2"
         >
           {S.account.school}
         </label>
@@ -68,7 +69,7 @@ function ProfileSection({ userId }: { userId: string }) {
           name="school"
           maxLength={120}
           defaultValue={profile.data.school ?? ''}
-          className="mt-1 w-full max-w-xs rounded-md border border-slate-300 px-3 py-2 text-sm"
+          className="mt-1 w-full max-w-xs rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm"
         />
       </div>
       <div className="flex items-center gap-3">
@@ -76,7 +77,7 @@ function ProfileSection({ userId }: { userId: string }) {
           {S.common.save}
         </Button>
         {saved ? (
-          <span role="status" className="text-sm text-slate-600">
+          <span role="status" className="text-sm text-ink-2">
             {S.account.saved}
           </span>
         ) : null}
@@ -109,20 +110,20 @@ function EmailSection({ email }: { email: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-slate-700">
+      <p className="text-sm text-ink-2">
         Signed in as <b>{email}</b>
       </p>
       {pending ? <Alert tone="info">{S.account.emailPending}</Alert> : null}
       {editing ? (
         <form onSubmit={submit} className="flex flex-wrap items-end gap-3">
-          <label className="text-sm text-slate-700">
+          <label className="text-sm text-ink-2">
             {S.account.newEmail}
             <input
               name="email"
               type="email"
               required
               autoComplete="email"
-              className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+              className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
             />
           </label>
           <Button type="submit" disabled={busy}>
@@ -157,7 +158,7 @@ function SessionsSection() {
       <Button variant="ghost" onClick={() => void signOutEverywhere()} disabled={busy}>
         {S.account.signOutEverywhere}
       </Button>
-      <p className="mt-2 text-xs text-slate-500">
+      <p className="mt-2 text-xs text-ink-3">
         {S.account.signOutEverywhereHint}
       </p>
     </div>
@@ -176,16 +177,16 @@ function BlockedClassRow({
   const [target, setTarget] = useState('')
 
   return (
-    <li className="flex flex-wrap items-center gap-3 border-b border-slate-100 py-2">
-      <span className="text-sm font-medium text-slate-900">{blocker.name}</span>
+    <li className="flex flex-wrap items-center gap-3 border-b border-line py-2">
+      <span className="text-sm font-medium text-ink">{blocker.name}</span>
       {coFaculty.data && coFaculty.data.length > 0 ? (
         <>
-          <label className="text-sm text-slate-700">
+          <label className="text-sm text-ink-2">
             {S.account.transferTo}
             <select
               value={target}
               onChange={e => setTarget(e.target.value)}
-              className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+              className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
             >
               <option value="">Choose</option>
               {coFaculty.data.map(f => (
@@ -206,7 +207,7 @@ function BlockedClassRow({
           </Button>
         </>
       ) : (
-        <span className="text-sm text-slate-500">{S.account.noCoFaculty}</span>
+        <span className="text-sm text-ink-3">{S.account.noCoFaculty}</span>
       )}
       {transfer.error ? (
         <Alert tone="error">{transfer.error.message}</Alert>
@@ -251,7 +252,7 @@ function DangerSection({ userId }: { userId: string }) {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-slate-600">{S.account.deleteWarning}</p>
+      <p className="text-sm text-ink-2">{S.account.deleteWarning}</p>
       <div>
         <Button variant="danger" onClick={() => setOpen(true)}>
           {S.account.deleteAccount}
@@ -265,17 +266,17 @@ function DangerSection({ userId }: { userId: string }) {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-slate-900/40" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 w-[min(28rem,90vw)] -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-4 shadow-lg">
-            <Dialog.Title className="text-base font-semibold text-slate-900">
+          <Dialog.Overlay className="fixed inset-0 bg-scrim" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 w-[min(28rem,90vw)] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-pop p-5 shadow-pop ring-1 ring-line-strong">
+            <Dialog.Title className="text-base font-semibold text-ink">
               {S.account.deleteAccount}
             </Dialog.Title>
-            <Dialog.Description className="mt-1 text-sm text-slate-500">
+            <Dialog.Description className="mt-1 text-sm text-ink-3">
               {S.account.deleteWarning}
             </Dialog.Description>
             <label
               htmlFor="delete-confirm"
-              className="mt-3 block text-sm font-medium text-slate-700"
+              className="mt-3 block text-sm font-medium text-ink-2"
             >
               {S.account.deleteConfirmPrompt}
             </label>
@@ -283,7 +284,7 @@ function DangerSection({ userId }: { userId: string }) {
               id="delete-confirm"
               value={confirm}
               onChange={e => setConfirm(e.target.value)}
-              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm"
             />
             {del.error ? (
               <div className="mt-2">
@@ -316,29 +317,34 @@ export function AccountPage() {
 
   return (
     <div className="mx-auto flex max-w-2xl flex-col gap-4">
-      <h1 className="text-lg font-semibold text-slate-900">
+      <h1 className="text-lg font-semibold text-ink">
         {S.account.title}
       </h1>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-sm font-semibold text-ink">
           {S.account.profileHeading}
         </h2>
         <ProfileSection userId={userId} />
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="text-sm font-semibold text-ink">{S.theme.heading}</h2>
+        <p className="mb-3 text-xs text-ink-3">{S.theme.hint}</p>
+        <ThemePicker />
+      </Card>
+      <Card>
+        <h2 className="mb-3 text-sm font-semibold text-ink">
           {S.account.emailHeading}
         </h2>
         <EmailSection email={email} />
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-sm font-semibold text-ink">
           {S.account.sessionsHeading}
         </h2>
         <SessionsSection />
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-red-700">
+        <h2 className="mb-3 text-sm font-semibold text-risk">
           {S.account.dangerHeading}
         </h2>
         <DangerSection userId={userId} />

@@ -19,6 +19,17 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-11-14-themes
+  date: 2026-11-14
+  platform: Web
+  title: A new look with dark and light themes
+  items:
+    - The console has a new design with two themes, a dark one that is now the default and a light one.
+    - Switch themes from the side rail, the sign-in pages, or Appearance on the Account page. The choice is remembered in that browser.
+    - Navigation moved to a compact side rail, with the same links as before.
+    - Scores below the pass line are now outlined and labelled in words as well as coloured, and red is no longer used as a status colour.
+    - The console font now ships with the page, so no outside font service is contacted.
+
 - id: web-2026-10-31-console
   date: 2026-10-31
   platform: Web

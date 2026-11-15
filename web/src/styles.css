@@ -1,24 +1,186 @@
 @import 'tailwindcss';
 
-/* Design tokens: the single source of truth for semantic color. Neutral
-   grays stay on Tailwind's slate scale; anything carrying MEANING
-   (status, risk bands, chart marks) uses these names, in classes
-   (bg-pass, text-risk) and in charts (var(--color-pass)). All values
-   meet WCAG AA (4.5:1) as text on white. */
-@theme {
-  --color-ink: #0f172a;
-  --color-muted: #64748b;
-  --color-line: #e2e8f0;
-  --color-canvas: #f8fafc;
-  --color-pass: #15803d;
-  --color-pass-soft: #dcfce7;
-  --color-borderline: #b45309;
-  --color-borderline-soft: #fef3c7;
-  --color-risk: #b91c1c;
-  --color-risk-soft: #fee2e2;
-  --color-chart-neutral: #cbd5e1;
+/* Design tokens: the single source of truth for colour.
+
+   Every colour is a ROLE (panel, ink, pass, risk), never a hue, so a
+   screen works in both themes without naming a hex value. Use the roles
+   in classes (bg-panel, text-ink-2, text-risk) and in charts
+   (var(--color-pass)).
+
+   Dark ("Charcoal") is the default. Light ("Studio") is the option.
+   Neither theme uses red or blue as a UI colour. State is never carried
+   by colour alone: below-pass marks are hollow or outlined as well.
+
+   Contrast: ink, ink-2 and ink-3 meet WCAG AA (4.5:1) as text on canvas,
+   panel and raised. On control use ink or ink-2. field-line meets 3:1
+   against panel and field, for input boundaries. */
+
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+  --pf-canvas: #141414;
+  --pf-panel: #1d1d1d;
+  --pf-raised: #262626;
+  --pf-control: #2c2c2c;
+  --pf-line: #2c2c2c;
+  --pf-line-strong: #3a3a3a;
+  --pf-pop: #242424;
+  --pf-field: #141414;
+  --pf-field-line: #6b6b67;
+
+  --pf-ink: #f2f2f0;
+  --pf-ink-2: #b8b8b4;
+  --pf-ink-3: #8f8f8b;
+
+  --pf-accent: #8fe3b0;
+  --pf-on-accent: #0e1a13;
+  --pf-on-accent-2: #1f4530;
+  --pf-accent-track: #68c08d;
+  --pf-cta: #8fe3b0;
+  --pf-on-cta: #0e1a13;
+  --pf-strong: #f2f2f0;
+  --pf-on-strong: #141414;
+
+  --pf-nav: #2c2c2c;
+  --pf-on-nav: #f2f2f0;
+
+  --pf-bar: #e8e8e4;
+  --pf-bar-muted: #3a3a3a;
+
+  --pf-pass: #8fe3b0;
+  --pf-pass-soft: #1f3a2b;
+  --pf-borderline: #e3cf9b;
+  --pf-borderline-soft: #332d1f;
+  --pf-risk: #f0b455;
+  --pf-risk-soft: #3a2e17;
+  --pf-risk-line: rgb(240 180 85 / 0.5);
+
+  --pf-focus: #8fe3b0;
+  --pf-scrim: rgb(0 0 0 / 0.62);
+  --pf-shadow: 0 24px 64px rgb(0 0 0 / 0.55);
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --pf-canvas: #f3f2ef;
+  --pf-panel: #ffffff;
+  --pf-raised: #f6f5f2;
+  --pf-control: #ecebe6;
+  --pf-line: #e7e6e0;
+  --pf-line-strong: #d8d7d1;
+  --pf-pop: #ffffff;
+  --pf-field: #ffffff;
+  --pf-field-line: #8a8985;
+
+  --pf-ink: #141414;
+  --pf-ink-2: #4a4a46;
+  --pf-ink-3: #6e6e69;
+
+  --pf-accent: #ffd400;
+  --pf-on-accent: #141414;
+  --pf-on-accent-2: #141414;
+  --pf-accent-track: #e0ba00;
+  --pf-cta: #141414;
+  --pf-on-cta: #ffffff;
+  --pf-strong: #141414;
+  --pf-on-strong: #ffffff;
+
+  --pf-nav: #141414;
+  --pf-on-nav: #ffffff;
+
+  --pf-bar: #141414;
+  --pf-bar-muted: #d8d7d1;
+
+  --pf-pass: #141414;
+  --pf-pass-soft: #ffd400;
+  --pf-borderline: #141414;
+  --pf-borderline-soft: #ecebe6;
+  --pf-risk: #141414;
+  --pf-risk-soft: transparent;
+  --pf-risk-line: #141414;
+
+  --pf-focus: #141414;
+  --pf-scrim: rgb(20 20 20 / 0.38);
+  --pf-shadow: 0 24px 64px rgb(20 20 20 / 0.18);
+}
+
+/* `static` keeps every role in the stylesheet even when no class uses it,
+   because charts read them as var(--color-*). */
+@theme static {
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+
+  --color-canvas: var(--pf-canvas);
+  --color-panel: var(--pf-panel);
+  --color-raised: var(--pf-raised);
+  --color-control: var(--pf-control);
+  --color-line: var(--pf-line);
+  --color-line-strong: var(--pf-line-strong);
+  --color-pop: var(--pf-pop);
+  --color-field: var(--pf-field);
+  --color-field-line: var(--pf-field-line);
+
+  --color-ink: var(--pf-ink);
+  --color-ink-2: var(--pf-ink-2);
+  --color-ink-3: var(--pf-ink-3);
+  --color-muted: var(--pf-ink-3);
+
+  --color-accent: var(--pf-accent);
+  --color-on-accent: var(--pf-on-accent);
+  --color-on-accent-2: var(--pf-on-accent-2);
+  --color-accent-track: var(--pf-accent-track);
+  --color-cta: var(--pf-cta);
+  --color-on-cta: var(--pf-on-cta);
+  --color-strong: var(--pf-strong);
+  --color-on-strong: var(--pf-on-strong);
+  --color-nav: var(--pf-nav);
+  --color-on-nav: var(--pf-on-nav);
+
+  --color-bar: var(--pf-bar);
+  --color-chart-neutral: var(--pf-bar-muted);
+
+  --color-pass: var(--pf-pass);
+  --color-pass-soft: var(--pf-pass-soft);
+  --color-borderline: var(--pf-borderline);
+  --color-borderline-soft: var(--pf-borderline-soft);
+  --color-risk: var(--pf-risk);
+  --color-risk-soft: var(--pf-risk-soft);
+  --color-risk-line: var(--pf-risk-line);
+
+  --color-focus: var(--pf-focus);
+  --color-scrim: var(--pf-scrim);
+
+  --shadow-pop: var(--pf-shadow);
 }
 
 body {
-  @apply bg-canvas text-ink antialiased;
+  @apply bg-canvas font-sans text-ink antialiased;
+}
+
+/* Printed reports are always dark ink on white paper. */
+@media print {
+  :root {
+    --pf-canvas: #ffffff;
+    --pf-panel: #ffffff;
+    --pf-raised: #ffffff;
+    --pf-ink: #141414;
+    --pf-ink-2: #4a4a46;
+    --pf-ink-3: #6e6e69;
+    --pf-line: #d8d7d1;
+    --pf-bar: #141414;
+    --pf-pass: #141414;
+    --pf-risk: #141414;
+    --pf-borderline: #141414;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
 }

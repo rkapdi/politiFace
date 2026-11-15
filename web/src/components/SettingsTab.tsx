@@ -73,10 +73,10 @@ function PolicyForm({
 
   return (
     <Card>
-      <h2 className="mb-1 text-sm font-semibold text-slate-900">
+      <h2 className="mb-1 text-sm font-semibold text-ink">
         Reporting policy
       </h2>
-      <p className="mb-3 text-sm text-slate-500">
+      <p className="mb-3 text-sm text-ink-3">
         Server-enforced. It changes what every report on this class shows,
         immediately, for everyone.
       </p>
@@ -87,7 +87,7 @@ function PolicyForm({
             {RESOLUTIONS.map(r => (
               <label
                 key={r.value}
-                className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 px-3 py-2"
+                className="flex cursor-pointer items-start gap-3 rounded-md border border-line px-3 py-2"
               >
                 <input
                   type="radio"
@@ -98,10 +98,10 @@ function PolicyForm({
                   className="mt-1"
                 />
                 <span>
-                  <span className="block text-sm font-medium text-slate-900">
+                  <span className="block text-sm font-medium text-ink">
                     {r.label}
                   </span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-xs text-ink-3">
                     {r.consequence}
                   </span>
                 </span>
@@ -110,7 +110,7 @@ function PolicyForm({
           </div>
         </fieldset>
         <div className="flex flex-wrap gap-4">
-          <label className="text-sm text-slate-700">
+          <label className="text-sm text-ink-2">
             Identity shown
             <select
               value={identityDisplay}
@@ -119,14 +119,14 @@ function PolicyForm({
                   e.target.value as ReportingPolicy['identity_display'],
                 )
               }
-              className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+              className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
             >
               <option value="roster">Roster name</option>
               <option value="display_name">App handle</option>
               <option value="pseudonym">Pseudonym</option>
             </select>
           </label>
-          <label className="text-sm text-slate-700">
+          <label className="text-sm text-ink-2">
             Raw data retention, days
             <input
               type="number"
@@ -134,7 +134,7 @@ function PolicyForm({
               placeholder="default"
               value={retention}
               onChange={e => setRetention(e.target.value)}
-              className="ml-2 w-24 rounded-md border border-slate-300 px-2 py-1 text-sm"
+              className="ml-2 w-24 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
             />
           </label>
         </div>
@@ -160,8 +160,8 @@ function StaffEditor({ cohortId }: { cohortId: string }) {
 
   return (
     <Card>
-      <h2 className="mb-1 text-sm font-semibold text-slate-900">Teaching staff</h2>
-      <p className="mb-3 text-sm text-slate-500">
+      <h2 className="mb-1 text-sm font-semibold text-ink">Teaching staff</h2>
+      <p className="mb-3 text-sm text-ink-3">
         TAs can run live sessions and see class aggregates; they never see
         per-student data. Co-instructors get full faculty access and need a
         redeemed faculty invite first.
@@ -176,13 +176,13 @@ function StaffEditor({ cohortId }: { cohortId: string }) {
           }
         }}
       >
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           TA email
           <input
             type="email"
             value={taEmail}
             onChange={e => setTaEmail(e.target.value)}
-            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           />
         </label>
         <Button type="submit" variant="ghost" disabled={addTa.isPending}>
@@ -199,7 +199,7 @@ function StaffEditor({ cohortId }: { cohortId: string }) {
           {tas.data.map(t => (
             <li
               key={t.user_id}
-              className="flex items-center justify-between rounded-md bg-slate-50 px-3 py-1.5 text-sm"
+              className="flex items-center justify-between rounded-md bg-raised px-3 py-1.5 text-sm"
             >
               <span>{t.display}</span>
               <Button
@@ -213,7 +213,7 @@ function StaffEditor({ cohortId }: { cohortId: string }) {
         </ul>
       ) : null}
       <form
-        className="mt-4 flex flex-wrap items-end gap-2 border-t border-slate-100 pt-4"
+        className="mt-4 flex flex-wrap items-end gap-2 border-t border-line pt-4"
         onSubmit={(e: FormEvent) => {
           e.preventDefault()
           if (coEmail.trim()) {
@@ -222,13 +222,13 @@ function StaffEditor({ cohortId }: { cohortId: string }) {
           }
         }}
       >
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           Co-instructor email
           <input
             type="email"
             value={coEmail}
             onChange={e => setCoEmail(e.target.value)}
-            className="ml-2 rounded-md border border-slate-300 px-2 py-1 text-sm"
+            className="ml-2 rounded-md border border-field-line bg-field text-ink px-2 py-1 text-sm"
           />
         </label>
         <Button type="submit" variant="ghost" disabled={addCo.isPending}>

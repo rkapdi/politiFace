@@ -8,7 +8,7 @@ import {
 import { S } from '../lib/strings'
 import { Alert, Button, Card } from './ui'
 
-const field = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
+const field = 'mt-1 w-full rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm'
 
 function InviteForm() {
   const mint = useMintFacultyInvite()
@@ -28,14 +28,14 @@ function InviteForm() {
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold text-slate-900">{S.staffTools.inviteTitle}</h2>
-      <p className="mt-1 text-sm text-slate-500">{S.staffTools.inviteHint}</p>
+      <h2 className="text-sm font-semibold text-ink">{S.staffTools.inviteTitle}</h2>
+      <p className="mt-1 text-sm text-ink-3">{S.staffTools.inviteHint}</p>
       <form onSubmit={submit} className="mt-3 flex flex-col gap-3">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.staffTools.recipient}
           <input type="email" value={recipient} onChange={e => setRecipient(e.target.value)} className={field} />
         </label>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.staffTools.note}
           <input maxLength={120} value={note} onChange={e => setNote(e.target.value)} className={field} />
         </label>

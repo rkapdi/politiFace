@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { S } from '../lib/strings'
@@ -70,7 +70,8 @@ describe('JoinPage', () => {
     expect(screen.getByRole('heading', { name: S.join.title })).toBeInTheDocument()
     expect(screen.getByText(/checking your session/i)).toBeInTheDocument()
     expect(screen.queryByText('email code form')).toBeNull()
-    expect(screen.queryByRole('button')).toBeNull()
+    // The page header now carries a theme switch, so look inside the page body.
+    expect(within(screen.getByRole('main')).queryByRole('button')).toBeNull()
     expect(screen.queryByLabelText(/session code/i)).toBeNull()
   })
 

@@ -4,7 +4,7 @@ import { useMyAccessRequest, useRequestFacultyAccess } from '../lib/api'
 import { S } from '../lib/strings'
 import { Alert, Button, Card, Spinner } from './ui'
 
-const field = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
+const field = 'mt-1 w-full rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm'
 
 function InviteCodeForm() {
   const [code, setCode] = useState('')
@@ -16,7 +16,7 @@ function InviteCodeForm() {
       }}
       className="mt-3 flex items-end gap-2"
     >
-      <label className="flex-1 text-sm text-slate-700">
+      <label className="flex-1 text-sm text-ink-2">
         {S.requestAccess.inviteCode}
         <input required autoComplete="off" value={code}
           onChange={e => setCode(e.target.value.toUpperCase())}
@@ -57,7 +57,7 @@ export function RequestAccess({ defaultOpen = false }: { defaultOpen?: boolean }
   if (!expanded && !status) {
     return (
       <div className="mx-auto w-full max-w-lg text-center">
-        <span className="text-sm text-slate-600">{S.requestAccess.title} </span>
+        <span className="text-sm text-ink-2">{S.requestAccess.title} </span>
         <Button variant="ghost" aria-expanded={false} onClick={() => setExpanded(true)}>
           {S.requestAccess.open}
         </Button>
@@ -68,8 +68,8 @@ export function RequestAccess({ defaultOpen = false }: { defaultOpen?: boolean }
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col gap-4">
       <Card>
-        <h2 className="text-lg font-semibold text-slate-900">{S.requestAccess.title}</h2>
-        <p className="mt-1 text-sm text-slate-600">{S.requestAccess.intro}</p>
+        <h2 className="text-lg font-semibold text-ink">{S.requestAccess.title}</h2>
+        <p className="mt-1 text-sm text-ink-2">{S.requestAccess.intro}</p>
         {status === 'pending' ? (
           <div className="mt-3">
             <Alert tone="info">{S.requestAccess.pending}</Alert>
@@ -77,23 +77,23 @@ export function RequestAccess({ defaultOpen = false }: { defaultOpen?: boolean }
         ) : (
           <>
             <InviteCodeForm />
-            <h3 className="mt-4 border-t border-slate-100 pt-3 text-sm font-semibold text-slate-900">
+            <h3 className="mt-4 border-t border-line pt-3 text-sm font-semibold text-ink">
               {S.requestAccess.requestHeading}
             </h3>
             <form onSubmit={onSubmit} className="mt-2 flex flex-col gap-3">
               {status === 'denied' ? <Alert tone="error">{S.requestAccess.denied}</Alert> : null}
-              <label className="text-sm text-slate-700">
+              <label className="text-sm text-ink-2">
                 {S.requestAccess.school}
                 <input required minLength={2} maxLength={120} value={school}
                   onChange={e => setSchool(e.target.value)} className={field} />
               </label>
-              <label className="text-sm text-slate-700">
+              <label className="text-sm text-ink-2">
                 {S.requestAccess.courses}
                 <input required minLength={2} maxLength={200} value={courses}
                   placeholder={S.requestAccess.coursesPlaceholder}
                   onChange={e => setCourses(e.target.value)} className={field} />
               </label>
-              <label className="text-sm text-slate-700">
+              <label className="text-sm text-ink-2">
                 {S.requestAccess.note}
                 <textarea rows={2} maxLength={500} value={note}
                   onChange={e => setNote(e.target.value)} className={field} />

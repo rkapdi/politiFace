@@ -145,7 +145,7 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
       ) : null}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <h2 className="mb-3 text-sm font-semibold text-ink">
             Readiness by FCLE domain
           </h2>
           {domains.data ? (
@@ -165,7 +165,7 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
         </Card>
       </div>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-sm font-semibold text-ink">
           Most missed questions
         </h2>
         {misses.data ? <TopMisses rows={misses.data} /> : <Spinner />}

@@ -3,7 +3,7 @@ import type { TopMissRow } from '../lib/api'
 export function TopMisses({ rows }: { rows: TopMissRow[] }) {
   if (rows.length === 0) {
     return (
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-ink-3">
         No questions clear the 5-student reporting floor yet.
       </p>
     )
@@ -13,7 +13,7 @@ export function TopMisses({ rows }: { rows: TopMissRow[] }) {
       <table className="w-full text-sm">
         <caption className="sr-only">Most missed questions</caption>
         <thead>
-          <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
+          <tr className="border-b border-line text-left text-xs text-ink-3">
             <th scope="col" className="py-2 pr-3 font-medium">Question</th>
             <th scope="col" className="py-2 pr-3 font-medium">Domain</th>
             <th scope="col" className="py-2 pr-3 font-medium">Students</th>
@@ -22,13 +22,13 @@ export function TopMisses({ rows }: { rows: TopMissRow[] }) {
         </thead>
         <tbody>
           {rows.map(r => (
-            <tr key={r.question_id} className="border-b border-slate-100">
+            <tr key={r.question_id} className="border-b border-line">
               <td className="max-w-md truncate py-2 pr-3" title={r.stem}>
                 {r.stem}
               </td>
               <td className="py-2 pr-3">{r.domain_code}</td>
               <td className="py-2 pr-3">{r.students}</td>
-              <td className="py-2 font-medium text-red-700">
+              <td className="py-2 font-bold text-risk tabular-nums">
                 {Math.round(r.miss_rate * 100)}%
               </td>
             </tr>

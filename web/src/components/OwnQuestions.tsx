@@ -14,7 +14,7 @@ import { SkeletonTable } from './Skeleton'
 
 const KEYS = ['A', 'B', 'C', 'D'] as const
 const input =
-  'mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm text-slate-900'
+  'mt-1 w-full rounded-md border border-field-line bg-field text-ink px-2 py-1.5 text-sm text-ink'
 
 type Form = {
   stem: string
@@ -100,7 +100,7 @@ function QuestionForm({
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-3">
       {editing ? <Alert tone="info">{S.ownQuestions.editNote}</Alert> : null}
-      <label className="text-sm text-slate-700">
+      <label className="text-sm text-ink-2">
         {S.ownQuestions.stem}
         <textarea
           required
@@ -111,7 +111,7 @@ function QuestionForm({
           className={input}
         />
       </label>
-      <label className="text-sm text-slate-700">
+      <label className="text-sm text-ink-2">
         {S.ownQuestions.domain}
         <select
           value={domainId ?? ''}
@@ -126,7 +126,7 @@ function QuestionForm({
         </select>
       </label>
       <fieldset className="flex flex-col gap-2">
-        <legend className="text-sm text-slate-700">
+        <legend className="text-sm text-ink-2">
           {S.ownQuestions.correct}
         </legend>
         {KEYS.map(k => (
@@ -154,7 +154,7 @@ function QuestionForm({
           </div>
         ))}
       </fieldset>
-      <label className="text-sm text-slate-700">
+      <label className="text-sm text-ink-2">
         {S.ownQuestions.explanation}
         <textarea
           rows={2}
@@ -164,7 +164,7 @@ function QuestionForm({
           className={input}
         />
       </label>
-      <label className="text-sm text-slate-700">
+      <label className="text-sm text-ink-2">
         {S.ownQuestions.citation}
         <input
           maxLength={300}
@@ -209,10 +209,10 @@ export function OwnQuestions({
     <Card>
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-slate-900">
+          <h2 className="text-sm font-semibold text-ink">
             {S.ownQuestions.heading}
           </h2>
-          <p className="text-sm text-slate-500">{S.ownQuestions.hint}</p>
+          <p className="text-sm text-ink-3">{S.ownQuestions.hint}</p>
         </div>
         {open === null ? (
           <Button variant="ghost" onClick={() => setOpen('new')}>
@@ -244,22 +244,22 @@ export function OwnQuestions({
         />
       ) : null}
       {open === null && questions.data && questions.data.length > 0 ? (
-        <ul className="flex flex-col divide-y divide-slate-100">
+        <ul className="flex flex-col divide-y divide-line">
           {questions.data.map(q => (
             <li
               key={q.id}
               className="flex flex-wrap items-start justify-between gap-3 py-2"
             >
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-900">{q.stem}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm text-ink">{q.stem}</p>
+                <p className="text-xs text-ink-3">
                   {domains.data?.find(d => d.id === q.domain_id)?.name ??
                     `Domain ${q.domain_id}`}
                 </p>
               </div>
               {confirming === q.id ? (
                 <div className="flex flex-col items-end gap-1">
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-ink-3">
                     {S.ownQuestions.confirmRemove} {S.ownQuestions.removeHint}
                   </p>
                   <div className="flex gap-2">
