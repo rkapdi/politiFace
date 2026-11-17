@@ -20,7 +20,7 @@
 # Public page: no em-dashes, no people, schools, or plans.
 
 - id: web-2026-11-15-admin-home
-  date: 2026-11-15
+  date: 2026-11-16
   platform: Web
   title: Admin console home
   items:
@@ -29,6 +29,22 @@
     - Classes that have gone quiet or sit below the pass line, questions most students get wrong, and instructor requests appear as a list of decisions, each with its evidence.
     - Instructor requests can be approved or denied from that list.
     - The admin console now follows the dark and light themes.
+
+- id: web-2026-11-14-themes
+  date: 2026-11-16
+  platform: Web
+  title: A new look with dark and light themes
+  items:
+    - The console has a new design with two themes, a dark one that is now the default and a light one.
+    - Switch themes from the side rail, the sign-in pages, or Appearance on the Account page. The choice is remembered in that browser.
+    - Navigation moved to a compact side rail, with the same links as before.
+    - A class page now opens with its projected pass rate and the week in one sentence, with the tabs and the class code in the header.
+    - The Students tab can be narrowed to students below the pass line or inactive for a week.
+    - The live session lobby and questions are larger, for projecting in a classroom.
+    - Setting up a live session shows the question bank beside the session you are building.
+    - Class settings, the question editor and the Account page have clearer layouts.
+    - Scores below the pass line are now outlined and labelled in words as well as coloured, and red is no longer used as a status colour.
+    - The console font now ships with the page, so no outside font service is contacted.
 
 - id: ios-36
   date: 2026-11-15
@@ -45,22 +61,6 @@
     - Opening a bill, a live session, or a mock exam result from a link no longer closes the app.
     - White House alerts are sending again. They had silently stopped on 3 November.
     - A White House action now alerts once, even if the official feed reorders or withdraws an entry.
-
-- id: web-2026-11-14-themes
-  date: 2026-11-14
-  platform: Web
-  title: A new look with dark and light themes
-  items:
-    - The console has a new design with two themes, a dark one that is now the default and a light one.
-    - Switch themes from the side rail, the sign-in pages, or Appearance on the Account page. The choice is remembered in that browser.
-    - Navigation moved to a compact side rail, with the same links as before.
-    - A class page now opens with its projected pass rate and the week in one sentence, with the tabs and the class code in the header.
-    - The Students tab can be narrowed to students below the pass line or inactive for a week.
-    - The live session lobby and questions are larger, for projecting in a classroom.
-    - Setting up a live session shows the question bank beside the session you are building.
-    - Class settings, the question editor and the Account page have clearer layouts.
-    - Scores below the pass line are now outlined and labelled in words as well as coloured, and red is no longer used as a status colour.
-    - The console font now ships with the page, so no outside font service is contacted.
 
 - id: web-2026-10-31-console
   date: 2026-10-31
