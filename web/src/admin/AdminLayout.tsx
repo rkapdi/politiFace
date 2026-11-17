@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Link, Outlet } from '@tanstack/react-router'
-import { Activity, House, Mail, ScrollText, Search, type LucideIcon } from 'lucide-react'
+import { Activity, House, Mail, Megaphone, ScrollText, Search, type LucideIcon } from 'lucide-react'
 import { RequireAuth } from '../auth/RequireAuth'
 import { useAmAdmin } from '../lib/api'
 import { BrandMark, ThemeToggle } from '../components/Brand'
@@ -13,13 +13,15 @@ const rail: { to: string; label: string; icon: LucideIcon; exact?: boolean }[] =
   { to: '/admin', label: A.nav.home, icon: Activity, exact: true },
   { to: '/admin/search', label: A.nav.search, icon: Search },
   { to: '/admin/invites', label: A.nav.invites, icon: Mail },
+  { to: '/admin/breaking', label: A.nav.breaking, icon: Megaphone },
   { to: '/admin/audit', label: A.nav.audit, icon: ScrollText },
 ]
 
 // Every rail control is icon-only, so each carries its name as
-// screen-reader text and as a hover title.
+// screen-reader text and as a hover title. On phones the rail is a top
+// bar, and the controls shrink a step so all seven fit a 360px screen.
 const item =
-  'flex size-10 shrink-0 items-center justify-center rounded-md text-ink-2 no-underline transition-colors hover:bg-control hover:text-ink [&.active]:bg-nav [&.active]:text-on-nav'
+  'flex size-9 shrink-0 items-center justify-center rounded-md sm:size-10 text-ink-2 no-underline transition-colors hover:bg-control hover:text-ink [&.active]:bg-nav [&.active]:text-on-nav'
 
 const pill =
   'flex h-11 shrink-0 items-center gap-2 rounded-full bg-panel px-4 text-[13px] font-semibold'
@@ -70,13 +72,13 @@ export function AdminLayoutInner() {
   const on = online.data
   return (
     <div className="admin-root flex flex-col gap-3 p-3 sm:flex-row sm:items-start">
-      <header className="z-30 flex shrink-0 items-center justify-between gap-2 rounded-xl bg-panel px-3 py-2 sm:sticky sm:top-3 sm:h-[calc(100vh-1.5rem)] sm:w-16 sm:flex-col sm:px-0 sm:py-3.5">
-        <div className="flex items-center gap-1.5 sm:flex-col">
-          <span className="mr-2 sm:mb-3 sm:mr-0">
+      <header className="z-30 flex shrink-0 items-center justify-between gap-2 rounded-xl bg-panel px-2 py-2 sm:sticky sm:top-3 sm:h-[calc(100vh-1.5rem)] sm:w-16 sm:flex-col sm:px-0 sm:py-3.5">
+        <div className="flex items-center gap-1 sm:flex-col sm:gap-1.5">
+          <span className="mr-1 sm:mb-3 sm:mr-0">
             <BrandMark />
             <span className="sr-only">{A.brand}</span>
           </span>
-          <nav aria-label={A.nav.rail} className="flex items-center gap-1.5 sm:flex-col">
+          <nav aria-label={A.nav.rail} className="flex items-center gap-1 sm:flex-col sm:gap-1.5">
             {rail.map(r => (
               <Link
                 key={r.to}
@@ -91,7 +93,7 @@ export function AdminLayoutInner() {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-1.5 sm:flex-col">
+        <div className="flex items-center gap-1 sm:flex-col sm:gap-1.5">
           <ThemeToggle className={item} />
           <Link to="/" title={A.nav.backToClasses} className={item}>
             <House aria-hidden="true" className="size-[18px]" strokeWidth={1.6} />

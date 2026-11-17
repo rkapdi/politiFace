@@ -13,6 +13,7 @@ export const A = {
     home: 'Home',
     search: 'Search',
     invites: 'Invites',
+    breaking: 'Breaking',
     audit: 'Audit',
     rail: 'Console',
     backToClasses: 'Back to your classes',
@@ -24,6 +25,7 @@ export const A = {
     klass: 'Class',
     session: 'Session',
     invites: 'Invites and requests',
+    breaking: 'Breaking desk',
     audit: 'Audit log',
   },
   comingIn2b: 'Coming in 2b',
@@ -237,6 +239,113 @@ export const A = {
     deny: 'Deny',
   },
 
+  breaking: {
+    intro:
+      'Publish a change that no official record carries yet. A wrong alert is worse than a late one.',
+    formTitle: 'New item',
+    notDeployed:
+      'The breaking desk is not switched on yet. Its server half has not been deployed, so nothing can be published from here.',
+
+    kindLegend: 'What happened',
+    kinds: {
+      removed: 'Removed from a post',
+      resigned: 'Resigned',
+      appointed: 'Appointed',
+      died: 'Died in office',
+      other: 'Other',
+    },
+    headlineLabel: 'Headline',
+    headlineHint:
+      'One plain sentence, 12 to 160 characters. It is the notification text and the headline in the app.',
+    detailLabel: 'Detail (optional)',
+    detailHint: 'A sentence or two of context, shown on the item\'s screen in the app.',
+    count: (used: number, max: number) => `${used} of ${max}`,
+
+    sourcesLegend: 'Sources',
+    sourcesRule: 'Two different sources, or one official statement.',
+    sourceLabel: 'First source link',
+    linkPlaceholder: 'https://',
+    officialLabel: 'The first source is an official statement',
+    officialHint:
+      'A .gov page or the official\'s own statement. With this ticked, a second source is optional.',
+    secondRequired: 'Second source link (required)',
+    secondOptional: 'Second source link (optional)',
+    ruleMet: 'Source rule met.',
+    ruleNotMet: 'Source rule not met yet.',
+
+    deliveryLegend: 'How it goes out',
+    notifyLabel: 'Notify every phone',
+    notifyHint: 'Sends a notification and adds the item to the feed. A notification cannot be recalled.',
+    feedLabel: 'Feed only',
+    feedHint: 'Adds the item to the feed in the app. No notification is sent.',
+
+    review: 'Review before publishing',
+    fixFirst: (n: number) => (n === 1 ? 'Fix 1 thing above first.' : `Fix ${n} things above first.`),
+
+    confirmNotifyTitle: 'Send this to every phone?',
+    confirmNotifyBody:
+      'A notification goes to every phone with the app. It cannot be recalled. Retracting later only removes the item from the feed.',
+    confirmFeedTitle: 'Add this to the feed?',
+    confirmFeedBody:
+      'The item appears in the app\'s feed. No notification is sent. You can retract it later.',
+    confirmGroup: 'Confirm publishing',
+    publishNotify: 'Publish and notify',
+    publishFeed: 'Publish to the feed',
+    publishing: 'Publishing',
+    backToEdit: 'Back to edit',
+    summaryKind: 'Kind',
+    summarySources: 'Sources',
+    officialTag: 'official statement',
+
+    doneDuplicate:
+      'Already published. The same headline went out in the last 10 minutes, so nothing new was sent.',
+    doneKicked: 'Published. The notification goes out in seconds.',
+    doneQueued: 'Published. The notification goes out on the next check, at most 5 minutes from now.',
+    doneFeed: 'Published to the feed. No notification was sent.',
+
+    previewTitle: 'What phones will show',
+    previewNotification: 'Notification',
+    previewApp: 'In the app',
+    notificationTitle: 'Breaking',
+    notificationNow: 'now',
+    appName: 'Politiface',
+    headlinePlaceholder: 'Your headline appears here.',
+    previewNoNotification: 'No notification. This item goes to the feed only.',
+    previewUndecided: 'Sent only if you choose to notify every phone.',
+    reported: 'Reported',
+    sourcePlaceholder: 'source',
+
+    listTitle: 'Published',
+    listEmpty: 'Nothing has been published yet.',
+    by: (handle: string | null) => (handle ? `by ${handle}` : 'by an admin'),
+    notified: 'Notified every phone',
+    feedOnly: 'Feed only',
+    retracted: 'Retracted',
+    retractedAt: (when: string) => `Retracted ${when}`,
+    retract: 'Retract',
+    retractGroup: 'Confirm retraction',
+    retractTitle: 'Retract this item?',
+    retractBody:
+      'It leaves the feed in the app at once. A notification already delivered cannot be recalled. To correct one, publish a new item of kind Other that says so.',
+    noteLabel: 'Note (optional)',
+    retractConfirm: 'Retract item',
+    retracting: 'Retracting',
+    cancel: 'Cancel',
+
+    errKind: 'Choose what happened.',
+    errHeadline: 'The headline must be 12 to 160 characters.',
+    errDash: 'Use a comma or a full stop instead of a dash.',
+    errDetail: 'The detail must be 600 characters or fewer.',
+    errSource: 'The source must be an https link.',
+    errSecond: 'The second source must be an https link.',
+    errTwoSources:
+      'A second, different source is required unless the first is an official statement.',
+    errDelivery: 'Choose how this goes out.',
+    errNote: 'The note must be 300 characters or fewer.',
+    errNoItem: 'That item no longer exists.',
+    errAdminOnly: 'Only admins can use the breaking desk.',
+  },
+
   audit: {
     colWhen: 'When',
     colWho: 'Who',
@@ -256,7 +365,8 @@ export const A = {
 }
 
 // The admin-writable action kinds app.audit() records, for the audit
-// log's filter. Kept in sync with supabase/migrations/20261004000200_admin_console.sql.
+// log's filter. Kept in sync with supabase/migrations/20261004000200_admin_console.sql
+// and, for the two breaking actions, the breaking desk migration.
 export const AUDIT_ACTIONS = [
   'console_open',
   'view_person',
@@ -264,4 +374,6 @@ export const AUDIT_ACTIONS = [
   'faculty_revoked',
   'invite_minted',
   'invite_revoked',
+  'breaking_publish',
+  'breaking_retract',
 ] as const

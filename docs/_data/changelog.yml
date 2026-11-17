@@ -19,6 +19,17 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-11-16-breaking-desk
+  date: 2026-11-16
+  platform: Web
+  title: Breaking desk in the admin console
+  items:
+    - The internal admin console has a Breaking desk page for publishing a political change that official records do not carry yet, such as a removal, a resignation, a death in office or an appointment.
+    - The form asks for two different sources, or one official statement, and shows whether that rule is met as you type.
+    - Sending a notification to every phone and adding an item to the feed only are separate choices, and the notification is shown as phones will show it before anything is sent.
+    - Publishing takes a confirmation step. Published items are listed and can be retracted, with a reminder that a delivered notification cannot be recalled.
+    - The page stays switched off, and says so, until its server half is live.
+
 - id: web-2026-11-15-admin-home
   date: 2026-11-16
   platform: Web

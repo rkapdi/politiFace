@@ -123,6 +123,11 @@ const adminInvitesRoute = createRoute({
   path: '/invites',
   component: lazyRouteComponent(() => import('../admin/InvitesPage'), 'InvitesPage'),
 })
+const adminBreakingRoute = createRoute({
+  getParentRoute: () => adminRoute,
+  path: '/breaking',
+  component: lazyRouteComponent(() => import('../admin/BreakingPage'), 'BreakingPage'),
+})
 const adminAuditRoute = createRoute({
   getParentRoute: () => adminRoute,
   path: '/audit',
@@ -147,6 +152,7 @@ const routeTree = rootRoute.addChildren([
     adminClassRoute,
     adminSessionRoute,
     adminInvitesRoute,
+    adminBreakingRoute,
     adminAuditRoute,
   ]),
 ])
