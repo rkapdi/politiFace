@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { axisLine, axisTick, tooltipStyle } from './chartTheme'
 import type { CohortDistribution } from '../lib/api'
 
 const BIN_ORDER = [
@@ -21,13 +22,14 @@ const BIN_ORDER = [
   '70-80',
 ]
 
-// The pass line (48) falls inside the 40-49 bin: bins fully below it read
-// as risk, the straddling bin as borderline, bins above as clear.
-function binColor(bin: string): string {
+// The pass line (48) falls inside the 40-49 bin. Bins above it are solid,
+// the straddling bin is muted, and bins fully below it are hollow with a
+// risk outline, so the three bands differ by fill and not only by colour.
+function binMark(bin: string): { fill: string; stroke?: string; strokeWidth?: number } {
   const lower = Number(bin.split('-')[0])
-  if (lower >= 50) return 'var(--color-pass)'
-  if (lower >= 40) return 'var(--color-borderline)'
-  return 'var(--color-risk)'
+  if (lower >= 50) return { fill: 'var(--color-bar)' }
+  if (lower >= 40) return { fill: 'var(--color-chart-neutral)' }
+  return { fill: 'transparent', stroke: 'var(--color-risk)', strokeWidth: 2 }
 }
 
 export function DistributionChart({
@@ -43,11 +45,11 @@ export function DistributionChart({
   return (
     <figure>
       <figcaption className="mb-2 flex items-baseline justify-between text-sm">
-        <span className="font-medium text-slate-700">
+        <span className="font-medium text-ink-2">
           Projected scores, pass line {distribution.pass_line}
         </span>
         {distribution.avg !== undefined ? (
-          <span className="text-slate-500">
+          <span className="text-ink-3">
             class average {Math.round(distribution.avg)} of 80
           </span>
         ) : null}
@@ -55,13 +57,13 @@ export function DistributionChart({
       <div className="h-44" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: -24 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-            <XAxis dataKey="bin" tick={{ fontSize: 10 }} />
-            <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-            <Tooltip />
-            <Bar dataKey="students" name="Students">
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line-strong)" vertical={false} />
+            <XAxis dataKey="bin" tick={axisTick(10)} {...axisLine} />
+            <YAxis tick={axisTick(11)} {...axisLine} allowDecimals={false} />
+            <Tooltip {...tooltipStyle} />
+            <Bar dataKey="students" name="Students" radius={[5, 5, 0, 0]}>
               {rows.map(r => (
-                <Cell key={r.bin} fill={binColor(r.bin)} />
+                <Cell key={r.bin} {...binMark(r.bin)} />
               ))}
             </Bar>
           </BarChart>

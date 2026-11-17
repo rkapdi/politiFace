@@ -45,17 +45,21 @@ export function LiveTab({
   const isFaculty = useCohortRole(cohortId).data === 'faculty'
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-bold text-ink">
             Run a live session
           </h2>
           {!draft.composing ? (
             <Button onClick={() => onDraftChange({ ...draft, composing: true })}>
               Set one up
             </Button>
-          ) : null}
+          ) : (
+            <Button variant="ghost" onClick={() => onDraftChange({ ...draft, composing: false })}>
+              {S.common.cancel}
+            </Button>
+          )}
         </div>
         {draft.composing ? (
           <QuestionPicker
@@ -68,7 +72,7 @@ export function LiveTab({
             }}
           />
         ) : (
-          <p className="text-sm text-slate-500">
+          <p className="max-w-xl text-sm text-ink-2">
             Students join from any browser with a code, no app needed. Answers
             grade server-side and feed the class analytics.
           </p>
@@ -86,7 +90,7 @@ export function LiveTab({
         />
       ) : null}
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-base font-bold text-ink">
           Past sessions
         </h2>
         {sessions.isPending ? <SkeletonTable rows={3} /> : null}
@@ -105,7 +109,7 @@ export function LiveTab({
             <table className="w-full text-sm">
               <caption className="sr-only">Live sessions</caption>
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
+                <tr className="border-b border-line text-left text-xs text-ink-3">
                   <th scope="col" className="py-2 pr-3 font-medium">Session</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Status</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Participants</th>
@@ -114,22 +118,22 @@ export function LiveTab({
               </thead>
               <tbody>
                 {sessions.data.map(s => (
-                  <tr key={s.session_id} className="border-b border-slate-100">
-                    <td className="py-2 pr-3">
+                  <tr key={s.session_id} className="border-b border-line last:border-b-0 hover:bg-raised">
+                    <td className="py-3 pr-3">
                       <a
                         href={`#/class/${cohortId}/live/${s.session_id}`}
-                        className="font-medium text-slate-900 hover:underline"
+                        className="font-semibold text-ink hover:underline"
                       >
                         {s.title}
                       </a>
                     </td>
-                    <td className="py-2 pr-3">
+                    <td className="py-3 pr-3">
                       <Badge tone={s.status === 'ended' ? 'slate' : 'green'}>
                         {s.status}
                       </Badge>
                     </td>
-                    <td className="py-2 pr-3">{s.participants}</td>
-                    <td className="py-2">
+                    <td className="py-3 pr-3 tabular-nums">{s.participants}</td>
+                    <td className="py-3">
                       {Math.round(s.avg_correct * 100)}%
                     </td>
                   </tr>

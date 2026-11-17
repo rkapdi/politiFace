@@ -211,6 +211,41 @@ export type AuditRow = {
   details: unknown
 }
 
+export type PictureClass = {
+  cohort_id: string
+  name: string
+  term: string | null
+  is_demo: boolean
+  students: number
+  on_track: number
+  practised_7d: number
+  last_live_at: string | null
+}
+export type PictureDay = {
+  day: string
+  answers: number
+  practising: number
+  live_sessions: number
+  actions: number
+  /** From the daily snapshot; null on days before snapshots began. */
+  students: number | null
+  on_track: number | null
+}
+export type PictureQuestion = {
+  question_id: string
+  stem: string
+  answers: number
+  correct_rate: number
+  top_wrong: { key: string; share: number } | null
+}
+export type AdminPicture = {
+  tz: string
+  now: { students: number; on_track: number; practised_7d: number; live_7d: number }
+  classes: PictureClass[]
+  days: PictureDay[]
+  questions: PictureQuestion[]
+}
+
 export const consoleOpen = () => call<void>('admin_console_open')
 
 export const useAdminHome = (enabled = true) =>
@@ -219,6 +254,21 @@ export const useAdminHome = (enabled = true) =>
     queryFn: () => call<AdminHome>('admin_home'),
     refetchInterval: 15_000,
     enabled,
+  })
+// The outcome number and the 14 days behind it. Scores move slowly and the
+// query projects every student, so this refreshes far less often than the
+// rest of the home screen. No retry: before the server function is
+// deployed the screen should say so at once, not after three attempts.
+export const useAdminPicture = () =>
+  useQuery({
+    queryKey: ['admin', 'picture'],
+    queryFn: () =>
+      call<AdminPicture>('admin_picture', {
+        p_tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }),
+    refetchInterval: 5 * 60_000,
+    staleTime: 60_000,
+    retry: false,
   })
 export type AdminOnline = {
   total: number

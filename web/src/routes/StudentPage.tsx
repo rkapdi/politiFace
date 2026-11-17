@@ -37,7 +37,7 @@ export function StudentView({
 
   if (isPending) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <SkeletonStats />
         <SkeletonChart height="h-40" />
       </div>
@@ -62,22 +62,22 @@ export function StudentView({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-2">
         <div>
-          <a href={`#/class/${cohortId}?tab=students`} className="text-sm text-slate-500 hover:underline">
+          <a href={`#/class/${cohortId}?tab=students`} className="text-[13px] font-semibold text-ink-2 hover:text-ink">
             Back to class
           </a>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">
             {d.identity.display_name}
           </h1>
         </div>
-        <Button variant="ghost" onClick={exportCsv}>
+        <Button variant="ghost" className="bg-panel" onClick={exportCsv}>
           Export CSV
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Last active" value={daysAgo(d.activity.last_active)} />
         <Stat label="Answers, 7d" value={d.activity.answers_7d} />
         <Stat
@@ -98,12 +98,12 @@ export function StudentView({
 
       {d.suggestions.length > 0 ? (
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">Next steps</h2>
+          <h2 className="mb-3 text-base font-bold text-ink">Next steps</h2>
           <ul className="flex flex-col gap-2">
             {d.suggestions.map(s => (
               <li
                 key={s}
-                className="flex items-center justify-between gap-3 rounded-md bg-slate-50 px-3 py-2 text-sm"
+                className="flex items-center justify-between gap-3 rounded-md bg-raised px-3 py-2 text-sm"
               >
                 <span>{s}</span>
                 <Button variant="ghost" onClick={() => setMessagePrefill(s)}>
@@ -121,9 +121,9 @@ export function StudentView({
         </Card>
       ) : null}
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-2">
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <h2 className="mb-3 text-base font-bold text-ink">
             Readiness by domain
           </h2>
           <DomainBars
@@ -134,7 +134,7 @@ export function StudentView({
             }))}
           />
           {d.domains.some(dom => (dom.readiness ?? 0) < 0.6) ? (
-            <div className="mt-3 flex flex-wrap gap-2 border-t border-slate-100 pt-3">
+            <div className="mt-3 flex flex-wrap gap-2 border-t border-line pt-3">
               {d.domains
                 .filter(dom => (dom.readiness ?? 0) < 0.6)
                 .map(dom => (
@@ -166,11 +166,11 @@ export function StudentView({
           ) : null}
         </Card>
         <Card>
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <h2 className="mb-3 text-base font-bold text-ink">
             Weakest objectives
           </h2>
           {d.weak_objectives.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-ink-3">
               No objective is below 60% readiness.
             </p>
           ) : (
@@ -178,10 +178,10 @@ export function StudentView({
               {d.weak_objectives.map(o => (
                 <li key={o.objective_id} className="flex justify-between gap-3">
                   <span>
-                    <span className="mr-2 text-xs text-slate-400">{o.code}</span>
+                    <span className="mr-2 text-xs text-ink-3">{o.code}</span>
                     {o.title}
                   </span>
-                  <span className="font-medium text-amber-700">
+                  <span className="font-medium text-borderline">
                     {Math.round(o.readiness * 100)}%
                   </span>
                 </li>
@@ -192,17 +192,17 @@ export function StudentView({
       </div>
 
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-base font-bold text-ink">
           Live sessions
         </h2>
         {d.live_sessions.length === 0 ? (
-          <p className="text-sm text-slate-500">No live sessions attended yet.</p>
+          <p className="text-sm text-ink-3">No live sessions attended yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <caption className="sr-only">Live session history</caption>
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
+                <tr className="border-b border-line text-left text-xs text-ink-3">
                   <th scope="col" className="py-2 pr-3 font-medium">Session</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Date</th>
                   <th scope="col" className="py-2 font-medium">Correct</th>
@@ -210,7 +210,7 @@ export function StudentView({
               </thead>
               <tbody>
                 {d.live_sessions.map(s => (
-                  <tr key={s.session_id} className="border-b border-slate-100">
+                  <tr key={s.session_id} className="border-b border-line">
                     <td className="py-2 pr-3">{s.title}</td>
                     <td className="py-2 pr-3">{s.held_at.slice(0, 10)}</td>
                     <td className="py-2">

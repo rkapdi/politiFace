@@ -31,15 +31,15 @@ export function MessageClassDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-slate-900/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[90vh] w-[min(28rem,90vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-4 shadow-lg">
-          <Dialog.Title className="text-base font-semibold text-slate-900">
+        <Dialog.Overlay className="fixed inset-0 bg-scrim" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 max-h-[90vh] w-[min(28rem,90vw)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl bg-pop p-5 shadow-pop ring-1 ring-line-strong">
+          <Dialog.Title className="text-base font-semibold text-ink">
             {S.message.title}
           </Dialog.Title>
-          <Dialog.Description className="mt-1 text-sm text-slate-500">
+          <Dialog.Description className="mt-1 text-sm text-ink-3">
             {S.message.intro}
           </Dialog.Description>
-          <label htmlFor="announce-body" className="mt-3 block text-sm font-medium text-slate-700">
+          <label htmlFor="announce-body" className="mt-3 block text-sm font-medium text-ink-2">
             {S.message.label}
           </label>
           <textarea
@@ -48,9 +48,9 @@ export function MessageClassDialog({
             maxLength={MAX_LENGTH}
             value={body}
             onChange={e => setBody(e.target.value)}
-            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-slate-900"
+            className="mt-1 w-full rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm focus-visible:outline-2 focus-visible:outline-focus"
           />
-          <p className="text-right text-xs text-slate-500">
+          <p className="text-right text-xs text-ink-3">
             {body.length} / {MAX_LENGTH}
           </p>
           {send.error ? <Alert tone="error">{send.error.message}</Alert> : null}
@@ -75,18 +75,18 @@ export function MessageClassDialog({
               {S.message.send}
             </Button>
           </div>
-          <h3 className="mt-4 border-t border-slate-100 pt-3 text-sm font-semibold text-slate-900">
+          <h3 className="mt-4 border-t border-line pt-3 text-sm font-semibold text-ink">
             {S.message.recent}
           </h3>
           {recent.error ? <Alert tone="error">{recent.error.message}</Alert> : null}
           {recent.data?.length === 0 ? (
-            <p className="mt-1 text-sm text-slate-500">{S.message.none}</p>
+            <p className="mt-1 text-sm text-ink-3">{S.message.none}</p>
           ) : null}
-          <ul className="mt-1 flex flex-col divide-y divide-slate-100">
+          <ul className="mt-1 flex flex-col divide-y divide-line">
             {(recent.data ?? []).map(m => (
-              <li key={m.id} className="py-2 text-sm text-slate-700">
+              <li key={m.id} className="py-2 text-sm text-ink-2">
                 {m.body}
-                <span className="block text-xs text-slate-500">
+                <span className="block text-xs text-ink-3">
                   {daysAgo(m.created_at)}
                 </span>
               </li>

@@ -1,17 +1,18 @@
+import { PublicPage } from '../components/Brand'
 import { S } from '../lib/strings'
 import { Card } from '../components/ui'
 import { EmailCodeForm } from './EmailCodeForm'
 
 export function SignIn() {
   return (
-    <main className="mx-auto mt-16 max-w-sm px-4">
-      <h1 className="mb-1 text-xl font-semibold text-slate-900">
+    <PublicPage>
+      <h1 className="px-1.5 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">
         {S.signIn.title}
       </h1>
-      <p className="mb-4 text-sm text-slate-500">{S.signIn.intro}</p>
+      <p className="px-1.5 text-sm text-ink-2">{S.signIn.intro}</p>
       <Card>
         <EmailCodeForm />
       </Card>
-    </main>
+    </PublicPage>
   )
 }

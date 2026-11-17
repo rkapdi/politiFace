@@ -54,18 +54,22 @@ function Lobby({
   }, [code])
 
   return (
-    <Card className="flex flex-col items-center gap-4 py-8 text-center">
-      <p className="text-sm text-slate-500">
+    <Card className="flex flex-col items-center gap-5 py-12 text-center">
+      <p className="max-w-md text-sm text-ink-2">
         Students open the join page in any browser and enter this code, or
         scan the QR code. No app, no account.
       </p>
-      <div className="text-5xl font-bold tracking-[0.3em] text-slate-900">
+      <div className="text-6xl font-extrabold leading-none tracking-[0.1em] text-ink tabular-nums sm:text-8xl">
         {code}
       </div>
       {qr ? (
-        <img src={qr} alt={`QR code that opens the join page with code ${code}`} />
+        <img
+          src={qr}
+          alt={`QR code that opens the join page with code ${code}`}
+          className="rounded-lg bg-white p-2"
+        />
       ) : null}
-      <p aria-live="polite" className="text-sm text-slate-600">
+      <p aria-live="polite" className="text-lg font-bold text-ink tabular-nums">
         {participants.data ?? 0} joined
       </p>
       <Button onClick={onStart} disabled={starting}>
@@ -95,7 +99,7 @@ function RevealPanel({ sessionId, index }: { sessionId: string; index: number })
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">Answers</h2>
+        <h2 className="mb-3 text-base font-bold text-ink">Answers</h2>
         <ul className="flex flex-col gap-2">
           {Object.entries(r.counts)
             .sort(([a], [b]) => a.localeCompare(b))
@@ -104,9 +108,9 @@ function RevealPanel({ sessionId, index }: { sessionId: string; index: number })
                 <Badge tone={key === r.correct_key ? 'green' : 'slate'}>
                   {key.toUpperCase()}
                 </Badge>
-                <div className="h-3 flex-1 rounded-full bg-slate-100">
+                <div className="h-3 flex-1 rounded-full bg-control">
                   <div
-                    className={`h-3 rounded-full ${key === r.correct_key ? 'bg-green-600' : 'bg-slate-400'}`}
+                    className={`h-3 rounded-full ${key === r.correct_key ? 'bg-pass' : 'bg-ink-3'}`}
                     style={{ width: total === 0 ? 0 : `${(n / total) * 100}%` }}
                   />
                 </div>
@@ -115,11 +119,11 @@ function RevealPanel({ sessionId, index }: { sessionId: string; index: number })
             ))}
         </ul>
         {r.explanation ? (
-          <p className="mt-3 text-sm text-slate-600">{r.explanation}</p>
+          <p className="mt-3 text-sm text-ink-2">{r.explanation}</p>
         ) : null}
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">Standings</h2>
+        <h2 className="mb-3 text-base font-bold text-ink">Standings</h2>
         {board.data ? <Scoreboard rows={board.data} /> : <Spinner />}
       </Card>
     </div>
@@ -156,7 +160,7 @@ function QuestionMarks({
                 ? 'text-pass'
                 : v === false
                   ? 'text-risk'
-                  : 'text-slate-400'
+                  : 'text-ink-3'
             }
           >
             {v === true ? '✓' : v === false ? '✗' : '·'}
@@ -200,13 +204,13 @@ function EndedPanel({
   return (
     <div className="flex flex-col gap-4">
       <Card className="print:hidden">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-base font-bold text-ink">
           {S.live.standings}
         </h2>
         {board.data ? <Scoreboard rows={board.data} /> : <Spinner />}
       </Card>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-base font-bold text-ink">
           What to reteach
         </h2>
         {stats.isPending ? <Spinner /> : null}
@@ -218,7 +222,7 @@ function EndedPanel({
                   {s.stem}
                 </span>
                 <span
-                  className={`shrink-0 font-medium ${s.correct_rate < 0.6 ? 'text-red-700' : 'text-slate-500'}`}
+                  className={`shrink-0 font-medium ${s.correct_rate < 0.6 ? 'text-risk' : 'text-ink-3'}`}
                 >
                   {Math.round(s.correct_rate * 100)}% correct,{' '}
                   {S.live.answeredOf(s.answered)}
@@ -230,7 +234,7 @@ function EndedPanel({
       </Card>
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">
+          <h2 className="text-base font-bold text-ink">
             Student report
           </h2>
           {report.data ? (
@@ -252,7 +256,7 @@ function EndedPanel({
             <table className="w-full text-sm">
               <caption className="sr-only">Per-student session report</caption>
               <thead>
-                <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
+                <tr className="border-b border-line text-left text-xs text-ink-3">
                   <th scope="col" className="py-2 pr-3 font-medium">Student</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Score</th>
                   <th scope="col" className="py-2 pr-3 font-medium">Correct</th>
@@ -261,12 +265,12 @@ function EndedPanel({
               </thead>
               <tbody>
                 {report.data.map(r => (
-                  <tr key={r.student_ref} className="border-b border-slate-100">
+                  <tr key={r.student_ref} className="border-b border-line">
                     <td className="py-2 pr-3">{r.roster_name}</td>
                     <td className="py-2 pr-3 tabular-nums">{r.score}</td>
                     <td className="py-2 pr-3 tabular-nums">
                       {r.answered === 0 ? (
-                        <span className="text-slate-500">
+                        <span className="text-ink-3">
                           {S.live.joinedNoAnswers}
                         </span>
                       ) : (
@@ -325,13 +329,13 @@ export function LiveRunner({
   const actionError = advance.error ?? end.error
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 px-2">
         <div>
-          <a href={`#/class/${cohortId}?tab=live`} className="text-sm text-slate-500 hover:underline print:hidden">
+          <a href={`#/class/${cohortId}?tab=live`} className="text-[13px] font-semibold text-ink-2 hover:text-ink print:hidden">
             Back to class
           </a>
-          <h1 className="text-xl font-semibold text-slate-900">
+          <h1 className="text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">
             {meta.data.title}
           </h1>
         </div>
@@ -363,7 +367,7 @@ export function LiveRunner({
 
       {status !== 'ended' && confirmingEnd ? (
         <Card className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm font-medium text-slate-900">{S.live.endConfirm}</p>
+          <p className="text-sm font-medium text-ink">{S.live.endConfirm}</p>
           <div className="flex gap-2">
             <Button
               variant="danger"
@@ -399,7 +403,7 @@ export function LiveRunner({
       {status === 'question' && state?.question ? (
         <Card>
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm text-slate-500">
+            <span className="text-sm text-ink-3">
               Question {(state.index ?? 0) + 1} of {state.total}
             </span>
             <Countdown
@@ -407,22 +411,24 @@ export function LiveRunner({
               questionSeconds={state.question_seconds ?? meta.data.question_seconds}
             />
           </div>
-          <p className="text-lg font-medium text-slate-900">
+          <p className="text-balance text-[30px] font-bold leading-tight tracking-[-0.02em] text-ink">
             {state.question.stem}
           </p>
           {isFaculty && answered.data !== undefined ? (
-            <p aria-live="polite" className="mt-1 text-sm text-slate-600">
+            <p aria-live="polite" className="mt-2 text-sm font-semibold text-ink-2">
               {S.live.answered(answered.data, joined.data ?? answered.data)}
             </p>
           ) : null}
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+          <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
             {state.question.options.map(o => (
               <li
                 key={o.key}
-                className="rounded-md border border-slate-200 px-3 py-2 text-sm"
+                className="flex items-center gap-3.5 rounded-lg bg-raised px-5 py-4 text-lg font-semibold text-ink"
               >
-                <span className="mr-2 font-semibold">{o.key.toUpperCase()}</span>
-                {o.text}
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-control text-sm font-extrabold">
+                  {o.key.toUpperCase()}
+                </span>
+                <span className="min-w-0">{o.text}</span>
               </li>
             ))}
           </ul>

@@ -166,7 +166,7 @@ function RouteError({ error }: { error: unknown }) {
   }, [error])
   return (
     <Card className="mx-auto mt-16 max-w-md text-center">
-      <p className="text-sm text-slate-700">{S.errors.somethingBroke}</p>
+      <p className="text-sm text-ink-2">{S.errors.somethingBroke}</p>
       <div className="mt-3">
         <Button onClick={() => window.location.reload()}>
           {S.common.reload}

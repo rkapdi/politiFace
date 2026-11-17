@@ -3,7 +3,7 @@ import { liveSessionPreview, useJoinClass, useMyStudentClasses } from '../lib/ap
 import { S } from '../lib/strings'
 import { Alert, Badge, Button, Card, Spinner } from './ui'
 
-const field = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
+const field = 'mt-1 w-full rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm'
 
 // A student holds "a code from the professor" and should not have to know
 // which kind it is. A running session wins; anything else is treated as a
@@ -48,10 +48,10 @@ function CodeCard({ knownName }: { knownName: string }) {
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold text-slate-900">{S.student.enterCode}</h2>
-      <p className="mb-2 text-xs text-slate-500">{S.student.enterCodeHint}</p>
+      <h2 className="text-base font-bold text-ink">{S.student.enterCode}</h2>
+      <p className="mb-2 text-xs text-ink-3">{S.student.enterCodeHint}</p>
       <form onSubmit={e => void onSubmit(e)} className="flex flex-col gap-3">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.student.code}
           <input
             required
@@ -66,7 +66,7 @@ function CodeCard({ knownName }: { knownName: string }) {
           />
         </label>
         {askingName ? (
-          <label className="text-sm text-slate-700">
+          <label className="text-sm text-ink-2">
             {S.student.rosterName}
             <input
               required
@@ -99,17 +99,17 @@ export function StudentHome() {
   return (
     <div className="mx-auto flex max-w-lg flex-col gap-4">
       <Card>
-        <h1 className="mb-2 text-sm font-semibold text-slate-900">{S.student.title}</h1>
+        <h1 className="mb-2 text-sm font-semibold text-ink">{S.student.title}</h1>
         {classes.isPending ? <Spinner /> : null}
         {classes.data && classes.data.length === 0 ? (
-          <p className="text-sm text-slate-500">{S.student.none}</p>
+          <p className="text-sm text-ink-3">{S.student.none}</p>
         ) : null}
-        <ul className="flex flex-col divide-y divide-slate-100">
+        <ul className="flex flex-col divide-y divide-line">
           {(classes.data ?? []).map(c => (
             <li key={c.cohort_id} className="flex items-center justify-between py-2">
               <div>
-                <p className="text-sm font-medium text-slate-900">{c.name}</p>
-                <p className="text-xs text-slate-500">
+                <p className="text-sm font-medium text-ink">{c.name}</p>
+                <p className="text-xs text-ink-3">
                   {c.professor}{c.roster_name ? `, you are listed as ${c.roster_name}` : ''}
                 </p>
               </div>
@@ -119,11 +119,11 @@ export function StudentHome() {
         </ul>
       </Card>
       <CodeCard knownName={classes.data?.find(c => c.roster_name)?.roster_name ?? ''} />
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-ink-3">
         {S.student.getAppPre}{' '}
         <a
           href="https://politiface.app/"
-          className="font-medium text-slate-900 underline"
+          className="font-medium text-ink underline"
         >
           {S.student.getAppLink}
         </a>

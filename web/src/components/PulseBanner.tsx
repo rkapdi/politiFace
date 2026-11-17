@@ -8,6 +8,7 @@ const ACTION_LABEL: Record<PulseCardData['kind'], string> = {
   participation: S.pulse.message,
 }
 
+/** The week in one sentence, then what to do about it. */
 export function PulseBanner({
   pulse,
   onAction,
@@ -16,25 +17,28 @@ export function PulseBanner({
   onAction: (card: PulseCardData) => void
 }) {
   return (
-    <Card>
-      <h2 className="sr-only">Class pulse</h2>
-      <p className="text-base font-medium leading-relaxed text-slate-900">
-        {pulse.sentence}
-      </p>
+    <Card className="flex h-full flex-col justify-between gap-5">
+      <div>
+        <h2 className="sr-only">Class pulse</h2>
+        <p aria-hidden="true" className="mb-2 text-[13px] font-semibold text-ink-3">
+          {S.pulse.label}
+        </p>
+        <p className="text-pretty text-[21px] font-semibold leading-[1.4] tracking-[-0.02em] text-ink">
+          {pulse.sentence}
+        </p>
+      </div>
       {pulse.cards.length > 0 ? (
-        <ul className="mt-3 grid gap-2 sm:grid-cols-3">
+        <ul className="grid gap-2 sm:grid-cols-3">
           {pulse.cards.map(c => (
             <li
               key={c.kind}
-              className="flex flex-col justify-between gap-2 rounded-md bg-slate-50 p-3"
+              className="flex flex-col items-start justify-between gap-3 rounded-lg bg-raised p-3.5"
             >
               <div>
-                <p className="text-sm font-semibold text-slate-900">
-                  {c.headline}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">{c.detail}</p>
+                <p className="text-sm font-semibold text-ink">{c.headline}</p>
+                <p className="mt-1 text-xs text-ink-3">{c.detail}</p>
               </div>
-              <Button variant="ghost" onClick={() => onAction(c)}>
+              <Button variant="ghost" className="px-3 py-1.5 text-xs" onClick={() => onAction(c)}>
                 {ACTION_LABEL[c.kind]}
               </Button>
             </li>

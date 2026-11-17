@@ -11,6 +11,7 @@ import {
   useLogExport,
   useReportingPolicy,
   useTopMisses,
+  type CohortPulse,
   type PulseCardData,
 } from '../lib/api'
 import { supabase } from '../lib/supabase'
@@ -68,7 +69,41 @@ export function ClassPage() {
   )
 }
 
-function OverviewTab({ cohortId }: { cohortId: string }) {
+export function PassRateCard({ pulse }: { pulse: CohortPulse | undefined }) {
+  const known = pulse && !pulse.below_floor && pulse.above_line !== undefined && pulse.students > 0
+  const pct = known ? Math.round((pulse.above_line! / pulse.students) * 100) : null
+  return (
+    <div className="flex min-h-[216px] flex-col justify-between gap-4 rounded-xl bg-accent p-5 text-on-accent">
+      <span className="text-[13px] font-bold text-on-accent-2">{S.pulse.passRate}</span>
+      <div className="flex items-end gap-0.5">
+        <b className="text-[92px] font-extrabold leading-[0.9] tracking-[-0.05em] tabular-nums">
+          {pct ?? 'n/a'}
+        </b>
+        {pct !== null ? (
+          <span className="text-4xl font-bold leading-[44px] text-on-accent-2">%</span>
+        ) : null}
+      </div>
+      <div className="flex flex-col gap-2">
+        <div aria-hidden="true" className="h-2 rounded-full bg-accent-track">
+          <div className="h-2 rounded-full bg-on-accent" style={{ width: `${pct ?? 0}%` }} />
+        </div>
+        <p className="text-[13px] font-semibold">
+          {known ? S.pulse.passNote(pulse.above_line!, pulse.students) : S.pulse.passFloor}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+function OverviewTab({
+  cohortId,
+  pulse,
+  onPulseAction,
+}: {
+  cohortId: string
+  pulse: CohortPulse | undefined
+  onPulseAction: (card: PulseCardData) => void
+}) {
   const overview = useCohortOverview(cohortId)
   const domains = useDomainStats(cohortId)
   const misses = useTopMisses(cohortId)
@@ -79,7 +114,7 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
 
   if (overview.isPending) {
     return (
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <SkeletonStats />
         <SkeletonChart />
       </div>
@@ -89,6 +124,7 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
 
   const o = overview.data
   const belowFloor = o !== undefined && o.active_7d === null
+  const showDistribution = distribution.data !== undefined && !distribution.data.below_floor
 
   const openOnePager = async () => {
     setOnePagerError(null)
@@ -126,26 +162,34 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <Stat label="Students" value={o?.students ?? 0} />
-        <Stat label="Active this week" value={o?.active_7d ?? 'n/a'} />
-        <Stat label="Answers" value={o?.answers_total ?? 'n/a'} />
-        <Stat label="Mocks completed" value={o?.mocks_completed ?? 'n/a'} />
-      </div>
+    <div className="flex flex-col gap-3">
+      {pulse ? (
+        <div className="grid gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <PassRateCard pulse={pulse} />
+          <PulseBanner pulse={pulse} onAction={onPulseAction} />
+        </div>
+      ) : null}
       {belowFloor ? (
         <Alert tone="info">
           Activity statistics appear once the class reaches 5 students.
         </Alert>
       ) : null}
-      {distribution.data && !distribution.data.below_floor ? (
+      <div className={showDistribution ? 'grid gap-3 lg:grid-cols-[minmax(0,1fr)_380px]' : ''}>
+        {showDistribution ? (
+          <Card>
+            <DistributionChart distribution={distribution.data} />
+          </Card>
+        ) : null}
+        <div className={`grid grid-cols-2 gap-3 ${showDistribution ? '' : 'sm:grid-cols-4'}`}>
+          <Stat label="Students" value={o?.students ?? 0} />
+          <Stat label="Active this week" value={o?.active_7d ?? 'n/a'} />
+          <Stat label="Answers" value={o?.answers_total ?? 'n/a'} />
+          <Stat label="Mocks completed" value={o?.mocks_completed ?? 'n/a'} />
+        </div>
+      </div>
+      <div className="grid gap-3 lg:grid-cols-2">
         <Card>
-          <DistributionChart distribution={distribution.data} />
-        </Card>
-      ) : null}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <h2 className="mb-4 text-base font-bold text-ink">
             Readiness by FCLE domain
           </h2>
           {domains.data ? (
@@ -165,7 +209,7 @@ function OverviewTab({ cohortId }: { cohortId: string }) {
         </Card>
       </div>
       <Card>
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <h2 className="mb-3 text-base font-bold text-ink">
           Most missed questions
         </h2>
         {misses.data ? <TopMisses rows={misses.data} /> : <Spinner />}
@@ -227,16 +271,27 @@ export function ClassView({
     cards: pulse.data.cards.filter(c => isFaculty || c.kind !== 'participation'),
   }
 
+  const startLive = () => {
+    setLiveDraft(d => ({ ...d, composing: true }))
+    setTab('live')
+  }
+
   return (
-    <div className="flex flex-col gap-4">
+    <Tabs value={tab} onValueChange={t => setTab(t as ClassTab)} className="flex flex-col gap-3">
       <ClassHeader
         cohortId={cohortId}
         onMessage={isFaculty ? () => setAnnouncing('') : undefined}
+        onStartLive={startLive}
+        tabs={
+          <TabsList aria-label="Class sections">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="students">Students</TabsTrigger>
+            <TabsTrigger value="live">Live</TabsTrigger>
+            {isFaculty ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
+          </TabsList>
+        }
       />
       {policy.data ? <PolicyBanner policy={policy.data} /> : null}
-      {visiblePulse ? (
-        <PulseBanner pulse={visiblePulse} onAction={onPulseAction} />
-      ) : null}
       {announcing !== null ? (
         <MessageClassDialog
           cohortId={cohortId}
@@ -247,32 +302,20 @@ export function ClassView({
           }}
         />
       ) : null}
-      <Tabs value={tab} onValueChange={t => setTab(t as ClassTab)}>
-        <TabsList aria-label="Class sections">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="live">Live</TabsTrigger>
-          {isFaculty ? <TabsTrigger value="settings">Settings</TabsTrigger> : null}
-        </TabsList>
-        <TabsContent value="overview">
-          <OverviewTab cohortId={cohortId} />
+      <TabsContent value="overview">
+        <OverviewTab cohortId={cohortId} pulse={visiblePulse} onPulseAction={onPulseAction} />
+      </TabsContent>
+      <TabsContent value="students">
+        <StudentsTab cohortId={cohortId} />
+      </TabsContent>
+      <TabsContent value="live">
+        <LiveTab cohortId={cohortId} draft={liveDraft} onDraftChange={setLiveDraft} />
+      </TabsContent>
+      {isFaculty ? (
+        <TabsContent value="settings">
+          <SettingsTab cohortId={cohortId} />
         </TabsContent>
-        <TabsContent value="students">
-          <StudentsTab cohortId={cohortId} />
-        </TabsContent>
-        <TabsContent value="live">
-          <LiveTab
-            cohortId={cohortId}
-            draft={liveDraft}
-            onDraftChange={setLiveDraft}
-          />
-        </TabsContent>
-        {isFaculty ? (
-          <TabsContent value="settings">
-            <SettingsTab cohortId={cohortId} />
-          </TabsContent>
-        ) : null}
-      </Tabs>
-    </div>
+      ) : null}
+    </Tabs>
   )
 }

@@ -11,10 +11,11 @@ import {
   useMyProfile,
   useUpdateMyProfile,
 } from '../lib/api'
+import { PublicPage } from '../components/Brand'
 import { S } from '../lib/strings'
 import { Alert, Button, Card, Spinner } from '../components/ui'
 
-const field = 'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm'
+const field = 'mt-1 w-full rounded-md border border-field-line bg-field text-ink px-3 py-2 text-sm'
 
 function inviteFromHash(): string {
   const m = window.location.hash.match(/[?&]invite=([A-Za-z0-9]+)/)
@@ -65,15 +66,15 @@ function Setup({ userId }: { userId: string }) {
 
   return step === 'profile' ? (
     <Card>
-      <h2 className="text-base font-semibold text-slate-900">{S.welcome.stepProfile}</h2>
-      <p className="mt-1 text-sm text-slate-500">{S.welcome.profileHint}</p>
+      <h2 className="text-base font-semibold text-ink">{S.welcome.stepProfile}</h2>
+      <p className="mt-1 text-sm text-ink-3">{S.welcome.profileHint}</p>
       <form onSubmit={saveProfile} className="mt-3 flex flex-col gap-3">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.account.displayName}
           <input required minLength={3} maxLength={30} value={handle}
             onChange={e => setHandle(e.target.value)} className={field} />
         </label>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.account.school}
           <input maxLength={120} value={school}
             onChange={e => setSchool(e.target.value)} className={field} />
@@ -84,15 +85,15 @@ function Setup({ userId }: { userId: string }) {
     </Card>
   ) : (
     <Card>
-      <h2 className="text-base font-semibold text-slate-900">{S.welcome.stepClass}</h2>
-      <p className="mt-1 text-sm text-slate-500">{S.welcome.classHint}</p>
+      <h2 className="text-base font-semibold text-ink">{S.welcome.stepClass}</h2>
+      <p className="mt-1 text-sm text-ink-3">{S.welcome.classHint}</p>
       <form onSubmit={createClass} className="mt-3 flex flex-col gap-3">
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.welcome.className}
           <input required minLength={3} value={name} placeholder={S.welcome.classNamePlaceholder}
             onChange={e => setName(e.target.value)} className={field} />
         </label>
-        <label className="text-sm text-slate-700">
+        <label className="text-sm text-ink-2">
           {S.welcome.term}
           <input value={term} placeholder="2026F"
             onChange={e => setTerm(e.target.value)} className={field} />
@@ -128,7 +129,7 @@ function Verify({ code, userId }: { code: string; userId: string }) {
     return (
       <>
         <Alert tone="error">{verified.error.message}</Alert>
-        <a href="#/" className="text-sm font-medium text-slate-900 underline">
+        <a href="#/" className="text-sm font-medium text-ink underline">
           {S.welcome.goHome}
         </a>
       </>
@@ -160,18 +161,18 @@ export function WelcomePage() {
 
   if (loading) {
     return (
-      <main className="mx-auto mt-12 flex max-w-md flex-col gap-4 px-4">
-        <h1 className="text-xl font-semibold text-slate-900">{S.welcome.title}</h1>
+      <PublicPage>
+        <h1 className="px-1.5 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">{S.welcome.title}</h1>
         <Spinner label={S.common.checkingSession} />
-      </main>
+      </PublicPage>
     )
   }
 
   // Signed in, the redeem itself is the check: a professor who already
   // redeemed this code (so it previews as used) is verified and skips it.
   return (
-    <main className="mx-auto mt-12 flex max-w-md flex-col gap-4 px-4">
-      <h1 className="text-xl font-semibold text-slate-900">{S.welcome.title}</h1>
+    <PublicPage>
+      <h1 className="px-1.5 text-[28px] font-bold leading-tight tracking-[-0.03em] text-ink">{S.welcome.title}</h1>
       {code === '' ? (
         <Alert tone="error">{S.welcome.invalid}</Alert>
       ) : signedIn ? (
@@ -185,7 +186,7 @@ export function WelcomePage() {
       ) : (
         <>
           {preview.data?.inviter ? (
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-ink-2">
               {S.welcome.invitedBy} <b>{preview.data.inviter}</b>
             </p>
           ) : null}
@@ -194,6 +195,6 @@ export function WelcomePage() {
           </Card>
         </>
       )}
-    </main>
+    </PublicPage>
   )
 }

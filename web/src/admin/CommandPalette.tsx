@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
+import { Search } from 'lucide-react'
+import { fieldClass } from '../components/ui'
 import { hitPath, useAdminSearch, type SearchHit } from './adminApi'
 import { useDebounced } from './useDebounced'
 import { A } from './strings'
@@ -72,9 +74,13 @@ export function CommandPalette() {
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(true)}
-        className="flex-1 border border-[var(--a-line)] px-2 py-1 text-left text-[var(--a-muted)]"
+        className="flex h-11 min-w-[220px] flex-1 items-center gap-2.5 bg-panel px-4 text-left text-[13px] font-medium text-ink-3 hover:text-ink-2"
       >
-        {A.searchHint} {A.searchPlaceholder}
+        <Search aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.6} />
+        <span className="min-w-0 flex-1 truncate">{A.searchPlaceholder}</span>
+        <kbd className="shrink-0 rounded-sm bg-control px-1.5 py-0.5 font-mono text-[11px] text-ink-2">
+          {A.searchHint}
+        </kbd>
       </button>
       {open ? (
         <div
@@ -82,12 +88,12 @@ export function CommandPalette() {
           role="dialog"
           aria-modal="true"
           aria-label={A.titles.search}
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 pt-24"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-scrim pt-24"
           onClick={close}
           onKeyDown={trapTab}
         >
           <div
-            className="admin-panel w-[min(640px,92vw)] p-2"
+            className="w-[min(640px,92vw)] rounded-xl bg-pop p-3 shadow-pop"
             onClick={e => e.stopPropagation()}
           >
             <input
@@ -104,7 +110,7 @@ export function CommandPalette() {
                 }
               }}
               placeholder={A.searchPlaceholder}
-              className="w-full border border-[var(--a-line)] bg-[var(--a-bg)] px-2 py-1.5 text-[var(--a-strong)]"
+              className={`w-full ${fieldClass}`}
             />
             <ul className="mt-2 max-h-80 overflow-y-auto">
               {q.trim().length >= 2 && hits.length === 0 ? (
@@ -128,7 +134,7 @@ export function CommandPalette() {
                         else itemRefs.current[i - 1]?.focus()
                       }
                     }}
-                    className="flex w-full gap-2 px-2 py-1 text-left hover:bg-[var(--a-line)]"
+                    className="flex w-full items-baseline gap-2 rounded-md px-2 py-1.5 text-left hover:bg-control"
                   >
                     <span className="admin-label w-16">{h.kind}</span>
                     <span className="admin-strong">{h.title}</span>

@@ -8,6 +8,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import { axisLine, axisTick, tooltipStyle } from './chartTheme'
 import type { StudentTrend } from '../lib/api'
 
 export function StudentTrendChart({ trend }: { trend: StudentTrend }) {
@@ -19,20 +20,20 @@ export function StudentTrendChart({ trend }: { trend: StudentTrend }) {
 
   return (
     <figure>
-      <figcaption className="mb-2 text-sm font-medium text-slate-700">
+      <figcaption className="mb-2 text-sm font-medium text-ink-2">
         Projected score by week, pass line {trend.pass_line}
       </figcaption>
       <div className="h-40" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={rows} margin={{ top: 4, right: 8, bottom: 0, left: -24 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="week" tick={{ fontSize: 10 }} />
-            <YAxis domain={[0, 80]} tick={{ fontSize: 11 }} />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-line-strong)" />
+            <XAxis dataKey="week" tick={axisTick(10)} {...axisLine} />
+            <YAxis domain={[0, 80]} tick={axisTick(11)} {...axisLine} />
+            <Tooltip {...tooltipStyle} />
             <ReferenceLine
               y={trend.pass_line}
-              stroke="var(--color-risk)"
-              strokeDasharray="4 4"
+              stroke="var(--color-pass)"
+              strokeDasharray="5 5"
             />
             <Line
               type="monotone"

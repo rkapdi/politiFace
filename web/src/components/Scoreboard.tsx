@@ -2,7 +2,7 @@ import type { ScoreboardRow } from '../lib/api'
 
 export function Scoreboard({ rows }: { rows: ScoreboardRow[] }) {
   if (rows.length === 0) {
-    return <p className="text-sm text-slate-500">No answers yet.</p>
+    return <p className="text-sm text-ink-3">No answers yet.</p>
   }
   return (
     <ol className="flex flex-col gap-1">
@@ -10,7 +10,7 @@ export function Scoreboard({ rows }: { rows: ScoreboardRow[] }) {
         <li
           key={`${r.rank}-${r.handle}`}
           className={`flex items-center justify-between rounded-md px-3 py-1.5 text-sm ${
-            r.is_me ? 'bg-slate-900 text-white' : 'bg-slate-50 text-slate-800'
+            r.is_me ? 'bg-strong text-on-strong' : 'bg-raised text-ink'
           } ${r.rank <= 3 ? 'font-semibold' : ''}`}
         >
           <span>
