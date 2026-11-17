@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy — Politiface</title>
-<meta name="description" content="Politiface is built local-first. Your gameplay stays on your device. No account, no personal data collected, no data sold.">
+<meta name="description" content="What Politiface keeps on your phone, what it sends to our server, who can see it, and how to delete it. No ads, no data sold.">
 <meta name="theme-color" content="#1A1A2E">
 <link rel="icon" type="image/png" href="../assets/icon.png">
 <link rel="apple-touch-icon" href="../assets/icon.png">
@@ -34,60 +34,127 @@
     <div class="doc-head">
       <span class="eyebrow">Legal</span>
       <h1>Privacy Policy</h1>
-      <p class="doc-updated">Last updated July 4, 2026</p>
+      <p class="doc-updated">Last updated November 17, 2026</p>
     </div>
     <hr class="doc-rule">
 
     <article class="prose">
-      <p>Politiface is built local-first. Your gameplay, mastery progress, streak, and review history live on your device only. We don't run an account system, we don't collect personal information, and we don't sell data.</p>
-      <p>This document explains what stays on your phone, what is sent to third parties, and the choices you control.</p>
+      <p>Politiface is a study app for the civic literacy exam. This page says what the app keeps on your phone, what it sends to our server and to other services, who can see it, and what you can do about it.</p>
+      <p>We do not sell your data. We do not show ads. We do not track you across other apps or websites.</p>
 
-      <h2>What we collect</h2>
-      <p><strong>Nothing identifies you to us.</strong> Politiface does not ask for an email, phone number, name, or any account. We have no server that holds your gameplay.</p>
-      <p>The app stores the following <strong>on your device only</strong>, in a local SQLite database (Drift):</p>
+      <h2>The short version</h2>
       <ul>
-        <li>Cards you've reviewed and their FSRS memory state (stability, difficulty, retrievability).</li>
-        <li>Trivia answers, daily round grades, and endless run history.</li>
-        <li>Your streak, XP, and chapter progress.</li>
-        <li>App preferences (theme mode, notification toggle, crash-report consent).</li>
+        <li>Your study progress is saved on your phone. While you are signed in, a copy is kept on our server so it can follow you to another device and so classes and leaderboards can work.</li>
+        <li>An account needs an email address. There is no password.</li>
+        <li>If you join a class, your teacher sees the name you gave and how you are doing.</li>
+        <li>Crash reports are on by default. You can turn them off.</li>
+        <li>You can delete your account, and what is tied to it, from inside the app.</li>
       </ul>
-      <p>If you uninstall the app, all of this is deleted.</p>
 
-      <h2>What is sent to third parties</h2>
-      <h3>Sentry (crash reporting; on by default, with an off switch)</h3>
-      <p>Crash reporting is <strong>off until you turn it on</strong> in <strong>Settings &rarr; Privacy &rarr; Crash reports</strong>. If you never touch the toggle, the Sentry SDK is never even initialized and nothing is sent, ever.</p>
-      <p>When the app crashes or hits an unexpected error, a stack trace is sent to <a href="https://sentry.io">Sentry</a> so we can fix bugs. We have explicitly configured Sentry to <strong>never attach personal information</strong> (<code>sendDefaultPii: false</code>): the report contains the error message, the source line, and the software stack, not who you are and not anything you studied. Crash reporting is on by default; you can turn it off at any time in Settings, under Privacy (takes effect on the next launch).</p>
-      <p>The app has <strong>no usage analytics of any kind</strong>: no events, no identifiers, no analytics SDK. You can verify this in the <a href="https://github.com/rkapdi/politiFace">open source code</a>.</p>
-      <h3>Wikimedia (Wikidata + Wikipedia)</h3>
-      <p>Politician portraits ship inside the app; they are not downloaded. When you open a politician's detail screen, the app fetches a short biographical summary from Wikipedia (cached on your device afterward). These requests contain the politician's identifier, never anything about you. They follow Wikimedia's own privacy policy, and the app works fully offline without them.</p>
-      <h3>Apple (App Store + iOS)</h3>
-      <p>Apple operates TestFlight, the App Store, and iOS. When you install or update Politiface, Apple sees that. We don't get device-specific identifiers from Apple beyond what every iOS app receives by default.</p>
+      <h2>What stays on your phone</h2>
+      <p>The app keeps the following in a database on your phone:</p>
+      <ul>
+        <li>The cards you have reviewed and how well you remember each one.</li>
+        <li>Your daily rounds, endless runs and practice answers.</li>
+        <li>Your streak, XP, chapter progress and exam date.</li>
+        <li>Your settings: appearance, sound and haptics, notification switches, and the crash report switch.</li>
+      </ul>
+      <p>Deleting the app removes all of this from your phone. It does not delete your account.</p>
 
-      <h2>What is NOT collected</h2>
+      <h2>Your account</h2>
+      <p>The App Store version of Politiface asks you to create an account at the end of setup. You type your email address and we email you a one-time code. After that, our server keeps:</p>
+      <ul>
+        <li><strong>Your email address</strong>, when the account was created, and when you last signed in.</li>
+        <li><strong>Your profile:</strong> a display name (the app makes one up to start with, and you can change it), a picture chosen from a built-in set, and your school if you choose to type it. The app never uses your own photos.</li>
+        <li><strong>Your study progress:</strong> your chapter, XP, streak, the decks you follow, and the memory state of each card.</li>
+        <li><strong>Your exam practice:</strong> each answer you give to an exam question (which question, which choice, whether it was right, and when), your mock exams and their scores, your Today's 5 answers, score and time, and the readiness estimates worked out from these.</li>
+        <li><strong>When you study:</strong> when a study session starts and ends, and when the app was last open while you were signed in.</li>
+        <li><strong>What you sign in from:</strong> the app version and the type of device or browser.</li>
+      </ul>
+      <p>If you sign out, the app stops sending anything tied to your account, and studying on your phone keeps working.</p>
+
+      <h2>Classes</h2>
+      <p>You can join a class with a class code. When you do, the app asks for the name your teacher knows you by.</p>
+      <ul>
+        <li><strong>Your teacher</strong> sees that name next to your work in the class: when you were last active, how many questions you answered and how many were right, your mock exam results, your readiness by topic, and your answers in live sessions. Teaching assistants see class totals only.</li>
+        <li><strong>Your classmates</strong> see your display name, picture and score on the class leaderboard and on live session scoreboards. They do not see your email address or the name you gave your teacher. Your display name is whatever you set it to, so choose one you are happy for classmates to see.</li>
+        <li><strong>Live sessions:</strong> we keep that you joined, each answer you gave, and how long each answer took.</li>
+        <li><strong>Announcements</strong> from your teacher appear in the app and can arrive as notifications.</li>
+      </ul>
+
+      <h2>Notifications</h2>
+      <p>Study reminders are scheduled on your phone and involve no server.</p>
+      <p>If you are signed in and the "What Washington did" switch is on, the app gives our server the token Apple issues to your phone for notifications. It is stored with your account and used only to send you alerts about Washington and messages from your teacher. It is removed when you sign out or delete your account.</p>
+
+      <h2>Problem reports</h2>
+      <p>When something goes wrong while you are signed in, the app sends our server a short note: what failed, the error message, and the app version, stored with your account. Once a day it also notes that the app was opened.</p>
+      <p>If signing in fails, the note includes the email address you typed, so we can help you get in. This happens even when no account was created. If joining a live session is refused, the note includes the session code.</p>
+      <p>These notes are deleted after 90 days.</p>
+
+      <h2>Crash reports</h2>
+      <p>Crash reports are <strong>on by default</strong>. You can turn them off at any time in <strong>Settings &rarr; Privacy &rarr; Crash reports</strong>. The change takes effect the next time the app starts.</p>
+      <p>When the app crashes or hits an unexpected error, a report goes to <a href="https://sentry.io">Sentry</a>, the service we use to find and fix bugs. A report contains the error, where in the code it happened, the app version, and your phone model and iOS version. For about one app start in ten it also contains how long parts of the app took to load.</p>
+      <p>A crash report does not contain your name, your email address, your account, or anything you studied. We have set Sentry not to attach personal information, and reports are not linked to your account.</p>
+
+      <h2>Who can see your data</h2>
+      <ul>
+        <li><strong>Your teacher and classmates</strong>, as described under Classes.</li>
+        <li><strong>The small team that runs Politiface.</strong> To run the service, fix problems and answer support requests, we can see your email address, display name, school, sign-in times, device type, class memberships (including the name you gave your teacher), your activity, and problem reports.</li>
+        <li><strong>Companies that provide services to us:</strong>
+          <ul>
+            <li><a href="https://supabase.com">Supabase</a> hosts our database and sign-in. Your account and everything listed under Your account is stored there.</li>
+            <li><a href="https://sentry.io">Sentry</a> receives crash reports.</li>
+            <li>Apple delivers notifications and runs the App Store and TestFlight. When you install or update Politiface, Apple sees that.</li>
+          </ul>
+        </li>
+      </ul>
+      <p>No one else. We do not sell or rent your data.</p>
+
+      <h2>Other sites the app contacts</h2>
+      <p>Some screens load public information straight from its source. These requests carry nothing about you or your account, though like any website the source can see your IP address.</p>
+      <ul>
+        <li><strong>federalregister.gov and whitehouse.gov:</strong> the list of executive orders and the text of presidential actions.</li>
+        <li><strong>Wikipedia and Wikidata:</strong> a short biography when you open a politician's page. It is then saved on your phone.</li>
+      </ul>
+      <p>Bills, votes and nominations come through our own server, so the sites they come from do not see your phone. Politician portraits ship inside the app and are not downloaded. A link you tap opens in your browser.</p>
+
+      <h2>What is not collected</h2>
       <ul class="nope">
-        <li>Your name, email, phone number, address</li>
+        <li>Your phone number or address</li>
+        <li>Your location</li>
         <li>Your political affiliation, voting history, or party</li>
-        <li>Your contact list, photos, microphone, camera, or location</li>
-        <li>Browsing history outside the app</li>
-        <li>Cross-app tracking identifiers (we don't use IDFA)</li>
+        <li>Your contacts, photos, microphone, or camera</li>
+        <li>Advertising identifiers (we don't use IDFA)</li>
+        <li>Anything you do outside the app</li>
       </ul>
+      <p>The app contains no advertising software and no third-party analytics software. You can check this in the <a href="https://github.com/rkapdi/politiFace">open source code</a>.</p>
 
-      <h2>Children</h2>
-      <p>We don't knowingly collect information from children under 13. If you believe a child has provided personal information to us, contact us and we'll delete it — though practically there's nothing to delete because we have no account system.</p>
+      <h2>How long we keep it</h2>
+      <ul>
+        <li><strong>Your account and study records:</strong> until you delete your account.</li>
+        <li><strong>Problem reports:</strong> 90 days.</li>
+        <li><strong>Crash reports:</strong> these are not tied to your account, so deleting your account does not remove them. They expire on Sentry's own schedule.</li>
+        <li><strong>Audit records:</strong> a record that a class report was exported, or that our team took an action on an account, is kept.</li>
+      </ul>
 
       <h2>Your choices</h2>
       <ul>
-        <li><strong>Crash reports:</strong> opt in or out at any time via Settings &rarr; Privacy &rarr; Crash reports (off by default).</li>
-        <li><strong>Notification reminders:</strong> opt in or out via Settings &rarr; Notifications &rarr; Daily review reminder, or in iOS Settings &rarr; Notifications &rarr; Politiface.</li>
-        <li><strong>Reset progress:</strong> wipes all local data via Settings &rarr; Danger zone &rarr; Reset progress.</li>
-        <li><strong>Uninstall:</strong> removes all local data.</li>
+        <li><strong>Crash reports:</strong> turn them off or on in Settings &rarr; Privacy &rarr; Crash reports.</li>
+        <li><strong>Notifications:</strong> each kind has its own switch in Settings &rarr; Notifications. You can also turn them all off in iOS Settings &rarr; Notifications &rarr; Politiface.</li>
+        <li><strong>Sign out:</strong> Settings &rarr; Account. The app stops sending anything tied to your account.</li>
+        <li><strong>Reset progress:</strong> Settings &rarr; Reset &rarr; Reset progress clears the study data on your phone. It does not delete your account.</li>
+        <li><strong>Delete your account:</strong> Settings &rarr; Account, then Delete account under Danger zone. This permanently deletes your account and what is tied to it on our server: your profile, progress, answers, mock exams, class memberships and notification token. If you run a class that other people have joined, the app will not delete your account while that class is open. Email us and we will help. Questions a teacher wrote for a class stay, without the author's name.</li>
+        <li><strong>Ask us:</strong> email us for help deleting your data.</li>
       </ul>
+
+      <h2>Children</h2>
+      <p>Politiface is made for students preparing for a civic literacy exam. It is not directed to children under 13, and we do not knowingly collect information from them. If you believe a child under 13 has given us information, contact us and we will delete it.</p>
 
       <h2>Open source</h2>
       <p>Politiface is open source under the MIT license. You can audit exactly what the app does at <a href="https://github.com/rkapdi/politiFace">github.com/rkapdi/politiFace</a>.</p>
 
       <h2>Changes to this policy</h2>
-      <p>If we change what we collect — for example, when we eventually add user accounts for cross-device sync — we'll update this page, bump the "Last updated" date, and notify users via the app before the change takes effect.</p>
+      <p>If we change what we collect or who can see it, we will update this page and its date, and note the change in the <a href="../changelog/">changelog</a>.</p>
 
       <div class="doc-contact">
         <h2>Contact</h2>

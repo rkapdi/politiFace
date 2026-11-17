@@ -19,6 +19,17 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: website-2026-11-17-privacy-policy
+  date: 2026-11-17
+  platform: Website
+  title: Privacy policy rewritten to match the app
+  items:
+    - The privacy policy now covers accounts, classes, notifications and problem reports, and says who can see what.
+    - It states that crash reports are on by default and where to turn them off.
+    - It explains how to delete your account from inside the app and what that removes.
+    - The support page now gives the right place for Reset progress and says how to keep progress across devices.
+    - The home page now says the app uses an email sign-in with no password.
+
 - id: web-2026-11-15-admin-home
   date: 2026-11-16
   platform: Web
