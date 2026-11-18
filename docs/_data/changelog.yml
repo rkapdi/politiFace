@@ -19,6 +19,15 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-11-18-archive-classes
+  date: 2026-11-18
+  platform: Web
+  title: Archive classes in the admin console
+  items:
+    - Admins can archive a class from its record page. An archived class leaves the console's home, class lists and numbers, and its instructors' class list, while its members and history stay as they were.
+    - An archived class can be restored at any time, or deleted permanently after typing its name.
+    - Deleting a class keeps students' own practice and removes the class, its enrolments and its live session history.
+
 - id: web-2026-11-18-saved-live-sessions
   date: 2026-11-18
   platform: Web

@@ -1,5 +1,7 @@
 import { Link, useParams } from '@tanstack/react-router'
 import { useAdminClass } from './adminApi'
+import { Badge } from '../components/ui'
+import { ClassActions } from './ClassActions'
 import { ThreePane } from './ThreePane'
 import { Timeline } from './Timeline'
 import { A } from './strings'
@@ -17,6 +19,7 @@ export function ClassRecordPage() {
           <span className="admin-label">{A.titles.klass}</span>
           <h1 className="admin-strong text-sm font-bold">{c.facts.name}</h1>
           <span className="text-[var(--a-muted)]">{c.facts.term ?? ''}</span>
+          {c.facts.archived_at ? <Badge>{A.klass.archivedBadge}</Badge> : null}
           <span className="flex-1" />
           <span>{A.klass.owner} {c.facts.owner ?? A.klass.unknown}</span>
         </>
@@ -53,6 +56,8 @@ export function ClassRecordPage() {
           <div>{A.klass.students} {c.funnel.students}</div>
           <div>{A.klass.answeredLive} {c.funnel.answered_live}</div>
           <div>{A.klass.practiced7d} {c.funnel.practiced_7d}</div>
+          <div className="admin-label mt-3">{A.klass.actions}</div>
+          <ClassActions key={c.facts.cohort_id} facts={c.facts} />
         </>
       }
     />

@@ -194,6 +194,27 @@ export const A = {
     owner: 'owner',
     unknown: 'unknown',
     joined: 'joined',
+
+    actions: 'Actions',
+    archivedBadge: 'Archived',
+    archivedNote: (when: string, by: string | null) =>
+      `Archived ${when}${by ? ` by ${by}` : ''}. Hidden from the console and from its instructors' class list. Nothing is deleted.`,
+    archive: 'Archive class',
+    archiveHint:
+      'Hides it from the home, the class lists and the numbers. Members stay enrolled and nothing is deleted. You can restore it.',
+    archiveConfirm: (name: string) => `Archive ${name}?`,
+    archiveGroup: 'Confirm archiving the class',
+    archiveYes: 'Archive',
+    restore: 'Restore class',
+    deleteTitle: 'Delete permanently',
+    deleteBody:
+      'Removes the class, its enrolments, live sessions with their answers, saved sessions and messages. Students keep their own practice. This cannot be undone.',
+    deleteLabel: (name: string) => `Type ${name} to confirm`,
+    deleteYes: 'Delete permanently',
+    deleting: 'Deleting',
+    deleted: (name: string) => `${name} was deleted permanently.`,
+    cancel: 'Cancel',
+    backHome: 'Back to the console home',
   },
 
   session: {
@@ -264,4 +285,7 @@ export const AUDIT_ACTIONS = [
   'faculty_revoked',
   'invite_minted',
   'invite_revoked',
+  'class_archived',
+  'class_restored',
+  'class_deleted',
 ] as const

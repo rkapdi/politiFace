@@ -132,6 +132,10 @@ export type ClassRecord = {
     created_at: string
     reporting_resolution: string | null
     is_demo: boolean
+    /** Set when an admin archived the class; it is then left out of every list. */
+    archived_at?: string | null
+    /** The archiving admin's handle. */
+    archived_by?: string | null
   }
   members: {
     user_id: string
@@ -364,6 +368,28 @@ export const useMintInvite = () => {
         p_recipient_email: a.recipientEmail || null,
       }),
     onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin', 'invites'] }),
+  })
+}
+// Archiving hides a class from every list without deleting anything;
+// restoring brings it back. Both refresh the console's lists.
+export const useArchiveClass = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { cohortId: string; archive: boolean }) =>
+      call<{ cohort_id: string; archived_at: string | null }>('admin_archive_class', {
+        p_cohort: a.cohortId,
+        p_archive: a.archive,
+      }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin'] }),
+  })
+}
+// Only an archived class can be deleted, and only with its exact name.
+export const useDeleteClass = () => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (a: { cohortId: string; confirmName: string }) =>
+      call<void>('admin_delete_class', { p_cohort: a.cohortId, p_confirm_name: a.confirmName }),
+    onSuccess: () => void qc.invalidateQueries({ queryKey: ['admin'] }),
   })
 }
 export const useRevokeInvite = () => {
