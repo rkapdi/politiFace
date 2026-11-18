@@ -128,6 +128,12 @@ const FRIENDLY: Record<string, string> = {
     S.errors.tooManyMessages,
   'daily message limit reached for this class': S.errors.dailyMessageLimit,
   'message is too long (240 characters max)': S.errors.messageTooLong,
+  // Archiving and deleting classes (admin console).
+  'archive the class before deleting it': S.errors.classNotArchived,
+  'type the class name exactly to delete it': S.errors.classNameMismatch,
+  "end the class's live session before deleting it": S.errors.classLiveOpen,
+  'this class has questions of its own and cannot be deleted': S.errors.classOwnQuestions,
+  'no such class': S.errors.noSuchClass,
   // Saved live sessions (see lib/liveDrafts.ts).
   'the title must be 3 to 80 characters': S.errors.sessionTitle,
   'the title cannot contain a course number': S.errors.courseIdentifier,

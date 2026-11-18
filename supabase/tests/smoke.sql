@@ -3421,5 +3421,157 @@ begin
   end;
 end $$;
 
+
+-- ── archiving and deleting classes ─────────────────────────────────────────
+-- A class made for this test: one faculty (f_uid, also an admin), one
+-- student with a practice answer, one ended live session.
+reset role;
+set role authenticated;
+set app.test_uid = :f_uid;
+insert into public.cohorts (name, term, created_by)
+values ('Archive Me', '2026F', :f_uid);
+select id as arch_id, join_code as arch_code from public.cohorts
+ where name = 'Archive Me' \gset
+set app.test_uid = :s2_uid;
+select public.join_cohort(:'arch_code') as arch_joined \gset
+
+reset role;
+-- A practice answer in the class, written as the server would.
+insert into public.events (event_id, user_id, cohort_id, type, question_id,
+                           chosen_key, correct, client_ts)
+select gen_random_uuid(), :s2_uid, :'arch_id', 'answer', q.id, 'A', false, now()
+  from public.questions q where q.cohort_id is null and q.review_status = 'published'
+ limit 1;
+
+set role authenticated;
+set app.test_uid = :s2_uid;
+do $$
+begin
+  begin
+    perform public.admin_archive_class(
+      (select id from public.cohorts where name = 'Archive Me'), true);
+    raise exception 'FAIL: a student archived a class';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%admin only%' then
+      raise exception 'FAIL: archive raised the wrong error: %', sqlerrm;
+    end if;
+  end;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_id uuid := (select id from public.cohorts where name = 'Archive Me');
+  r jsonb;
+  h jsonb;
+  p jsonb;
+  n_before int;
+begin
+  -- Listed everywhere before archiving.
+  h := public.admin_home();
+  n_before := (h -> 'totals' ->> 'classes')::int;
+  if not exists (select 1 from jsonb_array_elements(h -> 'funnel') f
+                  where (f ->> 'cohort_id')::uuid = v_id) then
+    raise exception 'FAIL: the new class is missing from admin_home';
+  end if;
+  if not exists (select 1 from public.my_faculty_overview() o where o.cohort_id = v_id) then
+    raise exception 'FAIL: the new class is missing from the instructor list';
+  end if;
+
+  -- Deleting before archiving is refused.
+  begin
+    perform public.admin_delete_class(v_id, 'Archive Me');
+    raise exception 'FAIL: deleted a class that was not archived';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%archive the class before deleting it%' then
+      raise exception 'FAIL: delete raised the wrong error: %', sqlerrm;
+    end if;
+  end;
+
+  r := public.admin_archive_class(v_id, true);
+  if r ->> 'archived_at' is null then
+    raise exception 'FAIL: archive returned no time: %', r;
+  end if;
+
+  -- Gone from the home, the picture and the instructor list.
+  h := public.admin_home();
+  if (h -> 'totals' ->> 'classes')::int <> n_before - 1 then
+    raise exception 'FAIL: archived class still counted: % then %',
+      n_before, h -> 'totals' ->> 'classes';
+  end if;
+  if exists (select 1 from jsonb_array_elements(h -> 'funnel') f
+              where (f ->> 'cohort_id')::uuid = v_id) then
+    raise exception 'FAIL: archived class still in admin_home';
+  end if;
+  p := public.admin_picture();
+  if exists (select 1 from jsonb_array_elements(p -> 'classes') k
+              where (k ->> 'cohort_id')::uuid = v_id) then
+    raise exception 'FAIL: archived class still in admin_picture';
+  end if;
+  if exists (select 1 from public.my_faculty_overview() o where o.cohort_id = v_id) then
+    raise exception 'FAIL: archived class still in the instructor list';
+  end if;
+
+  -- Still found by search, marked, and its record says so.
+  if not exists (select 1 from public.admin_search('Archive Me') x
+                  where x.id = v_id and x.subtitle like 'archived · %') then
+    raise exception 'FAIL: search does not mark the archived class';
+  end if;
+  r := public.admin_class(v_id);
+  if r -> 'facts' ->> 'archived_at' is null or r -> 'facts' ->> 'archived_by' <> 'prof_p' then
+    raise exception 'FAIL: admin_class facts lack the archive: %', r -> 'facts';
+  end if;
+
+  -- Restore brings it back; archive again for the delete checks.
+  r := public.admin_archive_class(v_id, false);
+  if r ->> 'archived_at' is not null
+     or not exists (select 1 from public.my_faculty_overview() o where o.cohort_id = v_id) then
+    raise exception 'FAIL: restore did not bring the class back: %', r;
+  end if;
+  perform public.admin_archive_class(v_id, true);
+
+  -- The name must match exactly.
+  begin
+    perform public.admin_delete_class(v_id, 'archive me');
+    raise exception 'FAIL: deleted with the wrong name';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%type the class name exactly%' then
+      raise exception 'FAIL: delete raised the wrong error: %', sqlerrm;
+    end if;
+  end;
+
+  perform public.admin_delete_class(v_id, '  Archive Me ');
+  if exists (select 1 from public.cohorts where id = v_id) then
+    raise exception 'FAIL: delete left the class behind';
+  end if;
+  if not exists (select 1 from public.admin_audit_list('class_deleted', 10) a
+                  where a.target_cohort = v_id and a.details ->> 'name' = 'Archive Me') then
+    raise exception 'FAIL: delete was not audited';
+  end if;
+  if (select count(*) from public.admin_audit_list(null, 50) a
+       where a.target_cohort = v_id
+         and a.action in ('class_archived', 'class_restored')) < 3 then
+    raise exception 'FAIL: archive and restore were not audited';
+  end if;
+end $$;
+
+-- The student's practice answer survives, without the class; enrolment is gone.
+reset role;
+do $$
+begin
+  if not exists (select 1 from public.events
+                  where user_id = '00000000-0000-0000-0000-000000000002'
+                    and cohort_id is null and type = 'answer') then
+    raise exception 'FAIL: deleting the class lost the student''s practice answer';
+  end if;
+  if exists (select 1 from public.cohort_members m
+              where not exists (select 1 from public.cohorts c where c.id = m.cohort_id)) then
+    raise exception 'FAIL: delete left enrolments without a class';
+  end if;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;

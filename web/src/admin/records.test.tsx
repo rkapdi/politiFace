@@ -8,6 +8,7 @@ vi.mock('@tanstack/react-router', () => ({
     <a href={`#${Object.entries(params ?? {}).reduce((p, [k, v]) => p.replace(`$${k}`, v), to)}`}>{children}</a>
   ),
   useParams: () => ({ userId: 'u1', cohortId: 'c1', sessionId: 's1' }),
+  useNavigate: () => vi.fn(),
 }))
 const timeline = [
   { at: '2026-10-04T11:06:00Z', kind: 'live_answers', title: '3 of 4 correct in Week 3 review', detail: null, severity: 'info' },
@@ -53,6 +54,8 @@ vi.mock('./adminApi', () => ({
     error: null,
   }),
   useSetFaculty: () => ({ mutate: m.setFaculty, isPending: false, error: null }),
+  useArchiveClass: () => ({ mutate: vi.fn(), reset: vi.fn(), isPending: false, error: null }),
+  useDeleteClass: () => ({ mutate: vi.fn(), reset: vi.fn(), isPending: false, error: null }),
 }))
 
 import { PersonPage } from './PersonPage'

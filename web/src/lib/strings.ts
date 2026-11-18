@@ -48,6 +48,12 @@ export const S = {
     youTeach: 'You teach this class. Run the session from your console instead.',
     courseIdentifier:
       "Use a neutral name like 'Rivera · Section A'. Course codes, section and CRN numbers aren't allowed.",
+    classNotArchived: 'Archive the class before deleting it.',
+    classNameMismatch: 'Type the class name exactly as shown to delete it.',
+    classLiveOpen: 'This class has a live session running. End it before deleting the class.',
+    classOwnQuestions:
+      "This class has questions of its own, which are part of students' answer history, so it cannot be deleted. Keep it archived.",
+    noSuchClass: 'That class no longer exists.',
     heldOutQuestions:
       'Some selected questions are reserved for an upcoming retention check. Remove them and start the session again.',
     sessionTitle: 'The session title must be 3 to 80 characters.',
