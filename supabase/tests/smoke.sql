@@ -3248,5 +3248,178 @@ begin
   end if;
 end $$;
 
+-- ── saved live sessions (20261117000100) ────────────────────────────────────
+-- A student cannot save, list, start or delete one.
+set role authenticated;
+set app.test_uid = :s1_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_q jsonb := (select jsonb_agg(id) from (select id from public.questions
+                  where cohort_id is null and review_status = 'published'
+                  order by id limit 3) q);
+begin
+  begin
+    perform public.save_live_session_draft(v_cohort, 'Week three review', v_q);
+    raise exception 'FAIL: a student saved a live session';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.live_session_drafts(v_cohort);
+    raise exception 'FAIL: a student listed saved live sessions';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
+set app.test_uid = :f_uid;
+do $$
+declare
+  v_cohort uuid := (select id from public.cohorts where name = 'Civics Section A');
+  v_q jsonb := (select jsonb_agg(id) from (select id from public.questions
+                  where cohort_id is null and review_status = 'published'
+                  order by id limit 3) q);
+  v_before int := (select count(*) from public.live_sessions where cohort_id = v_cohort);
+  r jsonb;
+  l jsonb;
+  v_planned uuid;
+  v_other uuid;
+  v_live uuid;
+begin
+  -- What a saved session must have.
+  begin
+    perform public.save_live_session_draft(v_cohort, 'ab', v_q);
+    raise exception 'FAIL: saved with a two-letter title';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.save_live_session_draft(v_cohort, 'POS 2041 week 3', v_q);
+    raise exception 'FAIL: saved with a course number in the title';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%course number%' then
+      raise exception 'FAIL: wrong error for a course number: %', sqlerrm;
+    end if;
+  end;
+  begin
+    perform public.save_live_session_draft(v_cohort, 'Week three review', '[]'::jsonb);
+    raise exception 'FAIL: saved with no questions';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.save_live_session_draft(v_cohort, 'Week three review',
+      v_q || jsonb_build_array(v_q -> 0));
+    raise exception 'FAIL: saved with a question repeated';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.save_live_session_draft(v_cohort, 'Week three review',
+      jsonb_build_array('00000000-0000-0000-0000-00000000dead'));
+    raise exception 'FAIL: saved with an unknown question';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  begin
+    perform public.save_live_session_draft(v_cohort, 'Week three review', v_q, 3);
+    raise exception 'FAIL: saved with a three second timer';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+
+  -- Saved, with a planned time. Nothing goes live.
+  r := public.save_live_session_draft(v_cohort, '  Week three review  ', v_q, 25,
+         false, now() + interval '2 days');
+  v_planned := (r ->> 'id')::uuid;
+  if v_planned is null or (r ->> 'question_count')::int <> 3
+     or (r ->> 'locked_now')::int <> 0 then
+    raise exception 'FAIL: save result wrong: %', r;
+  end if;
+  if (select count(*) from public.live_sessions where cohort_id = v_cohort) <> v_before then
+    raise exception 'FAIL: saving a session opened a live one';
+  end if;
+
+  -- A second one with no planned time sorts after the planned one.
+  r := public.save_live_session_draft(v_cohort, 'Spare quiz', v_q);
+  v_other := (r ->> 'id')::uuid;
+  l := public.live_session_drafts(v_cohort);
+  if jsonb_array_length(l) <> 2
+     or (l -> 0 ->> 'id')::uuid <> v_planned
+     or l -> 0 ->> 'title' <> 'Week three review'
+     or (l -> 0 ->> 'question_seconds')::int <> 25
+     or l -> 0 -> 'planned_for' = 'null'::jsonb
+     or (l -> 0 ->> 'question_count')::int <> 3 then
+    raise exception 'FAIL: saved sessions list wrong: %', l;
+  end if;
+
+  -- Edit it.
+  r := public.save_live_session_draft(v_cohort, 'Week three review, part two',
+         v_q, 30, false, null, v_planned);
+  if (r ->> 'id')::uuid <> v_planned then
+    raise exception 'FAIL: an edit made a new saved session: %', r;
+  end if;
+  l := public.live_session_drafts(v_cohort);
+  if jsonb_array_length(l) <> 2
+     or not exists (select 1 from jsonb_array_elements(l) e
+                     where (e ->> 'id')::uuid = v_planned
+                       and e ->> 'title' = 'Week three review, part two'
+                       and (e ->> 'question_seconds')::int = 30) then
+    raise exception 'FAIL: the edit was not saved: %', l;
+  end if;
+
+  -- Start it: one lobby, with what was saved.
+  r := public.start_live_session_draft(v_planned);
+  v_live := (r ->> 'id')::uuid;
+  if v_live is null or coalesce(r ->> 'join_code', '') = ''
+     or (r ->> 'draft_id')::uuid <> v_planned then
+    raise exception 'FAIL: start result wrong: %', r;
+  end if;
+  if not exists (select 1 from public.live_sessions s
+                  where s.id = v_live and s.status = 'lobby'
+                    and s.title = 'Week three review, part two'
+                    and s.question_seconds = 30
+                    and s.question_ids = v_q) then
+    raise exception 'FAIL: the live session does not match what was saved';
+  end if;
+  if (select count(*) from public.live_sessions where cohort_id = v_cohort) <> v_before + 1 then
+    raise exception 'FAIL: starting opened more than one live session';
+  end if;
+
+  -- It cannot be started or edited twice, and leaves the default list.
+  begin
+    perform public.start_live_session_draft(v_planned);
+    raise exception 'FAIL: a saved session was started twice';
+  exception when others then
+    if sqlerrm like 'FAIL:%' then raise; end if;
+    if sqlerrm not like '%already started%' then
+      raise exception 'FAIL: wrong error for a second start: %', sqlerrm;
+    end if;
+  end;
+  begin
+    perform public.save_live_session_draft(v_cohort, 'Changed after the fact',
+      v_q, 20, false, null, v_planned);
+    raise exception 'FAIL: a started saved session was edited';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+  l := public.live_session_drafts(v_cohort);
+  if jsonb_array_length(l) <> 1 or (l -> 0 ->> 'id')::uuid <> v_other then
+    raise exception 'FAIL: a started session is still in the list: %', l;
+  end if;
+  l := public.live_session_drafts(v_cohort, true);
+  if not exists (select 1 from jsonb_array_elements(l) e
+                  where (e ->> 'id')::uuid = v_planned
+                    and (e ->> 'started_session')::uuid = v_live) then
+    raise exception 'FAIL: the started session is missing from the full list: %', l;
+  end if;
+
+  -- Tidy up: end the lobby, delete the other saved session.
+  perform public.end_live_session(v_live);
+  perform public.delete_live_session_draft(v_other);
+  if jsonb_array_length(public.live_session_drafts(v_cohort)) <> 0 then
+    raise exception 'FAIL: delete left a saved session behind';
+  end if;
+  begin
+    perform public.delete_live_session_draft(v_other);
+    raise exception 'FAIL: deleted a saved session twice';
+  exception when others then if sqlerrm like 'FAIL:%' then raise; end if;
+  end;
+end $$;
+
 reset role;
 select 'SMOKE TEST PASSED' as result;
