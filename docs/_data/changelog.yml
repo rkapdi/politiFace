@@ -19,6 +19,16 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-11-18-saved-live-sessions
+  date: 2026-11-18
+  platform: Web
+  title: Save a live session for later
+  items:
+    - Instructors can set up a live session in advance and save it, with an optional planned date and time, then start it from the class's Live tab when class begins.
+    - Saved sessions are shared by everyone who teaches the class, and can be edited or deleted. Students cannot see one until it is started.
+    - A saved session whose questions are reserved for a retention check says so and cannot be started until the check ends or the questions are swapped.
+    - Saving appears in the console once the matching server update is live. Until then the Live tab works as before.
+
 - id: website-2026-11-17-privacy-policy
   date: 2026-11-17
   platform: Website

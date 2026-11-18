@@ -8,6 +8,16 @@ const role = vi.hoisted(() => ({
   sendError: null as null | Error,
 }))
 
+// Saved sessions are covered in components/savedSessions.test.tsx; here the
+// server does not have them, which is how the tab behaved before.
+vi.mock('../lib/liveDrafts', () => ({
+  toLocalInput: () => '',
+  fromLocalInput: () => null,
+  useSavedSessions: () => ({ data: null, isPending: false, error: null }),
+  useSaveSession: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+  useStartSavedSession: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+  useDeleteSavedSession: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+}))
 vi.mock('../lib/api', () => ({
   useOwnQuestions: () => ({ data: [], isPending: false, error: null }),
   useCohortOverview: () => ({
