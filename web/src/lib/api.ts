@@ -128,6 +128,16 @@ const FRIENDLY: Record<string, string> = {
     S.errors.tooManyMessages,
   'daily message limit reached for this class': S.errors.dailyMessageLimit,
   'message is too long (240 characters max)': S.errors.messageTooLong,
+  // Saved live sessions (see lib/liveDrafts.ts).
+  'the title must be 3 to 80 characters': S.errors.sessionTitle,
+  'the title cannot contain a course number': S.errors.courseIdentifier,
+  'a session needs 1 to 50 questions': S.errors.sessionQuestionCount,
+  'the timer must be 5 to 120 seconds': S.errors.sessionTimer,
+  'question list contains unknown, unpublished, repeated, or foreign-cohort questions':
+    S.errors.sessionQuestionsGone,
+  'no such saved session, or it was already started': S.errors.savedGone,
+  'this saved session was already started': S.errors.savedAlreadyStarted,
+  'no such saved session': S.errors.savedMissing,
 }
 
 export function friendlyMessage(error: { message: string }): string {

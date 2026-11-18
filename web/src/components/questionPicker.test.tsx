@@ -24,6 +24,11 @@ vi.mock('../lib/api', () => ({
   useOwnQuestions: () => ({ data: [], isPending: false, error: null }),
 }))
 
+vi.mock('../lib/liveDrafts', () => ({
+  fromLocalInput: () => null,
+  useSaveSession: () => ({ mutate: vi.fn(), isPending: false, error: null }),
+}))
+
 import { QuestionPicker } from './QuestionPicker'
 import { emptyLiveDraft } from './LiveTab'
 

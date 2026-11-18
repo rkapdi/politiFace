@@ -50,6 +50,14 @@ export const S = {
       "Use a neutral name like 'Rivera · Section A'. Course codes, section and CRN numbers aren't allowed.",
     heldOutQuestions:
       'Some selected questions are reserved for an upcoming retention check. Remove them and start the session again.',
+    sessionTitle: 'The session title must be 3 to 80 characters.',
+    sessionQuestionCount: 'A session needs 1 to 50 questions.',
+    sessionTimer: 'The timer must be 5 to 120 seconds.',
+    sessionQuestionsGone:
+      'Some of these questions are no longer available. Remove them and try again.',
+    savedGone: 'That saved session is gone or was already started.',
+    savedAlreadyStarted: 'That saved session was already started. Look under Past sessions.',
+    savedMissing: 'That saved session no longer exists.',
   },
   empty: {
     classesTitle: 'No classes yet',
@@ -249,6 +257,44 @@ export const S = {
     incorrect: 'incorrect',
     unanswered: 'no answer',
     answeredOf: (n: number) => `${n} answered`,
+
+    // Saved sessions: prepared in advance, started later.
+    saveForLater: 'Save for later',
+    saveChanges: 'Save changes',
+    saving: 'Saving',
+    plannedFor: 'Planned for (optional)',
+    plannedHint: 'A label for your saved list. Nothing starts by itself.',
+    editingSaved: 'Editing a saved session. Save your changes, then start it from the list.',
+    savedNotice: 'Saved. Start it from Saved sessions when you are ready.',
+    savedTitle: 'Saved sessions',
+    savedIntro: 'Prepared in advance. Students cannot see one until you start it.',
+    savedEmptyTitle: 'Nothing saved yet',
+    savedEmptyHint: 'Set a session up and choose Save for later.',
+    savedMeta: (questions: number, seconds: number) =>
+      `${questions} ${questions === 1 ? 'question' : 'questions'}, ${seconds} seconds each`,
+    guestsAllowed: 'guests allowed',
+    planned: (when: string) => `Planned for ${when}`,
+    noDate: 'No date set',
+    savedBy: (handle: string) => `saved by ${handle}`,
+    locked: (n: number) =>
+      n === 1
+        ? '1 question is reserved for a retention check. This session cannot start until the check ends or you swap the question.'
+        : `${n} questions are reserved for a retention check. This session cannot start until the check ends or you swap them.`,
+    startSaved: 'Start',
+    starting: 'Starting',
+    editSaved: 'Edit',
+    editingBadge: 'editing',
+    deleteSaved: 'Delete',
+    deleteConfirm: (title: string) => `Delete the saved session "${title}"?`,
+    deleteGroup: 'Confirm deleting the saved session',
+    deleteYes: 'Delete',
+    deleteNo: 'Keep',
+    actionsFor: (title: string) => `Actions for ${title}`,
+    goneQuestions: (n: number) =>
+      n === 1
+        ? '1 question in this session is no longer in the question bank.'
+        : `${n} questions in this session are no longer in the question bank.`,
+    removeGone: 'Remove from the session',
   },
   join: {
     title: 'Join a live session',
