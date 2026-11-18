@@ -5,6 +5,7 @@ import { Badge } from '../components/ui'
 import {
   isUnverifiedSignin,
   useAdminActivity,
+  useAdminAudit,
   useAdminHome,
   useAdminOnline,
   useAdminPicture,
@@ -351,6 +352,8 @@ function Decisions({ home, picture }: { home: Home; picture: AdminPicture | unde
 export function AdminHome() {
   const home = useAdminHome()
   const picture = useAdminPicture()
+  // Names the staff actions in the picture's day summaries.
+  const audit = useAdminAudit()
   if (home.isPending) return <p>{A.loading}</p>
   if (home.error || !home.data) return <p className="sev-fail">{home.error?.message}</p>
   const h = home.data
@@ -368,7 +371,7 @@ export function AdminHome() {
             <p className="text-xs text-ink-3">{A.home.pictureSub}</p>
           </div>
           {picture.data ? (
-            <Picture picture={picture.data} />
+            <Picture picture={picture.data} audit={audit.data} />
           ) : (
             <p className="text-ink-3" title={picture.error?.message}>
               {picture.isPending ? A.loading : A.home.pictureUnavailable}

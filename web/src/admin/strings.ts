@@ -111,6 +111,29 @@ export const A = {
       `On track: ${first}% to ${last}% over ${days} days.`,
     onTrackNoHistory: (pct: number) =>
       `${pct}% today. The trend starts with the first daily snapshot.`,
+    // Day summaries on the operating picture (hover, tap or arrow keys).
+    tipAnswers: (n: number, people: number) =>
+      n === 0
+        ? 'No practice answers'
+        : `${n.toLocaleString('en-US')} ${n === 1 ? 'answer' : 'answers'} from ${people} ${people === 1 ? 'student' : 'students'}`,
+    tipLive: (n: number) =>
+      n === 0 ? 'No live session started' : n === 1 ? '1 live session started' : `${n} live sessions started`,
+    tipOnTrack: (pct: number, onTrack: number, students: number) =>
+      `${pct}%, ${onTrack} of ${students} students above the pass line`,
+    tipOnTrackNone: 'No snapshot that day',
+    tipActions: (n: number, detail: string) =>
+      n === 0 ? 'No staff actions' : `${n} staff ${n === 1 ? 'action' : 'actions'}${detail ? `: ${detail}` : ''}`,
+    laneHelp: {
+      answers:
+        'Practice and review answers by students in real classes. Demo and archived classes are left out.',
+      live: 'Live sessions instructors started in real classes.',
+      onTrack:
+        'Share of students projected at 48 of 80 or more, from the nightly snapshot. Today uses the live number.',
+      actions:
+        'Changes staff made in this console, such as approvals, invites and archiving. Opening the console is not counted.',
+    },
+    pictureKeys:
+      'Operating picture by day. Use the left and right arrow keys to read each day, and up and down to change lane.',
     unitAnswers: 'answers',
     unitSessions: 'live sessions',
     unitActions: 'actions',
@@ -274,6 +297,19 @@ export const A = {
     actorFilterLabel: 'Actor',
     actorFilterAll: 'All actors',
   },
+}
+
+/** Audit actions in words, singular and plural, for the day summaries. */
+export const ACTION_WORDS: Record<string, [string, string]> = {
+  faculty_granted: ['instructor approved', 'instructors approved'],
+  faculty_revoked: ['instructor access removed', 'instructor access removals'],
+  invite_minted: ['invite created', 'invites created'],
+  invite_revoked: ['invite revoked', 'invites revoked'],
+  class_archived: ['class archived', 'classes archived'],
+  class_restored: ['class restored', 'classes restored'],
+  class_deleted: ['class deleted', 'classes deleted'],
+  breaking_publish: ['item published', 'items published'],
+  breaking_retract: ['item retracted', 'items retracted'],
 }
 
 // The admin-writable action kinds app.audit() records, for the audit

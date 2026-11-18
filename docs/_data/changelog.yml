@@ -19,6 +19,14 @@
 #
 # Public page: no em-dashes, no people, schools, or plans.
 
+- id: web-2026-11-18-picture-day-summaries
+  date: 2026-11-18
+  platform: Web
+  title: Day summaries on the admin console's operating picture
+  items:
+    - Pointing at, tapping or moving with the arrow keys to any day on the operating picture now shows that day's answers, live sessions, on-track share and staff actions together.
+    - Each summary says what the lane under the pointer counts, and names the staff actions taken that day.
+
 - id: web-2026-11-18-archive-classes
   date: 2026-11-18
   platform: Web

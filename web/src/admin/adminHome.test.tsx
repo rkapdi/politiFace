@@ -73,6 +73,7 @@ vi.mock('./adminApi', () => ({
     isPending: false,
     error: null,
   }),
+  useAdminAudit: () => ({ data: [] }),
   useAdminPicture: () => ({
     data: h.picture,
     isPending: false,
